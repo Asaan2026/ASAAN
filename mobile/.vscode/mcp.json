@@ -1,0 +1,35 @@
+{
+  "servers": {
+    "playwright-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@0.0.43",
+        "--isolated"
+      ],
+      "env": {}
+    },
+    "mobile-mcp": {
+      "command": "npx",
+      "args": ["-y", "@mobilenext/mobile-mcp@latest"]
+    },
+    "dart-mcp-server": {
+      "command": "dart",
+      "args": [
+        "mcp-server",
+        "--force-roots-fallback"
+      ],
+      "env": {
+        "DTD_URI": "${input:dtdUri}"
+      }
+    }
+  },
+  "inputs": [
+    {
+      "id": "dtdUri",
+      "type": "promptString",
+      "description": "Dart Tooling Daemon (DTD) URI (run 'Dart: Copy DTD Uri to Clipboard' then paste).",
+      "default": "ws://127.0.0.1:51953/ROTVhJanxDc="
+    }
+  ]
+}
