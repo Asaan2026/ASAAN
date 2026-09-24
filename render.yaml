@@ -5,10 +5,10 @@ services:
     plan: free
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    healthCheckPath: /
+    healthCheckPath: /robots.txt
     envVars:
       - key: APP_NAME
-        value: Cartxis
+        value: Akbari Development Group
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
@@ -16,18 +16,16 @@ services:
       - key: APP_URL
         sync: false
       - key: DB_CONNECTION
-        value: mysql
+        value: pgsql
       - key: DB_HOST
         sync: false
       - key: DB_PORT
-        value: "3306"
+        sync: false
       - key: DB_DATABASE
         sync: false
       - key: DB_USERNAME
         sync: false
       - key: DB_PASSWORD
-        sync: false
-      - key: MYSQL_ATTR_SSL_CA
         sync: false
       - key: CARTXIS_ADMIN_NAME
         sync: false
@@ -35,8 +33,6 @@ services:
         sync: false
       - key: CARTXIS_ADMIN_PASSWORD
         sync: false
-      - key: MYSQL_ATTR_SSL_CA
-        value: /etc/ssl/certs/ca-certificates.crt
       - key: CARTXIS_THEME_DIRECTORY_URL
         value: https://cartxis.com/api
       - key: CARTXIS_THEME_API_KEY

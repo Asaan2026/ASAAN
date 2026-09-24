@@ -5,6 +5,8 @@ use App\Http\Middleware\FrontendMaintenanceMode;
 use App\Http\Middleware\HandleInertiaRequests;
 use Cartxis\Admin\Http\Middleware\PreventAdminFrontendAccess;
 use Cartxis\Admin\Http\Middleware\PreventUserAdminAccess;
+use Cartxis\Sales\Http\Middleware\EnsureDeliveryRole;
+use Cartxis\Sales\Http\Middleware\RedirectIfDeliveryAuthenticated;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -29,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->trustProxies(headers: Request::HEADER_X_FORWARDED_PROTO);
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         $middleware->web(append: [
@@ -44,12 +47,17 @@ return Application::configure(basePath: dirname(__DIR__))
         // Add middleware to admin routes to prevent regular users
         $middleware->alias([
             'prevent.user.admin' => PreventUserAdminAccess::class,
+            'delivery.access' => EnsureDeliveryRole::class,
+            'redirectIfDeliveryAuthenticated' => RedirectIfDeliveryAuthenticated::class,
         ]);
 
         // Redirect guests based on the guard
         $middleware->redirectGuestsTo(function ($request) {
             if ($request->is('admin/*')) {
                 return route('admin.login');
+            }
+            if ($request->is('delivery/*')) {
+                return route('delivery.login');
             }
             return route('login');
         });
