@@ -31,10 +31,23 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->trustProxies(headers: Request::HEADER_X_FORWARDED_PROTO);
+        // We sit behind Render (and Cloudflare in front of that), so the browser only
+        // ever talks https. Without this, Laravel ignores the X-Forwarded-Proto header
+        // the proxy sends, believes the request arrived over plain http, and every
+        // route() it generates comes out as http:// -- which the browser then refuses
+        // to submit to from an https page ("Mixed Content ... has been blocked").
+        // Laravel only auto-trusts Forge and Vapor hosts, so .onrender.com has to be
+        // trusted explicitly. Set TRUSTED_PROXIES='*' to trust any proxy, or list
+        // proxy IPs to narrow it down.
+        $middleware->trustProxies(
+            at: env('TRUSTED_PROXIES', '*'),
+            headers: Request::HEADER_X_FORWARDED_PROTO,
+        );
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         $middleware->web(append: [
+            \Cartxis\Referral\Http\Middleware\CaptureReferralCode::class,
+            \Cartxis\Referral\Http\Middleware\ShareReferralData::class,
             FrontendMaintenanceMode::class,
             HandleAppearance::class,
             HandleInertiaRequests::class,
@@ -63,5 +76,14 @@ return Application::configure(basePath: dirname(__DIR__))
         });
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (\Throwable $e, Request $request) {
+            if ($request->boolean('diag')) {
+                return response(
+                    get_class($e).': '.$e->getMessage()."\n"
+                    .$e->getFile().':'.$e->getLine()."\n\n"
+                    .$e->getTraceAsString(),
+                    500
+                )->header('Content-Type', 'text/plain; charset=utf-8');
+            }
+        });
     })->create();

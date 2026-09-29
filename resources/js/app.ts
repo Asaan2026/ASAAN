@@ -8,6 +8,8 @@ import { createApp, h } from 'vue';
 import { createPinia } from 'pinia';
 import { initializeTheme } from './composables/useAppearance';
 import { resolveTemplatePage } from './lib/resolveTemplatePage';
+import { useI18nStore } from './Stores/i18n';
+import { installUnsavedTracker, snapshotPage } from './lib/unsavedGuard';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 const pinia = createPinia();
@@ -46,10 +48,19 @@ createInertiaApp({
         )
     },
     setup({ el, App, props, plugin }) {
-        createApp({ render: () => h(App, props) })
+        const app = createApp({ render: () => h(App, props) })
             .use(plugin)
-            .use(pinia)
-            .mount(el);
+            .use(pinia);
+
+        // Make the translation helper available in every template as $t(...).
+        const i18n = useI18nStore();
+        app.config.globalProperties.$t = i18n.t;
+
+        // Track unsaved form typing on every page so actions like switching the
+        // language (which reloads the page) can warn before discarding input.
+        requestAnimationFrame(() => installUnsavedTracker());
+
+        app.mount(el);
     },
     progress: {
         color: '#4B5563',
@@ -84,4 +95,12 @@ router.on('navigate', (event) => {
         // 2. Inject into Axios defaults so every Inertia XHR carries the header
         axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
     }
+});
+
+// After each successful page render, re-baseline the unsaved-changes tracker so
+// only edits made by the visitor count as unsaved.
+router.on('success', () => {
+    import('./lib/unsavedGuard').then(({ snapshotPage }) => {
+        snapshotPage();
+    });
 });

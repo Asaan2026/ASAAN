@@ -10,12 +10,12 @@ MYSQL_ATTR_SSL_CA="${MYSQL_ATTR_SSL_CA-/etc/ssl/certs/ca-certificates.crt}"
 {
     echo "APP_NAME=\"${APP_NAME:-Akbari Development Group}\""
     echo "APP_ENV=production"
-    echo "APP_DEBUG=false"
+    echo "APP_DEBUG=${APP_DEBUG:-false}"
     echo "APP_URL=${APP_URL:-http://localhost}"
     echo "ASSET_URL=${ASSET_URL:-}"
     echo "APP_VERSION=${APP_VERSION:-1.0.14}"
     echo "APP_KEY=${APP_KEY:-base64:$(openssl rand -base64 32)}"
-    echo "APP_LOCALE=${APP_LOCALE:-en}"
+    echo "APP_LOCALE=${APP_LOCALE:-fa}"
     echo "APP_FALLBACK_LOCALE=${APP_FALLBACK_LOCALE:-en}"
     echo "APP_MAINTENANCE_DRIVER=file"
     echo "PHP_CLI_SERVER_WORKERS=4"
@@ -110,8 +110,10 @@ fi
 
 # One-time provisioning for PostgreSQL databases (pgsql driver). Runs in the
 # background so nginx/php-fpm boot instantly and Render's port scan passes even on
-# a genuinely fresh render.PostgreSQL. It only provisions when the database has no
-# migrations table yet (i.e. completely new), so a plain redeploy never re-runs it.
+# a genuinely fresh render.PostgreSQL. A brand-new database (no migrations table)
+# gets a full migrate + seed; any subsequent boot just applies pending migrations,
+# so new columns/tables such as the Pashto/English locales reach production on
+# their own during a normal redeploy.
 if [ "${DB_CONNECTION:-mysql}" = "pgsql" ] && [ "${RUN_MIGRATE:-0}" = "1" ]; then
     (
         CHECK_PHP=$(cat <<'PHPEOF'
@@ -145,7 +147,14 @@ PHPEOF
                 php artisan migrate --force --seed 2>&1
             fi
         else
-            echo "[entrypoint] Database already provisioned (or check errored) - skipping setup"
+            echo "[entrypoint] Database already provisioned - applying pending migrations only..."
+            if timeout 900 php artisan migrate --force 2>&1; then
+                echo "[entrypoint] Pending migrations applied"
+            else
+                echo "[entrypoint] Migration step failed - retrying once after 30s..."
+                sleep 30
+                php artisan migrate --force 2>&1 || true
+            fi
         fi
     ) &
 fi
@@ -200,7 +209,19 @@ sed -i "s|^pm.max_children = 5|pm.max_children = ${FPM_MAX_CHILDREN:-10}|" "$FPM
     fi
 } >> "$FPM_POOL"
 
-# Bind nginx to the platform-provided PORT (default 80) so the image is portable across
+  # Raise PHP's own upload/post ceilings. The image ships none of these, so PHP
+  # falls back to upload_max_filesize=2M and post_max_size=8M. Anything larger is
+  # dropped silently (the file just arrives empty) or truncates the whole POST.
+  # Kept in step with client_max_body_size in the vhost below, because whichever
+  # limit is lower is the one that actually rejects the request.
+  cat > /usr/local/etc/php/conf.d/zz-upload-limits.ini <<'EOF'
+  upload_max_filesize = 20M
+  post_max_size = 20M
+  max_file_uploads = 40
+  max_input_vars = 5000
+  EOF
+
+  # Bind nginx to the platform-provided PORT (default 80) so the image is portable across
 # hosts: Koyeb/Railway default 80, Hugging Face Spaces requires 7860, etc.
 # A plain sed over the stock Debian vhost is fragile (`listen 80 default_server;`, not
 # `listen 80;`), so write our own vhost and substitute the port via a placeholder
@@ -209,9 +230,17 @@ cat > /etc/nginx/sites-available/default <<'EOF'
 server {
     listen __PORT__ default_server;
     server_name _;
-    root /var/www/html/public;
-    index index.php;
-    charset utf-8;
+      root /var/www/html/public;
+      index index.php;
+      charset utf-8;
+  
+      # This vhost is generated here and overwrites the nginx.conf copied in by the
+      # Dockerfile, so any body-size limit has to be set in this block. Without it
+      # nginx uses its 1M default and answers "413 Request Entity Too Large" before
+      # PHP is reached, which is why saving General Settings with a logo attached
+      # failed and discarded every other field in the same form.
+      client_max_body_size 20m;
+  
 
     location / {
         try_files $uri $uri/ /index.php?$query_string;
