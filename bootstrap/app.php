@@ -3,6 +3,7 @@
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\FrontendMaintenanceMode;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\SetLocaleFromCookie;
 use Cartxis\Admin\Http\Middleware\PreventAdminFrontendAccess;
 use Cartxis\Admin\Http\Middleware\PreventUserAdminAccess;
 use Cartxis\Sales\Http\Middleware\EnsureDeliveryRole;
@@ -46,6 +47,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         $middleware->web(append: [
+            SetLocaleFromCookie::class,
             \Cartxis\Referral\Http\Middleware\CaptureReferralCode::class,
             \Cartxis\Referral\Http\Middleware\ShareReferralData::class,
             FrontendMaintenanceMode::class,
@@ -76,14 +78,5 @@ return Application::configure(basePath: dirname(__DIR__))
         });
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->render(function (\Throwable $e, Request $request) {
-            if ($request->boolean('diag')) {
-                return response(
-                    get_class($e).': '.$e->getMessage()."\n"
-                    .$e->getFile().':'.$e->getLine()."\n\n"
-                    .$e->getTraceAsString(),
-                    500
-                )->header('Content-Type', 'text/plain; charset=utf-8');
-            }
-        });
+        //
     })->create();
