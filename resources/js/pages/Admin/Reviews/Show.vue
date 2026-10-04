@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { router, Link, Head } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
+import DateDisplay from '@/components/Calendar/DateDisplay.vue';
 import ConfirmDeleteModal from '@/components/Admin/ConfirmDeleteModal.vue';
 import * as reviewRoutes from '@/routes/admin/catalog/reviews';
 
@@ -178,7 +179,7 @@ function confirmDelete() {
                                                 </svg>
                                             </template>
                                         </div>
-                                        <span class="text-sm text-gray-500">{{ review.created_at }}</span>
+                                        <span class="text-sm text-gray-500"><DateDisplay :value="review.created_at" time /></span>
                                     </div>
                                 </div>
                             </div>
@@ -234,7 +235,7 @@ function confirmDelete() {
                                         <span class="text-sm font-semibold text-gray-900">
                                             {{ review.admin_replier?.name || $t('Admin') }}
                                         </span>
-                                        <span class="text-xs text-gray-500">{{ review.admin_replied_at }}</span>
+                                        <span class="text-xs text-gray-500"><DateDisplay :value="review.admin_replied_at" time /></span>
                                     </div>
                                     <p class="text-sm text-gray-700">{{ review.admin_reply }}</p>
                                 </div>
@@ -335,7 +336,7 @@ function confirmDelete() {
                             </div>
                             <div class="flex items-center justify-between">
                                 <dt class="text-sm text-gray-600">{{ $t('Submitted') }}</dt>
-                                <dd class="text-sm font-medium text-gray-900">{{ review.created_at }}</dd>
+                                <dd class="text-sm font-medium text-gray-900"><DateDisplay :value="review.created_at" time /></dd>
                             </div>
                         </dl>
                     </div>

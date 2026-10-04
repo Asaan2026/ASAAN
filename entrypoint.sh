@@ -21,7 +21,7 @@ MYSQL_ATTR_SSL_CA="${MYSQL_ATTR_SSL_CA-/etc/ssl/certs/ca-certificates.crt}"
     echo "PHP_CLI_SERVER_WORKERS=4"
     echo "BCRYPT_ROUNDS=12"
     echo "LOG_CHANNEL=stack"
-    echo "LOG_STACK=single"
+    echo "LOG_STACK=single,stderr"
     echo "LOG_LEVEL=error"
     echo "DB_CONNECTION=${DB_CONNECTION:-mysql}"
     echo "DB_HOST=${DB_HOST:-127.0.0.1}"
@@ -29,9 +29,10 @@ MYSQL_ATTR_SSL_CA="${MYSQL_ATTR_SSL_CA-/etc/ssl/certs/ca-certificates.crt}"
     echo "DB_DATABASE=${DB_DATABASE:-cartxis}"
     echo "DB_USERNAME=${DB_USERNAME:-root}"
     echo "DB_PASSWORD=${DB_PASSWORD:-}"
+    echo "DB_SSLMODE=${DB_SSLMODE:-prefer}"
     echo "SESSION_DRIVER=${SESSION_DRIVER:-database}"
     echo "SESSION_LIFETIME=120"
-    echo "SESSION_ENCRYPT=false"
+    echo "SESSION_ENCRYPT=${SESSION_ENCRYPT:-false}"
     echo "BROADCAST_CONNECTION=log"
     echo "FILESYSTEM_DISK=local"
     echo "QUEUE_CONNECTION=sync"
@@ -48,10 +49,15 @@ MYSQL_ATTR_SSL_CA="${MYSQL_ATTR_SSL_CA-/etc/ssl/certs/ca-certificates.crt}"
     echo "MYSQL_ATTR_SSL_CA=${MYSQL_ATTR_SSL_CA}"
 } > .env
 
-# Generate app key if empty
+# Generate app key if empty. A fresh key every boot makes every encrypted value
+# (Tazkira numbers, saved email passwords) unreadable, so on a live site this
+# says so loudly instead of quietly losing them.
 if [ -z "$APP_KEY" ]; then
     APP_KEY="base64:$(openssl rand -base64 32)"
     sed -i "s|^APP_KEY=.*|APP_KEY=${APP_KEY}|" .env
+    if [ "${APP_ENV:-production}" = "production" ]; then
+        echo "[entrypoint] !!! APP_KEY was not set; a new one was generated. Anything encrypted with the old key can no longer be read. Set APP_KEY in the host's environment. !!!"
+    fi
 fi
 
 # Storage link
@@ -108,26 +114,40 @@ PHPEOF
     ) &
 fi
 
-# One-time provisioning for PostgreSQL databases (pgsql driver). Runs in the
-# background so nginx/php-fpm boot instantly and Render's port scan passes even on
-# a genuinely fresh render.PostgreSQL. A brand-new database (no migrations table)
-# gets a full migrate + seed; any subsequent boot just applies pending migrations,
-# so new columns/tables such as the Pashto/English locales reach production on
-# their own during a normal redeploy.
-if [ "${DB_CONNECTION:-mysql}" = "pgsql" ] && [ "${RUN_MIGRATE:-0}" = "1" ]; then
+# Apply pending migrations on EVERY boot, for EVERY database driver.
+#
+# This used to run only for PostgreSQL (pgsql). A MySQL/TiDB deployment
+# therefore never picked up migrations at all: the code was current, the site
+# booted, but every page whose table had been added after the first provision
+# answered with a 500. Running it for any driver removes that silence.
+#
+# A brand-new database (no migrations table) gets a full migrate + seed; any
+# later boot only applies what is still pending, so new columns and tables such
+# as the referral, service and identity ones reach production on a normal
+# redeploy. It runs in the background so nginx/php-fpm boot instantly and
+# Render's port scan passes even on a database that is still waking up.
+if [ "${RUN_MIGRATE:-0}" = "1" ]; then
     (
         CHECK_PHP=$(cat <<'PHPEOF'
+$driver = getenv('DB_CONNECTION') ?: 'mysql';
 $host = getenv('DB_HOST');
-$port = getenv('DB_PORT') !== false && getenv('DB_PORT') !== '' ? getenv('DB_PORT') : '5432';
 $db = getenv('DB_DATABASE');
 $u = getenv('DB_USERNAME');
 $p = getenv('DB_PASSWORD');
-$ssl = getenv('DB_SSLMODE') ?: 'require';
-$dsn = "pgsql:host={$host};port={$port};dbname={$db};sslmode={$ssl}";
 $o = [PDO::ATTR_TIMEOUT => 30];
 try {
-    $pdo = new PDO($dsn, $u, $p, $o);
-    $n = (int)$pdo->query("select count(*) from pg_catalog.pg_class c join pg_catalog.pg_namespace n on n.oid = c.relnamespace where c.relname = 'migrations' and n.nspname = current_schema()")->fetchColumn();
+    if ($driver === 'pgsql') {
+        $port = getenv('DB_PORT') ?: '5432';
+        $ssl = getenv('DB_SSLMODE') ?: 'require';
+        $pdo = new PDO("pgsql:host={$host};port={$port};dbname={$db};sslmode={$ssl}", $u, $p, $o);
+        $n = (int)$pdo->query("select count(*) from pg_catalog.pg_class c join pg_catalog.pg_namespace n on n.oid = c.relnamespace where c.relname = 'migrations' and n.nspname = current_schema()")->fetchColumn();
+    } else {
+        $port = getenv('DB_PORT') ?: '3306';
+        $ca = getenv('MYSQL_ATTR_SSL_CA');
+        if ($ca) { $o[PDO::MYSQL_ATTR_SSL_CA] = $ca; }
+        $pdo = new PDO("mysql:host={$host};port={$port};dbname={$db}", $u, $p, $o);
+        $n = (int)$pdo->query("select count(*) from information_schema.tables where table_schema = database() and table_name = 'migrations'")->fetchColumn();
+    }
 } catch (PDOException $e) {
     echo "CHECK-FAIL: " . $e->getMessage() . "\n";
     $n = -1;
@@ -135,26 +155,36 @@ try {
 echo "CHECK-RESULT:$n\n";
 PHPEOF
         )
-        RES=$(timeout 30 php -r "$CHECK_PHP" 2>&1)
-        echo "[entrypoint] PostgreSQL setup check: $RES"
+        RES=$(timeout 40 php -r "$CHECK_PHP" 2>&1)
+        echo "[entrypoint] Database setup check: $RES"
+
+        # Retry a few times, and say plainly when it never succeeded. A single
+        # silent failure used to leave the code newer than the tables, so pages
+        # whose table had just been added answered with a 500 and nothing in the
+        # logs explained why.
+        run_migrate() {
+            label="$1"
+            shift
+            attempt=1
+            while [ "$attempt" -le 3 ]; do
+                if timeout 900 php artisan migrate --force "$@" 2>&1; then
+                    echo "[entrypoint] ${label}: migrations applied"
+                    return 0
+                fi
+                echo "[entrypoint] ${label}: attempt ${attempt} failed, retrying in 20s..."
+                sleep 20
+                attempt=$((attempt + 1))
+            done
+            echo "[entrypoint] !!! ${label}: MIGRATIONS FAILED after 3 attempts - the site will keep serving errors until this is fixed !!!"
+            return 1
+        }
+
         if printf '%s' "$RES" | grep -q 'CHECK-RESULT:0'; then
-            echo "[entrypoint] Empty PostgreSQL detected - running migrate + seed once..."
-            if timeout 900 php artisan migrate --force --seed 2>&1; then
-                echo "[entrypoint] Database provisioning complete"
-            else
-                echo "[entrypoint] Database provisioning failed - retrying once after 30s..."
-                sleep 30
-                php artisan migrate --force --seed 2>&1
-            fi
+            echo "[entrypoint] Empty database detected - running migrate + seed once..."
+            run_migrate "provisioning" --seed
         else
-            echo "[entrypoint] Database already provisioned - applying pending migrations only..."
-            if timeout 900 php artisan migrate --force 2>&1; then
-                echo "[entrypoint] Pending migrations applied"
-            else
-                echo "[entrypoint] Migration step failed - retrying once after 30s..."
-                sleep 30
-                php artisan migrate --force 2>&1 || true
-            fi
+            echo "[entrypoint] Database already provisioned - applying pending migrations..."
+            run_migrate "pending"
         fi
     ) &
 fi

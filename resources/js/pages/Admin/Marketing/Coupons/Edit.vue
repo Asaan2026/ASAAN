@@ -4,6 +4,8 @@ import { router, useForm, Link } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { useCurrency } from '@/composables/useCurrency';
 import { useI18nStore } from '@/Stores/i18n';
+import DateDisplay from '@/components/Calendar/DateDisplay.vue';
+import DatePicker from '@/components/Calendar/DatePicker.vue';
 
 interface Coupon {
   id: number;
@@ -129,16 +131,6 @@ const submit = () => {
       router.visit('/admin/marketing/coupons');
     },
   });
-};
-
-const formatDate = (date: string) => {
-  return new Intl.DateTimeFormat('en-US', { 
-    month: 'short', 
-    day: 'numeric', 
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(new Date(date));
 };
 </script>
 
@@ -391,10 +383,10 @@ const formatDate = (date: string) => {
                         <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">
                           {{ $t('Start Date') }} <span class="text-red-500">*</span>
                         </label>
-                        <input
+                        <DatePicker
                           id="start_date"
                           v-model="form.start_date"
-                          type="datetime-local"
+                          with-time
                           class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           :class="{ 'border-red-500': form.errors.start_date }"
                         />
@@ -402,10 +394,10 @@ const formatDate = (date: string) => {
                       </div>
                       <div>
                         <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('End Date') }}</label>
-                        <input
+                        <DatePicker
                           id="end_date"
                           v-model="form.end_date"
-                          type="datetime-local"
+                          with-time
                           class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         />
                         <p class="mt-1 text-xs text-gray-500">{{ $t('Leave empty for no expiration') }}</p>
@@ -615,7 +607,7 @@ const formatDate = (date: string) => {
               >
                 <div class="flex items-center justify-between mb-1">
                   <span class="font-medium text-sm text-gray-900">{{ use.customer_name }}</span>
-                  <span class="text-xs text-gray-500">{{ formatDate(use.used_at) }}</span>
+                  <span class="text-xs text-gray-500"><DateDisplay :value="use.used_at" time /></span>
                 </div>
                 <div class="flex items-center justify-between text-sm mb-1">
                   <span class="text-gray-600">{{ $t('Order #{id}', { id: use.order_id }) }}</span>

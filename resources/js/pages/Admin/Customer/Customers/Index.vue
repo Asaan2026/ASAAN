@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Head, router, Link } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
+import DatePicker from '@/components/Calendar/DatePicker.vue';
+import DateDisplay from '@/components/Calendar/DateDisplay.vue';
 import ConfirmDeleteModal from '@/components/Admin/ConfirmDeleteModal.vue';
 import { ref, computed } from 'vue';
 import { debounce } from 'lodash';
@@ -234,14 +236,6 @@ const { formatPrice } = useCurrency();
 function formatCurrency(amount: number): string {
   return formatPrice(amount);
 }
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-}
 </script>
 
 <template>
@@ -419,27 +413,19 @@ function formatDate(dateString: string): string {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div>
             <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">{{ $t('From Date') }}</label>
-            <div class="relative">
-              <Calendar class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                v-model="dateFrom"
-                @change="applyFilters"
-                type="date"
-                class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-              />
-            </div>
+            <DatePicker
+              v-model="dateFrom"
+              @change="applyFilters"
+              class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+            />
           </div>
           <div>
             <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">{{ $t('To Date') }}</label>
-            <div class="relative">
-              <Calendar class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                v-model="dateTo"
-                @change="applyFilters"
-                type="date"
-                class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-              />
-            </div>
+            <DatePicker
+              v-model="dateTo"
+              @change="applyFilters"
+              class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+            />
           </div>
         </div>
 
@@ -643,7 +629,7 @@ function formatDate(dateString: string): string {
               </div>
             </td>
             <td class="hidden xl:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-              {{ formatDate(customer.created_at) }}
+              <DateDisplay :value="customer.created_at" />
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
               <div class="flex items-center justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
@@ -708,7 +694,7 @@ function formatDate(dateString: string): string {
                         </div>
                         <div class="xl:hidden flex flex-col gap-2">
                             <span class="text-xs text-gray-500 font-medium uppercase tracking-wider">{{ $t('Joined') }}</span>
-                            <span class="text-sm text-gray-600 dark:text-gray-300">{{ formatDate(customer.created_at) }}</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-300"><DateDisplay :value="customer.created_at" /></span>
                         </div>
                     </div>
                 </td>

@@ -136,7 +136,7 @@
                             </div>
                             <div v-if="form.status === 'scheduled'">
                                 <label for="published_at" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Publish Date') }}</label>
-                                <input id="published_at" v-model="form.published_at" type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                                <DatePicker id="published_at" v-model="form.published_at" with-time class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                             </div>
                             <div class="pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col gap-2">
                                 <button type="submit" class="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" :disabled="form.processing || !slugAvailable">
@@ -179,7 +179,7 @@
                                 </div>
                                 <div class="flex justify-between">
                                     <dt class="text-gray-500">{{ $t('Created') }}</dt>
-                                    <dd class="text-gray-900 dark:text-white">{{ formatDate(post.created_at) }}</dd>
+                                    <dd class="text-gray-900 dark:text-white"><DateDisplay :value="post.created_at" /></dd>
                                 </div>
                                 <div v-if="post.creator" class="flex justify-between">
                                     <dt class="text-gray-500">{{ $t('Author') }}</dt>
@@ -210,6 +210,8 @@
 import { ref, computed } from 'vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
+import DateDisplay from '@/components/Calendar/DateDisplay.vue';
+import DatePicker from '@/components/Calendar/DatePicker.vue';
 import TipTapEditor from '@/components/Admin/CMS/TipTapEditor.vue';
 import { useDebounceFn } from '@vueuse/core';
 import * as blogRoutes from '@/routes/admin/blog';
@@ -278,7 +280,4 @@ const deletePost = () => {
     if (!confirm(`Are you sure you want to delete "${props.post.title}"?`)) return;
     router.delete(blogRoutes.destroy({ post: props.post.slug }).url);
 };
-
-const formatDate = (date: string) =>
-    new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 </script>

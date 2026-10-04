@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Head, router, Link } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
+import DatePicker from '@/components/Calendar/DatePicker.vue';
+import DateDisplay from '@/components/Calendar/DateDisplay.vue';
 import { ref, computed, watch } from 'vue';
 import { debounce } from 'lodash';
 import {
@@ -159,14 +161,6 @@ const getStatusBadge = (status: string) => {
   };
   return badges[status] || badges.pending;
 };
-
-const formatDate = (date: string): string => {
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-};
 </script>
 
 <template>
@@ -277,29 +271,21 @@ const formatDate = (date: string): string => {
           <!-- Date From -->
           <div>
             <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">{{ $t('From Date') }}</label>
-            <div class="relative">
-              <Calendar class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                v-model="dateFrom"
-                @change="applyFilters"
-                type="date"
-                class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-              />
-            </div>
+            <DatePicker
+              v-model="dateFrom"
+              @change="applyFilters"
+              class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+            />
           </div>
 
           <!-- Date To -->
           <div>
             <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">{{ $t('To Date') }}</label>
-             <div class="relative">
-              <Calendar class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                v-model="dateTo"
-                @change="applyFilters"
-                type="date"
-                class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-              />
-            </div>
+            <DatePicker
+              v-model="dateTo"
+              @change="applyFilters"
+              class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+            />
           </div>
         </div>
 
@@ -461,7 +447,7 @@ const formatDate = (date: string): string => {
                   </div>
                 </td>
                 <td class="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-500 dark:text-gray-400">{{ formatDate(shipment.created_at) }}</div>
+                  <div class="text-sm text-gray-500 dark:text-gray-400"><DateDisplay :value="shipment.created_at" /></div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span :class="['inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border shadow-sm', getStatusBadge(shipment.status)]">
@@ -528,7 +514,7 @@ const formatDate = (date: string): string => {
                            <span class="text-xs text-gray-500 font-medium uppercase tracking-wider">{{ $t('Date') }}</span>
                            <div class="flex items-center gap-1.5 text-gray-700 dark:text-gray-300">
                              <Calendar class="w-3.5 h-3.5 text-gray-400" />
-                             {{ formatDate(shipment.created_at) }}
+                             <DateDisplay :value="shipment.created_at" />
                            </div>
                          </div>
                     </div>
