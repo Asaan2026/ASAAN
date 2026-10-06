@@ -15,6 +15,25 @@
 @source '../../themes/**/*.ts';
 @source '../../themes/**/*.vue';
 
+/*
+  The storefront itself. Every theme ships its pages as Vue files under
+  templates/storefront, and resolveTemplatePage imports them at runtime, so
+  this directory holds real source, not build output.
+
+  Tailwind's default source detection already finds it (a build taken before
+  these lines existed still emitted classes that appear nowhere but here), so
+  listing it is belt and braces rather than a fix. It is worth the two lines:
+  the default is "scan the working tree and skip whatever .gitignore hides",
+  which means adding `/templates` to .gitignore, or running the build from a
+  subdirectory, would silently strip every storefront style from the
+  stylesheet while the build still reports success.
+*/
+@source '../../templates/**/*.php';
+@source '../../templates/**/*.blade.php';
+@source '../../templates/**/*.js';
+@source '../../templates/**/*.ts';
+@source '../../templates/**/*.vue';
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

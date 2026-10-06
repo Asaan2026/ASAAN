@@ -21,10 +21,10 @@ defineProps<{
     <ThemeLayout>
         <Head :title="$t('Verify Email')" />
 
-        <div class="min-h-screen flex items-center justify-center px-4 py-12 bg-gray-50">
+        <div class="min-h-screen flex items-center justify-center px-4 py-12 bg-gray-50 dark:bg-slate-900">
             <div class="w-full max-w-md">
                 <!-- Card -->
-                <div class="bg-white rounded-lg shadow-lg p-8">
+                <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg p-8">
                     <!-- Icon -->
                     <div class="flex justify-center mb-6">
                         <div 
@@ -40,10 +40,10 @@ defineProps<{
 
                     <!-- Header -->
                     <div class="text-center mb-6">
-                        <h1 class="text-2xl font-bold text-gray-900 mb-2">
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">
                             {{ $t('Verify Your Email') }}
                         </h1>
-                        <p class="text-gray-600">
+                        <p class="text-gray-600 dark:text-slate-400">
                             {{ $t('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you?') }}
                         </p>
                     </div>
@@ -51,7 +51,7 @@ defineProps<{
                     <!-- Success Message -->
                     <div
                         v-if="status === 'verification-link-sent'"
-                        class="mb-6 p-3 text-center text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-md flex items-center justify-center"
+                        class="mb-6 p-3 text-center text-sm font-medium text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800 rounded-md flex items-center justify-center"
                     >
                         <CheckCircle class="w-4 h-4 mr-2" />
                         {{ $t('A new verification link has been sent to your email address.') }}
@@ -80,10 +80,10 @@ defineProps<{
                     <!-- Divider -->
                     <div class="relative my-6">
                         <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-gray-300"></div>
+                            <div class="w-full border-t border-gray-300 dark:border-slate-600"></div>
                         </div>
                         <div class="relative flex justify-center text-sm">
-                            <span class="px-2 bg-white text-gray-500">{{ $t('or') }}</span>
+                            <span class="px-2 bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-400">{{ $t('or') }}</span>
                         </div>
                     </div>
 
@@ -93,7 +93,7 @@ defineProps<{
                             href="/logout"
                             method="post"
                             as="button"
-                            class="text-sm text-gray-600 hover:underline"
+                            class="text-sm text-gray-600 dark:text-slate-400 hover:underline"
                         >
                             {{ $t('Log out') }}
                         </Link>
@@ -104,7 +104,7 @@ defineProps<{
                 <div class="text-center mt-6">
                     <TextLink
                         href="/"
-                        class="text-sm text-gray-600 hover:underline inline-flex items-center"
+                        class="text-sm text-gray-600 dark:text-slate-400 hover:underline inline-flex items-center"
                     >
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -114,11 +114,11 @@ defineProps<{
                 </div>
 
                 <!-- Email Tips -->
-                <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h3 class="text-sm font-medium text-blue-900 mb-2">
+                <div class="mt-8 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <h3 class="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
                         {{ $t("Didn't receive the email?") }}
                     </h3>
-                    <ul class="text-xs text-blue-800 space-y-1 list-disc list-inside">
+                    <ul class="text-xs text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
                         <li>{{ $t('Check your spam or junk folder') }}</li>
                         <li>{{ $t('Make sure you entered the correct email address') }}</li>
                         <li>{{ $t('Click the "Resend" button above if needed') }}</li>

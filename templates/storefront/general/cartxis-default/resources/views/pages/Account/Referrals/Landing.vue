@@ -42,7 +42,7 @@ const perks = [
     <div class="container mx-auto px-4 py-14 max-w-3xl">
       <!-- What this is -->
       <div class="text-center mb-10">
-        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-50 mb-5">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-50 dark:bg-blue-950/40 mb-5">
           <Gift class="w-7 h-7 text-blue-600" />
         </div>
 
@@ -50,7 +50,7 @@ const perks = [
           {{ code ? $t('Someone wants to shop with us') : $t('Shop with us') }}
         </h1>
 
-        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        <p class="text-lg text-gray-600 dark:text-slate-400 max-w-2xl mx-auto">
           {{
             code
               ? $t('Use this link to create your account. Your friend earns {reward} of store credit once you have spent {threshold}.', {
@@ -61,26 +61,26 @@ const perks = [
           }}
         </p>
 
-        <div v-if="code" class="mt-6 inline-flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-5 py-3">
-          <span class="text-sm text-gray-600">{{ $t('Their code') }}</span>
+        <div v-if="code" class="mt-6 inline-flex items-center gap-3 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg px-5 py-3">
+          <span class="text-sm text-gray-600 dark:text-slate-400">{{ $t('Their code') }}</span>
           <span class="font-mono text-lg font-bold tracking-wider">{{ code }}</span>
         </div>
       </div>
 
       <!-- What is included -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+      <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 p-6 mb-8">
         <h2 class="text-lg font-semibold mb-5">{{ $t('What you get') }}</h2>
 
         <div class="space-y-5">
           <div v-for="perk in perks" :key="perk.key" class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+            <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-950/40 flex items-center justify-center">
               <component :is="perk.icon" class="w-5 h-5 text-blue-600" />
             </div>
             <div v-if="perk.key === 'reward'">
               <!-- Only the person who sent the link earns. The friend is not
                    promised anything, so this must not imply they are. -->
               <h3 class="font-semibold text-sm mb-1">{{ $t('They start earning your credit') }}</h3>
-              <p class="text-sm text-gray-600">
+              <p class="text-sm text-gray-600 dark:text-slate-400">
                 {{
                   $t('Once you have spent {threshold} with us, your friend earns {reward} of store credit for bringing you.', {
                     threshold: formatPrice(programme.threshold_amount),
@@ -91,13 +91,13 @@ const perks = [
             </div>
             <div v-else-if="perk.key === 'credit'">
               <h3 class="font-semibold text-sm mb-1">{{ $t('Credit, not cash') }}</h3>
-              <p class="text-sm text-gray-600">
+              <p class="text-sm text-gray-600 dark:text-slate-400">
                 {{ $t('It can be spent on anything in the store, and cannot be withdrawn as money.') }}
               </p>
             </div>
             <div v-else>
               <h3 class="font-semibold text-sm mb-1">{{ $t('Locked, then theirs') }}</h3>
-              <p class="text-sm text-gray-600">
+              <p class="text-sm text-gray-600 dark:text-slate-400">
                 {{
                   $t('The credit unlocks {days} days after the order, so a returned order never costs them the reward.', {
                     days: programme.lock_days,
@@ -110,12 +110,12 @@ const perks = [
       </div>
 
       <!-- The catch, stated plainly -->
-      <div class="bg-amber-50 border border-amber-200 rounded-lg p-5 mb-8">
-        <h2 class="text-sm font-semibold text-amber-900 mb-2 flex items-center gap-2">
+      <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg p-5 mb-8">
+        <h2 class="text-sm font-semibold text-amber-900 dark:text-amber-100 mb-2 flex items-center gap-2">
           <ShieldCheck class="w-4 h-4" />
           {{ $t('The one rule to know') }}
         </h2>
-        <p class="text-sm text-amber-800">
+        <p class="text-sm text-amber-800 dark:text-amber-200">
           {{
             $t('The reward is only paid once your friend has spent {threshold} with us, counted across all their orders. The link must be used while they are creating the account.', {
               threshold: formatPrice(programme.threshold_amount),
@@ -134,7 +134,7 @@ const perks = [
           <ArrowRight class="w-4 h-4 ml-2" />
         </Link>
 
-        <p class="mt-4 text-sm text-gray-500">
+        <p class="mt-4 text-sm text-gray-500 dark:text-slate-400">
           {{ $t('Already have an account?') }}
           <Link :href="loginUrl" class="text-blue-600 hover:underline">
             {{ $t('Sign in') }}

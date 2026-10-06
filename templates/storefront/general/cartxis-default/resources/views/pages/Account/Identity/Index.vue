@@ -61,7 +61,7 @@ const submit = () => {
         <div class="container mx-auto max-w-3xl px-4 py-10">
             <Link
                 href="/account"
-                class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700"
+                class="inline-flex items-center text-sm text-gray-500 dark:text-slate-400 hover:text-gray-700"
             >
                 &larr; {{ $t('Account') }}
             </Link>
@@ -70,7 +70,7 @@ const submit = () => {
                 <h1 class="mb-2 text-3xl font-bold">
                     {{ $t('Verify your identity') }}
                 </h1>
-                <p class="text-gray-600">
+                <p class="text-gray-600 dark:text-slate-400">
                     {{
                         $t(
                             'Add a photo of your Tazkira so our team can check it.',
@@ -82,9 +82,9 @@ const submit = () => {
             <!-- Closed -->
             <div
                 v-if="!available"
-                class="rounded-lg border border-amber-200 bg-amber-50 p-5"
+                class="rounded-lg border border-amber-200 dark:border-amber-800 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 dark:bg-amber-950/40 p-5"
             >
-                <p class="text-sm text-amber-900">
+                <p class="text-sm text-amber-900 dark:text-amber-100 dark:text-amber-100">
                     {{
                         $t(
                             'Identity verification is not available right now. Please try again later.',
@@ -97,18 +97,18 @@ const submit = () => {
                 <!-- Verified -->
                 <div
                     v-if="identity.verified"
-                    class="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-5"
+                    class="flex items-start gap-3 rounded-lg border border-green-200 dark:border-green-800 dark:border-green-800 bg-green-50 dark:bg-green-950/40 dark:bg-green-950/40 p-5"
                 >
                     <ShieldCheck
                         class="mt-0.5 h-6 w-6 flex-shrink-0 text-green-600"
                     />
                     <div>
-                        <h2 class="font-semibold text-green-900">
+                        <h2 class="font-semibold text-green-900 dark:text-green-100 dark:text-green-100">
                             {{ $t('Your identity is already verified.') }}
                         </h2>
                         <p
                             v-if="identity.verified_at"
-                            class="mt-1 text-sm text-green-800"
+                            class="mt-1 text-sm text-green-800 dark:text-green-200 dark:text-green-200"
                         >
                             {{ identity.verified_at }}
                         </p>
@@ -120,11 +120,11 @@ const submit = () => {
                     v-else-if="
                         identity.submitted_at && identity.status === 'pending'
                     "
-                    class="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 p-5"
+                    class="flex items-start gap-3 rounded-lg border border-blue-200 dark:border-blue-800 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 dark:bg-blue-950/40 p-5"
                 >
                     <Clock class="mt-0.5 h-6 w-6 flex-shrink-0 text-blue-600" />
                     <div>
-                        <h2 class="font-semibold text-blue-900">
+                        <h2 class="font-semibold text-blue-900 dark:text-blue-100 dark:text-blue-100">
                             {{
                                 $t(
                                     'You already have a document waiting to be reviewed. We will let you know as soon as it has been looked at.',
@@ -133,7 +133,7 @@ const submit = () => {
                         </h2>
                         <p
                             v-if="identity.submitted_at"
-                            class="mt-1 text-sm text-blue-800"
+                            class="mt-1 text-sm text-blue-800 dark:text-blue-200 dark:text-blue-200"
                         >
                             {{ identity.submitted_at }}
                         </p>
@@ -143,22 +143,22 @@ const submit = () => {
                 <!-- Rejected -->
                 <div
                     v-else-if="identity.status === 'rejected'"
-                    class="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-5"
+                    class="flex items-start gap-3 rounded-lg border border-red-200 dark:border-red-800 dark:border-red-800 bg-red-50 dark:bg-red-950/40 dark:bg-red-950/40 p-5"
                 >
                     <ShieldAlert
                         class="mt-0.5 h-6 w-6 flex-shrink-0 text-red-600"
                     />
                     <div>
-                        <h2 class="font-semibold text-red-900">
+                        <h2 class="font-semibold text-red-900 dark:text-red-100 dark:text-red-100">
                             {{ $t('We could not accept your last document.') }}
                         </h2>
                         <p
                             v-if="identity.rejection_reason"
-                            class="mt-1 text-sm text-red-800"
+                            class="mt-1 text-sm text-red-800 dark:text-red-200 dark:text-red-200"
                         >
                             {{ identity.rejection_reason }}
                         </p>
-                        <p class="mt-1 text-sm text-red-800">
+                        <p class="mt-1 text-sm text-red-800 dark:text-red-200 dark:text-red-200">
                             {{ $t('You can send a new one below.') }}
                         </p>
                     </div>
@@ -168,12 +168,12 @@ const submit = () => {
                 <form
                     v-if="identity.can_submit"
                     @submit.prevent="submit"
-                    class="mt-6 space-y-5 rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+                    class="mt-6 space-y-5 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 shadow-sm"
                 >
                     <div>
                         <label
                             for="national_id"
-                            class="mb-1.5 block text-sm font-medium text-gray-700"
+                            class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300"
                         >
                             {{ $t('National ID') }}
                         </label>
@@ -181,7 +181,7 @@ const submit = () => {
                             id="national_id"
                             v-model="form.national_id"
                             type="text"
-                            class="w-full rounded-lg border bg-gray-50 px-3 py-2.5 text-sm text-gray-900 transition-all focus:ring-2"
+                            class="w-full rounded-lg border bg-gray-50 dark:bg-slate-900 px-3 py-2.5 text-sm text-gray-900 dark:text-slate-100 transition-all focus:ring-2"
                             :class="
                                 form.errors.national_id
                                     ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20'
@@ -194,7 +194,7 @@ const submit = () => {
                         >
                             {{ form.errors.national_id }}
                         </p>
-                        <p v-else class="mt-1 text-xs text-gray-500">
+                        <p v-else class="mt-1 text-xs text-gray-500 dark:text-slate-400">
                             {{
                                 $t('Enter the number printed on your Tazkira.')
                             }}
@@ -204,7 +204,7 @@ const submit = () => {
                     <div>
                         <label
                             for="full_name"
-                            class="mb-1.5 block text-sm font-medium text-gray-700"
+                            class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300"
                         >
                             {{ $t('Full Name') }}
                         </label>
@@ -212,7 +212,7 @@ const submit = () => {
                             id="full_name"
                             v-model="form.full_name"
                             type="text"
-                            class="w-full rounded-lg border bg-gray-50 px-3 py-2.5 text-sm text-gray-900 transition-all focus:ring-2"
+                            class="w-full rounded-lg border bg-gray-50 dark:bg-slate-900 px-3 py-2.5 text-sm text-gray-900 dark:text-slate-100 transition-all focus:ring-2"
                             :class="
                                 form.errors.full_name
                                     ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20'
@@ -225,7 +225,7 @@ const submit = () => {
                         >
                             {{ form.errors.full_name }}
                         </p>
-                        <p v-else class="mt-1 text-xs text-gray-500">
+                        <p v-else class="mt-1 text-xs text-gray-500 dark:text-slate-400">
                             {{
                                 $t(
                                     'Enter your full name exactly as it is written on the Tazkira.',
@@ -238,7 +238,7 @@ const submit = () => {
                         <div>
                             <label
                                 for="father_name"
-                                class="mb-1.5 block text-sm font-medium text-gray-700"
+                                class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300"
                             >
                                 {{ $t("Father's name (optional)") }}
                             </label>
@@ -246,7 +246,7 @@ const submit = () => {
                                 id="father_name"
                                 v-model="form.father_name"
                                 type="text"
-                                class="w-full rounded-lg border bg-gray-50 px-3 py-2.5 text-sm text-gray-900 transition-all focus:ring-2"
+                                class="w-full rounded-lg border bg-gray-50 dark:bg-slate-900 px-3 py-2.5 text-sm text-gray-900 dark:text-slate-100 transition-all focus:ring-2"
                                 :class="
                                     form.errors.father_name
                                         ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20'
@@ -264,7 +264,7 @@ const submit = () => {
                         <div>
                             <label
                                 for="date_of_birth"
-                                class="mb-1.5 block text-sm font-medium text-gray-700"
+                                class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300"
                             >
                                 {{ $t('Date of birth (optional)') }}
                             </label>
@@ -272,7 +272,7 @@ const submit = () => {
                                 id="date_of_birth"
                                 v-model="form.date_of_birth"
                                 type="date"
-                                class="w-full rounded-lg border bg-gray-50 px-3 py-2.5 text-sm text-gray-900 transition-all focus:ring-2"
+                                class="w-full rounded-lg border bg-gray-50 dark:bg-slate-900 px-3 py-2.5 text-sm text-gray-900 dark:text-slate-100 transition-all focus:ring-2"
                                 :class="
                                     form.errors.date_of_birth
                                         ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20'
@@ -290,7 +290,7 @@ const submit = () => {
 
                     <div>
                         <label
-                            class="mb-1.5 block text-sm font-medium text-gray-700"
+                            class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300"
                             >{{ $t('Photo of your Tazkira') }}</label
                         >
                         <label
@@ -301,11 +301,11 @@ const submit = () => {
                                     : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
                             "
                         >
-                            <Upload class="mb-2 h-6 w-6 text-gray-400" />
-                            <span class="text-sm font-medium text-gray-700">
+                            <Upload class="mb-2 h-6 w-6 text-gray-400 dark:text-slate-500" />
+                            <span class="text-sm font-medium text-gray-700 dark:text-slate-300">
                                 {{ fileName || $t('Choose a file') }}
                             </span>
-                            <span class="mt-1 text-xs text-gray-500">
+                            <span class="mt-1 text-xs text-gray-500 dark:text-slate-400">
                                 {{
                                     $t('JPG, PNG or WebP, up to {size} KB.', {
                                         size: requirements.max_upload_kb,
@@ -343,7 +343,7 @@ const submit = () => {
                     </div>
 
                     <p
-                        class="flex items-start gap-1.5 pt-1 text-xs text-gray-500"
+                        class="flex items-start gap-1.5 pt-1 text-xs text-gray-500 dark:text-slate-400"
                     >
                         <Lock class="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
                         {{

@@ -588,5 +588,17 @@
     "Choose a file": "انتخاب فایل",
     "JPG, PNG or WebP, up to {size} KB.": "JPG، PNG یا WebP، حداکثر {size} کیلوبایت.",
     "Send for review": "برای بررسی بفرستید",
-    "Your document is private. Only the review team can see it.": "سند شما خصوصی است. تنها تیم بررسی می‌تواند آن را ببیند."
+    "Your document is private. Only the review team can see it.": "سند شما خصوصی است. تنها تیم بررسی می‌تواند آن را ببیند.",
+    "Light": "روشن",
+    "Dark": "تاریک",
+    "System": "سیستم",
+    "Colour theme": "پوسته رنگ",
+    "Appearance": "ظاهر",
+    "Switch to light mode": "تغییر به حالت روشن",
+    "Switch to dark mode": "تغییر به حالت تاریک",
+    "Currency": "واحد پول",
+    "Change currency, currently {code}": "تغییر واحد پول، در حال حاضر {code}",
+    "Choose whether the site is light or dark, or follow your device.": "انتخاب کنید که سایت روشن باشد یا تاریک، یا مطابق دستگاه شما باشد.",
+    "Display Language": "زبان نمایش",
+    "Choose the language the site is shown to you in.": "انتخاب کنید که سایت به چه زبانی به شما نمایش داده شود."
 }

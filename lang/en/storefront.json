@@ -588,5 +588,17 @@
     "Choose a file": "Choose a file",
     "JPG, PNG or WebP, up to {size} KB.": "JPG, PNG or WebP, up to {size} KB.",
     "Send for review": "Send for review",
-    "Your document is private. Only the review team can see it.": "Your document is private. Only the review team can see it."
+    "Your document is private. Only the review team can see it.": "Your document is private. Only the review team can see it.",
+    "Light": "Light",
+    "Dark": "Dark",
+    "System": "System",
+    "Colour theme": "Colour theme",
+    "Appearance": "Appearance",
+    "Switch to light mode": "Switch to light mode",
+    "Switch to dark mode": "Switch to dark mode",
+    "Currency": "Currency",
+    "Change currency, currently {code}": "Change currency, currently {code}",
+    "Choose whether the site is light or dark, or follow your device.": "Choose whether the site is light or dark, or follow your device.",
+    "Display Language": "Display Language",
+    "Choose the language the site is shown to you in.": "Choose the language the site is shown to you in."
 }
