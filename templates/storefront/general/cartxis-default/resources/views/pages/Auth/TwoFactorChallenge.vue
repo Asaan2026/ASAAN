@@ -150,11 +150,11 @@ const submit = () => {
                 </div>
 
                 <!-- Help Text -->
-                <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h3 class="text-sm font-medium text-blue-900 mb-2">
+                <div class="mt-6 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <h3 class="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
                         {{ $t('Need help?') }}
                     </h3>
-                    <p class="text-xs text-blue-800">
+                    <p class="text-xs text-blue-800 dark:text-blue-200">
                         {{ $t("If you've lost access to your authenticator device, use one of your recovery codes to log in. Recovery codes can be found in your account security settings.") }}
                     </p>
                 </div>

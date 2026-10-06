@@ -97,7 +97,7 @@ const formatAddress = (address?: Address) => {
         <div class="mb-6">
           <Link
             href="/account/orders"
-            class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4"
+            class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 dark:hover:text-blue-300 mb-4"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -270,9 +270,9 @@ const formatAddress = (address?: Address) => {
             </div>
 
             <!-- Order Notes -->
-            <div v-if="order.notes" class="bg-blue-50 rounded-lg border border-blue-200 p-6">
-              <h3 class="font-semibold text-blue-900 mb-2">{{ $t('Order Notes') }}</h3>
-              <p class="text-sm text-blue-800 whitespace-pre-wrap">{{ order.notes }}</p>
+            <div v-if="order.notes" class="bg-blue-50 dark:bg-blue-950/40 rounded-lg border border-blue-200 dark:border-blue-800 p-6">
+              <h3 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">{{ $t('Order Notes') }}</h3>
+              <p class="text-sm text-blue-800 dark:text-blue-200 whitespace-pre-wrap">{{ order.notes }}</p>
             </div>
           </div>
 

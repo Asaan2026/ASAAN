@@ -3,6 +3,7 @@ import { Head, useForm } from '@inertiajs/vue3';
 import ThemeLayout from '../../../layouts/ThemeLayout.vue';
 import CurrencySelector from '../../../components/CurrencySelector.vue';
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
+import ThemeToggle from '@/components/ThemeToggle.vue';
 import { ref } from 'vue';
 
 interface User {
@@ -113,6 +114,15 @@ const confirmDelete = () => {
               {{ $t('Choose how prices are shown to you. Your account is billed in AFN either way.') }}
             </p>
             <CurrencySelector />
+          </div>
+
+<!-- Appearance -->
+          <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 p-6">
+            <h2 class="text-xl font-semibold mb-2 dark:text-slate-100">{{ $t('Appearance') }}</h2>
+            <p class="text-sm text-gray-600 dark:text-slate-400 mb-4">
+              {{ $t('Choose whether the site is light or dark, or follow your device.') }}
+            </p>
+            <ThemeToggle variant="segmented" />
           </div>
 
           <!-- Personal Information -->
@@ -301,9 +311,9 @@ const confirmDelete = () => {
           </div>
 
           <!-- Danger Zone -->
-          <div class="bg-red-50 rounded-lg border border-red-200 p-6">
-            <h2 class="text-xl font-semibold text-red-900 mb-4">{{ $t('Danger Zone') }}</h2>
-            <p class="text-sm text-red-800 mb-4">
+          <div class="bg-red-50 dark:bg-red-950/40 rounded-lg border border-red-200 dark:border-red-800 p-6">
+            <h2 class="text-xl font-semibold text-red-900 dark:text-red-100 mb-4">{{ $t('Danger Zone') }}</h2>
+            <p class="text-sm text-red-800 dark:text-red-200 mb-4">
               {{ $t('Once you delete your account, all your personal data will be permanently removed.') }}
               {{ $t('Your order history will be anonymized but retained for our records.') }}
             </p>
@@ -327,7 +337,7 @@ const confirmDelete = () => {
         @click.self="cancelDelete"
       >
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-md mx-4 p-6">
-          <h3 class="text-xl font-bold text-red-700 mb-2">{{ $t('Delete Your Account') }}</h3>
+          <h3 class="text-xl font-bold text-red-700 dark:text-red-300 mb-2">{{ $t('Delete Your Account') }}</h3>
           <p class="text-sm text-gray-700 dark:text-slate-300 mb-4">
             {{ $t('This action is') }} <strong>{{ $t('permanent and irreversible') }}</strong>. {{ $t('Your account, cart,') }}
             {{ $t('addresses, and wishlist will be deleted. Orders will be anonymized.') }}

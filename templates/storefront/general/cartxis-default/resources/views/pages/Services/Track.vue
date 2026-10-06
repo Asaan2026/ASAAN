@@ -146,7 +146,7 @@ watch(
             <form class="mt-6 space-y-5 rounded-xl border border-gray-200 dark:border-slate-700 p-6" novalidate @submit.prevent="search">
                 <p
                     v-if="errors?.error"
-                    class="rounded-md bg-red-50 p-3 text-sm text-red-700"
+                    class="rounded-md bg-red-50 dark:bg-red-950/40 p-3 text-sm text-red-700 dark:text-red-300"
                 >
                     {{ errors.error }}
                 </p>

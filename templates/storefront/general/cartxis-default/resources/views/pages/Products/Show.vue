@@ -269,7 +269,7 @@ const handleMouseMove = (e: MouseEvent) => {
                     <div v-if="product.brand">
                         <Link
                             :href="`/products?brand=${product.brand.slug}`"
-                            class="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+                            class="text-sm text-indigo-600 hover:text-indigo-800 dark:hover:text-indigo-200 font-medium"
                         >
                             {{ product.brand.name }}
                         </Link>
@@ -302,7 +302,7 @@ const handleMouseMove = (e: MouseEvent) => {
                     <div class="flex items-baseline gap-3">
                         <span class="text-3xl font-bold text-gray-900 dark:text-slate-100">{{ formatPrice(displayPrice) }}</span>
                         <span v-if="hasDiscount" class="text-xl text-gray-500 dark:text-slate-400 line-through">{{ formatPrice(product.price) }}</span>
-                        <span v-if="hasDiscount" class="text-sm font-semibold text-green-600 bg-green-50 px-2 py-1 rounded">
+                        <span v-if="hasDiscount" class="text-sm font-semibold text-green-600 bg-green-50 dark:bg-green-950/40 px-2 py-1 rounded">
                             {{ $t('Save {percent}%', { percent: discountPercentage }) }}
                         </span>
                     </div>
@@ -350,16 +350,16 @@ const handleMouseMove = (e: MouseEvent) => {
                     </div>
 
                     <!-- Digital Product Info -->
-                    <div v-if="product.type === 'virtual' || product.type === 'downloadable'" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div v-if="product.type === 'virtual' || product.type === 'downloadable'" class="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                         <div class="flex items-start">
                             <svg class="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <div>
-                                <p class="text-sm font-medium text-blue-900">
+                                <p class="text-sm font-medium text-blue-900 dark:text-blue-100">
                                     {{ $t(product.type === 'downloadable' ? 'Digital Download' : 'Virtual Product') }}
                                 </p>
-                                <p class="text-sm text-blue-700 mt-1">
+                                <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">
                                     {{ $t(product.type === 'downloadable'
                                         ? 'This is a digital product. Download link will be available after purchase.'
                                         : 'This is a virtual product. No physical shipping required.'
@@ -500,7 +500,7 @@ const handleMouseMove = (e: MouseEvent) => {
                             v-for="(category, index) in product.categories"
                             :key="category.id"
                             :href="`/products?category=${category.slug}`"
-                            class="text-sm text-indigo-600 hover:text-indigo-800"
+                            class="text-sm text-indigo-600 hover:text-indigo-800 dark:hover:text-indigo-200"
                         >
                             {{ category.name }}<span v-if="index < product.categories.length - 1">, </span>
                         </Link>

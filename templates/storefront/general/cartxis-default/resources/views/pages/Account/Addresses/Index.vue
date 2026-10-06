@@ -163,7 +163,7 @@ const formatAddress = (address: Address) => {
           >
             <!-- Default Badge -->
             <div v-if="address.is_default" class="absolute top-4 right-4">
-              <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+              <span class="px-3 py-1 bg-green-100 dark:bg-green-950/40 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
                 {{ $t('Default {type}', { type: address.type }) }}
               </span>
             </div>
@@ -200,7 +200,7 @@ const formatAddress = (address: Address) => {
               </button>
               <button
                 @click="deleteAddress(address)"
-                class="px-3 py-1.5 text-sm border border-red-300 text-red-600 rounded hover:bg-red-50 transition-colors"
+                class="px-3 py-1.5 text-sm border border-red-300 dark:border-red-800 text-red-600 rounded hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
               >
                 {{ $t('Delete') }}
               </button>

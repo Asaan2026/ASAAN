@@ -114,7 +114,7 @@
                                         <span v-if="product.special_price" class="text-xl text-gray-400 dark:text-slate-500 line-through">
                                             {{ formatPrice(product.price) }}
                                         </span>
-                                        <span v-if="product.special_price" class="px-3 py-1 bg-red-100 text-red-700 text-sm font-semibold rounded-full">
+                                        <span v-if="product.special_price" class="px-3 py-1 bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-sm font-semibold rounded-full">
                                             {{ $t('Save {price}', { price: formatPrice(product.price - product.special_price) }) }}
                                         </span>
                                     </div>
@@ -123,7 +123,7 @@
                                     <div>
                                         <span
                                             v-if="product.in_stock"
-                                            class="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium"
+                                            class="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300 rounded-lg font-medium"
                                         >
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
@@ -132,7 +132,7 @@
                                         </span>
                                         <span
                                             v-else
-                                            class="inline-flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg font-medium"
+                                            class="inline-flex items-center gap-2 px-4 py-2 bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-300 rounded-lg font-medium"
                                         >
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
@@ -221,7 +221,7 @@
                                         </div>
 
                                         <!-- Attribute Error Message -->
-                                        <div v-if="attributeError" class="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">
+                                        <div v-if="attributeError" class="text-sm text-red-600 bg-red-50 dark:bg-red-950/40 px-3 py-2 rounded-lg">
                                             {{ attributeError }}
                                         </div>
                                     </div>
@@ -271,7 +271,7 @@
                                     <div class="pt-4 border-t border-gray-200 dark:border-slate-700">
                                         <a
                                             :href="`/products/${product.slug}`"
-                                            class="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium cursor-pointer"
+                                            class="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium cursor-pointer"
                                         >
                                             {{ $t('View Full Details') }}
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -42,7 +42,7 @@ const perks = [
     <div class="container mx-auto px-4 py-14 max-w-3xl">
       <!-- What this is -->
       <div class="text-center mb-10">
-        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-50 mb-5">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-50 dark:bg-blue-950/40 mb-5">
           <Gift class="w-7 h-7 text-blue-600" />
         </div>
 
@@ -73,7 +73,7 @@ const perks = [
 
         <div class="space-y-5">
           <div v-for="perk in perks" :key="perk.key" class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+            <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-950/40 flex items-center justify-center">
               <component :is="perk.icon" class="w-5 h-5 text-blue-600" />
             </div>
             <div v-if="perk.key === 'reward'">
@@ -110,12 +110,12 @@ const perks = [
       </div>
 
       <!-- The catch, stated plainly -->
-      <div class="bg-amber-50 border border-amber-200 rounded-lg p-5 mb-8">
-        <h2 class="text-sm font-semibold text-amber-900 mb-2 flex items-center gap-2">
+      <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg p-5 mb-8">
+        <h2 class="text-sm font-semibold text-amber-900 dark:text-amber-100 mb-2 flex items-center gap-2">
           <ShieldCheck class="w-4 h-4" />
           {{ $t('The one rule to know') }}
         </h2>
-        <p class="text-sm text-amber-800">
+        <p class="text-sm text-amber-800 dark:text-amber-200">
           {{
             $t('The reward is only paid once your friend has spent {threshold} with us, counted across all their orders. The link must be used while they are creating the account.', {
               threshold: formatPrice(programme.threshold_amount),

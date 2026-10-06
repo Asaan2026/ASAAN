@@ -335,12 +335,12 @@ const activeFilterBadges = computed(() => {
                                 <div
                                     v-for="badge in activeFilterBadges"
                                     :key="badge.key"
-                                    class="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-indigo-200"
+                                    class="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 rounded-full text-sm font-medium border border-indigo-200 dark:border-indigo-800"
                                 >
                                     <span>{{ badge.label }}</span>
                                     <button
                                         @click="removeFilter(badge.key, $event)"
-                                        class="hover:bg-indigo-100 rounded-full p-0.5 transition-colors"
+                                        class="hover:bg-indigo-100 dark:hover:bg-indigo-950/40 rounded-full p-0.5 transition-colors"
                                         :title="$t('Remove filter: {name}', { name: badge.label })"
                                     >
                                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -351,7 +351,7 @@ const activeFilterBadges = computed(() => {
                             </div>
                             <button
                                 @click="clearAllFilters"
-                                class="text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:underline transition-colors"
+                                class="text-sm font-medium text-indigo-600 hover:text-indigo-800 dark:hover:text-indigo-200 hover:underline transition-colors"
                             >
                                 {{ $t('Clear All') }}
                             </button>

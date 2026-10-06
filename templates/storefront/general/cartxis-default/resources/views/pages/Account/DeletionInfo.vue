@@ -63,17 +63,17 @@ const props = defineProps<Props>();
             </div>
 
             <!-- What is retained -->
-            <div class="bg-amber-50 rounded-lg border border-amber-200 p-6 mb-6">
-                <h2 class="text-xl font-semibold text-amber-900 mb-4">{{ $t('What Data Is Retained') }}</h2>
-                <p class="text-amber-800 mb-3">
+            <div class="bg-amber-50 dark:bg-amber-950/40 rounded-lg border border-amber-200 dark:border-amber-800 p-6 mb-6">
+                <h2 class="text-xl font-semibold text-amber-900 dark:text-amber-100 mb-4">{{ $t('What Data Is Retained') }}</h2>
+                <p class="text-amber-800 dark:text-amber-200 mb-3">
                     {{ $t('To comply with financial and legal obligations,') }} <strong>{{ $t('order history is retained') }}</strong> {{ $t('but fully anonymized:') }}
                 </p>
-                <ul class="list-disc list-inside space-y-2 text-amber-800 mb-3">
+                <ul class="list-disc list-inside space-y-2 text-amber-800 dark:text-amber-200 mb-3">
                     <li>{{ $t('Your name and email address are removed from all orders') }}</li>
                     <li>{{ $t('The order record itself (items, amounts, dates) is kept for accounting purposes') }}</li>
                     <li>{{ $t('Anonymized order records are') }} <strong>{{ $t('not') }}</strong> {{ $t('linked to you in any way after deletion') }}</li>
                 </ul>
-                <p class="text-amber-700 text-sm">
+                <p class="text-amber-700 dark:text-amber-300 text-sm">
                     {{ $t('Retention period: anonymized order records are kept for a minimum of 7 years as required by standard accounting regulations.') }}
                 </p>
             </div>

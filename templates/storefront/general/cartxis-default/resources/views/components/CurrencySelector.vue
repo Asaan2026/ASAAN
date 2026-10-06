@@ -19,8 +19,10 @@
  */
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useCurrency, type Currency } from '@/composables/useCurrency';
+import { useI18nStore } from '@/Stores/i18n';
 
 const { currencies, active, rateLabel, setCurrency } = useCurrency();
+const i18n = useI18nStore();
 
 const isOpen = ref(false);
 const isSaving = ref(false);
@@ -85,7 +87,9 @@ onUnmounted(() => {
             class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-700 dark:text-slate-300 transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-gray-200 dark:hover:bg-gray-800"
             :aria-expanded="isOpen"
             aria-haspopup="listbox"
-            :aria-label="`Change currency, currently ${active.code}`"
+            :aria-label="
+                i18n.t('Change currency, currently {code}', { code: active.code })
+            "
             @click="isOpen = !isOpen"
         >
             <span aria-hidden="true">{{ active.symbol }}</span>
@@ -109,7 +113,7 @@ onUnmounted(() => {
             v-if="isOpen"
             class="absolute end-0 z-50 mt-2 w-56 overflow-hidden rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg dark:border-gray-700 dark:bg-gray-800"
             role="listbox"
-            :aria-label="'Currency'"
+            :aria-label="i18n.t('Currency')"
         >
             <ul class="py-1">
                 <li

@@ -51,7 +51,7 @@ const showPassword = ref(false);
                     <!-- Status Message -->
                     <div
                         v-if="status"
-                        class="mb-6 p-3 text-center text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-md"
+                        class="mb-6 p-3 text-center text-sm font-medium text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800 rounded-md"
                     >
                         {{ status }}
                     </div>

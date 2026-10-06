@@ -81,7 +81,7 @@ defineProps<{
                                 <div class="p-5">
                                     <!-- Category Badge -->
                                     <div v-if="post.category" class="mb-2">
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300">
                                             {{ post.category.name }}
                                         </span>
                                     </div>
@@ -97,7 +97,7 @@ defineProps<{
                                     <!-- Meta -->
                                     <div class="flex items-center justify-between text-xs text-gray-500 dark:text-slate-400">
                                         <DateDisplay :value="post.published_at" />
-                                        <Link :href="`/blog/${post.slug}`" class="text-blue-600 hover:text-blue-800 font-medium">
+                                        <Link :href="`/blog/${post.slug}`" class="text-blue-600 hover:text-blue-800 dark:hover:text-blue-200 font-medium">
                                             {{ $t('Read more →') }}
                                         </Link>
                                     </div>

@@ -68,7 +68,7 @@ const statusText: Record<string, string> = {
 
     <ThemeLayout>
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="rounded-xl border border-green-200 bg-green-50 p-6">
+            <div class="rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/40 p-6">
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-slate-100">{{ $t('Booking confirmed') }}</h1>
                 <p class="mt-2 text-gray-700 dark:text-slate-300">
                     {{ $t('Thank you. Keep this reference, you will need it to check on the job.') }}

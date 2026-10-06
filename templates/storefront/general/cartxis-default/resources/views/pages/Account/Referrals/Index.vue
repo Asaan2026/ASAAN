@@ -99,13 +99,13 @@ const showingAll = computed(() => props.invited.length >= props.invited_count);
             })
           }}
         </p>
-        <p v-if="referredBy" class="mt-2 text-sm text-purple-700">
+        <p v-if="referredBy" class="mt-2 text-sm text-purple-700 dark:text-purple-300">
           {{ $t('You were invited by {name}.', { name: referredBy.name }) }}
         </p>
       </div>
 
-      <div v-if="referral.status === 'disabled'" class="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
-        <p class="text-sm text-amber-900">
+      <div v-if="referral.status === 'disabled'" class="mb-6 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+        <p class="text-sm text-amber-900 dark:text-amber-100">
           {{ $t('Your referral code is not active at the moment. Rewards you already have still work.') }}
         </p>
       </div>
@@ -263,14 +263,14 @@ const showingAll = computed(() => props.invited.length >= props.invited_count);
                 <td class="px-6 py-4">
                   <span
                     v-if="person.rewarded"
-                    class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800"
+                    class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-green-100 dark:bg-green-950/40 text-green-800 dark:text-green-200"
                   >
                     <Gift class="w-3 h-3" />
                     {{ $t('Reward earned') }}
                   </span>
                   <span
                     v-else
-                    class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-amber-100 text-amber-800"
+                    class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200"
                   >
                     <Clock class="w-3 h-3" />
                     {{ $t('Still spending') }}

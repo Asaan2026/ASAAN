@@ -54,7 +54,7 @@ defineProps<{
                     <div class="p-8 sm:p-12">
                         <!-- Category -->
                         <div v-if="post.category" class="mb-4">
-                            <Link :href="`/blog?category_id=${post.category.id}`" class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
+                            <Link :href="`/blog?category_id=${post.category.id}`" class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 hover:bg-blue-100 transition-colors">
                                 {{ post.category.name }}
                             </Link>
                         </div>
@@ -126,7 +126,7 @@ defineProps<{
 
                 <!-- Back Link -->
                 <div class="mt-8">
-                    <Link href="/blog" class="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 font-medium">
+                    <Link href="/blog" class="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 dark:hover:text-blue-200 font-medium">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>

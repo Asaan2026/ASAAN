@@ -59,7 +59,7 @@ const formatPrice = (price: number) => {
             href="/logout"
             method="post"
             as="button"
-            class="inline-flex items-center px-4 py-2 text-sm font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors"
+            class="inline-flex items-center px-4 py-2 text-sm font-medium text-red-600 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
           >
             {{ $t('Logout') }}
           </Link>
@@ -74,7 +74,7 @@ const formatPrice = (price: number) => {
                 <p class="text-sm text-gray-600 dark:text-slate-400 mb-1">{{ $t('Total Orders') }}</p>
                 <p class="text-2xl font-bold">{{ recentOrders.length }}</p>
               </div>
-              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <div class="w-12 h-12 bg-blue-100 dark:bg-blue-950/40 rounded-lg flex items-center justify-center">
                 <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
@@ -91,7 +91,7 @@ const formatPrice = (price: number) => {
                   {{ recentOrders.filter(o => o.status === 'pending' || o.status === 'processing').length }}
                 </p>
               </div>
-              <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+              <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-950/40 rounded-lg flex items-center justify-center">
                 <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -108,7 +108,7 @@ const formatPrice = (price: number) => {
                   {{ recentOrders.filter(o => o.status === 'delivered').length }}
                 </p>
               </div>
-              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <div class="w-12 h-12 bg-green-100 dark:bg-green-950/40 rounded-lg flex items-center justify-center">
                 <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -123,7 +123,7 @@ const formatPrice = (price: number) => {
                 <p class="text-sm text-gray-600 dark:text-slate-400 mb-1">{{ $t('Account') }}</p>
                 <p class="text-sm font-semibold text-green-600">{{ $t('Active') }}</p>
               </div>
-              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <div class="w-12 h-12 bg-green-100 dark:bg-green-950/40 rounded-lg flex items-center justify-center">
                 <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -142,7 +142,7 @@ const formatPrice = (price: number) => {
                   <h2 class="text-xl font-semibold">{{ $t('Recent Orders') }}</h2>
                   <Link
                     href="/account/orders"
-                    class="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    class="text-sm text-blue-600 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
                   >
                     {{ $t('View All') }}
                   </Link>
@@ -213,7 +213,7 @@ const formatPrice = (price: number) => {
                   href="/account/orders"
                   class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors group"
                 >
-                  <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                  <div class="w-10 h-10 bg-blue-100 dark:bg-blue-950/40 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
                     <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
@@ -228,7 +228,7 @@ const formatPrice = (price: number) => {
                   href="/"
                   class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors group"
                 >
-                  <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
+                  <div class="w-10 h-10 bg-green-100 dark:bg-green-950/40 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
                     <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
@@ -256,7 +256,7 @@ const formatPrice = (price: number) => {
                 <div class="pt-3 border-t border-gray-200 dark:border-slate-700">
                   <Link
                     href="/account/profile"
-                    class="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                    class="text-blue-600 hover:text-blue-700 dark:hover:text-blue-300 font-medium text-sm"
                   >
                     {{ $t('Edit Profile →') }}
                   </Link>
@@ -285,9 +285,9 @@ const formatPrice = (price: number) => {
             </div>
 
             <!-- Help & Support -->
-            <div class="bg-blue-50 rounded-lg border border-blue-200 p-6">
-              <h3 class="text-lg font-semibold mb-2 text-blue-900">{{ $t('Need Help?') }}</h3>
-              <p class="text-sm text-blue-800 mb-4">
+            <div class="bg-blue-50 dark:bg-blue-950/40 rounded-lg border border-blue-200 dark:border-blue-800 p-6">
+              <h3 class="text-lg font-semibold mb-2 text-blue-900 dark:text-blue-100">{{ $t('Need Help?') }}</h3>
+              <p class="text-sm text-blue-800 dark:text-blue-200 mb-4">
                 {{ $t('Our support team is here to assist you with any questions.') }}
               </p>
               <a

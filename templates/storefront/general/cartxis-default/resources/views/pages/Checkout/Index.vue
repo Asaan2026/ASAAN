@@ -500,7 +500,7 @@ const submitOrder = () => {
       <h1 class="text-3xl font-bold mb-8">{{ $t('Checkout') }}</h1>
 
       <!-- Flash Messages -->
-      <div v-if="$page.props.flash?.error" class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
+      <div v-if="$page.props.flash?.error" class="mb-6 bg-red-50 dark:bg-red-950/40 border-l-4 border-red-500 p-4 rounded-md">
         <div class="flex">
           <div class="flex-shrink-0">
             <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -508,12 +508,12 @@ const submitOrder = () => {
             </svg>
           </div>
           <div class="ml-3">
-            <p class="text-sm text-red-700">{{ $page.props.flash.error }}</p>
+            <p class="text-sm text-red-700 dark:text-red-300">{{ $page.props.flash.error }}</p>
           </div>
         </div>
       </div>
 
-      <div v-if="$page.props.flash?.success" class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-md">
+      <div v-if="$page.props.flash?.success" class="mb-6 bg-green-50 dark:bg-green-950/40 border-l-4 border-green-500 p-4 rounded-md">
         <div class="flex">
           <div class="flex-shrink-0">
             <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
@@ -521,7 +521,7 @@ const submitOrder = () => {
             </svg>
           </div>
           <div class="ml-3">
-            <p class="text-sm text-green-700">{{ $page.props.flash.success }}</p>
+            <p class="text-sm text-green-700 dark:text-green-300">{{ $page.props.flash.success }}</p>
           </div>
         </div>
       </div>

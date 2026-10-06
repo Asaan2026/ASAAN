@@ -111,7 +111,7 @@ const handleMoveToCart = async (itemId: number) => {
               <!-- Out of Stock Badge -->
               <span
                 v-if="!item.product.is_in_stock"
-                class="inline-block mb-3 text-xs font-medium text-red-600 bg-red-50 border border-red-100 rounded px-2 py-1"
+                class="inline-block mb-3 text-xs font-medium text-red-600 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-800 rounded px-2 py-1"
               >
                 {{ $t('Out of Stock') }}
               </span>
@@ -127,7 +127,7 @@ const handleMoveToCart = async (itemId: number) => {
                   {{ $t('Add to Cart') }}
                 </button>
                 <button
-                  class="p-2 text-gray-400 dark:text-slate-500 hover:text-red-500 border border-gray-200 dark:border-slate-700 rounded-lg hover:border-red-200 transition-colors"
+                  class="p-2 text-gray-400 dark:text-slate-500 hover:text-red-500 border border-gray-200 dark:border-slate-700 rounded-lg hover:border-red-200 dark:hover:border-red-800 transition-colors"
                   :aria-label="$t('Remove from wishlist')"
                   :disabled="loading"
                   @click="handleRemove(item.id)"

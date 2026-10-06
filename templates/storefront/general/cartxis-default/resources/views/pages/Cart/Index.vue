@@ -289,7 +289,7 @@ const handleRemove = async (itemId: string) => {
                                 <!-- Remove Button -->
                                 <button
                                     @click="handleRemove(item.id)"
-                                    class="text-red-600 hover:text-red-800 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                    class="text-red-600 hover:text-red-800 dark:hover:text-red-200 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                     :disabled="isItemUpdating(item.id) || isItemRemoving(item.id)"
                                 >
                                     <span v-if="isItemRemoving(item.id)">{{ $t('Removing...') }}</span>
@@ -334,9 +334,9 @@ const handleRemove = async (itemId: string) => {
                             </div>
                             <p v-if="couponError" class="mt-1 text-xs text-red-600">{{ couponError }}</p>
                         </div>
-                        <div v-else class="mb-4 flex items-center justify-between bg-green-50 border border-green-200 rounded-md px-3 py-2">
-                            <span class="text-sm text-green-700 font-medium">{{ $t('{code} applied', { code: couponCode }) }}</span>
-                            <button @click="handleRemoveCoupon" class="text-green-600 hover:text-green-800 text-lg leading-none">&times;</button>
+                        <div v-else class="mb-4 flex items-center justify-between bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800 rounded-md px-3 py-2">
+                            <span class="text-sm text-green-700 dark:text-green-300 font-medium">{{ $t('{code} applied', { code: couponCode }) }}</span>
+                            <button @click="handleRemoveCoupon" class="text-green-600 hover:text-green-800 dark:hover:text-green-200 text-lg leading-none">&times;</button>
                         </div>
 
                         <div class="space-y-3 mb-4">

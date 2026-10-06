@@ -219,7 +219,7 @@ const submit = () => {
                     <div class="rounded-xl border border-gray-200 dark:border-slate-700 p-6">
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-slate-100">{{ $t('Book this service') }}</h2>
 
-                        <p v-if="!booking.enabled" class="mt-3 rounded-md bg-amber-50 p-3 text-sm text-amber-900">
+                        <p v-if="!booking.enabled" class="mt-3 rounded-md bg-amber-50 dark:bg-amber-950/40 p-3 text-sm text-amber-900 dark:text-amber-100">
                             {{ $t('Online booking is not available for this service right now.') }}
                             <a
                                 v-if="settings.contact_phone"
@@ -233,7 +233,7 @@ const submit = () => {
                         <form v-else class="mt-5 space-y-5" novalidate @submit.prevent="submit">
                             <p
                                 v-if="errors?.form"
-                                class="rounded-md bg-red-50 p-3 text-sm text-red-700"
+                                class="rounded-md bg-red-50 dark:bg-red-950/40 p-3 text-sm text-red-700 dark:text-red-300"
                             >
                                 {{ errors.form }}
                             </p>

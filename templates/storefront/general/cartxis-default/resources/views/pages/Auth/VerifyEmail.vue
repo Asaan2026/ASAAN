@@ -51,7 +51,7 @@ defineProps<{
                     <!-- Success Message -->
                     <div
                         v-if="status === 'verification-link-sent'"
-                        class="mb-6 p-3 text-center text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-md flex items-center justify-center"
+                        class="mb-6 p-3 text-center text-sm font-medium text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800 rounded-md flex items-center justify-center"
                     >
                         <CheckCircle class="w-4 h-4 mr-2" />
                         {{ $t('A new verification link has been sent to your email address.') }}
@@ -114,11 +114,11 @@ defineProps<{
                 </div>
 
                 <!-- Email Tips -->
-                <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h3 class="text-sm font-medium text-blue-900 mb-2">
+                <div class="mt-8 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <h3 class="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
                         {{ $t("Didn't receive the email?") }}
                     </h3>
-                    <ul class="text-xs text-blue-800 space-y-1 list-disc list-inside">
+                    <ul class="text-xs text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
                         <li>{{ $t('Check your spam or junk folder') }}</li>
                         <li>{{ $t('Make sure you entered the correct email address') }}</li>
                         <li>{{ $t('Click the "Resend" button above if needed') }}</li>

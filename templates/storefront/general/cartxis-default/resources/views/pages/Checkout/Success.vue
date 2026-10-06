@@ -62,7 +62,7 @@ const isAuthenticated = computed(() => {
       <div class="max-w-3xl mx-auto">
         <!-- Success Header -->
         <div class="text-center mb-8">
-          <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+          <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 dark:bg-green-950/40 rounded-full mb-4">
             <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
             </svg>
@@ -85,11 +85,11 @@ const isAuthenticated = computed(() => {
               </div>
             </div>
             
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p class="text-sm text-blue-800">
+            <div class="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <p class="text-sm text-blue-800 dark:text-blue-200">
                 <strong>{{ $t('Confirmation Email Sent') }}</strong>
               </p>
-              <p class="text-sm text-blue-700 mt-1">
+              <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">
                 {{ $t("We've sent a confirmation email to") }} <strong>{{ order.customer_email }}</strong> {{ $t('with your order details.') }}
               </p>
             </div>
@@ -176,7 +176,7 @@ const isAuthenticated = computed(() => {
           <a
             v-if="order.is_guest"
             :href="`/checkout/track-order?order_number=${encodeURIComponent(order.order_number)}`"
-            class="px-6 py-3 border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50 font-medium"
+            class="px-6 py-3 border border-blue-300 dark:border-blue-800 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40 font-medium"
           >
             {{ $t('Track Guest Order') }}
           </a>
