@@ -1,0 +1,29 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to the VPS
+    runs-on: ubuntu-latest
+    # Only the client's repository drives the live server.
+    if: github.repository == 'Asaan2026/ASAAN'
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 40m
+          script_stop: true
+          script: |
+            /opt/asaan/deploy.sh

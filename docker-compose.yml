@@ -6,16 +6,16 @@ services:
     container_name: asaan_online_store_db
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: asaan_store
-      MYSQL_USER: asaan_store
-      MYSQL_PASSWORD: asaan_store_secret
-      MYSQL_ROOT_PASSWORD: asaan_root_secret
+      MYSQL_DATABASE: ${DB_DATABASE:-asaan_store}
+      MYSQL_USER: ${DB_USERNAME:-asaan_store}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in .env}
     ports:
       - "127.0.0.1:3307:3306"
     volumes:
       - asaan_db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pasaan_root_secret"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 5s
       timeout: 5s
       retries: 30
