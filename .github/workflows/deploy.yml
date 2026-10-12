@@ -26,4 +26,4 @@ jobs:
           command_timeout: 40m
           script_stop: true
           script: |
-            /opt/asaan/deploy.sh
+            bash /opt/asaan/deploy.sh
