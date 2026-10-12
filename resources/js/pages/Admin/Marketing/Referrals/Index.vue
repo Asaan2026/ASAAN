@@ -254,7 +254,7 @@ const rulesSummary = computed(() =>
 
         <div class="mt-5 flex items-end gap-[3px] h-32">
           <div
-            v-for="(point, i) in bars"
+            v-for="point in bars"
             :key="point.day"
             class="flex-1 rounded-t bg-blue-500 dark:bg-blue-400 min-h-[2px] transition-colors"
             :class="point.total === 0 ? 'bg-gray-200 dark:bg-gray-700' : 'hover:bg-blue-600'"
