@@ -9,6 +9,7 @@ interface Category {
     slug: string;
     description?: string;
     image?: string;
+    image_url?: string;
     children?: Category[];
 }
 
@@ -88,8 +89,8 @@ const discountPercentage = (product: Product) => {
                         <p v-if="category.description" class="text-gray-600 dark:text-slate-400 max-w-3xl" v-html="category.description"></p>
                     </div>
                     <img 
-                        v-if="category.image" 
-                        :src="category.image" 
+                        v-if="category.image_url" 
+                        :src="category.image_url" 
                         :alt="category.name"
                         class="w-32 h-32 object-contain rounded-lg ml-6 bg-gray-100 dark:bg-slate-800"
                     />
@@ -105,8 +106,15 @@ const discountPercentage = (product: Product) => {
                             :href="`/category/${child.slug}`"
                             class="flex flex-col items-center p-4 bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-700 hover:border-indigo-500 hover:shadow-md transition-all"
                         >
-                            <div class="w-16 h-16 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-2">
-                                <svg class="w-8 h-8 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-16 h-16 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-2 overflow-hidden">
+                                <img
+                                    v-if="child.image_url"
+                                    :src="child.image_url"
+                                    :alt="child.name"
+                                    class="w-full h-full object-cover"
+                                    loading="lazy"
+                                />
+                                <svg v-else class="w-8 h-8 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                                 </svg>
                             </div>

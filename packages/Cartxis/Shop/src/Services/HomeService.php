@@ -160,7 +160,8 @@ class HomeService extends ShopService
                             'name' => $category->name,
                             'slug' => $category->slug,
                             'description' => $category->description,
-                            'image' => $category->image,
+                            'image' => $category->image_url,
+                            'image_url' => $category->image_url,
                             'products_count' => $category->products()->count(),
                         ];
                     })

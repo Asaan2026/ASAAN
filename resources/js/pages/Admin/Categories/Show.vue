@@ -143,10 +143,10 @@ const props = defineProps<Props>();
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('Description') }}</dt>
                     <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ category.description }}</dd>
                   </div>
-                  <div class="sm:col-span-2" v-if="category.image">
+                  <div class="sm:col-span-2" v-if="category.image_url">
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{{ $t('Image') }}</dt>
                     <dd>
-                      <img :src="category.image" :alt="category.name" class="h-48 w-48 object-cover rounded-lg" />
+                      <img :src="category.image_url" :alt="category.name" class="h-48 w-48 object-cover rounded-lg" />
                     </dd>
                   </div>
                 </dl>

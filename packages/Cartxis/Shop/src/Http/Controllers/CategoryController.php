@@ -57,6 +57,10 @@ class CategoryController extends Controller
             abort(404, 'Category not found');
         }
 
+        $category->load([
+            'children' => fn ($query) => $query->where('status', 'enabled'),
+        ]);
+
         $filters = [
             'per_page' => $request->input('per_page', config('shop.listing.products_per_page', 12)),
             'sort' => $request->input('sort', config('shop.listing.default_sort', 'position')),
