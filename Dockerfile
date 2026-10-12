@@ -49,6 +49,8 @@ EOF
 RUN rm -f bootstrap/cache/*.php && mkdir -p bootstrap/cache storage/framework/cache storage/framework/sessions storage/framework/views storage/app/public && php artisan key:generate
 
 # Node dependencies (cache mount + retries) + build frontend (PHP available for @laravel/vite-plugin-wayfinder)
+# Raise Node's heap so the frontend build does not run out of memory on small servers.
+ENV NODE_OPTIONS=--max-old-space-size=3072
 RUN --mount=type=cache,target=/root/.npm \
     for i in 1 2 3 4 5; do \
         npm ci --no-audit --no-fund \
