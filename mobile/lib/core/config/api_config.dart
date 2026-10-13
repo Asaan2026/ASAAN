@@ -12,7 +12,7 @@ class ApiConfig {
   // Android emulator: 10.0.2.2 = host machine loopback; nginx vhost selected via Host header
   static const String _iosBaseUrl     = 'https://cartxis.test';
   static const String _androidBaseUrl = 'https://10.0.2.2'; // No path prefix — Host header routes to vhost root
-  static const String productionBaseUrl = 'https://asaan-store.onrender.com';
+  static const String productionBaseUrl = 'https://asaandotaf.store';
 
   // Sent as Host header on Android dev so nginx routes to the cartxis.test vhost
   static const String devDomain = 'cartxis.test';
@@ -32,9 +32,9 @@ class ApiConfig {
   static const String authLogout = '/api/$apiVersion/auth/logout';
   static const String authMe = '/api/$apiVersion/auth/me';
   static const String authForgotPassword =
-      '/api/$apiVersion/auth/forgot-password';
+      '/api/$apiVersion/auth/password/forgot';
   static const String authResetPassword =
-      '/api/$apiVersion/auth/reset-password';
+      '/api/$apiVersion/auth/password/reset';
   static const String authVerifyEmail = '/api/$apiVersion/auth/verify-email';
   static const String authDeleteAccount = '/api/$apiVersion/auth/account';
 
