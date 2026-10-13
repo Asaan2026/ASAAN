@@ -2,14 +2,13 @@
 
 namespace Cartxis\Stripe\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Stripe\Stripe;
-use Cartxis\Core\Facades\Menu;
 use Cartxis\Core\Models\Extension;
 use Cartxis\Core\Models\PaymentMethod;
 use Cartxis\Core\Services\PaymentGatewayManager;
 use Cartxis\Stripe\Services\StripeGateway;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\ServiceProvider;
+use Stripe\Stripe;
 
 class StripeServiceProvider extends ServiceProvider
 {
@@ -22,7 +21,7 @@ class StripeServiceProvider extends ServiceProvider
     {
         // Merge configuration
         $this->mergeConfigFrom(
-            __DIR__ . '/../Config/stripe.php',
+            __DIR__.'/../Config/stripe.php',
             'stripe'
         );
 
@@ -39,20 +38,20 @@ class StripeServiceProvider extends ServiceProvider
         $this->seedPaymentMethod();
 
         // If extensions table exists and this extension is disabled, do not boot routes/gateway.
-        if (!$this->isExtensionActive()) {
+        if (! $this->isExtensionActive()) {
             return;
         }
 
         // Load routes
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/admin.php');
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
+        $this->loadRoutesFrom(__DIR__.'/../Routes/admin.php');
+        $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
 
         // Register Stripe gateway with the payment gateway manager
         $this->registerGateway();
 
         // Publish configuration
         $this->publishes([
-            __DIR__ . '/../Config/stripe.php' => config_path('stripe.php'),
+            __DIR__.'/../Config/stripe.php' => config_path('stripe.php'),
         ], 'stripe-config');
     }
 
@@ -66,7 +65,7 @@ class StripeServiceProvider extends ServiceProvider
     protected function isExtensionActive(): bool
     {
         try {
-            if (!Schema::hasTable('extensions')) {
+            if (! Schema::hasTable('extensions')) {
                 return true;
             }
 
@@ -87,7 +86,7 @@ class StripeServiceProvider extends ServiceProvider
                 ]
             );
 
-            if (!$extension->installed) {
+            if (! $extension->installed) {
                 $extension->update(['installed' => true, 'installed_at' => now()]);
             }
 
@@ -103,7 +102,7 @@ class StripeServiceProvider extends ServiceProvider
     protected function registerGateway(): void
     {
         $manager = $this->app->make(PaymentGatewayManager::class);
-        $manager->register(new StripeGateway());
+        $manager->register(new StripeGateway);
     }
 
     /**

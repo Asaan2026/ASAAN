@@ -2,6 +2,7 @@
 
 namespace App\Models\Concerns;
 
+use App\Models\User;
 use Cartxis\Referral\Exceptions\ReferralBalanceOutstanding;
 use Cartxis\Referral\Models\ReferralLedgerEntry;
 use Cartxis\Referral\Services\ReferralSettings;
@@ -36,7 +37,7 @@ class ReferralAwareUserBuilder extends Builder
     {
         // Model::delete() ends up calling this builder, so the deliberate-erasure
         // escape hatch has to be honoured here as well as on the model.
-        if (\App\Models\User::isDeletingWithReferralHistory()) {
+        if (User::isDeletingWithReferralHistory()) {
             return;
         }
 

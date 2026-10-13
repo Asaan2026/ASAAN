@@ -3,9 +3,10 @@
 namespace Cartxis\Sales\Services;
 
 use Cartxis\Core\Services\SettingService;
+use Cartxis\Core\Support\StoreCountry;
 use Cartxis\Sales\Models\Shipment;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -37,7 +38,7 @@ class DeliveryService
 
     public function createOrderForShipment(Shipment $shipment): array
     {
-        if (!$this->isConfigured()) {
+        if (! $this->isConfigured()) {
             throw new \RuntimeException('External courier is not configured. Please complete courier settings first.');
         }
 
@@ -48,18 +49,18 @@ class DeliveryService
         ]);
 
         $order = $shipment->order;
-        if (!$order) {
+        if (! $order) {
             throw new \RuntimeException('Shipment order not found.');
         }
 
         $address = $order->shippingAddress;
-        if (!$address) {
+        if (! $address) {
             throw new \RuntimeException('Order shipping address not found.');
         }
 
         $payload = $this->buildCreatePayload($shipment);
 
-        /** @var \Illuminate\Http\Client\Response $response */
+        /** @var Response $response */
         $data = $this->postCreateOrder($payload);
 
         $result = [
@@ -124,7 +125,7 @@ class DeliveryService
                     ]),
                 ];
 
-                if (!empty($retryResult['delivery_awb_code'])) {
+                if (! empty($retryResult['delivery_awb_code'])) {
                     return $retryResult;
                 }
 
@@ -148,7 +149,7 @@ class DeliveryService
                 ]);
 
                 $apiMessage = $detailedRemark
-                    ?: 'Delhivery returned an internal error. Verify pickup location, channel id (if your account uses channels), and destination serviceability. If issue persists, contact client.support@delhivery.com with order number ' . ((string) ($order->order_number ?? 'N/A')) . '.';
+                    ?: 'Delhivery returned an internal error. Verify pickup location, channel id (if your account uses channels), and destination serviceability. If issue persists, contact client.support@delhivery.com with order number '.((string) ($order->order_number ?? 'N/A')).'.';
             }
 
             if (stripos($apiMessage, 'ClientWarehouse matching query does not exist') !== false) {
@@ -163,7 +164,7 @@ class DeliveryService
                 $apiMessage = 'Waybill/AWB not returned by Delivery API.';
             }
 
-            throw new \RuntimeException('Delivery create shipment failed: ' . $apiMessage);
+            throw new \RuntimeException('Delivery create shipment failed: '.$apiMessage);
         }
 
         return $result;
@@ -172,18 +173,18 @@ class DeliveryService
     protected function extractCreateErrorMessage(array $data): ?string
     {
         return $this->firstString([
-                Arr::get($data, 'packages.0.remarks.0'),
-                Arr::get($data, 'packages.0.remarks'),
-                Arr::get($data, 'packages.0.status'),
-                Arr::get($data, 'rmk'),
-                Arr::get($data, 'message'),
-                Arr::get($data, 'error'),
-            ]);
+            Arr::get($data, 'packages.0.remarks.0'),
+            Arr::get($data, 'packages.0.remarks'),
+            Arr::get($data, 'packages.0.status'),
+            Arr::get($data, 'rmk'),
+            Arr::get($data, 'message'),
+            Arr::get($data, 'error'),
+        ]);
     }
 
     protected function isGenericInternalError(?string $message): bool
     {
-        if (!is_string($message) || trim($message) === '') {
+        if (! is_string($message) || trim($message) === '') {
             return false;
         }
 
@@ -192,28 +193,29 @@ class DeliveryService
 
     protected function postCreateOrder(array $payload): array
     {
-        /** @var \Illuminate\Http\Client\Response $response */
+        /** @var Response $response */
         $response = Http::acceptJson()
             ->withHeaders([
-                'Authorization' => 'Token ' . trim((string) $this->settingService->get('shipping.courier.api_token', '')),
+                'Authorization' => 'Token '.trim((string) $this->settingService->get('shipping.courier.api_token', '')),
             ])
             ->asForm()
-            ->post($this->apiBaseUrl() . '/api/cmu/create.json', [
+            ->post($this->apiBaseUrl().'/api/cmu/create.json', [
                 'format' => 'json',
                 'data' => json_encode($payload, JSON_UNESCAPED_UNICODE),
             ]);
 
-        if (!$response->successful()) {
-            throw new \RuntimeException('Delivery create shipment failed: ' . $response->body());
+        if (! $response->successful()) {
+            throw new \RuntimeException('Delivery create shipment failed: '.$response->body());
         }
 
         $json = $response->json();
+
         return is_array($json) ? $json : [];
     }
 
     public function fetchTrackingByAwb(string $awbCode): array
     {
-        if (!$this->isConfigured()) {
+        if (! $this->isConfigured()) {
             throw new \RuntimeException('External courier is not configured. Please complete courier settings first.');
         }
 
@@ -222,19 +224,19 @@ class DeliveryService
             throw new \RuntimeException('AWB code is required to fetch Delivery tracking.');
         }
 
-        /** @var \Illuminate\Http\Client\Response $response */
+        /** @var Response $response */
         $response = Http::acceptJson()
             ->withHeaders([
-                'Authorization' => 'Token ' . trim((string) $this->settingService->get('shipping.courier.api_token', '')),
+                'Authorization' => 'Token '.trim((string) $this->settingService->get('shipping.courier.api_token', '')),
                 'Content-Type' => 'application/json',
             ])
-            ->get($this->apiBaseUrl() . '/api/v1/packages/json/', [
+            ->get($this->apiBaseUrl().'/api/v1/packages/json/', [
                 'waybill' => $awbCode,
                 'ref_ids' => '',
             ]);
 
-        if (!$response->successful()) {
-            throw new \RuntimeException('Delivery tracking fetch failed: ' . $response->body());
+        if (! $response->successful()) {
+            throw new \RuntimeException('Delivery tracking fetch failed: '.$response->body());
         }
 
         $data = $response->json();
@@ -282,29 +284,31 @@ class DeliveryService
         foreach ($baseCandidates as $candidateBase) {
             foreach ($paths as $path) {
                 foreach (['get', 'post'] as $method) {
-                    /** @var \Illuminate\Http\Client\Response $response */
+                    /** @var Response $response */
                     $response = Http::acceptJson()
                         ->withHeaders([
-                            'Authorization' => 'Token ' . $apiToken,
+                            'Authorization' => 'Token '.$apiToken,
                             'Content-Type' => 'application/json',
                         ])
-                        ->$method($candidateBase . $path, $method === 'post' ? [] : []);
+                        ->$method($candidateBase.$path, $method === 'post' ? [] : []);
 
-                    $attempts[] = strtoupper($method) . ' ' . $candidateBase . $path . ' -> ' . $response->status();
+                    $attempts[] = strtoupper($method).' '.$candidateBase.$path.' -> '.$response->status();
 
-                    if (!$response->successful()) {
+                    if (! $response->successful()) {
                         $lastError = sprintf(
                             'HTTP %s from %s%s',
                             $response->status(),
                             $candidateBase,
                             $path
                         );
+
                         continue;
                     }
 
                     $rows = $this->extractWarehouseRows($response->json());
                     if (count($rows) === 0) {
                         $lastError = 'Connected, but no pickup locations were returned.';
+
                         continue;
                     }
 
@@ -314,8 +318,8 @@ class DeliveryService
         }
 
         throw new \RuntimeException(
-            'Unable to fetch Delivery pickup locations. ' . ($lastError ?: 'Please verify API token and warehouse setup in Delhivery panel.')
-            . ' You can still enter pickup location manually.'
+            'Unable to fetch Delivery pickup locations. '.($lastError ?: 'Please verify API token and warehouse setup in Delhivery panel.')
+            .' You can still enter pickup location manually.'
         );
     }
 
@@ -334,6 +338,7 @@ class DeliveryService
         $orderItems = $shipment->shipmentItems
             ->map(function ($shipmentItem) {
                 $orderItem = $shipmentItem->orderItem;
+
                 return [
                     'name' => (string) ($orderItem->product_name ?? 'Product'),
                     'qty' => (int) ($shipmentItem->quantity ?? 1),
@@ -354,7 +359,7 @@ class DeliveryService
             'pin' => (string) ($address->postal_code ?? ''),
             'city' => (string) ($address->city ?? ''),
             'state' => (string) ($address->state ?? ''),
-            'country' => \Cartxis\Core\Support\StoreCountry::normalise($address->country ?? null),
+            'country' => StoreCountry::normalise($address->country ?? null),
             'phone' => $phone,
             'order' => (string) ($order->order_number ?? $shipment->shipment_number),
             'payment_mode' => $order->isPaid() ? 'Prepaid' : 'COD',
@@ -429,7 +434,7 @@ class DeliveryService
         $rows = collect($rowCandidates)
             ->first(fn ($candidate) => is_array($candidate));
 
-        if (!is_array($rows)) {
+        if (! is_array($rows)) {
             return [];
         }
 
@@ -450,7 +455,7 @@ class DeliveryService
                     Arr::get($row, 'location_name'),
                 ]);
 
-                if (!$value || !$label) {
+                if (! $value || ! $label) {
                     return null;
                 }
 

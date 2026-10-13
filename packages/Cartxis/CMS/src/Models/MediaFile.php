@@ -2,6 +2,7 @@
 
 namespace Cartxis\CMS\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -80,12 +81,12 @@ class MediaFile extends Model
 
     public function creator()
     {
-        return $this->belongsTo(\App\Models\User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function updater()
     {
-        return $this->belongsTo(\App\Models\User::class, 'updated_by');
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     public function usages()
@@ -122,7 +123,7 @@ class MediaFile extends Model
 
     public function scopeSearch($query, ?string $search)
     {
-        if (!$search) {
+        if (! $search) {
             return $query;
         }
 
@@ -165,17 +166,17 @@ class MediaFile extends Model
     {
         $bytes = $this->size;
         $units = ['B', 'KB', 'MB', 'GB'];
-        
+
         for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
             $bytes /= 1024;
         }
-        
-        return round($bytes, 2) . ' ' . $units[$i];
+
+        return round($bytes, 2).' '.$units[$i];
     }
 
     public function getThumbnailUrlAttribute(): ?string
     {
-        if (!$this->is_image || !$this->thumbnails) {
+        if (! $this->is_image || ! $this->thumbnails) {
             return null;
         }
 
@@ -195,7 +196,7 @@ class MediaFile extends Model
      */
     public function getThumbnail(int $size): ?string
     {
-        if (!$this->is_image || !$this->thumbnails) {
+        if (! $this->is_image || ! $this->thumbnails) {
             return null;
         }
 

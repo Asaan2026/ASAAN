@@ -9,42 +9,42 @@ return [
 
     'name' => 'Product',
     'version' => '1.0.0',
-    
+
     /*
     |--------------------------------------------------------------------------
     | Product Settings
     |--------------------------------------------------------------------------
     */
-    
+
     'default_status' => 'enabled',
     'default_visibility' => 'both',
     'manage_stock_default' => true,
     'min_quantity_default' => 1,
     'notify_stock_qty_default' => 5,
-    
+
     /*
     |--------------------------------------------------------------------------
     | Image Settings
     |--------------------------------------------------------------------------
     */
-    
+
     'image_types' => ['main', 'gallery', 'thumbnail'],
     'image_upload_path' => 'products',
     'max_images_per_product' => 10,
-    
+
     /*
     |--------------------------------------------------------------------------
     | Product Types
     |--------------------------------------------------------------------------
     */
-    
+
     'product_types' => ['simple', 'configurable', 'virtual', 'downloadable'],
-    
+
     /*
     |--------------------------------------------------------------------------
     | Stock Status
     |--------------------------------------------------------------------------
     */
-    
+
     'stock_statuses' => ['in_stock', 'out_of_stock', 'on_backorder'],
 ];

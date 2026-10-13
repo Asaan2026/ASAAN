@@ -2,11 +2,12 @@
 
 namespace Cartxis\Cart\Services;
 
+use Cartxis\Core\Facades\Hook;
 use Cartxis\Core\Models\ShippingMethod;
 
 /**
  * Cart Shipping Calculator Service
- * 
+ *
  * Calculates shipping costs for cart items based on shipping methods.
  * Provides hooks for theme customization.
  */
@@ -14,20 +15,20 @@ class CartShippingCalculator
 {
     /**
      * Calculate shipping options for cart items
-     * 
-     * @param array $cartItems Cart items array
-     * @param array $shippingAddress Shipping address
+     *
+     * @param  array  $cartItems  Cart items array
+     * @param  array  $shippingAddress  Shipping address
      * @return array Available shipping methods with calculated costs
      */
     public function calculate(array $cartItems, array $shippingAddress = []): array
     {
         // Fire hook before calculation
-        if (function_exists('Hook') && class_exists(\Cartxis\Core\Facades\Hook::class)) {
-            \Cartxis\Core\Facades\Hook::doAction('cart.shipping.calculating', $cartItems, $shippingAddress);
+        if (function_exists('Hook') && class_exists(Hook::class)) {
+            Hook::doAction('cart.shipping.calculating', $cartItems, $shippingAddress);
         }
 
         // Calculate cart totals for shipping calculation
-        $cartSubtotal = collect($cartItems)->sum(fn($item) => $item['price'] * $item['quantity']);
+        $cartSubtotal = collect($cartItems)->sum(fn ($item) => $item['price'] * $item['quantity']);
         $cartWeight = $this->calculateTotalWeight($cartItems);
 
         // Get all active shipping methods
@@ -58,13 +59,13 @@ class CartShippingCalculator
         ];
 
         // Apply filter hook for customization
-        if (function_exists('Hook') && class_exists(\Cartxis\Core\Facades\Hook::class)) {
-            $result = \Cartxis\Core\Facades\Hook::applyFilter('cart.shipping', $result, $cartItems, $shippingAddress);
+        if (function_exists('Hook') && class_exists(Hook::class)) {
+            $result = Hook::applyFilter('cart.shipping', $result, $cartItems, $shippingAddress);
         }
 
         // Fire hook after calculation
-        if (function_exists('Hook') && class_exists(\Cartxis\Core\Facades\Hook::class)) {
-            \Cartxis\Core\Facades\Hook::doAction('cart.shipping.calculated', $result, $cartItems);
+        if (function_exists('Hook') && class_exists(Hook::class)) {
+            Hook::doAction('cart.shipping.calculated', $result, $cartItems);
         }
 
         return $result;
@@ -72,10 +73,10 @@ class CartShippingCalculator
 
     /**
      * Calculate shipping cost for a specific method
-     * 
-     * @param ShippingMethod $method Shipping method
-     * @param float $cartSubtotal Cart subtotal
-     * @param float $cartWeight Total cart weight
+     *
+     * @param  ShippingMethod  $method  Shipping method
+     * @param  float  $cartSubtotal  Cart subtotal
+     * @param  float  $cartWeight  Total cart weight
      * @return float Calculated shipping cost
      */
     private function calculateShippingCost(ShippingMethod $method, float $cartSubtotal, float $cartWeight): float
@@ -100,8 +101,8 @@ class CartShippingCalculator
 
     /**
      * Calculate total weight of cart items
-     * 
-     * @param array $cartItems Cart items
+     *
+     * @param  array  $cartItems  Cart items
      * @return float Total weight in kg
      */
     private function calculateTotalWeight(array $cartItems): float
@@ -123,9 +124,9 @@ class CartShippingCalculator
 
     /**
      * Get cheapest shipping option
-     * 
-     * @param array $cartItems Cart items
-     * @param array $shippingAddress Shipping address
+     *
+     * @param  array  $cartItems  Cart items
+     * @param  array  $shippingAddress  Shipping address
      * @return array|null Cheapest shipping option
      */
     public function getCheapestOption(array $cartItems, array $shippingAddress = []): ?array
@@ -143,10 +144,10 @@ class CartShippingCalculator
 
     /**
      * Get shipping option by method ID
-     * 
-     * @param int $methodId Shipping method ID
-     * @param array $cartItems Cart items
-     * @param array $shippingAddress Shipping address
+     *
+     * @param  int  $methodId  Shipping method ID
+     * @param  array  $cartItems  Cart items
+     * @param  array  $shippingAddress  Shipping address
      * @return array|null Shipping option
      */
     public function getOptionById(int $methodId, array $cartItems, array $shippingAddress = []): ?array

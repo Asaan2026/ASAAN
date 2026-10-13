@@ -19,7 +19,7 @@ return new class extends Migration
 
             // Unique constraint to prevent duplicate wishlist items
             $table->unique(['customer_id', 'product_id']);
-            
+
             // Indexes for faster lookups
             $table->index('customer_id');
             $table->index('product_id');

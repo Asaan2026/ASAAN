@@ -3,10 +3,10 @@
 namespace Cartxis\Reports\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Cartxis\Reports\Services\CustomerReportService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\Reports\Services\CustomerReportService;
 
 class CustomerReportController extends Controller
 {
@@ -49,4 +49,3 @@ class CustomerReportController extends Controller
         return response()->json(['message' => 'Export feature coming soon']);
     }
 }
-

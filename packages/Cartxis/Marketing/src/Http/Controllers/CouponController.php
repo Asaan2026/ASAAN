@@ -3,15 +3,16 @@
 namespace Cartxis\Marketing\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Inertia\Inertia;
-use Inertia\Response;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\JsonResponse;
-use Cartxis\Marketing\Models\Coupon;
-use Cartxis\Marketing\Services\CouponService;
 use Cartxis\Marketing\Http\Requests\StoreCouponRequest;
 use Cartxis\Marketing\Http\Requests\UpdateCouponRequest;
+use Cartxis\Marketing\Models\Coupon;
+use Cartxis\Marketing\Models\CouponUsage;
+use Cartxis\Marketing\Services\CouponService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class CouponController extends Controller
 {
@@ -30,8 +31,8 @@ class CouponController extends Controller
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('code', 'like', "%{$search}%")
-                  ->orWhere('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -73,8 +74,8 @@ class CouponController extends Controller
         $stats = [
             'total' => Coupon::count(),
             'active' => Coupon::where('is_active', true)->count(),
-            'used_today' => \Cartxis\Marketing\Models\CouponUsage::whereDate('used_at', today())->count(),
-            'total_discount' => \Cartxis\Marketing\Models\CouponUsage::sum('discount_amount'),
+            'used_today' => CouponUsage::whereDate('used_at', today())->count(),
+            'total_discount' => CouponUsage::sum('discount_amount'),
         ];
 
         return Inertia::render('Admin/Marketing/Coupons/Index', [
@@ -137,9 +138,9 @@ class CouponController extends Controller
     public function edit(Coupon $coupon): Response
     {
         $analyticsData = $this->couponService->getAnalytics($coupon->id);
-        
+
         // Get recent coupon usages for the sidebar
-        $recentUses = \Cartxis\Marketing\Models\CouponUsage::where('coupon_id', $coupon->id)
+        $recentUses = CouponUsage::where('coupon_id', $coupon->id)
             ->with('customer', 'order')
             ->orderBy('used_at', 'desc')
             ->limit(10)
@@ -282,7 +283,7 @@ class CouponController extends Controller
             $cartItems
         );
 
-        if (!$validation['valid']) {
+        if (! $validation['valid']) {
             return response()->json([
                 'success' => false,
                 'message' => $validation['message'],

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Cartxis\UIEditor\Repositories;
 
-use Cartxis\UIEditor\Models\PageLayout;
 use Cartxis\CMS\Models\Page;
+use Cartxis\UIEditor\Models\PageLayout;
 
 class LayoutRepository
 {
@@ -55,6 +55,7 @@ class LayoutRepository
     public function update(PageLayout $layout, array $attributes): PageLayout
     {
         $layout->update($attributes);
+
         return $layout->fresh();
     }
 }

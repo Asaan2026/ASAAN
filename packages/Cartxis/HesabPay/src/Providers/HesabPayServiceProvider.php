@@ -18,7 +18,7 @@ class HesabPayServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../Config/hesabpay.php', 'hesabpay');
+        $this->mergeConfigFrom(__DIR__.'/../Config/hesabpay.php', 'hesabpay');
     }
 
     /**
@@ -30,14 +30,14 @@ class HesabPayServiceProvider extends ServiceProvider
         // the admin to configure, rather than appearing from nowhere on switch-on.
         $this->seedPaymentMethod();
 
-        if (!$this->isExtensionActive()) {
+        if (! $this->isExtensionActive()) {
             return;
         }
 
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/admin.php');
+        $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
+        $this->loadRoutesFrom(__DIR__.'/../Routes/admin.php');
 
-        $this->app->make(PaymentGatewayManager::class)->register(new HesabPayGateway());
+        $this->app->make(PaymentGatewayManager::class)->register(new HesabPayGateway);
     }
 
     /**
@@ -49,7 +49,7 @@ class HesabPayServiceProvider extends ServiceProvider
     protected function isExtensionActive(): bool
     {
         try {
-            if (!Schema::hasTable('extensions')) {
+            if (! Schema::hasTable('extensions')) {
                 return true;
             }
 
@@ -68,7 +68,7 @@ class HesabPayServiceProvider extends ServiceProvider
                 ]
             );
 
-            if (!$extension->installed) {
+            if (! $extension->installed) {
                 $extension->update(['installed' => true, 'installed_at' => now()]);
             }
 

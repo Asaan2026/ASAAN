@@ -2,12 +2,12 @@
 
 namespace Cartxis\Razorpay\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Schema;
 use Cartxis\Core\Models\Extension;
 use Cartxis\Core\Models\PaymentMethod;
 use Cartxis\Core\Services\PaymentGatewayManager;
 use Cartxis\Razorpay\Services\RazorpayGateway;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\ServiceProvider;
 
 class RazorpayServiceProvider extends ServiceProvider
 {
@@ -20,7 +20,7 @@ class RazorpayServiceProvider extends ServiceProvider
     {
         // Merge config
         $this->mergeConfigFrom(
-            __DIR__ . '/../Config/razorpay.php',
+            __DIR__.'/../Config/razorpay.php',
             'razorpay'
         );
     }
@@ -34,13 +34,13 @@ class RazorpayServiceProvider extends ServiceProvider
         $this->seedPaymentMethod();
 
         // If extensions table exists and this extension is disabled, do not boot routes/gateway.
-        if (!$this->isExtensionActive()) {
+        if (! $this->isExtensionActive()) {
             return;
         }
 
         // Load routes
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/admin.php');
+        $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
+        $this->loadRoutesFrom(__DIR__.'/../Routes/admin.php');
 
         // Register the payment gateway
         $this->registerGateway();
@@ -56,7 +56,7 @@ class RazorpayServiceProvider extends ServiceProvider
     protected function isExtensionActive(): bool
     {
         try {
-            if (!Schema::hasTable('extensions')) {
+            if (! Schema::hasTable('extensions')) {
                 return true;
             }
 
@@ -75,7 +75,7 @@ class RazorpayServiceProvider extends ServiceProvider
                 ]
             );
 
-            if (!$extension->installed) {
+            if (! $extension->installed) {
                 $extension->update(['installed' => true, 'installed_at' => now()]);
             }
 
@@ -91,7 +91,7 @@ class RazorpayServiceProvider extends ServiceProvider
     protected function registerGateway(): void
     {
         $manager = $this->app->make(PaymentGatewayManager::class);
-        $manager->register(new RazorpayGateway());
+        $manager->register(new RazorpayGateway);
     }
 
     /**
@@ -103,7 +103,7 @@ class RazorpayServiceProvider extends ServiceProvider
             // Check if payment method already exists
             $exists = PaymentMethod::where('code', 'razorpay')->exists();
 
-            if (!$exists) {
+            if (! $exists) {
                 PaymentMethod::create([
                     'code' => 'razorpay',
                     'name' => 'Razorpay',

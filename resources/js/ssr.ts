@@ -17,7 +17,10 @@ createServer(
                 if (name.startsWith('themes/')) {
                     name = name
                         .replace(/^themes\//, 'templates/')
-                        .replace(/^templates\/([^/]+)\/resources\/views\//, 'templates/$1/');
+                        .replace(
+                            /^templates\/([^/]+)\/resources\/views\//,
+                            'templates/$1/',
+                        );
                 }
 
                 if (name.startsWith('templates/')) {

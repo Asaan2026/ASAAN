@@ -16,69 +16,65 @@
 *  limitations under the License.
 */
 
-
 namespace PhonePe\payments\v2\models\request;
 
 class StandardCheckoutPayRequest implements \JsonSerializable
 {
-	private string $merchantOrderId;
-	private int $amount;
-	private $metaInfo;
-	private array $paymentFlow;
+    private string $merchantOrderId;
 
-	/**
-	 * @param string $merchantOrderId
-	 * @param int $amount
-	 * @param $metaInfo
-	 * @param array $paymentFlow
-	 */
-	public function __construct($merchantOrderId, $amount, $metaInfo, $paymentFlow)
-	{
-		$this->merchantOrderId = $merchantOrderId;
-		$this->amount = $amount;
-		$this->metaInfo = $metaInfo;
-		$this->paymentFlow = $paymentFlow;
-	}
+    private int $amount;
 
-	/**
-	 * @return string
-	 */
-	public function getMerchantOrderId()
-	{
-		return $this->merchantOrderId;
-	}
+    private $metaInfo;
 
-	/**
-	 * @return int
-	 */
-	public function getAmount()
-	{
-		return $this->amount;
-	}
+    private array $paymentFlow;
 
-	/**
-	 * @return mixed
-	 */
-	public function getMetaInfo()
-	{
-		return $this->metaInfo;
-	}
+    /**
+     * @param  string  $merchantOrderId
+     * @param  int  $amount
+     * @param  array  $paymentFlow
+     */
+    public function __construct($merchantOrderId, $amount, $metaInfo, $paymentFlow)
+    {
+        $this->merchantOrderId = $merchantOrderId;
+        $this->amount = $amount;
+        $this->metaInfo = $metaInfo;
+        $this->paymentFlow = $paymentFlow;
+    }
 
-	/**
-	 * @return array
-	 */
-	public function getPaymentFlow()
-	{
-		return $this->paymentFlow;
-	}
+    /**
+     * @return string
+     */
+    public function getMerchantOrderId()
+    {
+        return $this->merchantOrderId;
+    }
 
-	/**
-	 * @return array
-	 */
-	public function jsonSerialize(): array
-	{
-		return get_object_vars($this);
-	}
+    /**
+     * @return int
+     */
+    public function getAmount()
+    {
+        return $this->amount;
+    }
 
+    /**
+     * @return mixed
+     */
+    public function getMetaInfo()
+    {
+        return $this->metaInfo;
+    }
 
+    /**
+     * @return array
+     */
+    public function getPaymentFlow()
+    {
+        return $this->paymentFlow;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return get_object_vars($this);
+    }
 }

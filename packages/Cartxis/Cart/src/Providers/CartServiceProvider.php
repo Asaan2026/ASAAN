@@ -20,12 +20,12 @@ class CartServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load cart web routes
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
-        
+        $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
+
         // Load cart API routes
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/api.php');
-        
+        $this->loadRoutesFrom(__DIR__.'/../Routes/api.php');
+
         // Load migrations
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
     }
 }

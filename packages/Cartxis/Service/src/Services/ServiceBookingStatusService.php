@@ -118,7 +118,7 @@ class ServiceBookingStatusService
 
             $booking->save();
 
-            $this->recordEvent($booking, $note ?: 'Assigned to ' . ($worker->name ?: 'a worker') . '.');
+            $this->recordEvent($booking, $note ?: 'Assigned to '.($worker->name ?: 'a worker').'.');
 
             $this->syncOrder($booking);
 
@@ -222,7 +222,7 @@ class ServiceBookingStatusService
             $booking->cancelled_at = now();
             $booking->save();
 
-            $this->recordEvent($booking, 'Cancelled: ' . $reason);
+            $this->recordEvent($booking, 'Cancelled: '.$reason);
             $this->syncOrder($booking);
 
             return $booking->fresh(['worker', 'events']);
@@ -234,7 +234,7 @@ class ServiceBookingStatusService
      */
     public function addInternalNote(ServiceBooking $booking, string $note): void
     {
-        $booking->internal_notes = trim(($booking->internal_notes ? $booking->internal_notes . "\n" : '') . $note);
+        $booking->internal_notes = trim(($booking->internal_notes ? $booking->internal_notes."\n" : '').$note);
         $booking->saveQuietly();
     }
 
@@ -300,14 +300,14 @@ class ServiceBookingStatusService
     {
         if ($booking->isTerminal()) {
             throw new RuntimeException(
-                'This job is already ' . strtolower($booking->statusLabel()) . ' and cannot change.'
+                'This job is already '.strtolower($booking->statusLabel()).' and cannot change.'
             );
         }
 
         if (! $this->canTransition($booking->status, $to)) {
             throw new RuntimeException(
-                'A job that is ' . strtolower($booking->statusLabel()) . ' cannot become '
-                . strtolower(ServiceBooking::STATUS_LABELS[$to] ?? $to) . '.'
+                'A job that is '.strtolower($booking->statusLabel()).' cannot become '
+                .strtolower(ServiceBooking::STATUS_LABELS[$to] ?? $to).'.'
             );
         }
 

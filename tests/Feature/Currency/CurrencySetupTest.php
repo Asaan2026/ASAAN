@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/CurrencyTestHelpers.php';
+require_once __DIR__.'/CurrencyTestHelpers.php';
 
 use Cartxis\Core\Models\Currency;
 
@@ -88,7 +88,7 @@ it('switches off the leftover currencies instead of deleting them', function () 
     ]);
 
     $migration = require __DIR__
-        . '/../../../packages/Cartxis/Core/src/Database/Migrations/2026_10_01_000001_restrict_store_to_afn_and_usd.php';
+        .'/../../../packages/Cartxis/Core/src/Database/Migrations/2026_10_01_000001_restrict_store_to_afn_and_usd.php';
 
     $migration->up();
 
@@ -119,7 +119,7 @@ it('takes the default back off a store that had the dollar as its default', func
     currencyRow('AFN')->update(['is_default' => false]);
 
     $migration = require __DIR__
-        . '/../../../packages/Cartxis/Core/src/Database/Migrations/2026_10_01_000001_restrict_store_to_afn_and_usd.php';
+        .'/../../../packages/Cartxis/Core/src/Database/Migrations/2026_10_01_000001_restrict_store_to_afn_and_usd.php';
 
     $migration->up();
 
@@ -133,7 +133,7 @@ it('repairs an afghani row that was hand-edited back to two decimals', function 
     currencyRow('AFN')->update(['decimal_places' => 2, 'symbol' => 'Af']);
 
     $migration = require __DIR__
-        . '/../../../packages/Cartxis/Core/src/Database/Migrations/2026_10_01_000001_restrict_store_to_afn_and_usd.php';
+        .'/../../../packages/Cartxis/Core/src/Database/Migrations/2026_10_01_000001_restrict_store_to_afn_and_usd.php';
 
     $migration->up();
 
@@ -150,7 +150,7 @@ it('does not stomp a rate the owner has already corrected', function () {
     setExchangeRate(72.5);
 
     $migration = require __DIR__
-        . '/../../../packages/Cartxis/Core/src/Database/Migrations/2026_10_01_000001_restrict_store_to_afn_and_usd.php';
+        .'/../../../packages/Cartxis/Core/src/Database/Migrations/2026_10_01_000001_restrict_store_to_afn_and_usd.php';
 
     $migration->up();
 

@@ -4,8 +4,8 @@ namespace Cartxis\Product\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class Attribute extends Model
@@ -40,7 +40,7 @@ class Attribute extends Model
             if (empty($attribute->code)) {
                 $attribute->code = Str::slug($attribute->name, '_');
             }
-            
+
             // Auto-set sort_order if not provided
             if (empty($attribute->sort_order)) {
                 $attribute->sort_order = (static::max('sort_order') ?? 0) + 1;
@@ -95,12 +95,13 @@ class Attribute extends Model
      */
     public function scopeSearch($query, $search)
     {
-        if (!empty($search)) {
+        if (! empty($search)) {
             return $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('code', 'like', "%{$search}%");
+                    ->orWhere('code', 'like', "%{$search}%");
             });
         }
+
         return $query;
     }
 
@@ -109,9 +110,10 @@ class Attribute extends Model
      */
     public function scopeOfType($query, $type)
     {
-        if (!empty($type)) {
+        if (! empty($type)) {
             return $query->where('type', $type);
         }
+
         return $query;
     }
 

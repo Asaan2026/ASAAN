@@ -55,7 +55,7 @@ class ShippingRate extends Model
         if ($state) {
             $query->where(function ($q) use ($state) {
                 $q->whereNull('state')
-                  ->orWhere('state', $state);
+                    ->orWhere('state', $state);
             });
         } else {
             $query->whereNull('state');
@@ -70,7 +70,7 @@ class ShippingRate extends Model
     public function scopeByWeight($query, $weight)
     {
         return $query->where('min_weight', '<=', $weight)
-                     ->where('max_weight', '>=', $weight);
+            ->where('max_weight', '>=', $weight);
     }
 
     /**
@@ -79,8 +79,8 @@ class ShippingRate extends Model
     public function scopeOrdered($query)
     {
         return $query->orderBy('country')
-                     ->orderBy('state')
-                     ->orderBy('min_weight');
+            ->orderBy('state')
+            ->orderBy('min_weight');
     }
 
     /**
@@ -90,6 +90,7 @@ class ShippingRate extends Model
     {
         $this->status = $this->status === 'active' ? 'inactive' : 'active';
         $this->save();
+
         return $this;
     }
 
@@ -101,6 +102,7 @@ class ShippingRate extends Model
         if ($this->state) {
             return "{$this->country} - {$this->state}";
         }
+
         return $this->country;
     }
 

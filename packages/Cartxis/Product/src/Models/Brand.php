@@ -43,7 +43,7 @@ class Brand extends Model
             if (empty($brand->slug)) {
                 $brand->slug = Str::slug($brand->name);
             }
-            
+
             // Auto-set sort_order if not provided
             if (empty($brand->sort_order)) {
                 $brand->sort_order = (static::max('sort_order') ?? 0) + 1;
@@ -87,13 +87,14 @@ class Brand extends Model
      */
     public function scopeSearch($query, $search)
     {
-        if (!empty($search)) {
+        if (! empty($search)) {
             return $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('slug', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('slug', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
+
         return $query;
     }
 

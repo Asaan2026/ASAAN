@@ -18,11 +18,11 @@ class UpdateBlogCategoryRequest extends FormRequest
         $category = $this->route('category');
 
         return [
-            'name'             => ['required', 'string', 'max:255'],
-            'slug'             => ['nullable', 'string', 'max:255', 'unique:blog_categories,slug,' . $category->id],
-            'description'      => ['nullable', 'string'],
-            'status'           => ['required', 'in:active,inactive'],
-            'meta_title'       => ['nullable', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
+            'slug' => ['nullable', 'string', 'max:255', 'unique:blog_categories,slug,'.$category->id],
+            'description' => ['nullable', 'string'],
+            'status' => ['required', 'in:active,inactive'],
+            'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:500'],
         ];
     }

@@ -2,8 +2,11 @@
 
 namespace Cartxis\Shop\Repositories;
 
-use Cartxis\Shop\Contracts\ProductRepositoryInterface;
 use Cartxis\Product\Models\Product;
+use Cartxis\Shop\Contracts\ProductRepositoryInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class ProductRepository extends ShopRepository implements ProductRepositoryInterface
 {
@@ -20,8 +23,8 @@ class ProductRepository extends ShopRepository implements ProductRepositoryInter
     /**
      * Get featured products.
      *
-     * @param int $limit
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @param  int  $limit
+     * @return Collection
      */
     public function getFeaturedProducts($limit = 12)
     {
@@ -37,8 +40,8 @@ class ProductRepository extends ShopRepository implements ProductRepositoryInter
     /**
      * Get new products.
      *
-     * @param int $limit
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @param  int  $limit
+     * @return Collection
      */
     public function getNewProducts($limit = 12)
     {
@@ -125,8 +128,8 @@ class ProductRepository extends ShopRepository implements ProductRepositoryInter
     /**
      * Find product by slug.
      *
-     * @param string $slug
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @param  string  $slug
+     * @return Model|null
      */
     public function findBySlug($slug)
     {
@@ -142,9 +145,9 @@ class ProductRepository extends ShopRepository implements ProductRepositoryInter
     /**
      * Get products by category.
      *
-     * @param int $categoryId
-     * @param int $perPage
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @param  int  $categoryId
+     * @param  int  $perPage
+     * @return LengthAwarePaginator
      */
     public function getByCategory($categoryId, $perPage = 12)
     {
@@ -161,9 +164,9 @@ class ProductRepository extends ShopRepository implements ProductRepositoryInter
     /**
      * Search products.
      *
-     * @param string $query
-     * @param int $perPage
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @param  string  $query
+     * @param  int  $perPage
+     * @return LengthAwarePaginator
      */
     public function search($query, $perPage = 12)
     {
@@ -173,8 +176,8 @@ class ProductRepository extends ShopRepository implements ProductRepositoryInter
             ->where('quantity', '>', 0)
             ->where(function ($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
-                  ->orWhere('description', 'like', "%{$query}%")
-                  ->orWhere('sku', 'like', "%{$query}%");
+                    ->orWhere('description', 'like', "%{$query}%")
+                    ->orWhere('sku', 'like', "%{$query}%");
             })
             ->paginate($perPage);
     }
@@ -182,15 +185,15 @@ class ProductRepository extends ShopRepository implements ProductRepositoryInter
     /**
      * Get related products.
      *
-     * @param int $productId
-     * @param int $limit
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @param  int  $productId
+     * @param  int  $limit
+     * @return Collection
      */
     public function getRelatedProducts($productId, $limit = 4)
     {
         $product = $this->find($productId);
 
-        if (!$product) {
+        if (! $product) {
             return collect([]);
         }
 
@@ -211,15 +214,15 @@ class ProductRepository extends ShopRepository implements ProductRepositoryInter
     /**
      * Get product with reviews.
      *
-     * @param int $id
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @param  int  $id
+     * @return Model|null
      */
     public function getWithReviews($id)
     {
         return $this->model
             ->with(['reviews' => function ($query) {
                 $query->where('status', 'approved')
-                      ->orderBy('created_at', 'desc');
+                    ->orderBy('created_at', 'desc');
             }])
             ->find($id);
     }

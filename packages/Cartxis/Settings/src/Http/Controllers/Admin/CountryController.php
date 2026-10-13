@@ -19,8 +19,8 @@ class CountryController extends Controller
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('code', 'like', "%{$search}%")
-                  ->orWhere('phone_code', 'like', "%{$search}%");
+                    ->orWhere('code', 'like', "%{$search}%")
+                    ->orWhere('phone_code', 'like', "%{$search}%");
             });
         }
 
@@ -64,7 +64,7 @@ class CountryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
-            'code' => 'required|string|size:2|unique:countries,code,' . $country->id,
+            'code' => 'required|string|size:2|unique:countries,code,'.$country->id,
             'code3' => 'nullable|string|size:3',
             'phone_code' => 'nullable|string|max:10',
             'currency_code' => 'nullable|string|max:3',
@@ -83,9 +83,9 @@ class CountryController extends Controller
      */
     public function toggle(Country $country)
     {
-        $country->update(['is_active' => !$country->is_active]);
+        $country->update(['is_active' => ! $country->is_active]);
 
-        return back()->with('success', "Country {$country->name} " . ($country->is_active ? 'enabled' : 'disabled') . '.');
+        return back()->with('success', "Country {$country->name} ".($country->is_active ? 'enabled' : 'disabled').'.');
     }
 
     /**
@@ -102,7 +102,7 @@ class CountryController extends Controller
         Country::whereIn('id', $validated['ids'])
             ->update(['is_active' => $validated['is_active']]);
 
-        return back()->with('success', count($validated['ids']) . ' countries updated.');
+        return back()->with('success', count($validated['ids']).' countries updated.');
     }
 
     /**

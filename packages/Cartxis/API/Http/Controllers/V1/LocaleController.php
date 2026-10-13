@@ -67,7 +67,7 @@ class LocaleController extends Controller
         $codes = [];
 
         foreach (['fa', 'en', 'ps'] as $code) {
-            if (File::exists(lang_path($code . '.json'))) {
+            if (File::exists(lang_path($code.'.json'))) {
                 $codes[] = $code;
             }
         }

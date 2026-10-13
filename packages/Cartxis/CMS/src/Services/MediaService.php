@@ -2,22 +2,23 @@
 
 namespace Cartxis\CMS\Services;
 
+use Cartxis\CMS\Models\MediaFile;
+use Cartxis\CMS\Models\MediaFolder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
-use Cartxis\CMS\Models\MediaFile;
-use Cartxis\CMS\Models\MediaFolder;
+use Intervention\Image\ImageManager;
 
 class MediaService
 {
     protected ImageManager $imageManager;
+
     protected array $thumbnailSizes = [150, 600, 1200];
 
     public function __construct()
     {
-        $this->imageManager = new ImageManager(new Driver());
+        $this->imageManager = new ImageManager(new Driver);
     }
 
     /**
@@ -28,7 +29,7 @@ class MediaService
         // Generate unique filename
         $filename = $this->generateUniqueFilename($file);
         $extension = $file->getClientOriginalExtension();
-        
+
         // Store file
         $disk = config('cms.media.disk', 'public');
         $path = $file->storeAs('media', $filename, $disk);
@@ -79,7 +80,7 @@ class MediaService
 
             $mediaFile->save();
         } catch (\Exception $e) {
-            \Log::error('Failed to process image: ' . $e->getMessage());
+            \Log::error('Failed to process image: '.$e->getMessage());
         }
     }
 
@@ -113,9 +114,9 @@ class MediaService
                 $thumbnailFullPath = Storage::disk($disk)->path($thumbnailPath);
                 $thumbnail->save($thumbnailFullPath);
 
-                $thumbnails[(string)$size] = $thumbnailPath;
+                $thumbnails[(string) $size] = $thumbnailPath;
             } catch (\Exception $e) {
-                \Log::error("Failed to generate {$size}px thumbnail: " . $e->getMessage());
+                \Log::error("Failed to generate {$size}px thumbnail: ".$e->getMessage());
             }
         }
 
@@ -162,6 +163,7 @@ class MediaService
             foreach ($files as $file) {
                 $file->forceDelete();
             }
+
             return $files->count();
         }
 
@@ -183,7 +185,7 @@ class MediaService
     {
         $extension = $file->getClientOriginalExtension();
         $uuid = Str::uuid();
-        
+
         return "{$uuid}.{$extension}";
     }
 
@@ -226,7 +228,7 @@ class MediaService
         } else {
             // Move files to parent folder
             $folder->files()->update(['folder_id' => $folder->parent_id]);
-            
+
             // Move subfolders to parent
             $folder->children()->update(['parent_id' => $folder->parent_id]);
         }

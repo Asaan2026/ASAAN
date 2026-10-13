@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Cartxis\Service\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Carbon\CarbonImmutable;
 use Cartxis\Core\Services\ThemeViewResolver;
 use Cartxis\Service\Models\Service;
 use Cartxis\Service\Models\ServiceBooking;
 use Cartxis\Service\Models\ServiceCategory;
 use Cartxis\Service\Services\ServiceSettings;
-use Carbon\CarbonImmutable;
+use Cartxis\Service\Services\ServiceSlotService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -124,7 +125,7 @@ class ServiceCatalogController extends Controller
             ->whereRaw('LOWER(reference) = ?', [strtolower(trim($validated['reference']))])
             ->where(function ($q) use ($validated) {
                 $q->where('customer_phone', $validated['phone'])
-                    ->orWhere('customer_phone', 'like', '%' . ltrim($validated['phone'], '0') . '%');
+                    ->orWhere('customer_phone', 'like', '%'.ltrim($validated['phone'], '0').'%');
             })
             ->first();
 
@@ -175,11 +176,11 @@ class ServiceCatalogController extends Controller
 
     protected function earliestDate(): CarbonImmutable
     {
-        return app(\Cartxis\Service\Services\ServiceSlotService::class)->earliestDate();
+        return app(ServiceSlotService::class)->earliestDate();
     }
 
     protected function latestDate(): CarbonImmutable
     {
-        return app(\Cartxis\Service\Services\ServiceSlotService::class)->latestDate();
+        return app(ServiceSlotService::class)->latestDate();
     }
 }

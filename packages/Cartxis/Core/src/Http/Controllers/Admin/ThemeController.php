@@ -3,20 +3,20 @@
 namespace Cartxis\Core\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Cartxis\Core\Models\Theme;
+use Cartxis\Core\Services\ThemeDataImportService;
 use Cartxis\Core\Services\ThemeLifecycleService;
 use Cartxis\Core\Services\ThemeService;
-use Cartxis\Core\Services\ThemeDataImportService;
-use Cartxis\Core\Services\ThemeAssetBuildService;
-use Cartxis\Core\Models\Theme;
-use Cartxis\UIEditor\Services\LayoutService;
 use Cartxis\UIEditor\Models\PageLayout;
+use Cartxis\UIEditor\Services\LayoutService;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Validator;
+use Inertia\Inertia;
 
 class ThemeController extends Controller
 {
     protected ThemeService $themeService;
+
     protected LayoutService $layoutService;
 
     public function __construct(ThemeService $themeService, LayoutService $layoutService)
@@ -37,17 +37,17 @@ class ThemeController extends Controller
             $config = $theme->getConfig();
 
             return [
-                'id'             => $theme->id,
-                'name'           => $theme->name,
-                'slug'           => $theme->slug,
-                'description'    => $theme->description,
-                'version'        => $theme->version,
-                'author'         => $theme->author,
-                'screenshot'     => $this->resolveThemeScreenshotUrl($theme),
-                'is_active'      => $theme->is_active,
-                'is_default'     => $theme->is_default,
-                'exists'         => $theme->exists(),
-                'supports'       => $config['supports'] ?? [],
+                'id' => $theme->id,
+                'name' => $theme->name,
+                'slug' => $theme->slug,
+                'description' => $theme->description,
+                'version' => $theme->version,
+                'author' => $theme->author,
+                'screenshot' => $this->resolveThemeScreenshotUrl($theme),
+                'is_active' => $theme->is_active,
+                'is_default' => $theme->is_default,
+                'exists' => $theme->exists(),
+                'supports' => $config['supports'] ?? [],
                 'homepageEditor' => $this->homepageEditorMeta($theme),
             ];
         });
@@ -64,19 +64,19 @@ class ThemeController extends Controller
     {
         $theme = Theme::where('is_active', true)->first();
 
-        if (!$theme) {
+        if (! $theme) {
             return redirect()->route('admin.themes.index')
                 ->with('error', 'No active theme found. Please activate a theme first.');
         }
 
-        if (!$theme->exists()) {
+        if (! $theme->exists()) {
             return redirect()->route('admin.themes.index')
                 ->with('error', 'Active theme files are missing.');
         }
 
         $schema = $this->themeService->getSettingsSchema($theme);
         $currentSettings = $this->flattenSettings($theme->settings ?? []);
-        $dataPath = $theme->getPath() . '/data/theme-data.json';
+        $dataPath = $theme->getPath().'/data/theme-data.json';
         $hasThemeData = file_exists($dataPath);
         $hasProductData = false;
 
@@ -112,7 +112,7 @@ class ThemeController extends Controller
         try {
             $theme = Theme::where('slug', $slug)->firstOrFail();
 
-            if (!$theme->exists()) {
+            if (! $theme->exists()) {
                 return back()->with('error', 'Theme files not found. Please reinstall the theme.');
             }
 
@@ -130,7 +130,7 @@ class ThemeController extends Controller
 
             return back()->with('success', $message);
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to activate theme: ' . $e->getMessage());
+            return back()->with('error', 'Failed to activate theme: '.$e->getMessage());
         }
     }
 
@@ -175,7 +175,7 @@ class ThemeController extends Controller
 
             return back()->with('success', 'Theme settings updated successfully!');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to update settings: ' . $e->getMessage());
+            return back()->with('error', 'Failed to update settings: '.$e->getMessage());
         }
     }
 
@@ -200,7 +200,7 @@ class ThemeController extends Controller
 
             return back()->with('success', "Theme '{$theme->name}' deleted successfully!");
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to delete theme: ' . $e->getMessage());
+            return back()->with('error', 'Failed to delete theme: '.$e->getMessage());
         }
     }
 
@@ -220,7 +220,7 @@ class ThemeController extends Controller
         try {
             $file = $request->file('theme');
             $path = $file->storeAs('themes', $file->getClientOriginalName(), 'local');
-            $fullPath = storage_path('app/' . $path);
+            $fullPath = storage_path('app/'.$path);
 
             $installedSlug = $this->themeService->install($fullPath);
 
@@ -249,7 +249,7 @@ class ThemeController extends Controller
 
             return back()->with('success', $message);
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to install theme: ' . $e->getMessage());
+            return back()->with('error', 'Failed to install theme: '.$e->getMessage());
         }
     }
 
@@ -284,7 +284,7 @@ class ThemeController extends Controller
                 $importService->buildImportSuccessMessage($results, $productResults)
             );
         } catch (\RuntimeException $e) {
-            return back()->with('error', 'Failed to import theme data: ' . $e->getMessage());
+            return back()->with('error', 'Failed to import theme data: '.$e->getMessage());
         }
     }
 
@@ -296,9 +296,9 @@ class ThemeController extends Controller
     {
         $theme = Theme::where('slug', $slug)->firstOrFail();
 
-        $dataPath = $theme->getPath() . '/data/theme-data.json';
+        $dataPath = $theme->getPath().'/data/theme-data.json';
 
-        if (!file_exists($dataPath)) {
+        if (! file_exists($dataPath)) {
             return back()->with('error', 'No demo data file found for this theme.');
         }
 
@@ -311,7 +311,7 @@ class ThemeController extends Controller
         $layoutData = $themeData['homepage'];
 
         // Validate basic structure
-        if (empty($layoutData['version']) || !isset($layoutData['sections'])) {
+        if (empty($layoutData['version']) || ! isset($layoutData['sections'])) {
             return back()->with('error', 'Invalid layout format in theme demo data.');
         }
 
@@ -322,7 +322,7 @@ class ThemeController extends Controller
 
             return back()->with('success', 'Homepage demo layout imported and published successfully!');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to import layout: ' . $e->getMessage());
+            return back()->with('error', 'Failed to import layout: '.$e->getMessage());
         }
     }
 
@@ -343,11 +343,11 @@ class ThemeController extends Controller
 
         try {
             $file = $request->file('screenshot');
-            $filename = 'screenshot.' . $file->getClientOriginalExtension();
+            $filename = 'screenshot.'.$file->getClientOriginalExtension();
 
             // Save to the theme's public directory
             $themePath = public_path("templates/{$slug}");
-            if (!is_dir($themePath)) {
+            if (! is_dir($themePath)) {
                 mkdir($themePath, 0755, true);
             }
 
@@ -358,7 +358,7 @@ class ThemeController extends Controller
 
             return back()->with('success', 'Theme screenshot updated successfully!');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to upload screenshot: ' . $e->getMessage());
+            return back()->with('error', 'Failed to upload screenshot: '.$e->getMessage());
         }
     }
 
@@ -374,9 +374,9 @@ class ThemeController extends Controller
         $flat = [];
 
         foreach ($settings as $key => $value) {
-            $fullKey = $prefix === '' ? $key : $prefix . '.' . $key;
+            $fullKey = $prefix === '' ? $key : $prefix.'.'.$key;
 
-            if (is_array($value) && !array_is_list($value)) {
+            if (is_array($value) && ! array_is_list($value)) {
                 // Recursively flatten associative arrays
                 $flat = array_merge($flat, $this->flattenSettings($value, $fullKey));
             } else {
@@ -404,7 +404,7 @@ class ThemeController extends Controller
     {
         $config = $theme->getConfig();
         $nativeHomepage = ! empty($config['native_homepage']);
-        $dataPath = $theme->getPath() . '/data/theme-data.json';
+        $dataPath = $theme->getPath().'/data/theme-data.json';
         $hasUiEditorLayout = false;
 
         if (file_exists($dataPath)) {
@@ -445,20 +445,20 @@ class ThemeController extends Controller
     {
         $configuredScreenshot = $theme->screenshot ?: ($theme->getConfig()['screenshot'] ?? null);
 
-        if (!$configuredScreenshot) {
+        if (! $configuredScreenshot) {
             return null;
         }
 
         $publicRelativePath = "templates/{$theme->slug}/{$configuredScreenshot}";
         $publicPath = public_path($publicRelativePath);
 
-        if (!file_exists($publicPath)) {
-            $sourcePath = $theme->getPath() . '/' . ltrim($configuredScreenshot, '/');
+        if (! file_exists($publicPath)) {
+            $sourcePath = $theme->getPath().'/'.ltrim($configuredScreenshot, '/');
 
             if (file_exists($sourcePath)) {
                 try {
                     $targetDirectory = dirname($publicPath);
-                    if (!is_dir($targetDirectory)) {
+                    if (! is_dir($targetDirectory)) {
                         mkdir($targetDirectory, 0755, true);
                     }
 

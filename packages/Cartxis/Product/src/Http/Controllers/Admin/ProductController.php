@@ -3,11 +3,15 @@
 namespace Cartxis\Product\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Cartxis\Product\Models\Product;
+use Cartxis\Core\Models\Currency;
+use Cartxis\Core\Models\TaxClass;
+use Cartxis\Core\Services\SettingService;
+use Cartxis\Product\Models\Attribute;
+use Cartxis\Product\Models\Brand;
 use Cartxis\Product\Models\Category;
 use Cartxis\Product\Models\InventoryAdjustment;
-use Cartxis\Core\Models\Currency;
-use Cartxis\Core\Services\SettingService;
+use Cartxis\Product\Models\Product;
+use Cartxis\Product\Models\ProductAttributeValue;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -84,12 +88,12 @@ class ProductController extends Controller
     {
         return Inertia::render('Admin/Products/Create', [
             'categories' => Category::enabled()->with('children')->whereNull('parent_id')->orderBy('name')->get(),
-            'brands' => \Cartxis\Product\Models\Brand::where('status', true)->orderBy('name')->get(['id', 'name']),
-            'taxClasses' => \Cartxis\Core\Models\TaxClass::orderBy('name')->get(['id', 'name', 'code']),
-            'attributes' => \Cartxis\Product\Models\Attribute::with('options')
-                ->where(function($query) {
+            'brands' => Brand::where('status', true)->orderBy('name')->get(['id', 'name']),
+            'taxClasses' => TaxClass::orderBy('name')->get(['id', 'name', 'code']),
+            'attributes' => Attribute::with('options')
+                ->where(function ($query) {
                     $query->where('is_filterable', true)
-                          ->orWhere('is_configurable', true);
+                        ->orWhere('is_configurable', true);
                 })
                 ->orderBy('sort_order')
                 ->get(['id', 'name', 'code', 'type', 'is_required', 'is_filterable', 'is_configurable']),
@@ -146,19 +150,19 @@ class ProductController extends Controller
 
         $product = Product::create($validated);
 
-        if (!empty($categoryIds)) {
+        if (! empty($categoryIds)) {
             $product->categories()->attach($categoryIds);
         }
 
         // Save attribute values
-        if (!empty($attributeValues)) {
+        if (! empty($attributeValues)) {
             foreach ($attributeValues as $code => $value) {
-                $attribute = \Cartxis\Product\Models\Attribute::where('code', $code)->first();
+                $attribute = Attribute::where('code', $code)->first();
                 if ($attribute) {
                     // Convert arrays to JSON for multiselect
                     $valueToStore = is_array($value) ? json_encode($value) : $value;
-                    
-                    \Cartxis\Product\Models\ProductAttributeValue::updateOrCreate(
+
+                    ProductAttributeValue::updateOrCreate(
                         [
                             'product_id' => $product->id,
                             'attribute_id' => $attribute->id,
@@ -197,12 +201,12 @@ class ProductController extends Controller
         return Inertia::render('Admin/Products/Edit', [
             'product' => $product,
             'categories' => Category::enabled()->with('children')->whereNull('parent_id')->orderBy('name')->get(),
-            'brands' => \Cartxis\Product\Models\Brand::where('status', true)->orderBy('name')->get(['id', 'name']),
-            'taxClasses' => \Cartxis\Core\Models\TaxClass::orderBy('name')->get(['id', 'name', 'code']),
-            'attributes' => \Cartxis\Product\Models\Attribute::with('options')
-                ->where(function($query) {
+            'brands' => Brand::where('status', true)->orderBy('name')->get(['id', 'name']),
+            'taxClasses' => TaxClass::orderBy('name')->get(['id', 'name', 'code']),
+            'attributes' => Attribute::with('options')
+                ->where(function ($query) {
                     $query->where('is_filterable', true)
-                          ->orWhere('is_configurable', true);
+                        ->orWhere('is_configurable', true);
                 })
                 ->orderBy('sort_order')
                 ->get(['id', 'name', 'code', 'type', 'is_required', 'is_filterable', 'is_configurable']),
@@ -233,8 +237,8 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'sku' => 'nullable|string|unique:products,sku,' . $product->id,
-            'slug' => 'nullable|string|unique:products,slug,' . $product->id,
+            'sku' => 'nullable|string|unique:products,sku,'.$product->id,
+            'slug' => 'nullable|string|unique:products,slug,'.$product->id,
             'short_description' => 'nullable|string',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
@@ -285,33 +289,33 @@ class ProductController extends Controller
         // Update attribute values
         // First, get all current attribute IDs for this product
         $currentAttributeCodes = array_keys($attributeValues);
-        $currentAttributeIds = \Cartxis\Product\Models\Attribute::whereIn('code', $currentAttributeCodes)->pluck('id')->toArray();
-        
+        $currentAttributeIds = Attribute::whereIn('code', $currentAttributeCodes)->pluck('id')->toArray();
+
         // Delete attribute values that are no longer selected
-        \Cartxis\Product\Models\ProductAttributeValue::where('product_id', $product->id)
+        ProductAttributeValue::where('product_id', $product->id)
             ->whereNotIn('attribute_id', $currentAttributeIds)
             ->delete();
-        
+
         // Update or create attribute values
-        if (!empty($attributeValues)) {
+        if (! empty($attributeValues)) {
             foreach ($attributeValues as $code => $value) {
-                $attribute = \Cartxis\Product\Models\Attribute::with('options')->where('code', $code)->first();
+                $attribute = Attribute::with('options')->where('code', $code)->first();
                 if ($attribute) {
                     // Handle different attribute types
                     if ($attribute->type === 'multiselect') {
                         // For multiselect, delete existing values first
-                        \Cartxis\Product\Models\ProductAttributeValue::where('product_id', $product->id)
+                        ProductAttributeValue::where('product_id', $product->id)
                             ->where('attribute_id', $attribute->id)
                             ->delete();
-                        
+
                         // Create a new row for each selected option
                         $values = is_array($value) ? $value : [$value];
                         foreach ($values as $optionValue) {
-                            if (!empty($optionValue)) {
+                            if (! empty($optionValue)) {
                                 // Find the option by value
                                 $option = $attribute->options->firstWhere('value', $optionValue);
                                 if ($option) {
-                                    \Cartxis\Product\Models\ProductAttributeValue::create([
+                                    ProductAttributeValue::create([
                                         'product_id' => $product->id,
                                         'attribute_id' => $attribute->id,
                                         'attribute_option_id' => $option->id,
@@ -322,7 +326,7 @@ class ProductController extends Controller
                     } elseif ($attribute->type === 'select') {
                         // For single select
                         $option = $attribute->options->firstWhere('value', $value);
-                        \Cartxis\Product\Models\ProductAttributeValue::updateOrCreate(
+                        ProductAttributeValue::updateOrCreate(
                             [
                                 'product_id' => $product->id,
                                 'attribute_id' => $attribute->id,
@@ -333,7 +337,7 @@ class ProductController extends Controller
                         );
                     } elseif ($attribute->type === 'boolean') {
                         // For boolean
-                        \Cartxis\Product\Models\ProductAttributeValue::updateOrCreate(
+                        ProductAttributeValue::updateOrCreate(
                             [
                                 'product_id' => $product->id,
                                 'attribute_id' => $attribute->id,
@@ -344,7 +348,7 @@ class ProductController extends Controller
                         );
                     } elseif ($attribute->type === 'date') {
                         // For date
-                        \Cartxis\Product\Models\ProductAttributeValue::updateOrCreate(
+                        ProductAttributeValue::updateOrCreate(
                             [
                                 'product_id' => $product->id,
                                 'attribute_id' => $attribute->id,
@@ -355,7 +359,7 @@ class ProductController extends Controller
                         );
                     } else {
                         // For text/textarea
-                        \Cartxis\Product\Models\ProductAttributeValue::updateOrCreate(
+                        ProductAttributeValue::updateOrCreate(
                             [
                                 'product_id' => $product->id,
                                 'attribute_id' => $attribute->id,
@@ -369,7 +373,7 @@ class ProductController extends Controller
             }
         } else {
             // If no attribute values provided, delete all existing ones
-            \Cartxis\Product\Models\ProductAttributeValue::where('product_id', $product->id)->delete();
+            ProductAttributeValue::where('product_id', $product->id)->delete();
         }
 
         // Record inventory adjustment if quantity changed
@@ -414,7 +418,7 @@ class ProductController extends Controller
 
         return redirect()
             ->route('admin.catalog.products.index')
-            ->with('success', count($request->ids) . ' products deleted successfully!');
+            ->with('success', count($request->ids).' products deleted successfully!');
     }
 
     /**
@@ -432,7 +436,7 @@ class ProductController extends Controller
 
         return redirect()
             ->route('admin.catalog.products.index')
-            ->with('success', count($request->ids) . ' products updated successfully!');
+            ->with('success', count($request->ids).' products updated successfully!');
     }
 
     /**

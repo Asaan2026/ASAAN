@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Cartxis\CMS\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Str;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Page extends Model
 {
@@ -40,9 +40,9 @@ class Page extends Model
      */
     protected $casts = [
         'is_homepage' => 'boolean',
-        'created_at'  => 'datetime',
-        'updated_at'  => 'datetime',
-        'deleted_at'  => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     /**
@@ -134,6 +134,7 @@ class Page extends Model
         if ($this->is_homepage) {
             return url('/');
         }
+
         return route('page.show', ['slug' => $this->url_key]);
     }
 

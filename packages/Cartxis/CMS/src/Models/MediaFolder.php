@@ -2,9 +2,11 @@
 
 namespace Cartxis\CMS\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 
 class MediaFolder extends Model
 {
@@ -76,7 +78,7 @@ class MediaFolder extends Model
 
     public function creator()
     {
-        return $this->belongsTo(\App\Models\User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     /**
@@ -92,12 +94,13 @@ class MediaFolder extends Model
      */
     public function buildPath(): string
     {
-        if (!$this->parent_id) {
-            return '/' . $this->name;
+        if (! $this->parent_id) {
+            return '/'.$this->name;
         }
 
         $parent = $this->parent;
-        return $parent->path . '/' . $this->name;
+
+        return $parent->path.'/'.$this->name;
     }
 
     public function updateChildrenPaths(): void
@@ -116,22 +119,22 @@ class MediaFolder extends Model
     public function getTotalFilesCountAttribute(): int
     {
         $count = $this->files()->count();
-        
+
         foreach ($this->children as $child) {
             $count += $child->total_files_count;
         }
-        
+
         return $count;
     }
 
-    public function getAllDescendants(): \Illuminate\Support\Collection
+    public function getAllDescendants(): Collection
     {
         $descendants = collect([$this]);
-        
+
         foreach ($this->children as $child) {
             $descendants = $descendants->merge($child->getAllDescendants());
         }
-        
+
         return $descendants;
     }
 }

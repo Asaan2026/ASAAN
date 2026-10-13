@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Cartxis\Core\Models\Theme;
 use Cartxis\Core\Services\SettingService;
 use Closure;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class HandleAppearance
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -25,7 +26,7 @@ class HandleAppearance
 
         if (! $request->is('admin') && ! $request->is('admin/*')) {
             try {
-                $theme = \Cartxis\Core\Models\Theme::active();
+                $theme = Theme::active();
                 $config = $theme?->getConfig() ?? [];
 
                 // The storefront themes shipped in this build are light-only:

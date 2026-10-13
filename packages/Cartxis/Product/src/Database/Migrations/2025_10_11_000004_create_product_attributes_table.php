@@ -22,7 +22,7 @@ return new class extends Migration
             $table->boolean('is_configurable')->default(false); // Can be used for variants
             $table->integer('sort_order')->default(0);
             $table->timestamps();
-            
+
             $table->index('code');
             $table->index('is_configurable');
         });
@@ -36,7 +36,7 @@ return new class extends Migration
             $table->string('swatch_value')->nullable(); // For color hex codes or image paths
             $table->integer('sort_order')->default(0);
             $table->timestamps();
-            
+
             $table->index('attribute_id');
         });
 
@@ -50,7 +50,7 @@ return new class extends Migration
             $table->boolean('boolean_value')->nullable();
             $table->date('date_value')->nullable();
             $table->timestamps();
-            
+
             $table->index(['product_id', 'attribute_id']);
         });
 
@@ -60,7 +60,7 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained()->cascadeOnDelete(); // Parent configurable product
             $table->foreignId('variant_id')->constrained('products')->cascadeOnDelete(); // Child simple product
             $table->timestamps();
-            
+
             $table->unique(['product_id', 'variant_id']);
         });
     }

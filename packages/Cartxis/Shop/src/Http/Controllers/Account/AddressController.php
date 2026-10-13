@@ -2,11 +2,12 @@
 
 namespace Cartxis\Shop\Http\Controllers\Account;
 
-use Illuminate\Http\Request;
+use App\Models\User;
+use Cartxis\Core\Services\ThemeViewResolver;
+use Cartxis\Core\Support\StoreCountry;
 use Cartxis\Shop\Http\Controllers\Controller;
 use Cartxis\Shop\Models\Address;
-use Cartxis\Core\Support\StoreCountry;
-use Cartxis\Core\Services\ThemeViewResolver;
+use Illuminate\Http\Request;
 
 class AddressController extends Controller
 {
@@ -22,7 +23,7 @@ class AddressController extends Controller
      */
     public function index()
     {
-        $addresses = Address::where('addressable_type', \App\Models\User::class)
+        $addresses = Address::where('addressable_type', User::class)
             ->where('addressable_id', auth()->id())
             ->orderByDesc('is_default')
             ->orderByDesc('created_at')
@@ -58,14 +59,14 @@ class AddressController extends Controller
 
         // If this is set as default, unset other defaults of the same type
         if ($validated['is_default'] ?? false) {
-            Address::where('addressable_type', \App\Models\User::class)
+            Address::where('addressable_type', User::class)
                 ->where('addressable_id', auth()->id())
                 ->where('type', $validated['address_type'])
                 ->update(['is_default' => false]);
         }
 
         $address = Address::create([
-            'addressable_type' => \App\Models\User::class,
+            'addressable_type' => User::class,
             'addressable_id' => auth()->id(),
             'type' => $validated['address_type'],
             'label' => $validated['label'] ?? null,
@@ -91,7 +92,7 @@ class AddressController extends Controller
     public function update(Request $request, Address $address)
     {
         // Ensure the address belongs to the authenticated user
-        if ($address->addressable_type !== \App\Models\User::class || $address->addressable_id !== auth()->id()) {
+        if ($address->addressable_type !== User::class || $address->addressable_id !== auth()->id()) {
             abort(403, 'Unauthorized');
         }
 
@@ -113,7 +114,7 @@ class AddressController extends Controller
 
         // If this is set as default, unset other defaults of the same type
         if ($validated['is_default'] ?? false) {
-            Address::where('addressable_type', \App\Models\User::class)
+            Address::where('addressable_type', User::class)
                 ->where('addressable_id', auth()->id())
                 ->where('id', '!=', $address->id)
                 ->where('type', $validated['address_type'])
@@ -145,12 +146,12 @@ class AddressController extends Controller
     public function setDefault(Address $address)
     {
         // Ensure the address belongs to the authenticated user
-        if ($address->addressable_type !== \App\Models\User::class || $address->addressable_id !== auth()->id()) {
+        if ($address->addressable_type !== User::class || $address->addressable_id !== auth()->id()) {
             abort(403, 'Unauthorized');
         }
 
         // Unset other defaults of the same type
-        Address::where('addressable_type', \App\Models\User::class)
+        Address::where('addressable_type', User::class)
             ->where('addressable_id', auth()->id())
             ->where('id', '!=', $address->id)
             ->where('type', $address->type)
@@ -168,12 +169,12 @@ class AddressController extends Controller
     public function destroy(Address $address)
     {
         // Ensure the address belongs to the authenticated user
-        if ($address->addressable_type !== \App\Models\User::class || $address->addressable_id !== auth()->id()) {
+        if ($address->addressable_type !== User::class || $address->addressable_id !== auth()->id()) {
             abort(403, 'Unauthorized');
         }
 
         // Prevent deleting the last address
-        $addressCount = Address::where('addressable_type', \App\Models\User::class)
+        $addressCount = Address::where('addressable_type', User::class)
             ->where('addressable_id', auth()->id())
             ->count();
 
@@ -183,12 +184,12 @@ class AddressController extends Controller
 
         // If deleting the default address, set another address as default
         if ($address->is_default) {
-            $newDefault = Address::where('addressable_type', \App\Models\User::class)
+            $newDefault = Address::where('addressable_type', User::class)
                 ->where('addressable_id', auth()->id())
                 ->where('id', '!=', $address->id)
                 ->where('type', $address->type)
                 ->first();
-            
+
             if ($newDefault) {
                 $newDefault->update(['is_default' => true]);
             }

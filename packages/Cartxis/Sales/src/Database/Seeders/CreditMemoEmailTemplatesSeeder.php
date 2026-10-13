@@ -2,8 +2,8 @@
 
 namespace Cartxis\Sales\Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use Cartxis\Core\Models\EmailTemplate;
+use Illuminate\Database\Seeder;
 
 class CreditMemoEmailTemplatesSeeder extends Seeder
 {

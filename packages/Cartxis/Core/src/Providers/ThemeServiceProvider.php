@@ -2,10 +2,10 @@
 
 namespace Cartxis\Core\Providers;
 
+use Cartxis\Core\Models\Theme;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
-use Cartxis\Core\Models\Theme;
 
 class ThemeServiceProvider extends ServiceProvider
 {
@@ -43,11 +43,11 @@ class ThemeServiceProvider extends ServiceProvider
                 $theme = Theme::active();
                 if ($theme) {
                     $view->with('activeTheme', [
-                        'name'  => $theme->name,
-                        'slug'  => $theme->slug,
+                        'name' => $theme->name,
+                        'slug' => $theme->slug,
                         'assets' => [
                             'css' => $theme->asset('css/theme.css'),
-                            'js'  => $theme->asset('js/theme.js'),
+                            'js' => $theme->asset('js/theme.js'),
                         ],
                     ]);
                 }

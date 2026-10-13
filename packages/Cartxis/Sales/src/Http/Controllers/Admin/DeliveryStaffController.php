@@ -24,9 +24,9 @@ class DeliveryStaffController extends Controller
         $staff = User::where('role', 'delivery')
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($query) use ($search) {
-                    $query->where('name', 'like', '%' . $search . '%')
-                        ->orWhere('email', 'like', '%' . $search . '%')
-                        ->orWhere('phone', 'like', '%' . $search . '%');
+                    $query->where('name', 'like', '%'.$search.'%')
+                        ->orWhere('email', 'like', '%'.$search.'%')
+                        ->orWhere('phone', 'like', '%'.$search.'%');
                 });
             })
             ->orderBy('name')

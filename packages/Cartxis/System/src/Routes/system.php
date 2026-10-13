@@ -1,21 +1,20 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use Cartxis\System\Http\Controllers\Admin\ApiSyncController;
+use Cartxis\System\Http\Controllers\Admin\DataMigrationController;
+use Cartxis\System\Http\Controllers\Admin\ExtensionsController;
+use Cartxis\System\Http\Controllers\Admin\MenuController;
+use Cartxis\System\Http\Controllers\Admin\PermissionController;
+use Cartxis\System\Http\Controllers\BackupController;
 use Cartxis\System\Http\Controllers\CacheController;
 use Cartxis\System\Http\Controllers\MaintenanceController;
-use Cartxis\System\Http\Controllers\Admin\MenuController;
-use Cartxis\System\Http\Controllers\Admin\ExtensionsController;
-use Cartxis\System\Http\Controllers\Admin\PermissionController;
-use Cartxis\System\Http\Controllers\Admin\DataMigrationController;
-
-use Cartxis\System\Http\Controllers\Admin\ApiSyncController;
-use Cartxis\System\Http\Controllers\BackupController;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web', 'auth:admin'])
     ->prefix('admin/system')
     ->name('admin.system.')
     ->group(function () {
-        
+
         // Data Migration Routes
         Route::prefix('migration')->name('migration.')->group(function () {
             Route::get('/', [DataMigrationController::class, 'index'])->name('index');
@@ -31,7 +30,7 @@ Route::middleware(['web', 'auth:admin'])
             Route::get('/download', [BackupController::class, 'download'])->name('download'); // using get for download link cleanliness or post if stricter
             Route::delete('/delete', [BackupController::class, 'destroy'])->name('destroy');
         });
-        
+
         // Cache Management Routes
         Route::prefix('cache')->name('cache.')->group(function () {
             Route::get('/', [CacheController::class, 'index'])->name('index');

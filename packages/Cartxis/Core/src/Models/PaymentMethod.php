@@ -91,7 +91,7 @@ class PaymentMethod extends Model
      */
     public function isAvailableForAmount(float $amount): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return false;
         }
 

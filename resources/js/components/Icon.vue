@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { cn } from '@/lib/utils';
 import {
     AlignCenter,
     AlignLeft,
@@ -20,7 +21,6 @@ import {
     Unlink,
     Zap,
 } from 'lucide-vue-next';
-import { cn } from '@/lib/utils';
 import { computed, type Component } from 'vue';
 
 interface Props {
@@ -52,22 +52,22 @@ const registry: Record<string, Component> = {
     'align-center': AlignCenter,
     'align-left': AlignLeft,
     'align-right': AlignRight,
-    'bold': Bold,
-    'database': Database,
-    'eye': Eye,
-    'italic': Italic,
-    'link': Link,
-    'list': List,
+    bold: Bold,
+    database: Database,
+    eye: Eye,
+    italic: Italic,
+    link: Link,
+    list: List,
     'list-ordered': ListOrdered,
-    'pilcrow': Pilcrow,
-    'quote': Quote,
-    'redo': Redo2,
-    'settings': Settings,
-    'signpost': Signpost,
-    'underline': Underline,
-    'undo': Undo2,
-    'unlink': Unlink,
-    'zap': Zap,
+    pilcrow: Pilcrow,
+    quote: Quote,
+    redo: Redo2,
+    settings: Settings,
+    signpost: Signpost,
+    underline: Underline,
+    undo: Undo2,
+    unlink: Unlink,
+    zap: Zap,
 };
 
 const className = computed(() => cn('h-4 w-4', props.class));

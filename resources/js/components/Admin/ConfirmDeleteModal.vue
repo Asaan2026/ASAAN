@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { X, AlertTriangle } from 'lucide-vue-next'
+import { AlertTriangle, X } from 'lucide-vue-next';
 
 interface Props {
-    show: boolean
-    title: string
-    message: string
+    show: boolean;
+    title: string;
+    message: string;
 }
 
-defineProps<Props>()
+defineProps<Props>();
 const emit = defineEmits<{
-    'update:show': [value: boolean]
-    'confirm': []
-}>()
+    'update:show': [value: boolean];
+    confirm: [];
+}>();
 
 const close = () => {
-    emit('update:show', false)
-}
+    emit('update:show', false);
+};
 
 const confirm = () => {
-    emit('confirm')
-}
+    emit('confirm');
+};
 </script>
 
 <template>
@@ -34,7 +34,7 @@ const confirm = () => {
         >
             <div
                 v-if="show"
-                class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-gray-500/75 dark:bg-gray-900/75 p-4 sm:items-center"
+                class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-gray-500/75 p-4 sm:items-center dark:bg-gray-900/75"
                 @click="close"
             >
                 <Transition
@@ -51,12 +51,20 @@ const confirm = () => {
                         @click.stop
                     >
                         <!-- Header -->
-                        <div class="flex items-center gap-3 border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
-                                <AlertTriangle class="h-6 w-6 text-red-600 dark:text-red-400" />
+                        <div
+                            class="flex items-center gap-3 border-b border-gray-200 px-6 py-4 dark:border-gray-700"
+                        >
+                            <div
+                                class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30"
+                            >
+                                <AlertTriangle
+                                    class="h-6 w-6 text-red-600 dark:text-red-400"
+                                />
                             </div>
                             <div class="flex-1">
-                                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                <h2
+                                    class="text-lg font-semibold text-gray-900 dark:text-white"
+                                >
                                     {{ $t('Delete {title}', { title }) }}
                                 </h2>
                             </div>
@@ -76,7 +84,9 @@ const confirm = () => {
                         </div>
 
                         <!-- Footer -->
-                        <div class="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-700">
+                        <div
+                            class="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-700"
+                        >
                             <button
                                 type="button"
                                 @click="close"

@@ -12,18 +12,18 @@ class APIServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load migrations
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
 
         // Load API routes
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/api.php');
+        $this->loadRoutesFrom(__DIR__.'/../Routes/api.php');
 
         // Load config
         $this->publishes([
-            __DIR__ . '/../Config/api.php' => config_path('cartxis-api.php'),
+            __DIR__.'/../Config/api.php' => config_path('cartxis-api.php'),
         ], 'cartxis-api-config');
 
         $this->mergeConfigFrom(
-            __DIR__ . '/../Config/api.php',
+            __DIR__.'/../Config/api.php',
             'cartxis-api'
         );
     }
@@ -34,6 +34,6 @@ class APIServiceProvider extends ServiceProvider
     public function register(): void
     {
         // Register API helper
-        require_once __DIR__ . '/../Helpers/ApiResponse.php';
+        require_once __DIR__.'/../Helpers/ApiResponse.php';
     }
 }

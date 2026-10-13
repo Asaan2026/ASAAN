@@ -2,7 +2,7 @@
 
 /**
  * Cartxis Default Theme Settings Schema
- * 
+ *
  * Define the settings fields that will appear in the theme customizer
  */
 
@@ -49,7 +49,7 @@ return [
                 ],
             ],
         ],
-        
+
         // Typography Section
         [
             'id' => 'typography',
@@ -95,7 +95,7 @@ return [
                 ],
             ],
         ],
-        
+
         // Layout Section
         [
             'id' => 'layout',
@@ -138,7 +138,7 @@ return [
                 ],
             ],
         ],
-        
+
         // Features Section
         [
             'id' => 'features',

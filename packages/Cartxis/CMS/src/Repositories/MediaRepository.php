@@ -2,10 +2,10 @@
 
 namespace Cartxis\CMS\Repositories;
 
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
 use Cartxis\CMS\Models\MediaFile;
 use Cartxis\CMS\Models\MediaFolder;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 
 class MediaRepository
 {

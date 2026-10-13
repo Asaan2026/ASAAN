@@ -42,7 +42,7 @@ return new class extends Migration
             $table->timestamp('delivered_at')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
-            
+
             $table->index('shipment_number');
             $table->index('order_id');
             $table->index('tracking_number');
@@ -64,7 +64,7 @@ return new class extends Migration
             $table->foreignId('order_item_id')->constrained()->onDelete('cascade');
             $table->integer('quantity');
             $table->timestamps();
-            
+
             $table->index('shipment_id');
             $table->index('order_item_id');
         });

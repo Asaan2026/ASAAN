@@ -23,10 +23,11 @@ class SettingService
      */
     public function get(string $key, $default = null)
     {
-        $cacheKey = $this->cachePrefix . $key;
+        $cacheKey = $this->cachePrefix.$key;
 
         return Cache::remember($cacheKey, $this->cacheDuration, function () use ($key, $default) {
             $setting = Setting::where('key', $key)->first();
+
             return $setting ? $setting->value : $default;
         });
     }
@@ -52,7 +53,7 @@ class SettingService
         );
 
         // Clear cache
-        Cache::forget($this->cachePrefix . $key);
+        Cache::forget($this->cachePrefix.$key);
 
         return $setting;
     }
@@ -70,7 +71,8 @@ class SettingService
      */
     public function delete(string $key): bool
     {
-        Cache::forget($this->cachePrefix . $key);
+        Cache::forget($this->cachePrefix.$key);
+
         return Setting::where('key', $key)->delete() > 0;
     }
 
@@ -125,9 +127,9 @@ class SettingService
     public function clearCache(): void
     {
         $settings = Setting::all();
-        
+
         foreach ($settings as $setting) {
-            Cache::forget($this->cachePrefix . $setting->key);
+            Cache::forget($this->cachePrefix.$setting->key);
         }
     }
 
@@ -157,9 +159,9 @@ class SettingService
     public function deleteByExtension(string $extensionCode): bool
     {
         $settings = Setting::where('extension_code', $extensionCode)->get();
-        
+
         foreach ($settings as $setting) {
-            Cache::forget($this->cachePrefix . $setting->key);
+            Cache::forget($this->cachePrefix.$setting->key);
         }
 
         return Setting::where('extension_code', $extensionCode)->delete() > 0;

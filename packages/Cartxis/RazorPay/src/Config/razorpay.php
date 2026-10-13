@@ -10,9 +10,9 @@ return [
     | Get your API keys from: https://dashboard.razorpay.com/app/keys
     |
     */
-    
+
     'razorpay' => [
-        
+
         /*
         |--------------------------------------------------------------------------
         | API Keys
@@ -22,10 +22,10 @@ return [
         | These can be found in your Razorpay Dashboard under Settings > API Keys.
         |
         */
-        
+
         'key_id' => env('RAZORPAY_KEY_ID', ''),
         'key_secret' => env('RAZORPAY_KEY_SECRET', ''),
-        
+
         /*
         |--------------------------------------------------------------------------
         | Currency
@@ -35,9 +35,9 @@ return [
         | Razorpay primarily supports INR (Indian Rupee).
         |
         */
-        
+
         'currency' => env('RAZORPAY_CURRENCY', 'INR'),
-        
+
         /*
         |--------------------------------------------------------------------------
         | Webhook Secret
@@ -47,9 +47,9 @@ return [
         | This can be found in your Razorpay Dashboard under Settings > Webhooks.
         |
         */
-        
+
         'webhook_secret' => env('RAZORPAY_WEBHOOK_SECRET', ''),
-        
+
         /*
         |--------------------------------------------------------------------------
         | Payment Capture
@@ -59,9 +59,9 @@ return [
         | true = auto-capture, false = manual capture
         |
         */
-        
+
         'auto_capture' => env('RAZORPAY_AUTO_CAPTURE', true),
-        
+
         /*
         |--------------------------------------------------------------------------
         | Payment Methods
@@ -71,7 +71,7 @@ return [
         | Options: card, netbanking, wallet, emi, upi
         |
         */
-        
+
         'payment_methods' => [
             'card' => true,
             'netbanking' => true,
@@ -79,6 +79,6 @@ return [
             'emi' => false,
             'upi' => true,
         ],
-        
+
     ],
 ];

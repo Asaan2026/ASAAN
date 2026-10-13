@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import AdminPagination from '@/components/Admin/Pagination.vue';
+import DatePicker from '@/components/Calendar/DatePicker.vue';
 import { useCurrency } from '@/composables/useCurrency';
 import AdminLayout from '@/layouts/AdminLayout.vue';
-import DatePicker from '@/components/Calendar/DatePicker.vue';
+import { useI18nStore } from '@/Stores/i18n';
 import { Head, router } from '@inertiajs/vue3';
 import {
     ArcElement,
@@ -19,7 +20,6 @@ import {
 } from 'chart.js';
 import {
     Banknote,
-    Calendar,
     CheckCircle2,
     ChevronDown,
     Download,
@@ -31,7 +31,6 @@ import {
 } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import { Bar } from 'vue-chartjs';
-import { useI18nStore } from '@/Stores/i18n';
 
 ChartJS.register(
     CategoryScale,
@@ -236,7 +235,11 @@ const rate = (value: number | null) =>
                         {{ $t('Delivery Reports') }}
                     </h1>
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        {{ $t('Track delivery performance, drivers, and COD collection') }}
+                        {{
+                            $t(
+                                'Track delivery performance, drivers, and COD collection',
+                            )
+                        }}
                     </p>
                 </div>
                 <div class="flex items-center gap-3">
@@ -312,7 +315,9 @@ const rate = (value: number | null) =>
                                 v-model="driverFilter"
                                 class="w-full appearance-none rounded-lg border border-gray-200 bg-gray-50 py-2.5 pr-8 pl-10 text-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-600 dark:bg-gray-700/50"
                             >
-                                <option value="">{{ $t('All Drivers') }}</option>
+                                <option value="">
+                                    {{ $t('All Drivers') }}
+                                </option>
                                 <option
                                     v-for="driver in drivers"
                                     :key="driver.id"
@@ -469,7 +474,8 @@ const rate = (value: number | null) =>
                                 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
                             >
                                 {{ statistics.undelivered }}
-                                <span class="text-sm font-medium text-gray-400"
+                                <span
+                                    class="text-sm font-medium text-gray-400"
                                     >{{
                                         $t('+{count} cancelled', {
                                             count: statistics.cancelled,
@@ -745,9 +751,7 @@ const rate = (value: number | null) =>
                                 <td
                                     class="px-6 py-3.5 text-sm whitespace-nowrap text-gray-700 dark:text-gray-300"
                                 >
-                                    {{
-                                        item.driver?.name ?? $t('Unassigned')
-                                    }}
+                                    {{ item.driver?.name ?? $t('Unassigned') }}
                                 </td>
                                 <td class="px-6 py-3.5 whitespace-nowrap">
                                     <div

@@ -2,9 +2,10 @@
 
 namespace Cartxis\Core\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class EmailTemplate extends Model
 {
@@ -58,8 +59,9 @@ class EmailTemplate extends Model
      */
     public function send(string $to, array $data = [], array $attachments = []): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             Log::warning("Attempted to send inactive email template: {$this->code}");
+
             return false;
         }
 
@@ -106,7 +108,7 @@ class EmailTemplate extends Model
                 } elseif ($config && $config->bcc_email) {
                     $message->bcc($config->bcc_email);
                 }
-                
+
                 // Attachments
                 foreach ($attachments as $attachment) {
                     if (is_array($attachment)) {
@@ -128,11 +130,12 @@ class EmailTemplate extends Model
 
             return true;
         } catch (\Exception $e) {
-            Log::error("Failed to send email template {$this->code}: " . $e->getMessage(), [
+            Log::error("Failed to send email template {$this->code}: ".$e->getMessage(), [
                 'template' => $this->code,
                 'to' => $to,
                 'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
@@ -147,13 +150,14 @@ class EmailTemplate extends Model
             if (is_array($value)) {
                 continue;
             }
-            
+
             // Convert value to string
             $stringValue = is_bool($value) ? ($value ? 'true' : 'false') : (string) $value;
-            
+
             // Support both {variable} and {{variable}} syntax
-            $content = str_replace(['{' . $key . '}', '{{' . $key . '}}'], $stringValue, $content);
+            $content = str_replace(['{'.$key.'}', '{{'.$key.'}}'], $stringValue, $content);
         }
+
         return $content;
     }
 
@@ -171,7 +175,7 @@ class EmailTemplate extends Model
     /**
      * Get templates by category
      */
-    public static function byCategory(string $category): \Illuminate\Database\Eloquent\Collection
+    public static function byCategory(string $category): Collection
     {
         return static::where('category', $category)
             ->orderBy('name')
@@ -188,9 +192,9 @@ class EmailTemplate extends Model
         }
 
         // Extract variables from content if not set
-        $content = $this->subject . ' ' . $this->html_content . ' ' . $this->plain_text_content;
+        $content = $this->subject.' '.$this->html_content.' '.$this->plain_text_content;
         preg_match_all('/\{([a-z_]+)\}/', $content, $matches);
-        
+
         return array_unique($matches[1] ?? []);
     }
 
@@ -243,7 +247,7 @@ class EmailTemplate extends Model
             return array_merge($defaults, [
                 'payment_method' => 'Credit Card ending in 4242',
                 'payment_amount' => '$149.99',
-                'transaction_id' => 'TXN-' . uniqid(),
+                'transaction_id' => 'TXN-'.uniqid(),
                 'payment_date' => now()->format('F j, Y, g:i A'),
             ]);
         }

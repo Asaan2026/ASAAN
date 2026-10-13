@@ -3,10 +3,10 @@
 namespace Cartxis\API\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
 use Cartxis\Core\Services\SettingService;
 use Cartxis\Core\Support\StoreCountry;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * AppSettingsController
@@ -35,11 +35,11 @@ class AppSettingsController extends Controller
     {
         $settings = [
             // Branding
-            'site_name'        => (string) $this->settingService->get('site_name', ''),
-            'site_tagline'     => (string) $this->settingService->get('site_tagline', ''),
+            'site_name' => (string) $this->settingService->get('site_name', ''),
+            'site_tagline' => (string) $this->settingService->get('site_tagline', ''),
 
             // Logos — return full public URLs so the app can download directly
-            'site_logo'        => $this->assetUrl($this->settingService->get('site_logo')),
+            'site_logo' => $this->assetUrl($this->settingService->get('site_logo')),
             'mobile_auth_logo' => $this->assetUrl($this->settingService->get('mobile_auth_logo')),
 
             // Store info
@@ -49,21 +49,21 @@ class AppSettingsController extends Controller
             // was called before it became Afghanistan-only, and this endpoint
             // is public -- a wrong country here is what the app shows a shopper
             // before they have even logged in.
-            'store_country'    => StoreCountry::name(),
-            'contact_phone'    => (string) $this->settingService->get('contact_phone', ''),
-            'admin_email'      => (string) $this->settingService->get('admin_email', ''),
+            'store_country' => StoreCountry::name(),
+            'contact_phone' => (string) $this->settingService->get('contact_phone', ''),
+            'admin_email' => (string) $this->settingService->get('admin_email', ''),
 
             // SEO / meta
-            'meta_title'       => (string) $this->settingService->get('meta_title', ''),
+            'meta_title' => (string) $this->settingService->get('meta_title', ''),
             'meta_description' => (string) $this->settingService->get('meta_description', ''),
 
             // API version info
-            'api_version'      => 'v1',
+            'api_version' => 'v1',
         ];
 
         return response()->json([
             'success' => true,
-            'data'    => $settings,
+            'data' => $settings,
         ]);
     }
 

@@ -11,21 +11,25 @@
  * reason for landing here is that one of those could not be loaded. A page
  * that needed the thing that just broke would be no use at all.
  */
-import { computed } from 'vue'
-import { Head, Link } from '@inertiajs/vue3'
+import { Head, Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 const props = defineProps<{
-    status: number
-    title: string
-    message: string
-    maintenance: boolean
-}>()
+    status: number;
+    title: string;
+    message: string;
+    maintenance: boolean;
+}>();
 
 /** Something short enough to sit above the message without shouting. */
-const headline = computed(() => (props.maintenance ? props.title : String(props.status)))
+const headline = computed(() =>
+    props.maintenance ? props.title : String(props.status),
+);
 
 /** Where to send someone who wants to keep shopping. */
-const backLabel = computed(() => (props.maintenance ? 'Try again' : 'Back to the shop'))
+const backLabel = computed(() =>
+    props.maintenance ? 'Try again' : 'Back to the shop',
+);
 </script>
 
 <template>
@@ -46,7 +50,9 @@ const backLabel = computed(() => (props.maintenance ? 'Try again' : 'Back to the
                 {{ title }}
             </h1>
 
-            <p class="mt-4 text-base leading-relaxed text-neutral-600 dark:text-neutral-400">
+            <p
+                class="mt-4 text-base leading-relaxed text-neutral-600 dark:text-neutral-400"
+            >
                 {{ message }}
             </p>
 

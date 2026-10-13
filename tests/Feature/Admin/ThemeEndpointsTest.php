@@ -11,7 +11,7 @@ uses(RefreshDatabase::class);
 function admin(): User
 {
     return User::factory()->withoutTwoFactor()->create([
-        'role'      => 'admin',
+        'role' => 'admin',
         'is_active' => true,
     ]);
 }
@@ -19,15 +19,15 @@ function admin(): User
 function theme(array $attrs = []): Theme
 {
     return Theme::create(array_merge([
-        'name'       => 'Cartxis Default',
-        'slug'       => 'cartxis-default',
-        'version'    => '1.0.0',
-        'author'     => 'Test',
+        'name' => 'Cartxis Default',
+        'slug' => 'cartxis-default',
+        'version' => '1.0.0',
+        'author' => 'Test',
         'description' => 'Test theme',
-        'is_active'  => true,
+        'is_active' => true,
         'is_default' => true,
-        'source'     => 'bundled',
-        'settings'   => ['contact' => ['phone' => '+93 700 000 000']],
+        'source' => 'bundled',
+        'settings' => ['contact' => ['phone' => '+93 700 000 000']],
     ], $attrs));
 }
 
@@ -51,7 +51,7 @@ test('PUT theme settings saves nested settings', function () {
         ->put(route('admin.themes.settings.update', $t->slug), [
             'settings' => [
                 'contact' => ['phone' => '+93 700 111 222', 'email' => 'a@b.af'],
-                'colors'  => ['primary' => '#e11d48'],
+                'colors' => ['primary' => '#e11d48'],
             ],
         ])
         ->assertStatus(302);
@@ -72,8 +72,8 @@ test('appearance page works when theme settings contain deeply nested and list v
     theme([
         'settings' => [
             'contact' => ['phone' => '1'],
-            'social'  => ['links' => ['a', 'b', 'c']],
-            'nested'  => ['a' => ['b' => ['c' => 'd']]],
+            'social' => ['links' => ['a', 'b', 'c']],
+            'nested' => ['a' => ['b' => ['c' => 'd']]],
         ],
     ]);
 

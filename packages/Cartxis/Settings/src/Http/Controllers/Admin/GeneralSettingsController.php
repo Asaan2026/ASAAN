@@ -3,12 +3,12 @@
 namespace Cartxis\Settings\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
 use Cartxis\Core\Services\SettingService;
 use Cartxis\Core\Support\StoreCountry;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class GeneralSettingsController extends Controller
 {
@@ -75,25 +75,33 @@ class GeneralSettingsController extends Controller
         // Handle logo removals first (before upload blocks)
         if ($request->input('remove_site_logo') === '1') {
             $current = $this->settingService->get('site_logo');
-            if ($current) Storage::disk('public')->delete($current);
+            if ($current) {
+                Storage::disk('public')->delete($current);
+            }
             $validated['site_logo'] = '';
         }
 
         if ($request->input('remove_admin_logo') === '1') {
             $current = $this->settingService->get('admin_logo');
-            if ($current) Storage::disk('public')->delete($current);
+            if ($current) {
+                Storage::disk('public')->delete($current);
+            }
             $validated['admin_logo'] = '';
         }
 
         if ($request->input('remove_site_favicon') === '1') {
             $current = $this->settingService->get('site_favicon');
-            if ($current) Storage::disk('public')->delete($current);
+            if ($current) {
+                Storage::disk('public')->delete($current);
+            }
             $validated['site_favicon'] = '';
         }
 
         if ($request->input('remove_mobile_auth_logo') === '1') {
             $current = $this->settingService->get('mobile_auth_logo');
-            if ($current) Storage::disk('public')->delete($current);
+            if ($current) {
+                Storage::disk('public')->delete($current);
+            }
             $validated['mobile_auth_logo'] = '';
         }
 

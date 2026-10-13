@@ -2,15 +2,17 @@
 
 namespace Cartxis\Settings\Http\Controllers\Admin;
 
+use Cartxis\Core\Services\SettingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\Core\Services\SettingService;
 
 class AiSettingsController
 {
     private const PRODUCT_DESCRIPTION_AGENT = 'Product Description Agent';
+
     private const PRICE_COMPARISON_AGENT = 'Price Comparison Agent';
 
     public function __construct(
@@ -123,10 +125,11 @@ class AiSettingsController
 
             return redirect()->route('admin.settings.ai.index')
                 ->with('success', 'AI settings saved successfully.');
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            Log::error('AI settings save error: ' . $e->getMessage());
+            Log::error('AI settings save error: '.$e->getMessage());
+
             return redirect()->back()->with('error', 'Failed to save AI settings. Please try again.');
         }
     }
@@ -137,11 +140,11 @@ class AiSettingsController
         $existingAgents = is_array($existingAgentsRaw) ? $existingAgentsRaw : [];
 
         $existingByName = collect($existingAgents)
-            ->filter(fn ($agent) => is_array($agent) && !empty($agent['name']))
+            ->filter(fn ($agent) => is_array($agent) && ! empty($agent['name']))
             ->mapWithKeys(fn ($agent) => [(string) $agent['name'] => $agent]);
 
         $incoming = collect($incomingAgents)
-            ->filter(fn ($agent) => is_array($agent) && !empty($agent['name']))
+            ->filter(fn ($agent) => is_array($agent) && ! empty($agent['name']))
             ->map(function (array $agent) use ($systemNames) {
                 $name = (string) ($agent['name'] ?? '');
                 $agent['is_system'] = in_array($name, $systemNames, true);
@@ -160,6 +163,7 @@ class AiSettingsController
             if (is_array($existing)) {
                 $existing['is_system'] = true;
                 $incoming->push($existing);
+
                 continue;
             }
 

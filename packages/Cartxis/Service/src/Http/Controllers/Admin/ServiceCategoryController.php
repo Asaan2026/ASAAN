@@ -23,7 +23,7 @@ class ServiceCategoryController extends Controller
             ->withCount(['services', 'children']);
 
         if ($search = $request->get('search')) {
-            $like = '%' . $search . '%';
+            $like = '%'.$search.'%';
             $query->where(fn ($q) => $q->where('name', 'like', $like)->orWhere('slug', 'like', $like));
         }
 
@@ -135,7 +135,7 @@ class ServiceCategoryController extends Controller
 
         return back()->with(
             'success',
-            count($validated['ids']) . ' categor' . (count($validated['ids']) === 1 ? 'y' : 'ies') . ' updated.'
+            count($validated['ids']).' categor'.(count($validated['ids']) === 1 ? 'y' : 'ies').' updated.'
         );
     }
 

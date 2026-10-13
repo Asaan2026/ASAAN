@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Cartxis\System\Http\Controllers\Admin;
 
+use Cartxis\Core\Models\Extension;
+use Cartxis\Core\Services\ExtensionService;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\Core\Models\Extension;
-use Cartxis\Core\Services\ExtensionService;
 
 class ExtensionsController
 {
@@ -64,12 +64,12 @@ class ExtensionsController
         foreach ($discovered as $item) {
             $manifest = (array) ($item['manifest'] ?? []);
             $code = $manifest['code'] ?? null;
-            if (!$code) {
+            if (! $code) {
                 continue;
             }
 
             $extension = Extension::firstOrNew(['code' => $code]);
-            $isNew = !$extension->exists;
+            $isNew = ! $extension->exists;
 
             $extension->name = $manifest['name'] ?? $extension->name;
             $extension->description = $manifest['description'] ?? $extension->description;
@@ -103,6 +103,7 @@ class ExtensionsController
     {
         try {
             $extensions->install($code);
+
             return back()->with('success', "Extension {$code} installed.");
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -113,6 +114,7 @@ class ExtensionsController
     {
         try {
             $extensions->uninstall($code);
+
             return back()->with('success', "Extension {$code} uninstalled.");
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -123,6 +125,7 @@ class ExtensionsController
     {
         try {
             $extensions->activate($code);
+
             return back()->with('success', "Extension {$code} activated.");
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -133,6 +136,7 @@ class ExtensionsController
     {
         try {
             $extensions->deactivate($code);
+
             return back()->with('success', "Extension {$code} deactivated.");
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());

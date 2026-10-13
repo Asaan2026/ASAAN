@@ -41,24 +41,36 @@
                 </button>
                 <button
                     type="button"
-                    @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
-                    :class="{ 'is-active': editor.isActive('heading', { level: 1 }) }"
+                    @click="
+                        editor.chain().focus().toggleHeading({ level: 1 }).run()
+                    "
+                    :class="{
+                        'is-active': editor.isActive('heading', { level: 1 }),
+                    }"
                     title="Heading 1"
                 >
                     H1
                 </button>
                 <button
                     type="button"
-                    @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
-                    :class="{ 'is-active': editor.isActive('heading', { level: 2 }) }"
+                    @click="
+                        editor.chain().focus().toggleHeading({ level: 2 }).run()
+                    "
+                    :class="{
+                        'is-active': editor.isActive('heading', { level: 2 }),
+                    }"
                     title="Heading 2"
                 >
                     H2
                 </button>
                 <button
                     type="button"
-                    @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
-                    :class="{ 'is-active': editor.isActive('heading', { level: 3 }) }"
+                    @click="
+                        editor.chain().focus().toggleHeading({ level: 3 }).run()
+                    "
+                    :class="{
+                        'is-active': editor.isActive('heading', { level: 3 }),
+                    }"
                     title="Heading 3"
                 >
                     H3
@@ -121,7 +133,9 @@
                 <button
                     type="button"
                     @click="editor.chain().focus().setTextAlign('left').run()"
-                    :class="{ 'is-active': editor.isActive({ textAlign: 'left' }) }"
+                    :class="{
+                        'is-active': editor.isActive({ textAlign: 'left' }),
+                    }"
                     title="Align Left"
                 >
                     <Icon name="align-left" :size="16" />
@@ -129,7 +143,9 @@
                 <button
                     type="button"
                     @click="editor.chain().focus().setTextAlign('center').run()"
-                    :class="{ 'is-active': editor.isActive({ textAlign: 'center' }) }"
+                    :class="{
+                        'is-active': editor.isActive({ textAlign: 'center' }),
+                    }"
                     title="Align Center"
                 >
                     <Icon name="align-center" :size="16" />
@@ -137,7 +153,9 @@
                 <button
                     type="button"
                     @click="editor.chain().focus().setTextAlign('right').run()"
-                    :class="{ 'is-active': editor.isActive({ textAlign: 'right' }) }"
+                    :class="{
+                        'is-active': editor.isActive({ textAlign: 'right' }),
+                    }"
                     title="Align Right"
                 >
                     <Icon name="align-right" :size="16" />
@@ -175,15 +193,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
-import { useEditor, EditorContent } from '@tiptap/vue-3';
-import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
+import Icon from '@/components/Icon.vue';
+import CharacterCount from '@tiptap/extension-character-count';
+import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import TextAlign from '@tiptap/extension-text-align';
-import Image from '@tiptap/extension-image';
-import CharacterCount from '@tiptap/extension-character-count';
-import Icon from '@/components/Icon.vue';
+import Underline from '@tiptap/extension-underline';
+import StarterKit from '@tiptap/starter-kit';
+import { EditorContent, useEditor } from '@tiptap/vue-3';
+import { onBeforeUnmount, watch } from 'vue';
 
 interface Props {
     modelValue: string;
@@ -254,7 +272,12 @@ const setLink = () => {
         return;
     }
 
-    editor.value.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+    editor.value
+        .chain()
+        .focus()
+        .extendMarkRange('link')
+        .setLink({ href: url })
+        .run();
 };
 
 watch(
@@ -263,7 +286,7 @@ watch(
         if (editor.value && editor.value.getHTML() !== value) {
             editor.value.commands.setContent(value);
         }
-    }
+    },
 );
 
 watch(
@@ -272,7 +295,7 @@ watch(
         if (editor.value) {
             editor.value.setEditable(value);
         }
-    }
+    },
 );
 
 onBeforeUnmount(() => {

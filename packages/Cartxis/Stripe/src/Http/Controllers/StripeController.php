@@ -3,31 +3,32 @@
 namespace Cartxis\Stripe\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Stripe\PaymentIntent;
-use Stripe\Webhook;
-use Cartxis\Core\Support\GatewayCurrency;
-use Cartxis\Shop\Models\Order;
 use Cartxis\Core\Models\EmailTemplate;
 use Cartxis\Core\Models\PaymentMethod;
 use Cartxis\Core\Services\PaymentGatewayManager;
+use Cartxis\Core\Support\GatewayCurrency;
 use Cartxis\Sales\Services\InvoiceService;
 use Cartxis\Sales\Services\TransactionService;
+use Cartxis\Shop\Models\Order;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Stripe\PaymentIntent;
+use Stripe\Webhook;
 
 class StripeController extends Controller
 {
     protected PaymentGatewayManager $gatewayManager;
+
     protected InvoiceService $invoiceService;
+
     protected TransactionService $transactionService;
 
     public function __construct(
         PaymentGatewayManager $gatewayManager,
         InvoiceService $invoiceService,
         TransactionService $transactionService
-    )
-    {
+    ) {
         $this->gatewayManager = $gatewayManager;
         $this->invoiceService = $invoiceService;
         $this->transactionService = $transactionService;
@@ -42,8 +43,8 @@ class StripeController extends Controller
 
         // Verify payment with Stripe gateway
         $gateway = $this->gatewayManager->get('stripe');
-        
-        if (!$gateway) {
+
+        if (! $gateway) {
             return redirect()->route('cart.index')
                 ->with('error', 'Payment gateway not found');
         }
@@ -52,9 +53,9 @@ class StripeController extends Controller
             'session_id' => $request->get('session_id'),
         ]);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return redirect()->route('cart.index')
-                ->with('error', 'Payment verification failed: ' . $result['message']);
+                ->with('error', 'Payment verification failed: '.$result['message']);
         }
 
         // Update order payment status
@@ -77,13 +78,13 @@ class StripeController extends Controller
         // Send order confirmation email
         try {
             $template = EmailTemplate::findByCode('order_placed');
-            
+
             if ($template) {
                 $shippingAddress = $order->shippingAddress;
                 $customerName = $shippingAddress
-                    ? trim($shippingAddress->first_name . ' ' . $shippingAddress->last_name)
+                    ? trim($shippingAddress->first_name.' '.$shippingAddress->last_name)
                     : ($order->customer_name ?? 'Customer');
-                
+
                 $template->send($order->customer_email, [
                     'customer_name' => $customerName,
                     'order_number' => $order->order_number,
@@ -96,7 +97,7 @@ class StripeController extends Controller
         } catch (\Exception $e) {
             Log::error('Order confirmation email failed after Stripe payment', [
                 'order_id' => $order->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
 
@@ -168,15 +169,15 @@ class StripeController extends Controller
      */
     public function webhook(Request $request)
     {
-        $payload    = $request->getContent();
+        $payload = $request->getContent();
         $sig_header = $request->header('Stripe-Signature');
 
         // Prefer webhook secret stored in DB (admin UI) over .env fallback
         $dbMethod = PaymentMethod::where('code', 'stripe')->where('is_active', true)->first();
         $dbSecret = null;
         if ($dbMethod) {
-            $mode     = $dbMethod->getConfigValue('mode', 'live');
-            $dbKey    = $mode === 'test' ? 'test_webhook_secret' : 'webhook_secret';
+            $mode = $dbMethod->getConfigValue('mode', 'live');
+            $dbKey = $mode === 'test' ? 'test_webhook_secret' : 'webhook_secret';
             $dbSecret = $dbMethod->getConfigValue($dbKey) ?: $dbMethod->getConfigValue('webhook_secret');
         }
         $webhook_secret = $dbSecret ?: config('stripe.stripe.webhook_secret');
@@ -194,9 +195,11 @@ class StripeController extends Controller
             return response()->json(['status' => 'received']);
         } catch (\UnexpectedValueException $e) {
             Log::warning('Stripe webhook: invalid payload', ['error' => $e->getMessage()]);
+
             return response()->json(['error' => 'Invalid payload'], 400);
         } catch (\Exception $e) {
             Log::error('Stripe webhook failed', ['error' => $e->getMessage()]);
+
             return response()->json(['error' => 'Webhook error'], 400);
         }
     }
@@ -211,7 +214,7 @@ class StripeController extends Controller
 
         if ($orderId) {
             $order = Order::find($orderId);
-            if ($order && !in_array($order->status, ['paid', 'processing', 'shipped', 'completed'])) {
+            if ($order && ! in_array($order->status, ['paid', 'processing', 'shipped', 'completed'])) {
                 $order->update([
                     'status' => 'paid',
                     'payment_status' => 'paid',
@@ -231,7 +234,7 @@ class StripeController extends Controller
 
         if ($orderId) {
             $order = Order::find($orderId);
-            if ($order && !in_array($order->status, ['paid', 'shipped', 'completed'])) {
+            if ($order && ! in_array($order->status, ['paid', 'shipped', 'completed'])) {
                 $order->update([
                     'status' => 'payment_failed',
                     'payment_status' => 'failed',

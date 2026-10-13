@@ -3,15 +3,15 @@
 namespace Cartxis\Marketing\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Inertia\Inertia;
-use Inertia\Response;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\JsonResponse;
-use Cartxis\Marketing\Models\Promotion;
-use Cartxis\Marketing\Services\PromotionService;
 use Cartxis\Marketing\Http\Requests\StorePromotionRequest;
 use Cartxis\Marketing\Http\Requests\UpdatePromotionRequest;
+use Cartxis\Marketing\Models\Promotion;
+use Cartxis\Marketing\Services\PromotionService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class PromotionController extends Controller
 {
@@ -30,7 +30,7 @@ class PromotionController extends Controller
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 

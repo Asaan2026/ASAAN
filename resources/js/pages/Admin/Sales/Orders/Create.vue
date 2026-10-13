@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { Head, router, useForm } from '@inertiajs/vue3';
-import AdminLayout from '@/layouts/AdminLayout.vue';
-import { ref, computed, watch } from 'vue';
 import { useCurrency } from '@/composables/useCurrency';
+import AdminLayout from '@/layouts/AdminLayout.vue';
+import { Head, router, useForm } from '@inertiajs/vue3';
+import { computed, ref, watch } from 'vue';
 
 interface Product {
-  id: number;
-  name: string;
-  price: string;
-  quantity: number;
+    id: number;
+    name: string;
+    price: string;
+    quantity: number;
 }
 
 interface Props {
-  customers: Array<{ id: number; name: string; email: string }>;
-  products: Product[];
+    customers: Array<{ id: number; name: string; email: string }>;
+    products: Product[];
 }
 
 const props = defineProps<Props>();
@@ -21,43 +21,43 @@ const props = defineProps<Props>();
 const { formatPrice } = useCurrency();
 
 const form = useForm({
-  customer_email: '',
-  customer_phone: '',
-  payment_method: '',
-  shipping_method: '',
-  notes: '',
-  items: [] as Array<{
-    product_id: number;
-    product_name: string;
-    quantity: number;
-    price: number;
-    available_quantity: number;
-  }>,
-  shipping_address: {
-    first_name: '',
-    last_name: '',
-    phone: '',
-    address_line1: '',
-    address_line2: '',
-    city: '',
-    state: '',
-    postal_code: '',
-  },
-  billing_address: {
-    first_name: '',
-    last_name: '',
-    phone: '',
-    address_line1: '',
-    address_line2: '',
-    city: '',
-    state: '',
-    postal_code: '',
-  },
-  subtotal: 0,
-  tax: 0,
-  shipping_cost: 0,
-  discount: 0,
-  total: 0,
+    customer_email: '',
+    customer_phone: '',
+    payment_method: '',
+    shipping_method: '',
+    notes: '',
+    items: [] as Array<{
+        product_id: number;
+        product_name: string;
+        quantity: number;
+        price: number;
+        available_quantity: number;
+    }>,
+    shipping_address: {
+        first_name: '',
+        last_name: '',
+        phone: '',
+        address_line1: '',
+        address_line2: '',
+        city: '',
+        state: '',
+        postal_code: '',
+    },
+    billing_address: {
+        first_name: '',
+        last_name: '',
+        phone: '',
+        address_line1: '',
+        address_line2: '',
+        city: '',
+        state: '',
+        postal_code: '',
+    },
+    subtotal: 0,
+    tax: 0,
+    shipping_cost: 0,
+    discount: 0,
+    total: 0,
 });
 
 // Product selection
@@ -66,69 +66,77 @@ const selectedQuantity = ref(1);
 const searchQuery = ref('');
 
 const filteredProducts = computed(() => {
-  if (!searchQuery.value) return props.products;
-  const query = searchQuery.value.toLowerCase();
-  return props.products.filter(p => 
-    p.name.toLowerCase().includes(query)
-  );
+    if (!searchQuery.value) return props.products;
+    const query = searchQuery.value.toLowerCase();
+    return props.products.filter((p) => p.name.toLowerCase().includes(query));
 });
 
 const selectedProduct = computed(() => {
-  if (!selectedProductId.value) return null;
-  return props.products.find(p => p.id === selectedProductId.value);
+    if (!selectedProductId.value) return null;
+    return props.products.find((p) => p.id === selectedProductId.value);
 });
 
 function addProduct() {
-  if (!selectedProduct.value) return;
-  
-  const existingItem = form.items.find(item => item.product_id === selectedProduct.value!.id);
-  
-  if (existingItem) {
-    // Update quantity if product already in cart
-    existingItem.quantity += selectedQuantity.value;
-  } else {
-    // Add new item
-    form.items.push({
-      product_id: selectedProduct.value.id,
-      product_name: selectedProduct.value.name,
-      quantity: selectedQuantity.value,
-      price: parseFloat(selectedProduct.value.price),
-      available_quantity: selectedProduct.value.quantity,
-    });
-  }
-  
-  // Reset selection
-  selectedProductId.value = null;
-  selectedQuantity.value = 1;
-  searchQuery.value = '';
-  
-  calculateTotals();
+    if (!selectedProduct.value) return;
+
+    const existingItem = form.items.find(
+        (item) => item.product_id === selectedProduct.value!.id,
+    );
+
+    if (existingItem) {
+        // Update quantity if product already in cart
+        existingItem.quantity += selectedQuantity.value;
+    } else {
+        // Add new item
+        form.items.push({
+            product_id: selectedProduct.value.id,
+            product_name: selectedProduct.value.name,
+            quantity: selectedQuantity.value,
+            price: parseFloat(selectedProduct.value.price),
+            available_quantity: selectedProduct.value.quantity,
+        });
+    }
+
+    // Reset selection
+    selectedProductId.value = null;
+    selectedQuantity.value = 1;
+    searchQuery.value = '';
+
+    calculateTotals();
 }
 
 function removeItem(index: number) {
-  form.items.splice(index, 1);
-  calculateTotals();
+    form.items.splice(index, 1);
+    calculateTotals();
 }
 
 function updateItemQuantity(index: number, quantity: number) {
-  if (quantity > 0) {
-    form.items[index].quantity = quantity;
-    calculateTotals();
-  }
+    if (quantity > 0) {
+        form.items[index].quantity = quantity;
+        calculateTotals();
+    }
 }
 
 function calculateTotals() {
-  // Calculate subtotal
-  form.subtotal = form.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  
-  // Calculate tax (10% for demo)
-  form.tax = form.subtotal * 0.1;
-  
-  // Set shipping cost based on method
-  form.shipping_cost = form.shipping_method === 'express' ? 15 : form.shipping_method === 'standard' ? 5 : 0;
-  
-  // Calculate total
-  form.total = form.subtotal + form.tax + form.shipping_cost - form.discount;
+    // Calculate subtotal
+    form.subtotal = form.items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0,
+    );
+
+    // Calculate tax (10% for demo)
+    form.tax = form.subtotal * 0.1;
+
+    // Set shipping cost based on method
+    form.shipping_cost =
+        form.shipping_method === 'express'
+            ? 15
+            : form.shipping_method === 'standard'
+              ? 5
+              : 0;
+
+    // Calculate total
+    form.total = form.subtotal + form.tax + form.shipping_cost - form.discount;
 }
 
 // Watch shipping method to recalculate totals
@@ -136,352 +144,553 @@ watch(() => form.shipping_method, calculateTotals);
 watch(() => form.discount, calculateTotals);
 
 function submit() {
-  if (form.items.length === 0) {
-    alert('Please add at least one product to the order');
-    return;
-  }
-  
-  // Explicitly create complete billing address object
-  const billingAddress = {
-    first_name: form.shipping_address.first_name,
-    last_name: form.shipping_address.last_name,
-    phone: form.shipping_address.phone,
-    address_line1: form.shipping_address.address_line1,
-    address_line2: form.shipping_address.address_line2,
-    city: form.shipping_address.city,
-    state: form.shipping_address.state,
-    postal_code: form.shipping_address.postal_code,
-  };
-  
-  // Post with explicit billing_address
-  form.transform((data) => ({
-    ...data,
-    billing_address: billingAddress,
-  })).post('/admin/sales/orders', {
-    preserveScroll: true,
-  });
+    if (form.items.length === 0) {
+        alert('Please add at least one product to the order');
+        return;
+    }
+
+    // Explicitly create complete billing address object
+    const billingAddress = {
+        first_name: form.shipping_address.first_name,
+        last_name: form.shipping_address.last_name,
+        phone: form.shipping_address.phone,
+        address_line1: form.shipping_address.address_line1,
+        address_line2: form.shipping_address.address_line2,
+        city: form.shipping_address.city,
+        state: form.shipping_address.state,
+        postal_code: form.shipping_address.postal_code,
+    };
+
+    // Post with explicit billing_address
+    form.transform((data) => ({
+        ...data,
+        billing_address: billingAddress,
+    })).post('/admin/sales/orders', {
+        preserveScroll: true,
+    });
 }
 </script>
 
-
 <template>
-  <Head :title="$t('Create Order')" />
+    <Head :title="$t('Create Order')" />
 
-  <AdminLayout :title="$t('Create Order')">
-    <div class="p-6">
-      <!-- Back Button -->
-      <div class="mb-4">
-        <button
-          type="button"
-          @click="router.visit('/admin/sales/orders')"
-          class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
-        >
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          {{ $t('Back to Orders') }}
-        </button>
-      </div>
-
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-        <form @submit.prevent="submit" class="space-y-6">
-          <!-- Customer Information -->
-          <div>
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">{{ $t('Customer Information') }}</h2>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Customer Email *') }}</label>
-                <input
-                  v-model="form.customer_email"
-                  type="email"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                />
-                <div v-if="form.errors.customer_email" class="text-red-600 text-sm mt-1">{{ form.errors.customer_email }}</div>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Phone') }}</label>
-                <input
-                  v-model="form.customer_phone"
-                  type="tel"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Products Selection -->
-          <div>
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">{{ $t('Products') }}</h2>
-            
-            <!-- Add Product Form -->
-            <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg mb-4">
-              <div class="grid grid-cols-12 gap-4 items-end">
-                <div class="col-span-6">
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Search Product') }}</label>
-                  <input
-                    v-model="searchQuery"
-                    type="text"
-                    :placeholder="$t('Search by name...')"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                  />
-                  <select
-                    v-model="selectedProductId"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 mt-2 dark:bg-gray-700/50 dark:text-gray-100"
-                  >
-                    <option :value="null">{{ $t('Select a product...') }}</option>
-                    <option 
-                      v-for="product in filteredProducts" 
-                      :key="product.id" 
-                      :value="product.id"
-                    >
-                      {{ product.name }} - {{ formatPrice(parseFloat(product.price)) }} ({{ $t('Stock') }}: {{ product.quantity }})
-                    </option>
-                  </select>
-                </div>
-                <div class="col-span-3">
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Quantity') }}</label>
-                  <input
-                    v-model.number="selectedQuantity"
-                    type="number"
-                    min="1"
-                    :max="selectedProduct?.quantity || 999"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                  />
-                </div>
-                <div class="col-span-3">
-                  <button
+    <AdminLayout :title="$t('Create Order')">
+        <div class="p-6">
+            <!-- Back Button -->
+            <div class="mb-4">
+                <button
                     type="button"
-                    @click="addProduct"
-                    :disabled="!selectedProductId"
-                    class="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {{ $t('Add to Order') }}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Order Items Table -->
-            <div v-if="form.items.length > 0" class="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
-              <table class="min-w-full divide-y divide-gray-300">
-                <thead class="bg-gray-50 dark:bg-gray-700/50">
-                  <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Product') }}</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Price') }}</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Quantity') }}</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Total') }}</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Actions') }}</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  <tr v-for="(item, index) in form.items" :key="index">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {{ item.product_name }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {{ formatPrice(item.price) }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      <input
-                        :value="item.quantity"
-                        @input="updateItemQuantity(index, parseInt(($event.target as HTMLInputElement).value))"
-                        type="number"
-                        min="1"
-                        :max="item.available_quantity"
-                        class="w-20 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700/50 dark:text-gray-100"
-                      />
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {{ formatPrice(item.price * item.quantity) }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      <button
-                        type="button"
-                        @click="removeItem(index)"
-                        class="text-red-600 hover:text-red-900"
-                      >
-                        {{ $t('Remove') }}
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div v-else class="text-center py-8 text-gray-500 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-lg border-dashed">
-              {{ $t('No products added yet. Use the form above to add products to this order.') }}
-            </div>
-          </div>
-
-          <!-- Order Details -->
-          <div>
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">{{ $t('Order Details') }}</h2>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Payment Method *') }}</label>
-                <select
-                  v-model="form.payment_method"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
+                    @click="router.visit('/admin/sales/orders')"
+                    class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
-                  <option value="">{{ $t('Select payment method...') }}</option>
-                  <option value="cod">{{ $t('Cash on Delivery') }}</option>
-                  <option value="bank_transfer">{{ $t('Bank Transfer') }}</option>
-                  <option value="hesabpay">HesabPay</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Shipping Method *') }}</label>
-                <select
-                  v-model="form.shipping_method"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                >
-                  <option value="">{{ $t('Select shipping method...') }}</option>
-                  <option value="standard">{{ $t('Standard Shipping ({price})', { price: formatPrice(5.00) }) }}</option>
-                  <option value="express">{{ $t('Express Shipping ({price})', { price: formatPrice(15.00) }) }}</option>
-                  <option value="pickup">{{ $t('Local Pickup (Free)') }}</option>
-                </select>
-              </div>
+                    <svg
+                        class="mr-2 h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                        />
+                    </svg>
+                    {{ $t('Back to Orders') }}
+                </button>
             </div>
-          </div>
 
-          <!-- Shipping Address -->
-          <div>
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">{{ $t('Shipping Address') }}</h2>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('First Name *') }}</label>
-                <input
-                  v-model="form.shipping_address.first_name"
-                  type="text"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Last Name *') }}</label>
-                <input
-                  v-model="form.shipping_address.last_name"
-                  type="text"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Phone *') }}</label>
-                <input
-                  v-model="form.shipping_address.phone"
-                  type="tel"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Address Line 1 *') }}</label>
-                <input
-                  v-model="form.shipping_address.address_line1"
-                  type="text"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('City *') }}</label>
-                <input
-                  v-model="form.shipping_address.city"
-                  type="text"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('State *') }}</label>
-                <input
-                  v-model="form.shipping_address.state"
-                  type="text"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Postal Code *') }}</label>
-                <input
-                  v-model="form.shipping_address.postal_code"
-                  type="text"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                />
-              </div>
+            <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
+                <form @submit.prevent="submit" class="space-y-6">
+                    <!-- Customer Information -->
+                    <div>
+                        <h2
+                            class="mb-4 text-lg font-medium text-gray-900 dark:text-gray-100"
+                        >
+                            {{ $t('Customer Information') }}
+                        </h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label
+                                    class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >{{ $t('Customer Email *') }}</label
+                                >
+                                <input
+                                    v-model="form.customer_email"
+                                    type="email"
+                                    required
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                />
+                                <div
+                                    v-if="form.errors.customer_email"
+                                    class="mt-1 text-sm text-red-600"
+                                >
+                                    {{ form.errors.customer_email }}
+                                </div>
+                            </div>
+                            <div>
+                                <label
+                                    class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >{{ $t('Phone') }}</label
+                                >
+                                <input
+                                    v-model="form.customer_phone"
+                                    type="tel"
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Products Selection -->
+                    <div>
+                        <h2
+                            class="mb-4 text-lg font-medium text-gray-900 dark:text-gray-100"
+                        >
+                            {{ $t('Products') }}
+                        </h2>
+
+                        <!-- Add Product Form -->
+                        <div
+                            class="mb-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-900"
+                        >
+                            <div class="grid grid-cols-12 items-end gap-4">
+                                <div class="col-span-6">
+                                    <label
+                                        class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        >{{ $t('Search Product') }}</label
+                                    >
+                                    <input
+                                        v-model="searchQuery"
+                                        type="text"
+                                        :placeholder="$t('Search by name...')"
+                                        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                    />
+                                    <select
+                                        v-model="selectedProductId"
+                                        class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                    >
+                                        <option :value="null">
+                                            {{ $t('Select a product...') }}
+                                        </option>
+                                        <option
+                                            v-for="product in filteredProducts"
+                                            :key="product.id"
+                                            :value="product.id"
+                                        >
+                                            {{ product.name }} -
+                                            {{
+                                                formatPrice(
+                                                    parseFloat(product.price),
+                                                )
+                                            }}
+                                            ({{ $t('Stock') }}:
+                                            {{ product.quantity }})
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-span-3">
+                                    <label
+                                        class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        >{{ $t('Quantity') }}</label
+                                    >
+                                    <input
+                                        v-model.number="selectedQuantity"
+                                        type="number"
+                                        min="1"
+                                        :max="selectedProduct?.quantity || 999"
+                                        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                    />
+                                </div>
+                                <div class="col-span-3">
+                                    <button
+                                        type="button"
+                                        @click="addProduct"
+                                        :disabled="!selectedProductId"
+                                        class="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        {{ $t('Add to Order') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Items Table -->
+                        <div
+                            v-if="form.items.length > 0"
+                            class="overflow-hidden rounded-lg border border-gray-300 dark:border-gray-600"
+                        >
+                            <table class="min-w-full divide-y divide-gray-300">
+                                <thead class="bg-gray-50 dark:bg-gray-700/50">
+                                    <tr>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                        >
+                                            {{ $t('Product') }}
+                                        </th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                        >
+                                            {{ $t('Price') }}
+                                        </th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                        >
+                                            {{ $t('Quantity') }}
+                                        </th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                        >
+                                            {{ $t('Total') }}
+                                        </th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                        >
+                                            {{ $t('Actions') }}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody
+                                    class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800"
+                                >
+                                    <tr
+                                        v-for="(item, index) in form.items"
+                                        :key="index"
+                                    >
+                                        <td
+                                            class="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900 dark:text-gray-100"
+                                        >
+                                            {{ item.product_name }}
+                                        </td>
+                                        <td
+                                            class="px-6 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{ formatPrice(item.price) }}
+                                        </td>
+                                        <td
+                                            class="px-6 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400"
+                                        >
+                                            <input
+                                                :value="item.quantity"
+                                                @input="
+                                                    updateItemQuantity(
+                                                        index,
+                                                        parseInt(
+                                                            (
+                                                                $event.target as HTMLInputElement
+                                                            ).value,
+                                                        ),
+                                                    )
+                                                "
+                                                type="number"
+                                                min="1"
+                                                :max="item.available_quantity"
+                                                class="w-20 rounded border border-gray-300 px-2 py-1 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                            />
+                                        </td>
+                                        <td
+                                            class="px-6 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{
+                                                formatPrice(
+                                                    item.price * item.quantity,
+                                                )
+                                            }}
+                                        </td>
+                                        <td
+                                            class="px-6 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400"
+                                        >
+                                            <button
+                                                type="button"
+                                                @click="removeItem(index)"
+                                                class="text-red-600 hover:text-red-900"
+                                            >
+                                                {{ $t('Remove') }}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div
+                            v-else
+                            class="rounded-lg border border-dashed border-gray-300 py-8 text-center text-gray-500 dark:border-gray-600 dark:text-gray-400"
+                        >
+                            {{
+                                $t(
+                                    'No products added yet. Use the form above to add products to this order.',
+                                )
+                            }}
+                        </div>
+                    </div>
+
+                    <!-- Order Details -->
+                    <div>
+                        <h2
+                            class="mb-4 text-lg font-medium text-gray-900 dark:text-gray-100"
+                        >
+                            {{ $t('Order Details') }}
+                        </h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label
+                                    class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >{{ $t('Payment Method *') }}</label
+                                >
+                                <select
+                                    v-model="form.payment_method"
+                                    required
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                >
+                                    <option value="">
+                                        {{ $t('Select payment method...') }}
+                                    </option>
+                                    <option value="cod">
+                                        {{ $t('Cash on Delivery') }}
+                                    </option>
+                                    <option value="bank_transfer">
+                                        {{ $t('Bank Transfer') }}
+                                    </option>
+                                    <option value="hesabpay">HesabPay</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label
+                                    class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >{{ $t('Shipping Method *') }}</label
+                                >
+                                <select
+                                    v-model="form.shipping_method"
+                                    required
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                >
+                                    <option value="">
+                                        {{ $t('Select shipping method...') }}
+                                    </option>
+                                    <option value="standard">
+                                        {{
+                                            $t('Standard Shipping ({price})', {
+                                                price: formatPrice(5.0),
+                                            })
+                                        }}
+                                    </option>
+                                    <option value="express">
+                                        {{
+                                            $t('Express Shipping ({price})', {
+                                                price: formatPrice(15.0),
+                                            })
+                                        }}
+                                    </option>
+                                    <option value="pickup">
+                                        {{ $t('Local Pickup (Free)') }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shipping Address -->
+                    <div>
+                        <h2
+                            class="mb-4 text-lg font-medium text-gray-900 dark:text-gray-100"
+                        >
+                            {{ $t('Shipping Address') }}
+                        </h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label
+                                    class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >{{ $t('First Name *') }}</label
+                                >
+                                <input
+                                    v-model="form.shipping_address.first_name"
+                                    type="text"
+                                    required
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                />
+                            </div>
+                            <div>
+                                <label
+                                    class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >{{ $t('Last Name *') }}</label
+                                >
+                                <input
+                                    v-model="form.shipping_address.last_name"
+                                    type="text"
+                                    required
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                />
+                            </div>
+                            <div>
+                                <label
+                                    class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >{{ $t('Phone *') }}</label
+                                >
+                                <input
+                                    v-model="form.shipping_address.phone"
+                                    type="tel"
+                                    required
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                />
+                            </div>
+                            <div>
+                                <label
+                                    class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >{{ $t('Address Line 1 *') }}</label
+                                >
+                                <input
+                                    v-model="
+                                        form.shipping_address.address_line1
+                                    "
+                                    type="text"
+                                    required
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                />
+                            </div>
+                            <div>
+                                <label
+                                    class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >{{ $t('City *') }}</label
+                                >
+                                <input
+                                    v-model="form.shipping_address.city"
+                                    type="text"
+                                    required
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                />
+                            </div>
+                            <div>
+                                <label
+                                    class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >{{ $t('State *') }}</label
+                                >
+                                <input
+                                    v-model="form.shipping_address.state"
+                                    type="text"
+                                    required
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                />
+                            </div>
+                            <div>
+                                <label
+                                    class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >{{ $t('Postal Code *') }}</label
+                                >
+                                <input
+                                    v-model="form.shipping_address.postal_code"
+                                    type="text"
+                                    required
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-900">
+                        <h2
+                            class="mb-4 text-lg font-medium text-gray-900 dark:text-gray-100"
+                        >
+                            {{ $t('Order Summary') }}
+                        </h2>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span
+                                    class="text-gray-600 dark:text-gray-400"
+                                    >{{ $t('Subtotal:') }}</span
+                                >
+                                <span class="font-medium">{{
+                                    formatPrice(form.subtotal)
+                                }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span
+                                    class="text-gray-600 dark:text-gray-400"
+                                    >{{ $t('Tax (10%):') }}</span
+                                >
+                                <span class="font-medium">{{
+                                    formatPrice(form.tax)
+                                }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span
+                                    class="text-gray-600 dark:text-gray-400"
+                                    >{{ $t('Shipping:') }}</span
+                                >
+                                <span class="font-medium">{{
+                                    formatPrice(form.shipping_cost)
+                                }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <label
+                                    class="text-gray-600 dark:text-gray-400"
+                                    >{{ $t('Discount:') }}</label
+                                >
+                                <input
+                                    v-model.number="form.discount"
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    class="w-24 rounded border border-gray-300 px-2 py-1 text-right dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                    placeholder="0.00"
+                                />
+                            </div>
+                            <div
+                                class="mt-2 border-t border-gray-300 pt-2 dark:border-gray-600"
+                            >
+                                <div
+                                    class="flex justify-between text-lg font-bold"
+                                >
+                                    <span>{{ $t('Total:') }}</span>
+                                    <span class="text-blue-600">{{
+                                        formatPrice(form.total)
+                                    }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div>
+                        <label
+                            class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                            >{{ $t('Notes') }}</label
+                        >
+                        <textarea
+                            v-model="form.notes"
+                            rows="3"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                            :placeholder="
+                                $t('Optional notes about this order...')
+                            "
+                        ></textarea>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex justify-end gap-3">
+                        <button
+                            type="button"
+                            @click="router.visit('/admin/sales/orders')"
+                            class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                        >
+                            {{ $t('Cancel') }}
+                        </button>
+                        <button
+                            type="submit"
+                            :disabled="
+                                form.processing || form.items.length === 0
+                            "
+                            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            {{
+                                form.processing
+                                    ? $t('Creating...')
+                                    : $t('Create Order')
+                            }}
+                        </button>
+                    </div>
+                </form>
             </div>
-          </div>
-
-          <!-- Order Summary -->
-          <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">{{ $t('Order Summary') }}</h2>
-            <div class="space-y-2">
-              <div class="flex justify-between text-sm">
-                <span class="text-gray-600 dark:text-gray-400">{{ $t('Subtotal:') }}</span>
-                <span class="font-medium">{{ formatPrice(form.subtotal) }}</span>
-              </div>
-              <div class="flex justify-between text-sm">
-                <span class="text-gray-600 dark:text-gray-400">{{ $t('Tax (10%):') }}</span>
-                <span class="font-medium">{{ formatPrice(form.tax) }}</span>
-              </div>
-              <div class="flex justify-between text-sm">
-                <span class="text-gray-600 dark:text-gray-400">{{ $t('Shipping:') }}</span>
-                <span class="font-medium">{{ formatPrice(form.shipping_cost) }}</span>
-              </div>
-              <div class="flex justify-between text-sm">
-                <label class="text-gray-600 dark:text-gray-400">{{ $t('Discount:') }}</label>
-                <input
-                  v-model.number="form.discount"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  class="w-24 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-right dark:bg-gray-700/50 dark:text-gray-100"
-                  placeholder="0.00"
-                />
-              </div>
-              <div class="border-t border-gray-300 dark:border-gray-600 pt-2 mt-2">
-                <div class="flex justify-between text-lg font-bold">
-                  <span>{{ $t('Total:') }}</span>
-                  <span class="text-blue-600">{{ formatPrice(form.total) }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Notes -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Notes') }}</label>
-            <textarea
-              v-model="form.notes"
-              rows="3"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-              :placeholder="$t('Optional notes about this order...')"
-            ></textarea>
-          </div>
-
-          <!-- Form Actions -->
-          <div class="flex justify-end gap-3">
-            <button
-              type="button"
-              @click="router.visit('/admin/sales/orders')"
-              class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
-            >
-              {{ $t('Cancel') }}
-            </button>
-            <button
-              type="submit"
-              :disabled="form.processing || form.items.length === 0"
-              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {{ form.processing ? $t('Creating...') : $t('Create Order') }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </AdminLayout>
+        </div>
+    </AdminLayout>
 </template>

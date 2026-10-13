@@ -3,10 +3,10 @@
 namespace Cartxis\API\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Cartxis\API\Helpers\ApiResponse;
 use Cartxis\API\Http\Resources\OrderResource;
 use Cartxis\Shop\Models\Order;
+use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
@@ -28,7 +28,7 @@ class OrderController extends Controller
         $orders = $query->latest()->paginate($perPage);
 
         return ApiResponse::paginated(
-            $orders->through(fn($order) => new OrderResource($order)),
+            $orders->through(fn ($order) => new OrderResource($order)),
             'Orders retrieved successfully'
         );
     }
@@ -48,7 +48,7 @@ class OrderController extends Controller
             ->where('user_id', $request->user()->id)
             ->find($id);
 
-        if (!$order) {
+        if (! $order) {
             return ApiResponse::notFound('Order not found', 'ORDER_NOT_FOUND');
         }
 
@@ -65,11 +65,11 @@ class OrderController extends Controller
     {
         $order = Order::where('user_id', $request->user()->id)->find($id);
 
-        if (!$order) {
+        if (! $order) {
             return ApiResponse::notFound('Order not found', 'ORDER_NOT_FOUND');
         }
 
-        if (!in_array($order->status, ['pending', 'processing'])) {
+        if (! in_array($order->status, ['pending', 'processing'])) {
             return ApiResponse::error(
                 'Order cannot be cancelled',
                 null,
@@ -101,7 +101,7 @@ class OrderController extends Controller
             ->where('user_id', $request->user()->id)
             ->find($id);
 
-        if (!$order) {
+        if (! $order) {
             return ApiResponse::notFound('Order not found', 'ORDER_NOT_FOUND');
         }
 
@@ -123,7 +123,7 @@ class OrderController extends Controller
             ->where('user_id', $request->user()->id)
             ->find($id);
 
-        if (!$order) {
+        if (! $order) {
             return ApiResponse::notFound('Order not found', 'ORDER_NOT_FOUND');
         }
 

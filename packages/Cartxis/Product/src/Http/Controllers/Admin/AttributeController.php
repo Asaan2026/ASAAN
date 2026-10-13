@@ -3,13 +3,12 @@
 namespace Cartxis\Product\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Inertia\Inertia;
-use Inertia\Response;
 use Cartxis\Product\Models\Attribute;
 use Cartxis\Product\Models\AttributeOption;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class AttributeController extends Controller
 {
@@ -24,7 +23,7 @@ class AttributeController extends Controller
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('code', 'like', "%{$search}%");
+                    ->orWhere('code', 'like', "%{$search}%");
             });
         }
 
@@ -77,7 +76,7 @@ class AttributeController extends Controller
         ]);
 
         // Auto-set sort_order if not provided
-        if (!isset($validated['sort_order'])) {
+        if (! isset($validated['sort_order'])) {
             $maxSortOrder = Attribute::max('sort_order') ?? 0;
             $validated['sort_order'] = $maxSortOrder + 1;
         }
@@ -88,7 +87,7 @@ class AttributeController extends Controller
         $attribute = Attribute::create($validated);
 
         // Create options if type is select or multiselect
-        if (in_array($validated['type'], ['select', 'multiselect']) && !empty($options)) {
+        if (in_array($validated['type'], ['select', 'multiselect']) && ! empty($options)) {
             foreach ($options as $option) {
                 AttributeOption::create([
                     'attribute_id' => $attribute->id,
@@ -135,7 +134,7 @@ class AttributeController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:255|unique:attributes,code,' . $attribute->id,
+            'code' => 'required|string|max:255|unique:attributes,code,'.$attribute->id,
             'type' => 'required|in:text,textarea,select,multiselect,boolean,date,price,number',
             'is_required' => 'boolean',
             'is_unique' => 'boolean',
@@ -161,7 +160,7 @@ class AttributeController extends Controller
             $existingOptionIds = [];
 
             foreach ($options as $index => $optionData) {
-                if (!empty($optionData['id'])) {
+                if (! empty($optionData['id'])) {
                     // Update existing option
                     $option = AttributeOption::find($optionData['id']);
                     if ($option && $option->attribute_id == $attribute->id) {
@@ -206,7 +205,7 @@ class AttributeController extends Controller
 
             return back()->with('success', 'Attribute deleted successfully.');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to delete attribute: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to delete attribute: '.$e->getMessage()]);
         }
     }
 
@@ -231,9 +230,9 @@ class AttributeController extends Controller
                 }
             }
 
-            return back()->with('success', $count . ' attribute(s) deleted successfully.');
+            return back()->with('success', $count.' attribute(s) deleted successfully.');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to delete attributes: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to delete attributes: '.$e->getMessage()]);
         }
     }
 }

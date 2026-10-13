@@ -117,6 +117,7 @@ class TransactionService
             ]);
 
             DB::commit();
+
             return $transaction;
         } catch (\Exception $e) {
             DB::rollBack();
@@ -193,7 +194,7 @@ class TransactionService
      */
     public function processRefund(Transaction $transaction, float $amount, array $data = []): Transaction
     {
-        if (!$transaction->canBeRefunded()) {
+        if (! $transaction->canBeRefunded()) {
             throw new \Exception('This transaction cannot be refunded');
         }
 
@@ -206,7 +207,7 @@ class TransactionService
                 'gateway' => $transaction->gateway,
                 'amount' => $amount,
                 'status' => 'pending',
-                'notes' => $data['notes'] ?? 'Refund for transaction ' . $transaction->transaction_number,
+                'notes' => $data['notes'] ?? 'Refund for transaction '.$transaction->transaction_number,
             ];
 
             if (isset($data['credit_memo_id'])) {
@@ -220,6 +221,7 @@ class TransactionService
             // In production, this should call the gateway API
 
             DB::commit();
+
             return $refundTransaction;
         } catch (\Exception $e) {
             DB::rollBack();
@@ -236,7 +238,7 @@ class TransactionService
      */
     public function retryTransaction(Transaction $transaction): bool
     {
-        if (!$transaction->canBeRetried()) {
+        if (! $transaction->canBeRetried()) {
             throw new \Exception('This transaction cannot be retried');
         }
 
@@ -257,6 +259,7 @@ class TransactionService
             ]);
 
             DB::commit();
+
             return true;
         } catch (\Exception $e) {
             DB::rollBack();
@@ -280,7 +283,7 @@ class TransactionService
                 'processed_at' => now(),
             ];
 
-            if (!empty($responseData)) {
+            if (! empty($responseData)) {
                 $updateData['response_data'] = array_merge(
                     $transaction->response_data ?? [],
                     $responseData
@@ -295,6 +298,7 @@ class TransactionService
             ]);
 
             DB::commit();
+
             return true;
         } catch (\Exception $e) {
             DB::rollBack();
@@ -318,7 +322,7 @@ class TransactionService
                 'notes' => $reason,
             ];
 
-            if (!empty($responseData)) {
+            if (! empty($responseData)) {
                 $updateData['response_data'] = array_merge(
                     $transaction->response_data ?? [],
                     $responseData
@@ -334,6 +338,7 @@ class TransactionService
             ]);
 
             DB::commit();
+
             return true;
         } catch (\Exception $e) {
             DB::rollBack();
@@ -366,6 +371,7 @@ class TransactionService
             ]);
 
             DB::commit();
+
             return true;
         } catch (\Exception $e) {
             DB::rollBack();
@@ -393,7 +399,7 @@ class TransactionService
         try {
             // Find order by order_id or gateway transaction id
             $order = null;
-            
+
             if (isset($data['order_id'])) {
                 $order = Order::find($data['order_id']);
             } elseif (isset($data['gateway_transaction_id'])) {
@@ -403,7 +409,7 @@ class TransactionService
                 }
             }
 
-            if (!$order) {
+            if (! $order) {
                 throw new \Exception('Order not found');
             }
 

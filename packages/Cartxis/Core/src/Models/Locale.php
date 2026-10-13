@@ -56,7 +56,7 @@ class Locale extends Model
                 $newDefault = static::where('is_active', true)
                     ->orderBy('sort_order')
                     ->first();
-                
+
                 if ($newDefault) {
                     $newDefault->update(['is_default' => true]);
                 }

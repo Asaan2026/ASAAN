@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Cartxis\UIEditor\Models;
 
+use App\Models\User;
+use Cartxis\CMS\Models\Page;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Builder;
-use App\Models\User;
-use Cartxis\CMS\Models\Page;
 
 class PageLayout extends Model
 {
@@ -18,10 +18,12 @@ class PageLayout extends Model
 
     protected $table = 'uieditor_page_layouts';
 
-    public const STATUS_DRAFT     = 'draft';
+    public const STATUS_DRAFT = 'draft';
+
     public const STATUS_PUBLISHED = 'published';
 
     public const TYPE_CMS_PAGE = 'cms_page';
+
     public const TYPE_HOMEPAGE = 'homepage';
 
     protected $fillable = [
@@ -35,11 +37,11 @@ class PageLayout extends Model
     ];
 
     protected $casts = [
-        'layout_data'  => 'array',
+        'layout_data' => 'array',
         'published_at' => 'datetime',
-        'created_at'   => 'datetime',
-        'updated_at'   => 'datetime',
-        'deleted_at'   => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     // ─── Boot ─────────────────────────────────────────────────────────────────
@@ -83,7 +85,7 @@ class PageLayout extends Model
     public function scopeForPage(Builder $query, Page $page): Builder
     {
         return $query->where('page_type', self::TYPE_CMS_PAGE)
-                     ->where('page_id', $page->id);
+            ->where('page_id', $page->id);
     }
 
     public function scopeHomepage(Builder $query): Builder

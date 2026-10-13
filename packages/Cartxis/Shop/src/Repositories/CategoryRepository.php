@@ -2,8 +2,10 @@
 
 namespace Cartxis\Shop\Repositories;
 
-use Cartxis\Shop\Contracts\CategoryRepositoryInterface;
 use Cartxis\Product\Models\Category;
+use Cartxis\Shop\Contracts\CategoryRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class CategoryRepository extends ShopRepository implements CategoryRepositoryInterface
 {
@@ -20,7 +22,7 @@ class CategoryRepository extends ShopRepository implements CategoryRepositoryInt
     /**
      * Get root categories.
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
     public function getRootCategories()
     {
@@ -34,8 +36,8 @@ class CategoryRepository extends ShopRepository implements CategoryRepositoryInt
     /**
      * Get category by slug.
      *
-     * @param string $slug
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @param  string  $slug
+     * @return Model|null
      */
     public function findBySlug($slug)
     {
@@ -48,8 +50,8 @@ class CategoryRepository extends ShopRepository implements CategoryRepositoryInt
     /**
      * Get category with products.
      *
-     * @param int $id
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @param  int  $id
+     * @return Model|null
      */
     public function getWithProducts($id)
     {
@@ -63,8 +65,8 @@ class CategoryRepository extends ShopRepository implements CategoryRepositoryInt
     /**
      * Get category children.
      *
-     * @param int $parentId
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @param  int  $parentId
+     * @return Collection
      */
     public function getChildren($parentId)
     {
@@ -78,7 +80,7 @@ class CategoryRepository extends ShopRepository implements CategoryRepositoryInt
     /**
      * Get all active categories.
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
     public function getActiveCategories()
     {

@@ -39,16 +39,16 @@ return new class extends Migration
      */
     private function copy(string $fromPrefix, string $toPrefix): void
     {
-        if (!Schema::hasTable('settings')) {
+        if (! Schema::hasTable('settings')) {
             return;
         }
 
         $rows = DB::table('settings')
-            ->where('key', 'like', $fromPrefix . '%')
+            ->where('key', 'like', $fromPrefix.'%')
             ->get();
 
         foreach ($rows as $row) {
-            $newKey = $toPrefix . substr($row->key, strlen($fromPrefix));
+            $newKey = $toPrefix.substr($row->key, strlen($fromPrefix));
 
             if (DB::table('settings')->where('key', $newKey)->exists()) {
                 DB::table('settings')->where('key', $row->key)->delete();

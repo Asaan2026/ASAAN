@@ -49,7 +49,7 @@ class DeliveryEvent extends Model
     public function getStatusChangeAttribute(): ?string
     {
         if ($this->from_status && $this->to_status) {
-            return ucfirst($this->from_status) . ' → ' . ucfirst($this->to_status);
+            return ucfirst($this->from_status).' → '.ucfirst($this->to_status);
         }
 
         return null;

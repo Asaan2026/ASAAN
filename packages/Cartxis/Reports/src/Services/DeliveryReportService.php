@@ -4,7 +4,6 @@ namespace Cartxis\Reports\Services;
 
 use App\Models\User;
 use Carbon\Carbon;
-use Cartxis\Reports\Services\ReportCacheService;
 use Cartxis\Sales\Models\Delivery;
 use Cartxis\Sales\Models\DeliveryEvent;
 use Illuminate\Support\Collection;
@@ -24,11 +23,11 @@ class DeliveryReportService
 
         $query->whereBetween('deliveries.created_at', [$startDate, $endDate]);
 
-        if (!empty($filters['driver_id']) && (int) $filters['driver_id'] > 0) {
+        if (! empty($filters['driver_id']) && (int) $filters['driver_id'] > 0) {
             $query->where('deliveries.assigned_to', (int) $filters['driver_id']);
         }
 
-        if (!empty($filters['status']) && array_key_exists($filters['status'], Delivery::getStatuses())) {
+        if (! empty($filters['status']) && array_key_exists($filters['status'], Delivery::getStatuses())) {
             $query->where('deliveries.status', $filters['status']);
         }
     }
@@ -100,7 +99,7 @@ class DeliveryReportService
             'start_date' => $this->safeDate($filters['start_date'] ?? null, now()->subDays(30))->format('Y-m-d'),
             'end_date' => $this->safeDate($filters['end_date'] ?? null, now())->format('Y-m-d'),
             'driver_id' => isset($filters['driver_id']) && (int) $filters['driver_id'] > 0 ? (int) $filters['driver_id'] : null,
-            'status' => !empty($filters['status']) && array_key_exists($filters['status'], Delivery::getStatuses()) ? $filters['status'] : null,
+            'status' => ! empty($filters['status']) && array_key_exists($filters['status'], Delivery::getStatuses()) ? $filters['status'] : null,
         ];
     }
 
@@ -167,16 +166,16 @@ class DeliveryReportService
             ->with('assignedTo')
             ->selectRaw('deliveries.assigned_to')
             ->selectRaw('count(*) as total')
-            ->selectRaw("sum(case when deliveries.status = ? then 1 else 0 end) as delivered", [Delivery::STATUS_DELIVERED])
-            ->selectRaw("sum(case when deliveries.status = ? then 1 else 0 end) as undelivered", [Delivery::STATUS_UNDELIVERED])
-            ->selectRaw("sum(case when deliveries.status = ? then 1 else 0 end) as cancelled", [Delivery::STATUS_CANCELLED])
-            ->selectRaw("sum(case when deliveries.status in (?,?,?) then 1 else 0 end) as on_road", [
+            ->selectRaw('sum(case when deliveries.status = ? then 1 else 0 end) as delivered', [Delivery::STATUS_DELIVERED])
+            ->selectRaw('sum(case when deliveries.status = ? then 1 else 0 end) as undelivered', [Delivery::STATUS_UNDELIVERED])
+            ->selectRaw('sum(case when deliveries.status = ? then 1 else 0 end) as cancelled', [Delivery::STATUS_CANCELLED])
+            ->selectRaw('sum(case when deliveries.status in (?,?,?) then 1 else 0 end) as on_road', [
                 Delivery::STATUS_ASSIGNED,
                 Delivery::STATUS_OUT_FOR_DELIVERY,
                 Delivery::STATUS_ARRIVING,
             ])
             ->selectRaw('coalesce(sum(deliveries.cod_amount), 0) as cod_expected')
-            ->selectRaw("coalesce(sum(case when deliveries.status = ? then deliveries.cod_received else 0 end), 0) as cod_collected", [Delivery::STATUS_DELIVERED])
+            ->selectRaw('coalesce(sum(case when deliveries.status = ? then deliveries.cod_received else 0 end), 0) as cod_collected', [Delivery::STATUS_DELIVERED])
             ->groupBy('deliveries.assigned_to');
 
         $this->applyFilters($rows, $filters);
@@ -213,7 +212,7 @@ class DeliveryReportService
         }
 
         $created = Delivery::query()
-            ->selectRaw("date(deliveries.created_at) as day")
+            ->selectRaw('date(deliveries.created_at) as day')
             ->selectRaw('count(*) as count')
             ->whereBetween('deliveries.created_at', [$startDate, $endDate])
             ->groupBy('day')
@@ -227,7 +226,7 @@ class DeliveryReportService
         }
 
         $deliveredEvents = DeliveryEvent::query()
-            ->selectRaw("date(delivery_events.created_at) as day")
+            ->selectRaw('date(delivery_events.created_at) as day')
             ->selectRaw('count(*) as count')
             ->where('delivery_events.to_status', Delivery::STATUS_DELIVERED)
             ->whereBetween('delivery_events.created_at', [$startDate, $endDate])

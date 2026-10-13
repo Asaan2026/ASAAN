@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use Cartxis\Sales\Models\Transaction;
 use Cartxis\Shop\Models\Order;
+use Illuminate\Database\Seeder;
 
 class TransactionSeeder extends Seeder
 {
@@ -15,6 +15,7 @@ class TransactionSeeder extends Seeder
 
         if ($orders->isEmpty()) {
             $this->command->warn('No orders found. Please run OrderSeeder first.');
+
             return;
         }
 
@@ -30,7 +31,7 @@ class TransactionSeeder extends Seeder
                 'type' => 'payment',
                 'payment_method' => $order->payment_method ?? 'stripe',
                 'gateway' => $gateways[array_rand($gateways)],
-                'gateway_transaction_id' => 'TXN_' . strtoupper(uniqid()),
+                'gateway_transaction_id' => 'TXN_'.strtoupper(uniqid()),
                 'amount' => $order->total,
                 'status' => 'completed',
                 'response_data' => [
@@ -58,7 +59,7 @@ class TransactionSeeder extends Seeder
                     'type' => 'refund',
                     'payment_method' => $order->payment_method ?? 'stripe',
                     'gateway' => $gateways[array_rand($gateways)],
-                    'gateway_transaction_id' => 'REF_' . strtoupper(uniqid()),
+                    'gateway_transaction_id' => 'REF_'.strtoupper(uniqid()),
                     'amount' => $order->total * 0.5, // Partial refund
                     'status' => 'completed',
                     'response_data' => [
@@ -101,7 +102,7 @@ class TransactionSeeder extends Seeder
                 'type' => 'payment',
                 'payment_method' => 'stripe',
                 'gateway' => 'stripe',
-                'gateway_transaction_id' => 'FAIL_' . strtoupper(uniqid()),
+                'gateway_transaction_id' => 'FAIL_'.strtoupper(uniqid()),
                 'amount' => $order->total,
                 'status' => 'failed',
                 'response_data' => [

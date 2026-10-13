@@ -36,7 +36,7 @@ class DataMigrationController extends Controller
             ],
         ]);
     }
-    
+
     /**
      * Start migration process
      */
@@ -47,35 +47,35 @@ class DataMigrationController extends Controller
             'entity' => 'required|in:all,categories,customers,products,orders',
             'dry_run' => 'boolean',
         ]);
-        
+
         $source = $request->input('source');
         $entity = $request->input('entity');
         $dryRun = $request->boolean('dry_run', false);
-        
+
         // Build command
-        $command = $source === 'woocommerce' 
+        $command = $source === 'woocommerce'
             ? "wc:migrate:{$entity}"
             : "bagisto:migrate:{$entity}";
-        
+
         $options = $dryRun ? ['--dry-run' => true] : [];
-        
+
         try {
             // Verify command exists first
             $allCommands = \Artisan::all();
-            if (!isset($allCommands[$command])) {
+            if (! isset($allCommands[$command])) {
                 return response()->json([
                     'success' => false,
-                    'message' => "Command '{$command}' not found. Available commands: " . implode(', ', array_keys($allCommands)),
+                    'message' => "Command '{$command}' not found. Available commands: ".implode(', ', array_keys($allCommands)),
                 ], 500);
             }
-            
+
             // Run migration in background
             Artisan::call($command, $options);
             $output = Artisan::output();
-            
+
             return response()->json([
                 'success' => true,
-                'message' => $dryRun 
+                'message' => $dryRun
                     ? 'Dry run completed successfully'
                     : 'Migration completed successfully',
                 'output' => $output,
@@ -83,11 +83,11 @@ class DataMigrationController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Migration failed: ' . $e->getMessage(),
+                'message' => 'Migration failed: '.$e->getMessage(),
             ], 500);
         }
     }
-    
+
     /**
      * Get migration status
      */
@@ -96,18 +96,18 @@ class DataMigrationController extends Controller
         $request->validate([
             'source' => 'required|in:woocommerce,bagisto',
         ]);
-        
+
         $source = $request->input('source');
         $config = config("{$source}-migration");
-        
+
         return response()->json([
-            'configured' => $source === 'woocommerce' 
+            'configured' => $source === 'woocommerce'
                 ? $this->isWooCommerceConfigured()
                 : $this->isBagistoConfigured(),
             'connection' => $config['connection'] ?? null,
         ]);
     }
-    
+
     /**
      * Test database connection
      */
@@ -116,13 +116,13 @@ class DataMigrationController extends Controller
         $request->validate([
             'source' => 'required|in:woocommerce,bagisto',
         ]);
-        
+
         $source = $request->input('source');
         $config = config("{$source}-migration");
-        
+
         try {
             \DB::connection($config['connection'])->getPdo();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Connection successful',
@@ -130,24 +130,24 @@ class DataMigrationController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Connection failed: ' . $e->getMessage(),
+                'message' => 'Connection failed: '.$e->getMessage(),
             ], 500);
         }
     }
-    
+
     private function isWooCommerceConfigured(): bool
     {
         $host = env('WOOCOMMERCE_DB_HOST');
         $database = env('WOOCOMMERCE_DB_DATABASE');
-        
-        return !empty($host) && !empty($database);
+
+        return ! empty($host) && ! empty($database);
     }
-    
+
     private function isBagistoConfigured(): bool
     {
         $host = env('BAGISTO_DB_HOST');
         $database = env('BAGISTO_DB_DATABASE');
-        
-        return !empty($host) && !empty($database);
+
+        return ! empty($host) && ! empty($database);
     }
 }

@@ -25,7 +25,7 @@ use Illuminate\Support\Str;
 function internalDeliveryOrder(): Order
 {
     $order = Order::create([
-        'order_number' => 'ORD-' . Str::upper(Str::random(8)),
+        'order_number' => 'ORD-'.Str::upper(Str::random(8)),
         'status' => 'processing',
         'payment_status' => 'paid',
         'customer_email' => 'customer@example.com',
@@ -63,7 +63,7 @@ test('the in-house delivery option is available with no courier settings at all'
     expect(DB::table('settings')->where('key', 'like', 'shipping.delivery.%')->count())->toBe(0);
 
     $response = $this->actingAs($admin, 'admin')
-        ->get('/admin/sales/shipments/create?order_id=' . $order->id);
+        ->get('/admin/sales/shipments/create?order_id='.$order->id);
 
     $response->assertStatus(200);
     $response->assertInertia(fn ($page) => $page
@@ -125,7 +125,7 @@ test('the external courier option stays hidden even when it is enabled and confi
     $settings->set('shipping.courier.api_token', 'a-courier-token', 'string', 'shipping');
 
     $response = $this->actingAs($admin, 'admin')
-        ->get('/admin/sales/shipments/create?order_id=' . $order->id);
+        ->get('/admin/sales/shipments/create?order_id='.$order->id);
 
     $response->assertInertia(fn ($page) => $page
         ->where('internal_delivery_available', true)

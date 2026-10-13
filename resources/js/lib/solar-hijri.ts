@@ -220,7 +220,15 @@ const WEEKDAYS: Record<SolarLocale, string[]> = {
         'Saturday',
     ],
     fa: ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'],
-    fa_alt: ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'],
+    fa_alt: [
+        'یکشنبه',
+        'دوشنبه',
+        'سه‌شنبه',
+        'چهارشنبه',
+        'پنج‌شنبه',
+        'جمعه',
+        'شنبه',
+    ],
     ps: ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه', 'شنبه'],
 };
 
@@ -450,10 +458,7 @@ export function nowruzMarchDay(jalaliYear: number): number {
 // ---------------------------------------------------------------------------
 
 function assertYear(jalaliYear: number): void {
-    if (
-        jalaliYear >= MIN_JALALI_YEAR &&
-        jalaliYear <= MAX_JALALI_YEAR
-    ) {
+    if (jalaliYear >= MIN_JALALI_YEAR && jalaliYear <= MAX_JALALI_YEAR) {
         return;
     }
 
@@ -471,7 +476,11 @@ function assertMonth(jalaliMonth: number): void {
 }
 
 /** Throw unless the year, month and day together name a real date. */
-function assertValid(jalaliYear: number, jalaliMonth: number, jalaliDay: number): void {
+function assertValid(
+    jalaliYear: number,
+    jalaliMonth: number,
+    jalaliDay: number,
+): void {
     if (isValid(jalaliYear, jalaliMonth, jalaliDay)) {
         return;
     }
@@ -482,7 +491,11 @@ function assertValid(jalaliYear: number, jalaliMonth: number, jalaliDay: number)
 }
 
 /** Does this Solar Hijri date actually exist? */
-export function isValid(jalaliYear: number, jalaliMonth: number, jalaliDay: number): boolean {
+export function isValid(
+    jalaliYear: number,
+    jalaliMonth: number,
+    jalaliDay: number,
+): boolean {
     if (jalaliYear < MIN_JALALI_YEAR || jalaliYear > MAX_JALALI_YEAR) {
         return false;
     }
@@ -504,7 +517,11 @@ function serialDayFromSolar(
     assertMonth(jalaliMonth);
     assertValid(jalaliYear, jalaliMonth, jalaliDay);
 
-    return nowruzSerialDay(jalaliYear) + dayOfYear(jalaliYear, jalaliMonth, jalaliDay) - 1;
+    return (
+        nowruzSerialDay(jalaliYear) +
+        dayOfYear(jalaliYear, jalaliMonth, jalaliDay) -
+        1
+    );
 }
 
 /**
@@ -552,7 +569,9 @@ function fromDayOfYear(jalaliYear: number, dayOfYear: number): SolarDate {
  * The time of day is IGNORED -- this calendar has no clock, so two timestamps
  * on the same day give the same answer.
  */
-function gregorianParts(date: Date | string | number): [number, number, number] {
+function gregorianParts(
+    date: Date | string | number,
+): [number, number, number] {
     if (date instanceof Date) {
         return [
             date.getUTCFullYear(),
@@ -582,7 +601,9 @@ function gregorianParts(date: Date | string | number): [number, number, number] 
 
     const parsed = new Date(trimmed);
     if (Number.isNaN(parsed.getTime())) {
-        throw new TypeError(`Could not read a Gregorian date from [${trimmed}].`);
+        throw new TypeError(
+            `Could not read a Gregorian date from [${trimmed}].`,
+        );
     }
 
     return [
@@ -603,7 +624,10 @@ export function fromGregorian(date: Date | string | number): SolarDate {
         jalaliYear -= 1;
     }
 
-    return fromDayOfYear(jalaliYear, dayNumber - nowruzSerialDay(jalaliYear) + 1);
+    return fromDayOfYear(
+        jalaliYear,
+        dayNumber - nowruzSerialDay(jalaliYear) + 1,
+    );
 }
 
 /** The Gregorian 'Y-m-d' matching a Solar Hijri date. */
@@ -625,7 +649,9 @@ export function toGregorianIso(
  * What a date picker needs: what to show the shopper, and what to send back to
  * the server so the stored value is Gregorian.
  */
-export function toParts(date: Date | string | number | SolarDate): SolarDateParts {
+export function toParts(
+    date: Date | string | number | SolarDate,
+): SolarDateParts {
     // A SolarDate may already have been produced by addDays(), as the month
     // grid does when it walks a month.
     const solar = isSolarDate(date) ? date : fromGregorian(date);
@@ -691,7 +717,9 @@ export function weekdayOfSolar(
     jalaliMonth: number,
     jalaliDay: number,
 ): number {
-    return weekdayFromSerialDay(serialDayFromSolar(jalaliYear, jalaliMonth, jalaliDay));
+    return weekdayFromSerialDay(
+        serialDayFromSolar(jalaliYear, jalaliMonth, jalaliDay),
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -731,7 +759,9 @@ function civilFromSerialDay(dayNumber: number): [number, number, number] {
     const year = yearOfEra + era * 400;
     const dayOfYearValue =
         dayOfEra -
-        (yearOfEra * 365 + Math.floor(yearOfEra / 4) - Math.floor(yearOfEra / 100));
+        (yearOfEra * 365 +
+            Math.floor(yearOfEra / 4) -
+            Math.floor(yearOfEra / 100));
     const monthPrime = Math.floor((5 * dayOfYearValue + 2) / 153);
     const day = dayOfYearValue - Math.floor((153 * monthPrime + 2) / 5) + 1;
     const month = monthPrime + (monthPrime < 10 ? 3 : -9);
@@ -755,7 +785,9 @@ function iso(year: number, month: number, day: number): string {
  * on 'ps'. Anything unrecognised lands on English, so a missing or misspelt
  * locale shows an English month name rather than nothing.
  */
-export function normaliseLocale(locale: string | null | undefined): SolarLocale {
+export function normaliseLocale(
+    locale: string | null | undefined,
+): SolarLocale {
     const code = String(locale ?? '')
         .trim()
         .toLowerCase();
@@ -768,7 +800,11 @@ export function normaliseLocale(locale: string | null | undefined): SolarLocale 
         return 'fa_alt';
     }
 
-    if (code.startsWith('fa') || code.startsWith('prs') || code.includes('dari')) {
+    if (
+        code.startsWith('fa') ||
+        code.startsWith('prs') ||
+        code.includes('dari')
+    ) {
         return 'fa';
     }
 
@@ -832,10 +868,7 @@ export function weekdayNames(locale?: string | null, short = false): string[] {
  * Only digits are touched: the month name sitting between them is left exactly
  * as it was, so a whole formatted date converts cleanly.
  */
-export function toNumerals(
-    value: string,
-    numerals: Numerals = 'fa',
-): string {
+export function toNumerals(value: string, numerals: Numerals = 'fa'): string {
     if (numerals === 'latn' || !/[0-9]/.test(value)) {
         return value;
     }
@@ -886,7 +919,12 @@ export function formatDate(
 
     const primary =
         resolved.primary === 'gregorian'
-            ? renderGregorian(parts, resolvedLocale, resolved, resolved.numerals)
+            ? renderGregorian(
+                  parts,
+                  resolvedLocale,
+                  resolved,
+                  resolved.numerals,
+              )
             : renderSolar(parts, resolvedLocale, resolved);
 
     if (resolved.secondary === 'none') {
@@ -899,7 +937,12 @@ export function formatDate(
                   ...resolved,
                   numerals: resolved.secondaryNumerals,
               })
-            : renderGregorian(parts, resolvedLocale, resolved, resolved.secondaryNumerals);
+            : renderGregorian(
+                  parts,
+                  resolvedLocale,
+                  resolved,
+                  resolved.secondaryNumerals,
+              );
 
     if (secondary === '') {
         return primary;
@@ -1103,7 +1146,10 @@ type ResolvedOptions = {
  * config/calendar.php on the server. A caller that needs to differ passes the
  * option; a caller that does not gets the store's decision.
  */
-function resolveOptions(options: FormatOptions, locale: SolarLocale): ResolvedOptions {
+function resolveOptions(
+    options: FormatOptions,
+    locale: SolarLocale,
+): ResolvedOptions {
     return {
         primary: options.primary ?? 'solar',
         secondary: options.secondary ?? 'gregorian',

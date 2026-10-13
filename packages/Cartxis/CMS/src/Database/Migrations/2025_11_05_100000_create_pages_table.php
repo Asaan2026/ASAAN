@@ -37,12 +37,12 @@ return new class extends Migration
             $table->foreign('created_by')->references('id')->on('users')->onDelete('set null');
             $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
         });
-        
+
         // Add fulltext index only for MySQL/MariaDB (not supported in SQLite, PostgreSQL or TiDB)
         $driver = Schema::getConnection()->getDriverName();
         $isTiDB = in_array($driver, ['mysql', 'mariadb'])
             && str_contains(Schema::getConnection()->selectOne('select version() as v')?->v ?? '', 'TiDB');
-        if (in_array($driver, ['mysql', 'mariadb']) && !$isTiDB) {
+        if (in_array($driver, ['mysql', 'mariadb']) && ! $isTiDB) {
             Schema::table('pages', function (Blueprint $table) {
                 $table->fullText(['title', 'content']);
             });

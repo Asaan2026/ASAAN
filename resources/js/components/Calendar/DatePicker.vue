@@ -3,8 +3,8 @@ import { onClickOutside, useEventListener } from '@vueuse/core';
 import { CalendarDays, ChevronLeft, ChevronRight, X } from 'lucide-vue-next';
 import { computed, nextTick, ref, watch } from 'vue';
 
-import { useCalendar } from '@/composables/useCalendar';
 import DateDisplay from '@/components/Calendar/DateDisplay.vue';
+import { useCalendar } from '@/composables/useCalendar';
 import {
     fromGregorian,
     monthGrid,
@@ -282,14 +282,14 @@ function clear(): void {
             :disabled="disabled"
             :aria-expanded="open"
             aria-haspopup="dialog"
-            class="w-full flex items-center gap-2 text-start disabled:opacity-50 disabled:cursor-not-allowed"
+            class="flex w-full items-center gap-2 text-start disabled:cursor-not-allowed disabled:opacity-50"
             @click="toggle"
         >
-            <CalendarDays class="w-4 h-4 opacity-60 shrink-0" />
+            <CalendarDays class="h-4 w-4 shrink-0 opacity-60" />
             <span v-if="selectedIso" class="truncate">
                 <DateDisplay :value="modelValue" :time="withTime" />
             </span>
-            <span v-else class="opacity-50 truncate">{{ placeholder }}</span>
+            <span v-else class="truncate opacity-50">{{ placeholder }}</span>
             <span class="flex-1" />
             <span
                 v-if="clearable && selectedIso && !disabled"
@@ -298,7 +298,7 @@ function clear(): void {
                 class="shrink-0 rounded p-0.5 hover:bg-gray-200 dark:hover:bg-gray-600"
                 @click.stop="clear"
             >
-                <X class="w-3.5 h-3.5" />
+                <X class="h-3.5 w-3.5" />
             </span>
         </button>
 
@@ -308,7 +308,7 @@ function clear(): void {
                 ref="panel"
                 role="dialog"
                 :dir="direction"
-                class="fixed z-[100] rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 shadow-xl"
+                class="fixed z-[100] rounded-xl border border-gray-200 bg-white p-3 shadow-xl dark:border-gray-700 dark:bg-gray-800"
                 :style="{
                     top: `${position.top}px`,
                     left: `${position.left}px`,
@@ -323,7 +323,10 @@ function clear(): void {
                             class="rounded-md p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700"
                             @click="moveMonth(direction === 'rtl' ? 1 : -1)"
                         >
-                            <ChevronRight v-if="direction === 'rtl'" class="h-4 w-4" />
+                            <ChevronRight
+                                v-if="direction === 'rtl'"
+                                class="h-4 w-4"
+                            />
                             <ChevronLeft v-else class="h-4 w-4" />
                         </button>
 
@@ -340,7 +343,10 @@ function clear(): void {
                             class="rounded-md p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700"
                             @click="moveMonth(direction === 'rtl' ? -1 : 1)"
                         >
-                            <ChevronLeft v-if="direction === 'rtl'" class="h-4 w-4" />
+                            <ChevronLeft
+                                v-if="direction === 'rtl'"
+                                class="h-4 w-4"
+                            />
                             <ChevronRight v-else class="h-4 w-4" />
                         </button>
                     </template>
@@ -351,7 +357,10 @@ function clear(): void {
                             class="rounded-md p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700"
                             @click="moveYear(direction === 'rtl' ? 1 : -1)"
                         >
-                            <ChevronRight v-if="direction === 'rtl'" class="h-4 w-4" />
+                            <ChevronRight
+                                v-if="direction === 'rtl'"
+                                class="h-4 w-4"
+                            />
                             <ChevronLeft v-else class="h-4 w-4" />
                         </button>
 
@@ -368,7 +377,10 @@ function clear(): void {
                             class="rounded-md p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700"
                             @click="moveYear(direction === 'rtl' ? -1 : 1)"
                         >
-                            <ChevronLeft v-if="direction === 'rtl'" class="h-4 w-4" />
+                            <ChevronLeft
+                                v-if="direction === 'rtl'"
+                                class="h-4 w-4"
+                            />
                             <ChevronRight v-else class="h-4 w-4" />
                         </button>
                     </template>
@@ -384,7 +396,7 @@ function clear(): void {
                         :class="
                             m === view.month
                                 ? 'bg-blue-600 text-white hover:bg-blue-600'
-                                : 'text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                : 'text-gray-900 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700'
                         "
                         class="h-9 rounded-md text-sm transition-colors"
                         @click="openMonth(m)"
@@ -399,7 +411,7 @@ function clear(): void {
                         <div
                             v-for="name in grid.weekdays"
                             :key="name"
-                            class="h-8 flex items-center justify-center text-xs font-medium text-gray-400 dark:text-gray-500"
+                            class="flex h-8 items-center justify-center text-xs font-medium text-gray-400 dark:text-gray-500"
                         >
                             {{ name }}
                         </div>
@@ -424,9 +436,11 @@ function clear(): void {
                 <!-- Clock: only for a datetime-local field -->
                 <div
                     v-if="withTime"
-                    class="mt-2 flex items-center gap-2 border-t border-gray-100 dark:border-gray-700 pt-2"
+                    class="mt-2 flex items-center gap-2 border-t border-gray-100 pt-2 dark:border-gray-700"
                 >
-                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                    <span
+                        class="text-xs font-medium text-gray-500 dark:text-gray-400"
+                    >
                         {{ $t('Time') }}
                     </span>
                     <input
@@ -440,7 +454,7 @@ function clear(): void {
                 <!-- Actions -->
                 <div
                     v-if="!todayDisabled || clearable"
-                    class="mt-2 flex items-center justify-between border-t border-gray-100 dark:border-gray-700 pt-2"
+                    class="mt-2 flex items-center justify-between border-t border-gray-100 pt-2 dark:border-gray-700"
                 >
                     <button
                         v-if="!todayDisabled"

@@ -2,10 +2,9 @@
 
 namespace Cartxis\Sales\Services;
 
-use Cartxis\Sales\Models\CreditMemo;
 use Cartxis\Core\Models\Currency;
+use Cartxis\Sales\Models\CreditMemo;
 use Mpdf\Mpdf;
-use Mpdf\MpdfException;
 
 class CreditMemoPdfService
 {
@@ -24,18 +23,18 @@ class CreditMemoPdfService
         ]);
 
         $html = $this->generateHtml($creditMemo);
-        
+
         $mpdf->WriteHTML($html);
-        
-        $filename = storage_path('app/credit-memos/' . $creditMemo->credit_memo_number . '.pdf');
-        
+
+        $filename = storage_path('app/credit-memos/'.$creditMemo->credit_memo_number.'.pdf');
+
         // Ensure directory exists
-        if (!file_exists(dirname($filename))) {
+        if (! file_exists(dirname($filename))) {
             mkdir(dirname($filename), 0755, true);
         }
-        
+
         $mpdf->Output($filename, 'F');
-        
+
         return $filename;
     }
 
@@ -54,12 +53,12 @@ class CreditMemoPdfService
         ]);
 
         $html = $this->generateHtml($creditMemo);
-        
+
         $mpdf->WriteHTML($html);
-        
-        $filename = $creditMemo->credit_memo_number . '.pdf';
+
+        $filename = $creditMemo->credit_memo_number.'.pdf';
         $destination = $inline ? 'I' : 'D';
-        
+
         return $mpdf->Output($filename, $destination);
     }
 
@@ -70,13 +69,13 @@ class CreditMemoPdfService
     {
         $order = $creditMemo->order;
         $items = $creditMemo->items;
-        
+
         $html = '
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>Credit Memo ' . htmlspecialchars($creditMemo->credit_memo_number) . '</title>
+            <title>Credit Memo '.htmlspecialchars($creditMemo->credit_memo_number).'</title>
             <style>
                 body {
                     font-family: Arial, sans-serif;
@@ -196,28 +195,28 @@ class CreditMemoPdfService
         <body>
             <div class="header">
                 <h1>CREDIT MEMO</h1>
-                <p style="font-size: 14px; margin: 5px 0;">Credit Memo #' . htmlspecialchars($creditMemo->credit_memo_number) . '</p>
-                <span class="status-badge">' . strtoupper($creditMemo->status) . '</span>
+                <p style="font-size: 14px; margin: 5px 0;">Credit Memo #'.htmlspecialchars($creditMemo->credit_memo_number).'</p>
+                <span class="status-badge">'.strtoupper($creditMemo->status).'</span>
             </div>
 
             <div class="company-info">
-                <h2>' . htmlspecialchars(config('app.name')) . '</h2>
-                <p>' . config('app.url') . '</p>
+                <h2>'.htmlspecialchars(config('app.name')).'</h2>
+                <p>'.config('app.url').'</p>
             </div>
 
             <div class="info-row">
                 <div class="info-col">
                     <h3>Customer Information</h3>
-                    <p><strong>' . htmlspecialchars($order->customer_name ?? 'N/A') . '</strong></p>
-                    <p>' . htmlspecialchars($order->customer_email ?? '') . '</p>
-                    <p>' . htmlspecialchars($order->billing_address ?? '') . '</p>
+                    <p><strong>'.htmlspecialchars($order->customer_name ?? 'N/A').'</strong></p>
+                    <p>'.htmlspecialchars($order->customer_email ?? '').'</p>
+                    <p>'.htmlspecialchars($order->billing_address ?? '').'</p>
                 </div>
                 <div class="info-col">
                     <h3>Refund Details</h3>
-                    <p><strong>Date Issued:</strong> ' . $creditMemo->created_at->format('M d, Y') . '</p>
-                    <p><strong>Order Number:</strong> ' . htmlspecialchars($order->order_number) . '</p>
-                    ' . ($creditMemo->refunded_at ? '<p><strong>Refunded:</strong> ' . $creditMemo->refunded_at->format('M d, Y') . '</p>' : '') . '
-                    <p><strong>Refund Method:</strong> ' . ucfirst(str_replace('_', ' ', $creditMemo->refund_method ?? 'N/A')) . '</p>
+                    <p><strong>Date Issued:</strong> '.$creditMemo->created_at->format('M d, Y').'</p>
+                    <p><strong>Order Number:</strong> '.htmlspecialchars($order->order_number).'</p>
+                    '.($creditMemo->refunded_at ? '<p><strong>Refunded:</strong> '.$creditMemo->refunded_at->format('M d, Y').'</p>' : '').'
+                    <p><strong>Refund Method:</strong> '.ucfirst(str_replace('_', ' ', $creditMemo->refund_method ?? 'N/A')).'</p>
                 </div>
             </div>
 
@@ -237,12 +236,12 @@ class CreditMemoPdfService
         foreach ($items as $item) {
             $html .= '
                     <tr>
-                        <td>' . htmlspecialchars($item->product_name) . '</td>
-                        <td>' . htmlspecialchars($item->sku ?? '-') . '</td>
-                        <td class="text-right">' . number_format($item->qty_refunded) . '</td>
-                        <td class="text-right">' . $this->formatCurrency($item->price) . '</td>
-                        <td class="text-right">' . $this->formatCurrency($item->tax_amount) . '</td>
-                        <td class="text-right">' . $this->formatCurrency($item->row_total) . '</td>
+                        <td>'.htmlspecialchars($item->product_name).'</td>
+                        <td>'.htmlspecialchars($item->sku ?? '-').'</td>
+                        <td class="text-right">'.number_format($item->qty_refunded).'</td>
+                        <td class="text-right">'.$this->formatCurrency($item->price).'</td>
+                        <td class="text-right">'.$this->formatCurrency($item->tax_amount).'</td>
+                        <td class="text-right">'.$this->formatCurrency($item->row_total).'</td>
                     </tr>';
         }
 
@@ -254,18 +253,18 @@ class CreditMemoPdfService
                 <table>
                     <tr>
                         <td>Subtotal:</td>
-                        <td class="text-right">' . $this->formatCurrency($creditMemo->subtotal) . '</td>
+                        <td class="text-right">'.$this->formatCurrency($creditMemo->subtotal).'</td>
                     </tr>
                     <tr>
                         <td>Tax:</td>
-                        <td class="text-right">' . $this->formatCurrency($creditMemo->tax_amount) . '</td>
+                        <td class="text-right">'.$this->formatCurrency($creditMemo->tax_amount).'</td>
                     </tr>';
 
         if ($creditMemo->shipping_amount > 0) {
             $html .= '
                     <tr>
                         <td>Shipping Refund:</td>
-                        <td class="text-right">' . $this->formatCurrency($creditMemo->shipping_amount) . '</td>
+                        <td class="text-right">'.$this->formatCurrency($creditMemo->shipping_amount).'</td>
                     </tr>';
         }
 
@@ -273,7 +272,7 @@ class CreditMemoPdfService
             $html .= '
                     <tr>
                         <td>Discount:</td>
-                        <td class="text-right">-' . $this->formatCurrency($creditMemo->discount_amount) . '</td>
+                        <td class="text-right">-'.$this->formatCurrency($creditMemo->discount_amount).'</td>
                     </tr>';
         }
 
@@ -281,7 +280,7 @@ class CreditMemoPdfService
             $html .= '
                     <tr>
                         <td>Adjustment (Fee):</td>
-                        <td class="text-right">-' . $this->formatCurrency($creditMemo->adjustment_positive) . '</td>
+                        <td class="text-right">-'.$this->formatCurrency($creditMemo->adjustment_positive).'</td>
                     </tr>';
         }
 
@@ -289,14 +288,14 @@ class CreditMemoPdfService
             $html .= '
                     <tr>
                         <td>Adjustment (Refund):</td>
-                        <td class="text-right">' . $this->formatCurrency($creditMemo->adjustment_negative) . '</td>
+                        <td class="text-right">'.$this->formatCurrency($creditMemo->adjustment_negative).'</td>
                     </tr>';
         }
 
         $html .= '
                     <tr class="grand-total">
                         <td>Total Refund:</td>
-                        <td class="text-right">' . $this->formatCurrency($creditMemo->grand_total) . '</td>
+                        <td class="text-right">'.$this->formatCurrency($creditMemo->grand_total).'</td>
                     </tr>
                 </table>
             </div>
@@ -307,15 +306,15 @@ class CreditMemoPdfService
             $html .= '
             <div class="notes">
                 <strong>Notes:</strong><br>
-                ' . nl2br(htmlspecialchars($creditMemo->notes)) . '
+                '.nl2br(htmlspecialchars($creditMemo->notes)).'
             </div>';
         }
 
         $html .= '
             <div class="footer">
-                <p><strong>' . htmlspecialchars(config('app.name')) . '</strong></p>
+                <p><strong>'.htmlspecialchars(config('app.name')).'</strong></p>
                 <p>This is a computer-generated credit memo and does not require a signature.</p>
-                <p>&copy; ' . date('Y') . ' ' . htmlspecialchars(config('app.name')) . '. All rights reserved.</p>
+                <p>&copy; '.date('Y').' '.htmlspecialchars(config('app.name')).'. All rights reserved.</p>
             </div>
         </body>
         </html>';
@@ -329,6 +328,6 @@ class CreditMemoPdfService
 
         return $currency
             ? $currency->format($amount)
-            : '$' . number_format($amount, 2);
+            : '$'.number_format($amount, 2);
     }
 }

@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -14,7 +12,7 @@ return new class extends Migration
         DB::table('menu_items')
             ->where('parent_id', 7)
             ->update(['permission' => null]);
-            
+
         DB::table('menu_items')
             ->where('key', 'reports')
             ->update(['permission' => null]);

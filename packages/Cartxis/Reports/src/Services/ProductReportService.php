@@ -16,7 +16,7 @@ class ProductReportService
      */
     public function generateReport(array $filters): array
     {
-        return $this->cacheService->remember('products', $filters, function() use ($filters) {
+        return $this->cacheService->remember('products', $filters, function () use ($filters) {
             $startDate = $filters['start_date'] ?? now()->subDays(30)->format('Y-m-d');
             $endDate = $filters['end_date'] ?? now()->format('Y-m-d');
             $lowStockThreshold = $filters['low_stock_threshold'] ?? 10;
@@ -60,23 +60,23 @@ class ProductReportService
         return [
             // Best Sellers Bar Chart
             'best_sellers_chart' => [
-                'labels' => array_map(fn($item) => $item['name'], array_slice($bestSellers, 0, 10)),
+                'labels' => array_map(fn ($item) => $item['name'], array_slice($bestSellers, 0, 10)),
                 'datasets' => [
                     [
                         'label' => 'Quantity Sold',
-                        'data' => array_map(fn($item) => $item['total_quantity'], array_slice($bestSellers, 0, 10)),
+                        'data' => array_map(fn ($item) => $item['total_quantity'], array_slice($bestSellers, 0, 10)),
                         'backgroundColor' => 'rgba(59, 130, 246, 0.8)',
-                    ]
-                ]
+                    ],
+                ],
             ],
 
             // Category Performance Pie Chart
             'category_chart' => [
-                'labels' => array_map(fn($item) => $item['category_name'], $categoryPerformance),
+                'labels' => array_map(fn ($item) => $item['category_name'], $categoryPerformance),
                 'datasets' => [
                     [
                         'label' => 'Revenue by Category',
-                        'data' => array_map(fn($item) => $item['total_revenue'], $categoryPerformance),
+                        'data' => array_map(fn ($item) => $item['total_revenue'], $categoryPerformance),
                         'backgroundColor' => [
                             'rgba(59, 130, 246, 0.8)',
                             'rgba(16, 185, 129, 0.8)',
@@ -85,19 +85,19 @@ class ProductReportService
                             'rgba(139, 92, 246, 0.8)',
                             'rgba(236, 72, 153, 0.8)',
                         ],
-                    ]
-                ]
+                    ],
+                ],
             ],
 
             // Sales Trend Line Chart
             'sales_trend_chart' => [
-                'labels' => array_map(function($item) {
+                'labels' => array_map(function ($item) {
                     return date('M d', strtotime($item['date']));
                 }, $salesTrend),
                 'datasets' => [
                     [
                         'label' => 'Revenue',
-                        'data' => array_map(fn($item) => $item['revenue'], $salesTrend),
+                        'data' => array_map(fn ($item) => $item['revenue'], $salesTrend),
                         'borderColor' => 'rgba(59, 130, 246, 1)',
                         'backgroundColor' => 'rgba(59, 130, 246, 0.1)',
                         'fill' => true,
@@ -105,13 +105,13 @@ class ProductReportService
                     ],
                     [
                         'label' => 'Quantity',
-                        'data' => array_map(fn($item) => $item['quantity'], $salesTrend),
+                        'data' => array_map(fn ($item) => $item['quantity'], $salesTrend),
                         'borderColor' => 'rgba(16, 185, 129, 1)',
                         'backgroundColor' => 'rgba(16, 185, 129, 0.1)',
                         'fill' => true,
                         'tension' => 0.4,
-                    ]
-                ]
+                    ],
+                ],
             ],
         ];
     }

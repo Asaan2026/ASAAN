@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Cartxis\UIEditor\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 class GlobalRegion extends Model
@@ -15,13 +15,18 @@ class GlobalRegion extends Model
 
     protected $table = 'uieditor_global_regions';
 
-    public const STATUS_DRAFT     = 'draft';
+    public const STATUS_DRAFT = 'draft';
+
     public const STATUS_PUBLISHED = 'published';
 
-    public const TYPE_HEADER  = 'header';
-    public const TYPE_FOOTER  = 'footer';
+    public const TYPE_HEADER = 'header';
+
+    public const TYPE_FOOTER = 'footer';
+
     public const TYPE_SECTION = 'section';
-    public const TYPE_BANNER  = 'banner';
+
+    public const TYPE_BANNER = 'banner';
+
     public const TYPE_SIDEBAR = 'sidebar';
 
     protected $fillable = [
@@ -38,12 +43,12 @@ class GlobalRegion extends Model
     ];
 
     protected $casts = [
-        'layout_data'           => 'array',
+        'layout_data' => 'array',
         'published_layout_data' => 'array',
-        'published_at'          => 'datetime',
-        'created_at'            => 'datetime',
-        'updated_at'            => 'datetime',
-        'deleted_at'            => 'datetime',
+        'published_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     // ─── Boot ─────────────────────────────────────────────────────────────────

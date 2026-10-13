@@ -2,8 +2,8 @@
 
 namespace Cartxis\Core\Console\Commands;
 
-use Illuminate\Console\Command;
 use Cartxis\Core\Services\TemplateCatalogService;
+use Illuminate\Console\Command;
 
 class TemplateDiscoverCommand extends Command
 {
@@ -30,7 +30,8 @@ class TemplateDiscoverCommand extends Command
         $entries = $catalog->discover();
 
         if ($entries->isEmpty()) {
-            $this->components->warn('No templates found in ' . config('theme.catalog_path'));
+            $this->components->warn('No templates found in '.config('theme.catalog_path'));
+
             return self::SUCCESS;
         }
 
@@ -47,7 +48,7 @@ class TemplateDiscoverCommand extends Command
         }
 
         $this->newLine();
-        $this->components->info($entries->count() . ' template(s) discovered.');
+        $this->components->info($entries->count().' template(s) discovered.');
 
         return self::SUCCESS;
     }

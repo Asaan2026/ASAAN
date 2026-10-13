@@ -26,7 +26,7 @@ return new class extends Migration
             $table->boolean('installed')->default(false)->comment('Is extension installed');
             $table->timestamp('installed_at')->nullable()->comment('Installation timestamp');
             $table->timestamps();
-            
+
             // Indexes
             $table->index(['active', 'installed']);
         });

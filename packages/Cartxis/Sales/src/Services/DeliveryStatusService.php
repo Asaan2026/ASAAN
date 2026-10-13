@@ -138,7 +138,7 @@ class DeliveryStatusService
             throw new \RuntimeException('This delivery is already finished.');
         }
 
-        if (!in_array($to, $this->allowedTransitions[$from] ?? [], true)) {
+        if (! in_array($to, $this->allowedTransitions[$from] ?? [], true)) {
             throw new \RuntimeException("Cannot move a delivery from {$from} to {$to}.");
         }
 

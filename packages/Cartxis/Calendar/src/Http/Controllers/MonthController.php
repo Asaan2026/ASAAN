@@ -92,21 +92,21 @@ class MonthController extends Controller
         ]);
     }
 
-/**
- * The reader's language.
- *
- * The ?locale= query parameter wins, so a picker can be told which set to
- * use explicitly; otherwise the app's own resolved locale decides, which is
- * what the reader actually chose -- SetLocaleFromCookie and the storefront
- * switcher both call app()->setLocale(). Anything that has chosen nothing
- * gets the store's own default.
- *
- * Note app()->getLocale(), not $request->getLocale(). The latter reads the
- * request's own _locale attribute and falls back to config('app.fallback_locale')
- * -- it does not follow app()->setLocale(). Reading it here meant a shopper who
- * had switched the storefront to Dari was still served a picker with English
- * month names in it.
- */
+    /**
+     * The reader's language.
+     *
+     * The ?locale= query parameter wins, so a picker can be told which set to
+     * use explicitly; otherwise the app's own resolved locale decides, which is
+     * what the reader actually chose -- SetLocaleFromCookie and the storefront
+     * switcher both call app()->setLocale(). Anything that has chosen nothing
+     * gets the store's own default.
+     *
+     * Note app()->getLocale(), not $request->getLocale(). The latter reads the
+     * request's own _locale attribute and falls back to config('app.fallback_locale')
+     * -- it does not follow app()->setLocale(). Reading it here meant a shopper who
+     * had switched the storefront to Dari was still served a picker with English
+     * month names in it.
+     */
     private function locale(Request $request): string
     {
         $requested = $request->query('locale') ?: app()->getLocale();

@@ -5,6 +5,7 @@ namespace Cartxis\Sales\Http\Controllers\Delivery;
 use App\Http\Controllers\Controller;
 use Cartxis\Sales\Models\Delivery;
 use Cartxis\Sales\Services\DeliveryStatusService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -173,7 +174,7 @@ class DeliveriesController extends Controller
                 Delivery::STATUS_DELIVERED,
                 [
                     'recipient_name' => $validated['recipient_name'],
-                    'delivered_photo_path' => $photoPath ? '/storage/' . $photoPath : null,
+                    'delivered_photo_path' => $photoPath ? '/storage/'.$photoPath : null,
                     'cod_received' => $validated['cod_received'] ?? null,
                 ],
                 $validated['note'] ?? 'Package delivered'
@@ -193,7 +194,7 @@ class DeliveriesController extends Controller
     public function undelivered(Request $request, int $id): RedirectResponse
     {
         $validated = $request->validate([
-            'failure_reason' => ['required', 'string', 'in:' . implode(',', array_keys(Delivery::getFailureReasons()))],
+            'failure_reason' => ['required', 'string', 'in:'.implode(',', array_keys(Delivery::getFailureReasons()))],
             'failure_note' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -202,7 +203,7 @@ class DeliveriesController extends Controller
                 $this->findOwned($id),
                 Delivery::STATUS_UNDELIVERED,
                 $validated,
-                'Not delivered: ' . ($validated['failure_note'] ?? $validated['failure_reason'])
+                'Not delivered: '.($validated['failure_note'] ?? $validated['failure_reason'])
             );
         } catch (\RuntimeException $e) {
             return back()->with('error', $e->getMessage());
@@ -216,7 +217,7 @@ class DeliveriesController extends Controller
     /**
      * Driver shares their live location during out-for-delivery / arriving.
      */
-    public function location(Request $request, int $id): \Illuminate\Http\JsonResponse
+    public function location(Request $request, int $id): JsonResponse
     {
         $validated = $request->validate([
             'latitude' => ['required', 'numeric', 'between:-90,90'],

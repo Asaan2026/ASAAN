@@ -2,11 +2,11 @@
 
 namespace Cartxis\Core\Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use Cartxis\Core\Models\TaxClass;
 use Cartxis\Core\Models\TaxRate;
 use Cartxis\Core\Models\TaxZone;
 use Cartxis\Core\Models\TaxZoneLocation;
+use Illuminate\Database\Seeder;
 
 class TaxSeeder extends Seeder
 {

@@ -2,13 +2,13 @@
 
 namespace Cartxis\Settings\Http\Controllers\Admin;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Log;
-use Inertia\Inertia;
-use Inertia\Response;
 use Cartxis\Core\Services\SettingService;
 use Cartxis\Core\Support\StoreCountry;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class StoreConfigurationController
 {
@@ -29,14 +29,14 @@ class StoreConfigurationController
                 'business_registration' => (string) $this->settingService->get('business_registration', ''),
                 'vat_number' => (string) $this->settingService->get('vat_number', ''),
                 'store_license' => (string) $this->settingService->get('store_license', ''),
-                
+
                 // Contact Information
                 'store_email' => (string) $this->settingService->get('store_email', ''),
                 'support_email' => (string) $this->settingService->get('support_email', ''),
                 'store_phone' => (string) $this->settingService->get('store_phone', ''),
                 'store_phone_alt' => (string) $this->settingService->get('store_phone_alt', ''),
                 'store_whatsapp' => (string) $this->settingService->get('store_whatsapp', ''),
-                
+
                 // Address Information
                 'store_address_1' => (string) $this->settingService->get('store_address_1', ''),
                 'store_address_2' => (string) $this->settingService->get('store_address_2', ''),
@@ -45,10 +45,10 @@ class StoreConfigurationController
                 'store_postal_code' => (string) $this->settingService->get('store_postal_code', ''),
                 // Read-only: the store is Afghanistan-only.
                 'store_country' => StoreCountry::name(),
-                
+
                 // Store Timezone
                 'store_timezone' => (string) $this->settingService->get('store_timezone', 'UTC'),
-                
+
                 // Social Media
                 'social_facebook' => (string) $this->settingService->get('social_facebook', ''),
                 'social_instagram' => (string) $this->settingService->get('social_instagram', ''),
@@ -57,13 +57,13 @@ class StoreConfigurationController
                 'social_youtube' => (string) $this->settingService->get('social_youtube', ''),
                 'social_tiktok' => (string) $this->settingService->get('social_tiktok', ''),
                 'social_pinterest' => (string) $this->settingService->get('social_pinterest', ''),
-                
+
                 // Policies
                 'policy_privacy' => (string) $this->settingService->get('policy_privacy', ''),
                 'policy_terms' => (string) $this->settingService->get('policy_terms', ''),
                 'policy_return' => (string) $this->settingService->get('policy_return', ''),
                 'policy_shipping' => (string) $this->settingService->get('policy_shipping', ''),
-                
+
                 // Checkout Options
                 'checkout_allow_guest' => (bool) $this->settingService->get('checkout_allow_guest', true),
                 'checkout_require_account' => (bool) $this->settingService->get('checkout_require_account', false),
@@ -95,14 +95,14 @@ class StoreConfigurationController
                 'business_registration' => 'nullable|string|max:255',
                 'vat_number' => 'nullable|string|max:255',
                 'store_license' => 'nullable|string|max:255',
-                
+
                 // Contact Information
                 'store_email' => 'required|email|max:255',
                 'support_email' => 'nullable|email|max:255',
                 'store_phone' => 'required|string|max:50',
                 'store_phone_alt' => 'nullable|string|max:50',
                 'store_whatsapp' => 'nullable|string|max:50',
-                
+
                 // Address Information
                 'store_address_1' => 'required|string|max:255',
                 'store_address_2' => 'nullable|string|max:255',
@@ -112,7 +112,7 @@ class StoreConfigurationController
 
                 // Store Timezone
                 'store_timezone' => 'required|string|max:50',
-                
+
                 // Social Media
                 'social_facebook' => 'nullable|url|max:255',
                 'social_instagram' => 'nullable|url|max:255',
@@ -121,13 +121,13 @@ class StoreConfigurationController
                 'social_youtube' => 'nullable|url|max:255',
                 'social_tiktok' => 'nullable|url|max:255',
                 'social_pinterest' => 'nullable|url|max:255',
-                
+
                 // Policies
                 'policy_privacy' => 'nullable|string',
                 'policy_terms' => 'nullable|string',
                 'policy_return' => 'nullable|string',
                 'policy_shipping' => 'nullable|string',
-                
+
                 // Checkout Options
                 'checkout_allow_guest' => 'nullable|boolean',
                 'checkout_require_account' => 'nullable|boolean',
@@ -139,7 +139,7 @@ class StoreConfigurationController
 
             foreach ($validated as $key => $value) {
                 // Determine the appropriate type for each setting
-                $type = match(true) {
+                $type = match (true) {
                     in_array($key, ['checkout_allow_guest', 'checkout_require_account']) => 'boolean',
                     is_bool($value) => 'boolean',
                     is_int($value) => 'integer',
@@ -147,7 +147,7 @@ class StoreConfigurationController
                     is_array($value) => 'json',
                     default => 'string',
                 };
-                
+
                 $this->settingService->set($key, $value, $type, 'store');
             }
 
@@ -156,10 +156,11 @@ class StoreConfigurationController
             $this->settingService->set('store_country', StoreCountry::name(), 'string', 'store');
 
             return redirect()->route('admin.settings.store.index')->with('success', 'Store configuration saved successfully.');
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            Log::error('Store configuration save error: ' . $e->getMessage());
+            Log::error('Store configuration save error: '.$e->getMessage());
+
             return redirect()->back()->with('error', 'Failed to save store configuration. Please try again.');
         }
     }

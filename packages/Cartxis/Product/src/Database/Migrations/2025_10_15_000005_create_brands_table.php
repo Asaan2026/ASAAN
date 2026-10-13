@@ -21,12 +21,12 @@ return new class extends Migration
             $table->boolean('is_featured')->default(false);
             $table->boolean('status')->default(true);
             $table->integer('sort_order')->default(0);
-            
+
             // SEO fields
             $table->string('meta_title')->nullable();
             $table->text('meta_description')->nullable();
             $table->text('meta_keywords')->nullable();
-            
+
             $table->timestamps();
 
             // Indexes

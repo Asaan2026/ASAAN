@@ -2,10 +2,12 @@
 
 namespace Cartxis\Shop\Http\Controllers;
 
-use Cartxis\Shop\Services\ProductService;
 use Cartxis\Core\Services\ThemeViewResolver;
+use Cartxis\Shop\Services\ProductService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class SearchController extends Controller
 {
@@ -21,9 +23,6 @@ class SearchController extends Controller
 
     /**
      * Create a new controller instance.
-     *
-     * @param ProductService $productService
-     * @param ThemeViewResolver $themeResolver
      */
     public function __construct(ProductService $productService, ThemeViewResolver $themeResolver)
     {
@@ -34,14 +33,13 @@ class SearchController extends Controller
     /**
      * Display search results.
      *
-     * @param Request $request
-     * @return \Inertia\Response
+     * @return Response
      */
     public function index(Request $request)
     {
         $query = $request->input('q', '');
         $perPage = $request->input('per_page', config('shop.listing.products_per_page', 12));
-        
+
         $minLength = config('shop.search.min_query_length', 3);
 
         if (strlen($query) < $minLength) {
@@ -59,8 +57,8 @@ class SearchController extends Controller
             'products' => $products,
             'resultsCount' => $products->total(),
             'seo' => [
-                'title' => trans('shop::shop.search.results_count', ['count' => $products->total()]) . ' - ' . $query,
-                'description' => 'Search results for: ' . $query,
+                'title' => trans('shop::shop.search.results_count', ['count' => $products->total()]).' - '.$query,
+                'description' => 'Search results for: '.$query,
             ],
         ]);
     }
@@ -68,8 +66,7 @@ class SearchController extends Controller
     /**
      * Get search suggestions for autocomplete
      *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function suggestions(Request $request)
     {

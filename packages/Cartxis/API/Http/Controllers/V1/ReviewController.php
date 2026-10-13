@@ -3,13 +3,13 @@
 namespace Cartxis\API\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Cache;
 use Cartxis\API\Helpers\ApiResponse;
 use Cartxis\API\Http\Resources\ReviewResource;
-use Cartxis\Product\Models\ProductReview;
 use Cartxis\Product\Models\Product;
+use Cartxis\Product\Models\ProductReview;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Validator;
 
 class ReviewController extends Controller
 {
@@ -22,7 +22,7 @@ class ReviewController extends Controller
 
         $product = Product::find($productId);
 
-        if (!$product) {
+        if (! $product) {
             return ApiResponse::notFound('Product not found', 'PRODUCT_NOT_FOUND');
         }
 
@@ -33,7 +33,7 @@ class ReviewController extends Controller
             ->paginate($perPage);
 
         return ApiResponse::paginated(
-            $reviews->through(fn($review) => new ReviewResource($review)),
+            $reviews->through(fn ($review) => new ReviewResource($review)),
             'Product reviews retrieved successfully'
         );
     }
@@ -48,8 +48,8 @@ class ReviewController extends Controller
             'rating' => 'required|integer|min:1|max:5',
             'title' => 'required|string|max:255',
             'comment' => 'required|string|max:1000',
-            'images' => 'nullable|array|max:' . config('cartxis-api.uploads.review_images.max_count', 5),
-            'images.*' => 'image|max:' . config('cartxis-api.uploads.review_images.max_size', 5120),
+            'images' => 'nullable|array|max:'.config('cartxis-api.uploads.review_images.max_count', 5),
+            'images.*' => 'image|max:'.config('cartxis-api.uploads.review_images.max_size', 5120),
         ]);
 
         if ($validator->fails()) {
@@ -58,11 +58,11 @@ class ReviewController extends Controller
 
         // Check if user has purchased this product
         $hasPurchased = $request->user()->orders()
-            ->whereHas('items', fn($q) => $q->where('product_id', $request->product_id))
+            ->whereHas('items', fn ($q) => $q->where('product_id', $request->product_id))
             ->where('status', 'completed')
             ->exists();
 
-        if (!$hasPurchased) {
+        if (! $hasPurchased) {
             return ApiResponse::error(
                 'You can only review products you have purchased',
                 null,
@@ -119,7 +119,7 @@ class ReviewController extends Controller
     {
         $review = ProductReview::where('customer_id', $request->user()->id)->find($id);
 
-        if (!$review) {
+        if (! $review) {
             return ApiResponse::notFound('Review not found', 'REVIEW_NOT_FOUND');
         }
 
@@ -149,7 +149,7 @@ class ReviewController extends Controller
     {
         $review = ProductReview::where('customer_id', $request->user()->id)->find($id);
 
-        if (!$review) {
+        if (! $review) {
             return ApiResponse::notFound('Review not found', 'REVIEW_NOT_FOUND');
         }
 
@@ -181,7 +181,7 @@ class ReviewController extends Controller
 
         $review = ProductReview::find($id);
 
-        if (!$review) {
+        if (! $review) {
             return ApiResponse::notFound('Review not found', 'REVIEW_NOT_FOUND');
         }
 

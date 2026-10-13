@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('alt_text')->nullable();
             $table->integer('position')->default(0);
             $table->timestamps();
-            
+
             $table->index(['product_id', 'position']);
         });
 

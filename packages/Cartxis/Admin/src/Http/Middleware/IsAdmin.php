@@ -14,7 +14,7 @@ class IsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::guard('admin')->check()) {
+        if (! Auth::guard('admin')->check()) {
             return redirect()->route('admin.login');
         }
 
@@ -23,13 +23,15 @@ class IsAdmin
         // Check if user has admin role
         if ($user->role !== 'admin') {
             Auth::guard('admin')->logout();
+
             return redirect()->route('admin.login')
                 ->withErrors(['email' => 'You do not have admin access.']);
         }
 
         // Check if user is active
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             Auth::guard('admin')->logout();
+
             return redirect()->route('admin.login')
                 ->withErrors(['email' => 'Your account has been deactivated.']);
         }

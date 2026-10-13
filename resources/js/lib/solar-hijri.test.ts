@@ -25,11 +25,11 @@
  * would be a poor trade. Node's built-in runner is enough.
  */
 
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { dirname, resolve as resolvePath } from 'node:path';
+import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 import {
     ANCHOR_GREGORIAN,
@@ -61,10 +61,10 @@ import {
     toNumerals,
     toParts,
     toSolarIso,
-    weekdayOfGregorian,
-    weekdayOfSolar,
     weekdayName,
     weekdayNames,
+    weekdayOfGregorian,
+    weekdayOfSolar,
 } from './solar-hijri.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -162,7 +162,10 @@ test('every Gregorian vector converts back to its Solar Hijri date', () => {
 });
 
 test('every vector agrees about leap years, month lengths and weekdays', () => {
-    for (const vector of [...vectors.solarToGregorian, ...vectors.gregorianToSolar]) {
+    for (const vector of [
+        ...vectors.solarToGregorian,
+        ...vectors.gregorianToSolar,
+    ]) {
         const [year, month, day] = split(vector.solar);
 
         assert.equal(
@@ -309,7 +312,11 @@ test('the known leap years in and around the present are leap years', () => {
     }
 
     for (const year of [1400, 1401, 1402, 1404, 1405, 1406, 1407, 1409]) {
-        assert.equal(isLeapYear(year), false, `${year} should not be a leap year`);
+        assert.equal(
+            isLeapYear(year),
+            false,
+            `${year} should not be a leap year`,
+        );
     }
 });
 
@@ -329,7 +336,11 @@ test('months 1-6 have 31 days, 7-11 have 30, and Esfand has 29 or 30', () => {
         // The month lengths must add up to the year length, or a date in the
         // last days of Esfand would fall off the end of the year.
         const total = lengths.reduce((sum, length) => sum + length, 0);
-        assert.equal(total, daysInYear(year), `month lengths for ${year} must sum to the year length`);
+        assert.equal(
+            total,
+            daysInYear(year),
+            `month lengths for ${year} must sum to the year length`,
+        );
     }
 });
 
@@ -362,7 +373,10 @@ test('a month of 31 days really is 31 days apart', () => {
     const sixthMonth = monthGrid(1404, 6, 'en');
     assert.equal(sixthMonth.daysInMonth, 31);
     assert.equal(
-        sixthMonth.weeks.flat().filter((cell) => cell.inMonth).at(-1)?.gregorian,
+        sixthMonth.weeks
+            .flat()
+            .filter((cell) => cell.inMonth)
+            .at(-1)?.gregorian,
         last,
     );
 });
@@ -394,7 +408,10 @@ test('every day of the supported range converts both ways with no drift', () => 
         const serial =
             solar.year * 1000 + dayOfYear(solar.year, solar.month, solar.day);
         if (previousSerial !== Number.NEGATIVE_INFINITY) {
-            assert.ok(serial > previousSerial, `Solar Hijri dates must strictly increase at ${gregorian}`);
+            assert.ok(
+                serial > previousSerial,
+                `Solar Hijri dates must strictly increase at ${gregorian}`,
+            );
         }
         previousSerial = serial;
 
@@ -410,9 +427,7 @@ test('Solar Hijri days and Gregorian days advance in lockstep', () => {
     // Guards the walk that finds a month's first weekday: if the 1st of a month
     // ever landed on the wrong day, a date picker would be off by a column.
     for (let offset = 0; offset < 400; offset++) {
-        const gregorian = new Date(
-            Date.UTC(2025, 0, 1) + offset * 86400000,
-        )
+        const gregorian = new Date(Date.UTC(2025, 0, 1) + offset * 86400000)
             .toISOString()
             .slice(0, 10);
 
@@ -439,7 +454,10 @@ test('a Gregorian leap day is an ordinary day here', () => {
     assert.equal(solar.month, 12);
     assert.equal(solar.day, 10);
     assert.equal(solar.year, 1402);
-    assert.equal(toGregorianIso(solar.year, solar.month, solar.day), '2024-02-29');
+    assert.equal(
+        toGregorianIso(solar.year, solar.month, solar.day),
+        '2024-02-29',
+    );
 });
 
 // ---------------------------------------------------------------------------
@@ -464,9 +482,21 @@ test('weekdays run Sunday-first, matching date("w") and Date.getDay()', () => {
 
 test('every locale has twelve month names and seven weekday names', () => {
     for (const locale of ['en', 'fa', 'fa_alt', 'ps']) {
-        assert.equal(monthNames(locale).length, 12, `${locale} needs 12 months`);
-        assert.equal(weekdayNames(locale).length, 7, `${locale} needs 7 weekdays`);
-        assert.equal(weekdayNames(locale, true).length, 7, `${locale} needs 7 short weekdays`);
+        assert.equal(
+            monthNames(locale).length,
+            12,
+            `${locale} needs 12 months`,
+        );
+        assert.equal(
+            weekdayNames(locale).length,
+            7,
+            `${locale} needs 7 weekdays`,
+        );
+        assert.equal(
+            weekdayNames(locale, true).length,
+            7,
+            `${locale} needs 7 short weekdays`,
+        );
     }
 });
 
@@ -554,7 +584,9 @@ test('the two halves can be asked for on their own', () => {
     assert.equal(formatGregorian('2025-09-06', 'en'), '6 September 2025');
 
     // gregorian() must not print the same date twice.
-    assert.ok(!formatGregorian('2025-09-06', 'en').includes('September 2025 ('));
+    assert.ok(
+        !formatGregorian('2025-09-06', 'en').includes('September 2025 ('),
+    );
 
     assert.equal(formatShort('2025-09-06', 'fa'), '۱۴۰۴/۰۶/۱۵ (2025/09/06)');
     assert.equal(
@@ -602,10 +634,13 @@ test('a date is formatted identically from every kind of input', () => {
     assert.equal(formatDate(Date.UTC(2025, 8, 6), 'fa'), expected);
 });
 
-test('a timestamp can show its clock time, in the reader\'s digits', () => {
+test("a timestamp can show its clock time, in the reader's digits", () => {
     // One run of time, shared by both halves of the pairing, not two.
     assert.equal(formatTime('2025-09-06T14:30:00'), '۱۴:۳۰');
-    assert.equal(formatTime('2025-09-06T14:30:00', { numerals: 'latn' }), '14:30');
+    assert.equal(
+        formatTime('2025-09-06T14:30:00', { numerals: 'latn' }),
+        '14:30',
+    );
     assert.equal(
         formatTime('2025-09-06T14:30:00', { numerals: 'arab' }),
         '١٤:٣٠',
@@ -618,8 +653,14 @@ test('a timestamp can show its clock time, in the reader\'s digits', () => {
     );
 
     // Midnight and a single-digit hour are zero-padded so a column lines up.
-    assert.equal(formatTime('2025-09-06T00:05:00', { numerals: 'latn' }), '00:05');
-    assert.equal(formatTime('2025-09-06T09:00:00', { numerals: 'latn' }), '09:00');
+    assert.equal(
+        formatTime('2025-09-06T00:05:00', { numerals: 'latn' }),
+        '00:05',
+    );
+    assert.equal(
+        formatTime('2025-09-06T09:00:00', { numerals: 'latn' }),
+        '09:00',
+    );
 
     // A stored date with no time is read as the start of the day, not an error.
     assert.equal(formatTime('2025-09-06', { numerals: 'latn' }), '00:00');
@@ -650,7 +691,11 @@ test('a month grid has full weeks and marks its outside days', () => {
         assert.equal(grid.weeks.length % 1, 0);
 
         for (const week of grid.weeks) {
-            assert.equal(week.length, 7, `week in ${year}-${month} must have 7 days`);
+            assert.equal(
+                week.length,
+                7,
+                `week in ${year}-${month} must have 7 days`,
+            );
         }
 
         const inMonth = grid.weeks.flat().filter((cell) => cell.inMonth);
@@ -660,7 +705,10 @@ test('a month grid has full weeks and marks its outside days', () => {
         // carry the Gregorian date it stands for.
         inMonth.forEach((cell, index) => {
             assert.equal(cell.day, index + 1);
-            assert.equal(cell.gregorian, toGregorianIso(year, month, index + 1));
+            assert.equal(
+                cell.gregorian,
+                toGregorianIso(year, month, index + 1),
+            );
             assert.equal(cell.iso, toSolarIso({ year, month, day: index + 1 }));
         });
 
@@ -680,7 +728,15 @@ test('a grid week starts on Saturday', () => {
         assert.equal(week[0].weekday, 6);
     }
 
-    assert.deepEqual(grid.weekdays, ['شنبه', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'جمعه']);
+    assert.deepEqual(grid.weekdays, [
+        'شنبه',
+        'یک',
+        'دو',
+        'سه',
+        'چهار',
+        'پنج',
+        'جمعه',
+    ]);
 });
 
 test('Esfand 1403 has a 30th in the grid, and Esfand 1404 does not', () => {

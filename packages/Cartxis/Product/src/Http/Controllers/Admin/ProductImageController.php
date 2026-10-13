@@ -25,17 +25,17 @@ class ProductImageController extends Controller
 
         foreach ($request->file('images') as $index => $image) {
             // Generate unique filename
-            $filename = Str::uuid() . '.' . $image->getClientOriginalExtension();
-            
+            $filename = Str::uuid().'.'.$image->getClientOriginalExtension();
+
             // Define paths
-            $path = 'products/' . $product->id;
-            $fullPath = $path . '/' . $filename;
+            $path = 'products/'.$product->id;
+            $fullPath = $path.'/'.$filename;
 
             // Store original image using the 'public' disk
             $storedPath = $image->storeAs($path, $filename, 'public');
 
             // Verify file was stored
-            if (!$storedPath || !Storage::disk('public')->exists($fullPath)) {
+            if (! $storedPath || ! Storage::disk('public')->exists($fullPath)) {
                 continue; // Skip this image if storage failed
             }
 

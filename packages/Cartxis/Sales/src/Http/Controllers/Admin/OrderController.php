@@ -3,14 +3,16 @@
 namespace Cartxis\Sales\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\User;
+use Cartxis\Product\Models\Product;
+use Cartxis\Sales\Repositories\OrderRepository;
+use Cartxis\Sales\Services\OrderService;
+use Cartxis\Shop\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
-use Cartxis\Shop\Models\Order;
-use Cartxis\Sales\Services\OrderService;
-use Cartxis\Sales\Repositories\OrderRepository;
 
 class OrderController extends Controller
 {
@@ -36,7 +38,7 @@ class OrderController extends Controller
             'customer_id',
             'shipping_method',
             'sort_by',
-            'sort_order'
+            'sort_order',
         ]);
 
         $orders = $this->orderRepository->getAdminOrders(
@@ -58,8 +60,8 @@ class OrderController extends Controller
     public function create()
     {
         return Inertia::render('Admin/Sales/Orders/Create', [
-            'customers' => \App\Models\User::select('id', 'name', 'email')->get(),
-            'products' => \Cartxis\Product\Models\Product::select('id', 'name', 'price', 'quantity')->where('status', 'enabled')->get(),
+            'customers' => User::select('id', 'name', 'email')->get(),
+            'products' => Product::select('id', 'name', 'price', 'quantity')->where('status', 'enabled')->get(),
         ]);
     }
 
@@ -109,7 +111,7 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Failed to create order: ' . $e->getMessage());
+                ->with('error', 'Failed to create order: '.$e->getMessage());
         }
     }
 
@@ -120,7 +122,7 @@ class OrderController extends Controller
     {
         $order = $this->orderRepository->getOrderWithRelations($id);
 
-        if (!$order) {
+        if (! $order) {
             return redirect()->route('admin.sales.orders.index')->with('error', 'Order not found');
         }
 
@@ -226,7 +228,7 @@ class OrderController extends Controller
 
         foreach ($validated['order_ids'] as $orderId) {
             $order = Order::find($orderId);
-            
+
             if ($order) {
                 $success = $this->orderService->updateStatus(
                     $order,
@@ -247,7 +249,7 @@ class OrderController extends Controller
 
         return response()->json([
             'success' => $failedCount === 0,
-            'message' => "Updated {$successCount} orders successfully." . 
+            'message' => "Updated {$successCount} orders successfully.".
                         ($failedCount > 0 ? " Failed to update {$failedCount} orders." : ''),
             'success_count' => $successCount,
             'failed_count' => $failedCount,
@@ -269,16 +271,16 @@ class OrderController extends Controller
 
         $orders = $this->orderRepository->getOrdersForExport($filters);
 
-        $filename = 'orders_export_' . now()->format('Y-m-d_His') . '.csv';
-        
+        $filename = 'orders_export_'.now()->format('Y-m-d_His').'.csv';
+
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
 
-        $callback = function() use ($orders) {
+        $callback = function () use ($orders) {
             $file = fopen('php://output', 'w');
-            
+
             // CSV headers
             fputcsv($file, [
                 'Order Number',
@@ -288,7 +290,7 @@ class OrderController extends Controller
                 'Payment Status',
                 'Payment Method',
                 'Total',
-                'Created At'
+                'Created At',
             ]);
 
             // CSV data
@@ -318,7 +320,7 @@ class OrderController extends Controller
     {
         $order = $this->orderRepository->getOrderWithRelations($id);
 
-        if (!$order) {
+        if (! $order) {
             abort(404, 'Order not found');
         }
 
@@ -334,7 +336,7 @@ class OrderController extends Controller
     {
         $order = $this->orderRepository->getOrderWithRelations($id);
 
-        if (!$order) {
+        if (! $order) {
             abort(404, 'Order not found');
         }
 
@@ -352,7 +354,7 @@ class OrderController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $stats
+            'data' => $stats,
         ]);
     }
 

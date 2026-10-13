@@ -124,12 +124,13 @@ class ExtensionRepository
     public function updateConfig(string $code, array $config): bool
     {
         $extension = $this->findByCode($code);
-        
-        if (!$extension) {
+
+        if (! $extension) {
             return false;
         }
 
         $extension->config = array_merge($extension->config ?? [], $config);
+
         return $extension->save();
     }
 
@@ -139,6 +140,7 @@ class ExtensionRepository
     public function getConfig(string $code): ?array
     {
         $extension = $this->findByCode($code);
+
         return $extension?->config;
     }
 }

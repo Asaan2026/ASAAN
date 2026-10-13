@@ -3,11 +3,11 @@
 namespace Cartxis\Sales\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Cartxis\Sales\Models\CreditMemo;
 use Cartxis\Sales\Repositories\CreditMemoRepository;
-use Cartxis\Sales\Services\CreditMemoService;
 use Cartxis\Sales\Services\CreditMemoPdfService;
+use Cartxis\Sales\Services\CreditMemoService;
 use Cartxis\Shop\Models\Order;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,7 +15,9 @@ use Inertia\Response;
 class CreditMemoController extends Controller
 {
     protected CreditMemoRepository $repository;
+
     protected CreditMemoService $service;
+
     protected CreditMemoPdfService $pdfService;
 
     public function __construct(
@@ -72,7 +74,7 @@ class CreditMemoController extends Controller
     {
         $creditMemo = $this->repository->find((int) $id);
 
-        if (!$creditMemo) {
+        if (! $creditMemo) {
             abort(404, 'Credit memo not found');
         }
 
@@ -84,11 +86,11 @@ class CreditMemoController extends Controller
     /**
      * Show create credit memo form
      */
-    public function create(Request $request, string|int $orderId): Response|\Illuminate\Http\RedirectResponse
+    public function create(Request $request, string|int $orderId): Response|RedirectResponse
     {
         $order = Order::with(['user', 'items.product'])->findOrFail((int) $orderId);
 
-        if (!$order->isPaid()) {
+        if (! $order->isPaid()) {
             return back()->with('error', 'Cannot create credit memo for unpaid order');
         }
 
@@ -157,15 +159,15 @@ class CreditMemoController extends Controller
     /**
      * Show edit credit memo form
      */
-    public function edit(string|int $id): Response|\Illuminate\Http\RedirectResponse
+    public function edit(string|int $id): Response|RedirectResponse
     {
         $creditMemo = $this->repository->find((int) $id);
 
-        if (!$creditMemo) {
+        if (! $creditMemo) {
             abort(404, 'Credit memo not found');
         }
 
-        if (!$creditMemo->canBeEdited()) {
+        if (! $creditMemo->canBeEdited()) {
             return back()->with('error', 'Credit memo cannot be edited');
         }
 
@@ -223,8 +225,8 @@ class CreditMemoController extends Controller
     {
         try {
             $creditMemo = $this->repository->find((int) $id);
-            
-            if (!$creditMemo) {
+
+            if (! $creditMemo) {
                 return back()->with('error', 'Credit memo not found');
             }
 
@@ -263,8 +265,8 @@ class CreditMemoController extends Controller
     {
         try {
             $creditMemo = $this->repository->find((int) $id);
-            
-            if (!$creditMemo) {
+
+            if (! $creditMemo) {
                 return back()->with('error', 'Credit memo not found');
             }
 
@@ -285,8 +287,8 @@ class CreditMemoController extends Controller
     {
         try {
             $creditMemo = $this->repository->find((int) $id);
-            
-            if (!$creditMemo) {
+
+            if (! $creditMemo) {
                 return back()->with('error', 'Credit memo not found');
             }
 

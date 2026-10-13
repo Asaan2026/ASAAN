@@ -134,7 +134,7 @@ class ServiceBookingService
         $prefix = $this->settings->referencePrefix();
 
         do {
-            $reference = $prefix . strtoupper(Str::random(6));
+            $reference = $prefix.strtoupper(Str::random(6));
         } while (ServiceBooking::where('reference', $reference)->exists());
 
         return $reference;
@@ -149,7 +149,7 @@ class ServiceBookingService
         $prefix = trim((string) config('service.order_number_prefix', 'SRV-'), '-');
         $number = str_pad((string) random_int(1, 999999), 6, '0', STR_PAD_LEFT);
 
-        return $prefix . '-' . now()->format('ymd') . '-' . $number;
+        return $prefix.'-'.now()->format('ymd').'-'.$number;
     }
 
     /**
@@ -218,7 +218,7 @@ class ServiceBookingService
                 'tracking_number' => null,
                 'customer_email' => $data['customer_email'] ?? $data['user']?->email,
                 'customer_phone' => $data['customer_phone'],
-                'notes' => trim('Service booking ' . $data['reference'] . "\n" . ($data['notes'] ?? '')),
+                'notes' => trim('Service booking '.$data['reference']."\n".($data['notes'] ?? '')),
                 'source_channel' => config('service.order.source_channel', 'services'),
             ]);
         });

@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/CurrencyTestHelpers.php';
+require_once __DIR__.'/CurrencyTestHelpers.php';
 
 use Cartxis\Core\Models\Currency;
 use Cartxis\Core\Support\DisplayCurrency;
@@ -147,9 +147,9 @@ it('converts without touching the stored price', function () {
 
 it('converts without touching the product price', function () {
     $productId = DB::table('products')->insertGetId([
-        'sku' => 'CUR-' . uniqid(),
+        'sku' => 'CUR-'.uniqid(),
         'name' => 'Carpet',
-        'slug' => 'carpet-' . uniqid(),
+        'slug' => 'carpet-'.uniqid(),
         'price' => 7100,
         'status' => 'enabled',
         'created_at' => now(),

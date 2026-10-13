@@ -3,6 +3,7 @@
 namespace Cartxis\Sales\Repositories;
 
 use Cartxis\Sales\Models\Transaction;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
@@ -16,7 +17,7 @@ class TransactionRepository
         $query = Transaction::with(['order', 'invoice', 'creditMemo']);
 
         // Search filter
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('transaction_number', 'like', "%{$search}%")
@@ -28,45 +29,45 @@ class TransactionRepository
         }
 
         // Type filter
-        if (!empty($filters['type'])) {
+        if (! empty($filters['type'])) {
             $query->where('type', $filters['type']);
         }
 
         // Status filter
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
         // Gateway filter
-        if (!empty($filters['gateway'])) {
+        if (! empty($filters['gateway'])) {
             $query->where('gateway', $filters['gateway']);
         }
 
         // Payment method filter
-        if (!empty($filters['payment_method'])) {
+        if (! empty($filters['payment_method'])) {
             $query->where('payment_method', $filters['payment_method']);
         }
 
         // Date range filter
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->whereDate('created_at', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->whereDate('created_at', '<=', $filters['date_to']);
         }
 
         // Amount range filter
-        if (!empty($filters['amount_min'])) {
+        if (! empty($filters['amount_min'])) {
             $query->where('amount', '>=', $filters['amount_min']);
         }
 
-        if (!empty($filters['amount_max'])) {
+        if (! empty($filters['amount_max'])) {
             $query->where('amount', '<=', $filters['amount_max']);
         }
 
         // Order ID filter
-        if (!empty($filters['order_id'])) {
+        if (! empty($filters['order_id'])) {
             $query->where('order_id', $filters['order_id']);
         }
 
@@ -89,7 +90,7 @@ class TransactionRepository
     /**
      * Get transactions for a specific order.
      */
-    public function getForOrder(int $orderId): \Illuminate\Database\Eloquent\Collection
+    public function getForOrder(int $orderId): Collection
     {
         return Transaction::where('order_id', $orderId)
             ->orderBy('created_at', 'desc')
@@ -117,7 +118,7 @@ class TransactionRepository
     /**
      * Get transactions by type.
      */
-    public function getByType(string $type, int $limit = 10): \Illuminate\Database\Eloquent\Collection
+    public function getByType(string $type, int $limit = 10): Collection
     {
         return Transaction::with(['order'])
             ->where('type', $type)
@@ -129,7 +130,7 @@ class TransactionRepository
     /**
      * Get recent transactions.
      */
-    public function getRecent(int $limit = 10): \Illuminate\Database\Eloquent\Collection
+    public function getRecent(int $limit = 10): Collection
     {
         return Transaction::with(['order'])
             ->orderBy('created_at', 'desc')
@@ -140,7 +141,7 @@ class TransactionRepository
     /**
      * Get failed transactions.
      */
-    public function getFailed(int $limit = 10): \Illuminate\Database\Eloquent\Collection
+    public function getFailed(int $limit = 10): Collection
     {
         return Transaction::with(['order'])
             ->where('status', 'failed')
@@ -152,7 +153,7 @@ class TransactionRepository
     /**
      * Get transactions by gateway.
      */
-    public function getByGateway(string $gateway, int $limit = 10): \Illuminate\Database\Eloquent\Collection
+    public function getByGateway(string $gateway, int $limit = 10): Collection
     {
         return Transaction::with(['order'])
             ->where('gateway', $gateway)
@@ -164,7 +165,7 @@ class TransactionRepository
     /**
      * Get total transaction amount for a date range.
      */
-    public function getTotalAmountForDateRange(string $startDate, string $endDate, string $type = null): float
+    public function getTotalAmountForDateRange(string $startDate, string $endDate, ?string $type = null): float
     {
         $query = Transaction::where('status', 'completed')
             ->whereBetween('created_at', [$startDate, $endDate]);
@@ -223,8 +224,8 @@ class TransactionRepository
     public function update(int $id, array $data): bool
     {
         $transaction = Transaction::find($id);
-        
-        if (!$transaction) {
+
+        if (! $transaction) {
             return false;
         }
 
@@ -237,8 +238,8 @@ class TransactionRepository
     public function delete(int $id): bool
     {
         $transaction = Transaction::find($id);
-        
-        if (!$transaction) {
+
+        if (! $transaction) {
             return false;
         }
 
@@ -256,12 +257,12 @@ class TransactionRepository
     /**
      * Get transactions for export.
      */
-    public function getForExport(array $filters = []): \Illuminate\Database\Eloquent\Collection
+    public function getForExport(array $filters = []): Collection
     {
         $query = Transaction::with(['order', 'invoice', 'creditMemo']);
 
         // Apply same filters as paginate
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('transaction_number', 'like', "%{$search}%")
@@ -269,23 +270,23 @@ class TransactionRepository
             });
         }
 
-        if (!empty($filters['type'])) {
+        if (! empty($filters['type'])) {
             $query->where('type', $filters['type']);
         }
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['gateway'])) {
+        if (! empty($filters['gateway'])) {
             $query->where('gateway', $filters['gateway']);
         }
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->whereDate('created_at', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->whereDate('created_at', '<=', $filters['date_to']);
         }
 

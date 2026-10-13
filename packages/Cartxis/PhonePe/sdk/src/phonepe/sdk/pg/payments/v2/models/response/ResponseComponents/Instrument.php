@@ -16,19 +16,17 @@
 *  limitations under the License.
 */
 
-
 namespace PhonePe\payments\v2\models\response\ResponseComponents;
 
 class Instrument
 {
-	public $type;
+    public $type;
 
-	/**
-	 * @return mixed
-	 */
-	public function getType()
-	{
-		return $this->type;
-	}
-
+    /**
+     * @return mixed
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
 }

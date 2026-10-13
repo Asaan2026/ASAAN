@@ -1,38 +1,37 @@
 <script setup lang="ts">
-import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
-import AdminLayout from '@/layouts/AdminLayout.vue';
-import ImageUploader from '@/components/Admin/ImageUploader.vue';
 import ConfirmDeleteModal from '@/components/Admin/ConfirmDeleteModal.vue';
-import { ref } from 'vue';
-import axios from 'axios';
-import { router } from '@inertiajs/vue3';
+import ImageUploader from '@/components/Admin/ImageUploader.vue';
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import * as categoryRoutes from '@/routes/admin/catalog/categories';
 import { useI18nStore } from '@/Stores/i18n';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
+import axios from 'axios';
+import { ref } from 'vue';
 
 interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  description?: string;
-  image?: string;
-  image_url?: string;
-  status: 'enabled' | 'disabled';
-  show_in_menu: boolean;
-  sort_order: number;
-  parent_id?: number;
-  meta_title?: string;
-  meta_description?: string;
-  meta_keywords?: string;
+    id: number;
+    name: string;
+    slug: string;
+    description?: string;
+    image?: string;
+    image_url?: string;
+    status: 'enabled' | 'disabled';
+    show_in_menu: boolean;
+    sort_order: number;
+    parent_id?: number;
+    meta_title?: string;
+    meta_description?: string;
+    meta_keywords?: string;
 }
 
 interface ParentCategory {
-  id: number;
-  name: string;
+    id: number;
+    name: string;
 }
 
 interface Props {
-  category: Category;
-  parentCategories: ParentCategory[];
+    category: Category;
+    parentCategories: ParentCategory[];
 }
 
 const props = defineProps<Props>();
@@ -46,446 +45,773 @@ const showDeleteModal = ref(false);
 const images = ref<File[]>([]);
 
 const form = useForm({
-  name: props.category.name,
-  slug: props.category.slug,
-  description: props.category.description || '',
-  parent_id: props.category.parent_id || null,
-  status: props.category.status === 'enabled', // Convert enum to boolean
-  show_in_menu: props.category.show_in_menu,
-  sort_order: props.category.sort_order,
-  meta_title: props.category.meta_title || '',
-  meta_description: props.category.meta_description || '',
-  meta_keywords: props.category.meta_keywords || '',
+    name: props.category.name,
+    slug: props.category.slug,
+    description: props.category.description || '',
+    parent_id: props.category.parent_id || null,
+    status: props.category.status === 'enabled', // Convert enum to boolean
+    show_in_menu: props.category.show_in_menu,
+    sort_order: props.category.sort_order,
+    meta_title: props.category.meta_title || '',
+    meta_description: props.category.meta_description || '',
+    meta_keywords: props.category.meta_keywords || '',
 });
 
 const originalSlug = props.category.slug;
 
 // Auto-generate slug from name
 const generateSlug = () => {
-  form.slug = form.name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    form.slug = form.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
 };
 
 const submit = () => {
-  // If there's an image to upload, use FormData with axios
-  if (images.value.length > 0) {
-    const formData = new FormData();
-    
-    // Add all form fields
-    formData.append('name', form.name);
-    formData.append('slug', form.slug);
-    formData.append('description', form.description);
-    if (form.parent_id) {
-      formData.append('parent_id', form.parent_id.toString());
+    // If there's an image to upload, use FormData with axios
+    if (images.value.length > 0) {
+        const formData = new FormData();
+
+        // Add all form fields
+        formData.append('name', form.name);
+        formData.append('slug', form.slug);
+        formData.append('description', form.description);
+        if (form.parent_id) {
+            formData.append('parent_id', form.parent_id.toString());
+        }
+        // Convert boolean to enum
+        formData.append('status', form.status ? 'enabled' : 'disabled');
+        formData.append('show_in_menu', form.show_in_menu ? '1' : '0');
+        formData.append('sort_order', form.sort_order.toString());
+        formData.append('meta_title', form.meta_title);
+        formData.append('meta_description', form.meta_description);
+        formData.append('meta_keywords', form.meta_keywords);
+        formData.append('image', images.value[0]);
+        formData.append('_method', 'PUT');
+
+        // Use axios for file upload
+        form.processing = true;
+        form.clearErrors();
+
+        axios
+            .post(categoryRoutes.update(props.category.id).url, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            })
+            .then((response) => {
+                form.processing = false;
+                images.value = [];
+
+                // Manually trigger toast by updating page props
+                page.props.flash = {
+                    success: t('Category updated successfully.'),
+                };
+
+                // Then reload to get updated category data with new image
+                router.reload({
+                    preserveScroll: true,
+                });
+            })
+            .catch((error) => {
+                form.processing = false;
+                if (error.response?.data?.errors) {
+                    form.setError(error.response.data.errors);
+                }
+            });
+    } else {
+        // No image, use regular Inertia put
+        form.transform((data) => ({
+            ...data,
+            status: data.status ? 'enabled' : 'disabled', // Convert boolean to enum
+        })).put(categoryRoutes.update(props.category.id).url, {
+            preserveScroll: true,
+            onSuccess: () => {
+                // Success toast will be shown via flash message from backend
+            },
+            onError: () => {},
+        });
     }
-    // Convert boolean to enum
-    formData.append('status', form.status ? 'enabled' : 'disabled');
-    formData.append('show_in_menu', form.show_in_menu ? '1' : '0');
-    formData.append('sort_order', form.sort_order.toString());
-    formData.append('meta_title', form.meta_title);
-    formData.append('meta_description', form.meta_description);
-    formData.append('meta_keywords', form.meta_keywords);
-    formData.append('image', images.value[0]);
-    formData.append('_method', 'PUT');
-    
-    // Use axios for file upload
-    form.processing = true;
-    form.clearErrors();
-    
-    axios.post(categoryRoutes.update(props.category.id).url, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-    .then((response) => {
-      form.processing = false;
-      images.value = [];
-      
-      // Manually trigger toast by updating page props
-      page.props.flash = { success: t('Category updated successfully.') };
-      
-      // Then reload to get updated category data with new image
-      router.reload({
-        preserveScroll: true,
-      });
-    })
-    .catch(error => {
-      form.processing = false;
-      if (error.response?.data?.errors) {
-        form.setError(error.response.data.errors);
-      }
-    });
-  } else {
-    // No image, use regular Inertia put
-    form.transform((data) => ({
-      ...data,
-      status: data.status ? 'enabled' : 'disabled', // Convert boolean to enum
-    })).put(categoryRoutes.update(props.category.id).url, {
-      preserveScroll: true,
-      onSuccess: () => {
-        // Success toast will be shown via flash message from backend
-      },
-      onError: () => {
-      },
-    });
-  }
 };
 
 const deleteCategory = () => {
-  form.delete(categoryRoutes.destroy(props.category.id).url, {
-    preserveScroll: true,
-    onSuccess: () => {
-      showDeleteModal.value = false;
-      // Success toast will be shown via flash message from backend
-    },
-    onError: (errors) => {
-      console.error('Delete error:', errors);
-    },
-  });
+    form.delete(categoryRoutes.destroy(props.category.id).url, {
+        preserveScroll: true,
+        onSuccess: () => {
+            showDeleteModal.value = false;
+            // Success toast will be shown via flash message from backend
+        },
+        onError: (errors) => {
+            console.error('Delete error:', errors);
+        },
+    });
 };
 </script>
 
 <template>
-  <AdminLayout :title="$t('Edit Category')">
-    <Head :title="$t('Edit {name}', { name: category.name })" />
+    <AdminLayout :title="$t('Edit Category')">
+        <Head :title="$t('Edit {name}', { name: category.name })" />
 
-    <div class="py-6">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ $t('Edit Category') }}</h1>
-              <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ $t('Update category information and settings') }}</p>
+        <div class="py-6">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <!-- Header -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1
+                                class="text-2xl font-semibold text-gray-900 dark:text-gray-100"
+                            >
+                                {{ $t('Edit Category') }}
+                            </h1>
+                            <p
+                                class="mt-1 text-sm text-gray-600 dark:text-gray-400"
+                            >
+                                {{
+                                    $t(
+                                        'Update category information and settings',
+                                    )
+                                }}
+                            </p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button
+                                type="button"
+                                @click="showDeleteModal = true"
+                                class="inline-flex items-center rounded-md border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-700 shadow-sm hover:bg-red-50 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none dark:bg-gray-800"
+                            >
+                                <svg
+                                    class="mr-2 h-5 w-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                    />
+                                </svg>
+                                {{ $t('Delete Category') }}
+                            </button>
+                            <Link
+                                :href="categoryRoutes.index().url"
+                                class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                            >
+                                <svg
+                                    class="mr-2 h-5 w-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                                    />
+                                </svg>
+                                {{ $t('Back to Categories') }}
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <form @submit.prevent="submit">
+                    <div class="rounded-lg bg-white shadow dark:bg-gray-800">
+                        <!-- Tabs -->
+                        <div
+                            class="border-b border-gray-200 dark:border-gray-700"
+                        >
+                            <nav
+                                class="-mb-px flex space-x-8 px-6"
+                                :aria-label="$t('Tabs')"
+                            >
+                                <button
+                                    type="button"
+                                    @click="activeTab = 'general'"
+                                    :class="[
+                                        'border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap',
+                                        activeTab === 'general'
+                                            ? 'border-blue-500 text-blue-600'
+                                            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-300',
+                                    ]"
+                                >
+                                    {{ $t('General Information') }}
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="activeTab = 'seo'"
+                                    :class="[
+                                        'border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap',
+                                        activeTab === 'seo'
+                                            ? 'border-blue-500 text-blue-600'
+                                            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-300',
+                                    ]"
+                                >
+                                    {{ $t('SEO Settings') }}
+                                </button>
+                            </nav>
+                        </div>
+
+                        <!-- Tab Content -->
+                        <div class="p-6">
+                            <!-- General Tab -->
+                            <div
+                                v-show="activeTab === 'general'"
+                                class="space-y-6"
+                            >
+                                <!-- Name -->
+                                <div>
+                                    <label
+                                        for="name"
+                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >
+                                        {{ $t('Category Name') }}
+                                        <span class="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        id="name"
+                                        v-model="form.name"
+                                        type="text"
+                                        @input="generateSlug"
+                                        class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                        :class="{
+                                            'border-red-500': form.errors.name,
+                                        }"
+                                        :placeholder="
+                                            $t(
+                                                'e.g., Electronics, Clothing, Books',
+                                            )
+                                        "
+                                        required
+                                    />
+                                    <p
+                                        v-if="form.errors.name"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.name }}
+                                    </p>
+                                </div>
+
+                                <!-- Slug -->
+                                <div>
+                                    <label
+                                        for="slug"
+                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >
+                                        {{ $t('URL Slug') }}
+                                    </label>
+                                    <input
+                                        id="slug"
+                                        v-model="form.slug"
+                                        type="text"
+                                        class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                        :class="{
+                                            'border-red-500': form.errors.slug,
+                                        }"
+                                        :placeholder="
+                                            $t('auto-generated-from-name')
+                                        "
+                                    />
+                                    <p
+                                        class="mt-1 text-sm text-gray-500 dark:text-gray-400"
+                                    >
+                                        {{
+                                            $t(
+                                                'URL-friendly version of the category name',
+                                            )
+                                        }}
+                                    </p>
+                                    <p
+                                        v-if="form.errors.slug"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.slug }}
+                                    </p>
+                                </div>
+
+                                <!-- Description -->
+                                <div>
+                                    <label
+                                        for="description"
+                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >
+                                        {{ $t('Description') }}
+                                    </label>
+                                    <textarea
+                                        id="description"
+                                        v-model="form.description"
+                                        rows="4"
+                                        class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                        :class="{
+                                            'border-red-500':
+                                                form.errors.description,
+                                        }"
+                                        :placeholder="
+                                            $t(
+                                                'Brief description of this category',
+                                            )
+                                        "
+                                    ></textarea>
+                                    <p
+                                        v-if="form.errors.description"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.description }}
+                                    </p>
+                                </div>
+
+                                <!-- Parent Category -->
+                                <div>
+                                    <label
+                                        for="parent_id"
+                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >
+                                        {{ $t('Parent Category') }}
+                                    </label>
+                                    <select
+                                        id="parent_id"
+                                        v-model="form.parent_id"
+                                        class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                        :class="{
+                                            'border-red-500':
+                                                form.errors.parent_id,
+                                        }"
+                                    >
+                                        <option :value="null">
+                                            {{ $t('None (Root Category)') }}
+                                        </option>
+                                        <option
+                                            v-for="parent in parentCategories"
+                                            :key="parent.id"
+                                            :value="parent.id"
+                                        >
+                                            {{ parent.name }}
+                                        </option>
+                                    </select>
+                                    <p
+                                        class="mt-1 text-sm text-gray-500 dark:text-gray-400"
+                                    >
+                                        {{
+                                            $t(
+                                                'Select a parent to make this a sub-category',
+                                            )
+                                        }}
+                                    </p>
+                                    <p
+                                        v-if="form.errors.parent_id"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.parent_id }}
+                                    </p>
+                                </div>
+
+                                <!-- Image Upload -->
+                                <div>
+                                    <label
+                                        class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >
+                                        {{ $t('Category Image') }}
+                                    </label>
+
+                                    <!-- Current Image -->
+                                    <div v-if="category.image" class="mb-4">
+                                        <p
+                                            class="mb-2 text-xs font-medium text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{ $t('Current Image:') }}
+                                        </p>
+                                        <div class="relative inline-block">
+                                            <img
+                                                :src="category.image_url"
+                                                :alt="$t('Category')"
+                                                class="h-32 w-32 rounded-lg border-2 border-gray-200 object-cover shadow-sm dark:border-gray-700"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <!-- Upload New Image -->
+                                    <div>
+                                        <p
+                                            class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        >
+                                            {{
+                                                $t(
+                                                    category.image
+                                                        ? 'Replace Image'
+                                                        : 'Upload Image',
+                                                )
+                                            }}
+                                        </p>
+                                        <ImageUploader
+                                            v-model="images"
+                                            :maxFiles="1"
+                                            :maxSize="5"
+                                            accept="image/*"
+                                        />
+                                        <p
+                                            v-if="images.length > 0"
+                                            class="mt-2 text-xs text-green-600"
+                                        >
+                                            {{
+                                                $t(
+                                                    '✓ {count} image selected (will be uploaded on save)',
+                                                    { count: images.length },
+                                                )
+                                            }}
+                                        </p>
+                                    </div>
+
+                                    <p
+                                        v-if="form.errors.image"
+                                        class="mt-2 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.image }}
+                                    </p>
+                                </div>
+
+                                <!-- Sort Order -->
+                                <div>
+                                    <label
+                                        for="sort_order"
+                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >
+                                        {{ $t('Sort Order') }}
+                                    </label>
+                                    <input
+                                        id="sort_order"
+                                        v-model.number="form.sort_order"
+                                        type="number"
+                                        class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                        :class="{
+                                            'border-red-500':
+                                                form.errors.sort_order,
+                                        }"
+                                        placeholder="0"
+                                        min="0"
+                                    />
+                                    <p
+                                        class="mt-1 text-sm text-gray-500 dark:text-gray-400"
+                                    >
+                                        {{ $t('Lower numbers appear first') }}
+                                    </p>
+                                    <p
+                                        v-if="form.errors.sort_order"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.sort_order }}
+                                    </p>
+                                </div>
+
+                                <!-- Status Toggle -->
+                                <div class="flex items-start">
+                                    <div class="flex h-5 items-center">
+                                        <input
+                                            id="status"
+                                            v-model="form.status"
+                                            type="checkbox"
+                                            class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                                            :class="{
+                                                'border-red-500':
+                                                    form.errors.status,
+                                            }"
+                                        />
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <label
+                                            for="status"
+                                            class="font-medium text-gray-700 dark:text-gray-300"
+                                            >{{ $t('Active Status') }}</label
+                                        >
+                                        <p
+                                            class="text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{
+                                                $t(
+                                                    'This category is enabled and visible on the storefront',
+                                                )
+                                            }}
+                                        </p>
+                                        <p
+                                            v-if="form.errors.status"
+                                            class="mt-1 text-sm text-red-600"
+                                        >
+                                            {{ form.errors.status }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Show in Menu Toggle -->
+                                <div class="flex items-start">
+                                    <div class="flex h-5 items-center">
+                                        <input
+                                            id="show_in_menu"
+                                            v-model="form.show_in_menu"
+                                            type="checkbox"
+                                            class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                                            :class="{
+                                                'border-red-500':
+                                                    form.errors.show_in_menu,
+                                            }"
+                                        />
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <label
+                                            for="show_in_menu"
+                                            class="font-medium text-gray-700 dark:text-gray-300"
+                                            >{{
+                                                $t('Show in Navigation Menu')
+                                            }}</label
+                                        >
+                                        <p
+                                            class="text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{
+                                                $t(
+                                                    'Display this category in the main navigation menu',
+                                                )
+                                            }}
+                                        </p>
+                                        <p
+                                            v-if="form.errors.show_in_menu"
+                                            class="mt-1 text-sm text-red-600"
+                                        >
+                                            {{ form.errors.show_in_menu }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SEO Tab -->
+                            <div v-show="activeTab === 'seo'" class="space-y-6">
+                                <!-- Meta Title -->
+                                <div>
+                                    <label
+                                        for="meta_title"
+                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >
+                                        {{ $t('Meta Title') }}
+                                    </label>
+                                    <input
+                                        id="meta_title"
+                                        v-model="form.meta_title"
+                                        type="text"
+                                        class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                        :class="{
+                                            'border-red-500':
+                                                form.errors.meta_title,
+                                        }"
+                                        :placeholder="
+                                            $t(
+                                                'SEO-optimized title for search engines',
+                                            )
+                                        "
+                                        maxlength="60"
+                                    />
+                                    <p
+                                        class="mt-1 text-sm text-gray-500 dark:text-gray-400"
+                                    >
+                                        {{
+                                            $t(
+                                                'Recommended: 50-60 characters. {count}/60',
+                                                {
+                                                    count: form.meta_title
+                                                        .length,
+                                                },
+                                            )
+                                        }}
+                                    </p>
+                                    <p
+                                        v-if="form.errors.meta_title"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.meta_title }}
+                                    </p>
+                                </div>
+
+                                <!-- Meta Description -->
+                                <div>
+                                    <label
+                                        for="meta_description"
+                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >
+                                        {{ $t('Meta Description') }}
+                                    </label>
+                                    <textarea
+                                        id="meta_description"
+                                        v-model="form.meta_description"
+                                        rows="3"
+                                        class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                        :class="{
+                                            'border-red-500':
+                                                form.errors.meta_description,
+                                        }"
+                                        :placeholder="
+                                            $t(
+                                                'Brief description for search engine results',
+                                            )
+                                        "
+                                        maxlength="160"
+                                    ></textarea>
+                                    <p
+                                        class="mt-1 text-sm text-gray-500 dark:text-gray-400"
+                                    >
+                                        {{
+                                            $t(
+                                                'Recommended: 150-160 characters. {count}/160',
+                                                {
+                                                    count: form.meta_description
+                                                        .length,
+                                                },
+                                            )
+                                        }}
+                                    </p>
+                                    <p
+                                        v-if="form.errors.meta_description"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.meta_description }}
+                                    </p>
+                                </div>
+
+                                <!-- Meta Keywords -->
+                                <div>
+                                    <label
+                                        for="meta_keywords"
+                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >
+                                        {{ $t('Meta Keywords') }}
+                                    </label>
+                                    <input
+                                        id="meta_keywords"
+                                        v-model="form.meta_keywords"
+                                        type="text"
+                                        class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                        :class="{
+                                            'border-red-500':
+                                                form.errors.meta_keywords,
+                                        }"
+                                        :placeholder="
+                                            $t('keyword1, keyword2, keyword3')
+                                        "
+                                    />
+                                    <p
+                                        class="mt-1 text-sm text-gray-500 dark:text-gray-400"
+                                    >
+                                        {{
+                                            $t(
+                                                'Comma-separated keywords (less important for modern SEO)',
+                                            )
+                                        }}
+                                    </p>
+                                    <p
+                                        v-if="form.errors.meta_keywords"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.meta_keywords }}
+                                    </p>
+                                </div>
+
+                                <!-- SEO Preview -->
+                                <div
+                                    class="rounded-md border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900"
+                                >
+                                    <h4
+                                        class="mb-2 text-sm font-medium text-gray-900 dark:text-gray-100"
+                                    >
+                                        {{ $t('Search Engine Preview') }}
+                                    </h4>
+                                    <div class="space-y-1">
+                                        <div class="text-lg text-blue-600">
+                                            {{
+                                                form.meta_title ||
+                                                form.name ||
+                                                $t('Category Title')
+                                            }}
+                                        </div>
+                                        <div class="text-sm text-green-700">
+                                            yourstore.com/category/{{
+                                                form.slug || 'category-slug'
+                                            }}
+                                        </div>
+                                        <div
+                                            class="text-sm text-gray-600 dark:text-gray-400"
+                                        >
+                                            {{
+                                                form.meta_description ||
+                                                form.description ||
+                                                $t(
+                                                    'Category description will appear here...',
+                                                )
+                                            }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div
+                            class="flex items-center justify-end space-x-3 border-t border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-700 dark:bg-gray-900"
+                        >
+                            <Link
+                                :href="categoryRoutes.index().url"
+                                class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                            >
+                                {{ $t('Cancel') }}
+                            </Link>
+                            <button
+                                type="submit"
+                                :disabled="form.processing"
+                                class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                <svg
+                                    v-if="form.processing"
+                                    class="mr-2 -ml-1 h-4 w-4 animate-spin text-white"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <circle
+                                        class="opacity-25"
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        stroke-width="4"
+                                    ></circle>
+                                    <path
+                                        class="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    ></path>
+                                </svg>
+                                {{
+                                    $t(
+                                        form.processing
+                                            ? 'Updating...'
+                                            : 'Update Category',
+                                    )
+                                }}
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
-            <div class="flex items-center space-x-3">
-              <button
-                type="button"
-                @click="showDeleteModal = true"
-                class="inline-flex items-center px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-white dark:bg-gray-800 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-              >
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-                {{ $t('Delete Category') }}
-              </button>
-              <Link
-                :href="categoryRoutes.index().url"
-                class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                {{ $t('Back to Categories') }}
-              </Link>
-            </div>
-          </div>
         </div>
 
-        <!-- Form -->
-        <form @submit.prevent="submit">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-            <!-- Tabs -->
-            <div class="border-b border-gray-200 dark:border-gray-700">
-              <nav class="-mb-px flex space-x-8 px-6" :aria-label="$t('Tabs')">
-                <button
-                  type="button"
-                  @click="activeTab = 'general'"
-                  :class="[
-                    'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm',
-                    activeTab === 'general'
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-                  ]"
-                >
-                  {{ $t('General Information') }}
-                </button>
-                <button
-                  type="button"
-                  @click="activeTab = 'seo'"
-                  :class="[
-                    'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm',
-                    activeTab === 'seo'
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-                  ]"
-                >
-                  {{ $t('SEO Settings') }}
-                </button>
-              </nav>
-            </div>
-
-            <!-- Tab Content -->
-            <div class="p-6">
-              <!-- General Tab -->
-              <div v-show="activeTab === 'general'" class="space-y-6">
-                <!-- Name -->
-                <div>
-                  <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {{ $t('Category Name') }} <span class="text-red-500">*</span>
-                  </label>
-                  <input
-                    id="name"
-                    v-model="form.name"
-                    type="text"
-                    @input="generateSlug"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                    :class="{ 'border-red-500': form.errors.name }"
-                    :placeholder="$t('e.g., Electronics, Clothing, Books')"
-                    required
-                  />
-                  <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">{{ form.errors.name }}</p>
-                </div>
-
-                <!-- Slug -->
-                <div>
-                  <label for="slug" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {{ $t('URL Slug') }}
-                  </label>
-                  <input
-                    id="slug"
-                    v-model="form.slug"
-                    type="text"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                    :class="{ 'border-red-500': form.errors.slug }"
-                    :placeholder="$t('auto-generated-from-name')"
-                  />
-                  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $t('URL-friendly version of the category name') }}</p>
-                  <p v-if="form.errors.slug" class="mt-1 text-sm text-red-600">{{ form.errors.slug }}</p>
-                </div>
-
-                <!-- Description -->
-                <div>
-                  <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {{ $t('Description') }}
-                  </label>
-                  <textarea
-                    id="description"
-                    v-model="form.description"
-                    rows="4"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                    :class="{ 'border-red-500': form.errors.description }"
-                    :placeholder="$t('Brief description of this category')"
-                  ></textarea>
-                  <p v-if="form.errors.description" class="mt-1 text-sm text-red-600">{{ form.errors.description }}</p>
-                </div>
-
-                <!-- Parent Category -->
-                <div>
-                  <label for="parent_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {{ $t('Parent Category') }}
-                  </label>
-                  <select
-                    id="parent_id"
-                    v-model="form.parent_id"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                    :class="{ 'border-red-500': form.errors.parent_id }"
-                  >
-                    <option :value="null">{{ $t('None (Root Category)') }}</option>
-                    <option v-for="parent in parentCategories" :key="parent.id" :value="parent.id">
-                      {{ parent.name }}
-                    </option>
-                  </select>
-                  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $t('Select a parent to make this a sub-category') }}</p>
-                  <p v-if="form.errors.parent_id" class="mt-1 text-sm text-red-600">{{ form.errors.parent_id }}</p>
-                </div>
-
-                <!-- Image Upload -->
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    {{ $t('Category Image') }}
-                  </label>
-                  
-                  <!-- Current Image -->
-                  <div v-if="category.image" class="mb-4">
-                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">{{ $t('Current Image:') }}</p>
-                    <div class="relative inline-block">
-                      <img 
-                        :src="category.image_url" 
-                        :alt="$t('Category')" 
-                        class="h-32 w-32 object-cover rounded-lg border-2 border-gray-200 dark:border-gray-700 shadow-sm" 
-                      />
-                    </div>
-                  </div>
-                  
-                  <!-- Upload New Image -->
-                  <div>
-                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      {{ $t(category.image ? 'Replace Image' : 'Upload Image') }}
-                    </p>
-                    <ImageUploader 
-                      v-model="images" 
-                      :maxFiles="1" 
-                      :maxSize="5" 
-                      accept="image/*"
-                    />
-                    <p v-if="images.length > 0" class="mt-2 text-xs text-green-600">
-                      {{ $t('✓ {count} image selected (will be uploaded on save)', { count: images.length }) }}
-                    </p>
-                  </div>
-                  
-                  <p v-if="form.errors.image" class="mt-2 text-sm text-red-600">{{ form.errors.image }}</p>
-                </div>
-
-                <!-- Sort Order -->
-                <div>
-                  <label for="sort_order" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {{ $t('Sort Order') }}
-                  </label>
-                  <input
-                    id="sort_order"
-                    v-model.number="form.sort_order"
-                    type="number"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                    :class="{ 'border-red-500': form.errors.sort_order }"
-                    placeholder="0"
-                    min="0"
-                  />
-                  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $t('Lower numbers appear first') }}</p>
-                  <p v-if="form.errors.sort_order" class="mt-1 text-sm text-red-600">{{ form.errors.sort_order }}</p>
-                </div>
-
-                <!-- Status Toggle -->
-                <div class="flex items-start">
-                  <div class="flex items-center h-5">
-                    <input
-                      id="status"
-                      v-model="form.status"
-                      type="checkbox"
-                      class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-700"
-                      :class="{ 'border-red-500': form.errors.status }"
-                    />
-                  </div>
-                  <div class="ml-3 text-sm">
-                    <label for="status" class="font-medium text-gray-700 dark:text-gray-300">{{ $t('Active Status') }}</label>
-                    <p class="text-gray-500 dark:text-gray-400">{{ $t('This category is enabled and visible on the storefront') }}</p>
-                    <p v-if="form.errors.status" class="mt-1 text-sm text-red-600">{{ form.errors.status }}</p>
-                  </div>
-                </div>
-
-                <!-- Show in Menu Toggle -->
-                <div class="flex items-start">
-                  <div class="flex items-center h-5">
-                    <input
-                      id="show_in_menu"
-                      v-model="form.show_in_menu"
-                      type="checkbox"
-                      class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-700"
-                      :class="{ 'border-red-500': form.errors.show_in_menu }"
-                    />
-                  </div>
-                  <div class="ml-3 text-sm">
-                    <label for="show_in_menu" class="font-medium text-gray-700 dark:text-gray-300">{{ $t('Show in Navigation Menu') }}</label>
-                    <p class="text-gray-500 dark:text-gray-400">{{ $t('Display this category in the main navigation menu') }}</p>
-                    <p v-if="form.errors.show_in_menu" class="mt-1 text-sm text-red-600">{{ form.errors.show_in_menu }}</p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- SEO Tab -->
-              <div v-show="activeTab === 'seo'" class="space-y-6">
-                <!-- Meta Title -->
-                <div>
-                  <label for="meta_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {{ $t('Meta Title') }}
-                  </label>
-                  <input
-                    id="meta_title"
-                    v-model="form.meta_title"
-                    type="text"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                    :class="{ 'border-red-500': form.errors.meta_title }"
-                    :placeholder="$t('SEO-optimized title for search engines')"
-                    maxlength="60"
-                  />
-                  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    {{ $t('Recommended: 50-60 characters. {count}/60', { count: form.meta_title.length }) }}
-                  </p>
-                  <p v-if="form.errors.meta_title" class="mt-1 text-sm text-red-600">{{ form.errors.meta_title }}</p>
-                </div>
-
-                <!-- Meta Description -->
-                <div>
-                  <label for="meta_description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {{ $t('Meta Description') }}
-                  </label>
-                  <textarea
-                    id="meta_description"
-                    v-model="form.meta_description"
-                    rows="3"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                    :class="{ 'border-red-500': form.errors.meta_description }"
-                    :placeholder="$t('Brief description for search engine results')"
-                    maxlength="160"
-                  ></textarea>
-                  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    {{ $t('Recommended: 150-160 characters. {count}/160', { count: form.meta_description.length }) }}
-                  </p>
-                  <p v-if="form.errors.meta_description" class="mt-1 text-sm text-red-600">{{ form.errors.meta_description }}</p>
-                </div>
-
-                <!-- Meta Keywords -->
-                <div>
-                  <label for="meta_keywords" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {{ $t('Meta Keywords') }}
-                  </label>
-                  <input
-                    id="meta_keywords"
-                    v-model="form.meta_keywords"
-                    type="text"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                    :class="{ 'border-red-500': form.errors.meta_keywords }"
-                    :placeholder="$t('keyword1, keyword2, keyword3')"
-                  />
-                  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $t('Comma-separated keywords (less important for modern SEO)') }}</p>
-                  <p v-if="form.errors.meta_keywords" class="mt-1 text-sm text-red-600">{{ form.errors.meta_keywords }}</p>
-                </div>
-
-                <!-- SEO Preview -->
-                <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-md border border-gray-200 dark:border-gray-700">
-                  <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">{{ $t('Search Engine Preview') }}</h4>
-                  <div class="space-y-1">
-                    <div class="text-blue-600 text-lg">{{ form.meta_title || form.name || $t('Category Title') }}</div>
-                    <div class="text-green-700 text-sm">yourstore.com/category/{{ form.slug || 'category-slug' }}</div>
-                    <div class="text-gray-600 dark:text-gray-400 text-sm">{{ form.meta_description || form.description || $t('Category description will appear here...') }}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Form Actions -->
-            <div class="bg-gray-50 dark:bg-gray-900 px-6 py-4 flex items-center justify-end space-x-3 border-t border-gray-200 dark:border-gray-700">
-              <Link
-                :href="categoryRoutes.index().url"
-                class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                {{ $t('Cancel') }}
-              </Link>
-              <button
-                type="submit"
-                :disabled="form.processing"
-                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <svg v-if="form.processing" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                {{ $t(form.processing ? 'Updating...' : 'Update Category') }}
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <ConfirmDeleteModal
-      v-model:show="showDeleteModal"
-      :title="category.name"
-      :message="$t('Are you sure you want to delete {name}? This action cannot be undone.', { name: category.name })"
-      @confirm="deleteCategory"
-    />
-  </AdminLayout>
+        <!-- Delete Confirmation Modal -->
+        <ConfirmDeleteModal
+            v-model:show="showDeleteModal"
+            :title="category.name"
+            :message="
+                $t(
+                    'Are you sure you want to delete {name}? This action cannot be undone.',
+                    { name: category.name },
+                )
+            "
+            @confirm="deleteCategory"
+        />
+    </AdminLayout>
 </template>

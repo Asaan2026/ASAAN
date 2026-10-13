@@ -25,13 +25,13 @@ return new class extends Migration
         DB::table('menu_items')->updateOrInsert(
             ['key' => 'marketing-newsletters', 'location' => 'admin'],
             [
-                'title'      => 'Newsletters',
-                'icon'       => 'mail',
-                'route'      => 'admin.marketing.newsletters.index',
-                'url'        => null,
-                'parent_id'  => $marketingId,
-                'order'      => 30,
-                'active'     => true,
+                'title' => 'Newsletters',
+                'icon' => 'mail',
+                'route' => 'admin.marketing.newsletters.index',
+                'url' => null,
+                'parent_id' => $marketingId,
+                'order' => 30,
+                'active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]

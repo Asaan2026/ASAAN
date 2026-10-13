@@ -34,7 +34,7 @@ class RedirectIfAdminAuthenticated
 
             $isAdmin = $roleIsAdmin || $permissionsIsAdmin;
 
-            if (!$isAdmin) {
+            if (! $isAdmin) {
                 auth()->guard('admin')->logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();

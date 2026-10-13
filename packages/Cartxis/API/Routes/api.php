@@ -1,25 +1,25 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Cartxis\API\Http\Controllers\V1\AuthController;
-use Cartxis\API\Http\Controllers\V1\ProductController;
-use Cartxis\API\Http\Controllers\V1\CategoryController;
-use Cartxis\API\Http\Controllers\V1\CartController;
-use Cartxis\API\Http\Controllers\V1\BannerController;
-use Cartxis\API\Http\Controllers\V1\CheckoutController;
-use Cartxis\API\Http\Controllers\V1\CustomerController;
-use Cartxis\API\Http\Controllers\V1\OrderController;
-use Cartxis\API\Http\Controllers\V1\WishlistController;
-use Cartxis\API\Http\Controllers\V1\ReviewController;
-use Cartxis\API\Http\Controllers\V1\SearchController;
-use Cartxis\API\Http\Controllers\V1\CurrencyController;
 use Cartxis\API\Http\Controllers\V1\ApiSyncController;
-use Cartxis\API\Http\Controllers\V1\ProductAiController;
 use Cartxis\API\Http\Controllers\V1\AppSettingsController;
-use Cartxis\API\Http\Controllers\V1\ServiceController;
+use Cartxis\API\Http\Controllers\V1\AuthController;
+use Cartxis\API\Http\Controllers\V1\BannerController;
+use Cartxis\API\Http\Controllers\V1\CartController;
+use Cartxis\API\Http\Controllers\V1\CategoryController;
+use Cartxis\API\Http\Controllers\V1\CheckoutController;
+use Cartxis\API\Http\Controllers\V1\CurrencyController;
+use Cartxis\API\Http\Controllers\V1\CustomerController;
 use Cartxis\API\Http\Controllers\V1\IdentityController;
 use Cartxis\API\Http\Controllers\V1\LocaleController;
+use Cartxis\API\Http\Controllers\V1\OrderController;
+use Cartxis\API\Http\Controllers\V1\ProductAiController;
+use Cartxis\API\Http\Controllers\V1\ProductController;
+use Cartxis\API\Http\Controllers\V1\ReviewController;
+use Cartxis\API\Http\Controllers\V1\SearchController;
+use Cartxis\API\Http\Controllers\V1\ServiceController;
+use Cartxis\API\Http\Controllers\V1\WishlistController;
 use Cartxis\API\Http\Middleware\TrackApiSync;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,13 +33,13 @@ use Cartxis\API\Http\Middleware\TrackApiSync;
 */
 
 Route::prefix('api/v1')->group(function () {
-    
+
     /*
     |--------------------------------------------------------------------------
     | Public Routes (No Authentication Required)
     |--------------------------------------------------------------------------
     */
-    
+
     // Authentication — throttle:10,1 for login/register; tighter 5/min for password resets
     Route::prefix('auth')->middleware('throttle:10,1')->group(function () {
         Route::post('/register', [AuthController::class, 'register']);
@@ -111,9 +111,9 @@ Route::prefix('api/v1')->group(function () {
     | Protected Routes (Authentication Required)
     |--------------------------------------------------------------------------
     */
-    
+
     Route::middleware(['auth:sanctum', 'throttle:api', TrackApiSync::class])->group(function () {
-        
+
         // Authentication (Authenticated)
         Route::prefix('auth')->group(function () {
             Route::post('/logout', [AuthController::class, 'logout']);
@@ -157,20 +157,20 @@ Route::prefix('api/v1')->group(function () {
             // Profile
             Route::get('/profile', [CustomerController::class, 'profile']);
             Route::put('/profile', [CustomerController::class, 'updateProfile']);
-            
+
             // Orders
             Route::get('/orders', [OrderController::class, 'index']);
             Route::get('/orders/{id}', [OrderController::class, 'show']);
             Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel']);
             Route::get('/orders/{id}/invoice', [OrderController::class, 'invoice']);
             Route::get('/orders/{id}/track', [OrderController::class, 'track']);
-            
+
             // Addresses
             Route::get('/addresses', [CustomerController::class, 'addresses']);
             Route::post('/addresses', [CustomerController::class, 'storeAddress']);
             Route::put('/addresses/{id}', [CustomerController::class, 'updateAddress']); // Use this to set default: {"is_default_shipping": true}
             Route::delete('/addresses/{id}', [CustomerController::class, 'deleteAddress']);
-            
+
             // Wishlist
             Route::get('/wishlist', [WishlistController::class, 'index']);
             Route::post('/wishlist/add', [WishlistController::class, 'add']);

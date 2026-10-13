@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/helpers.php';
+require_once __DIR__.'/helpers.php';
 
 use Cartxis\Identity\Models\IdentityVerification;
 use Cartxis\Identity\Services\IdentityCrypto;

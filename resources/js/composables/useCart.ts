@@ -7,12 +7,12 @@ import { storeToRefs } from 'pinia';
  */
 export function useCart() {
     const cartStore = useCartStore();
-    const { 
-        items, 
-        loading, 
-        error, 
-        itemCount, 
-        subtotal, 
+    const {
+        items,
+        loading,
+        error,
+        itemCount,
+        subtotal,
         isEmpty,
         couponCode,
         discountAmount,
@@ -27,7 +27,7 @@ export function useCart() {
     const addToCart = async (
         productId: number,
         quantity: number = 1,
-        attributes?: Record<number, number>
+        attributes?: Record<number, number>,
     ) => {
         return await cartStore.addToCart(productId, quantity, attributes);
     };

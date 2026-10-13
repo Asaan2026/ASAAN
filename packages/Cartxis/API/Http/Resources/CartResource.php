@@ -2,6 +2,7 @@
 
 namespace Cartxis\API\Http\Resources;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CartResource extends JsonResource
@@ -9,18 +10,18 @@ class CartResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return array
      */
     public function toArray($request)
     {
-        $subtotal = $this->items->sum(fn($item) => $item->price * $item->quantity);
+        $subtotal = $this->items->sum(fn ($item) => $item->price * $item->quantity);
         $discount = $this->discount_amount ?? 0;
         $total = $subtotal - $discount;
 
         return [
             'id' => $this->id,
-            'items' => $this->items->map(fn($item) => [
+            'items' => $this->items->map(fn ($item) => [
                 'id' => $item->id,
                 'product_id' => $item->product_id,
                 'variant_id' => $item->variant_id,

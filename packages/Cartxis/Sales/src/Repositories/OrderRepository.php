@@ -4,16 +4,13 @@ namespace Cartxis\Sales\Repositories;
 
 use Cartxis\Shop\Models\Order;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 class OrderRepository
 {
     /**
      * Get orders for admin with filters and pagination.
-     *
-     * @param array $filters
-     * @param int $perPage
-     * @return LengthAwarePaginator
      */
     public function getAdminOrders(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
@@ -21,66 +18,66 @@ class OrderRepository
             ->select('orders.*');
 
         // Search filter (order number, customer email, customer name)
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('order_number', 'LIKE', "%{$search}%")
-                  ->orWhere('customer_email', 'LIKE', "%{$search}%")
-                  ->orWhereHas('user', function ($userQuery) use ($search) {
-                      $userQuery->where('name', 'LIKE', "%{$search}%");
-                  });
+                    ->orWhere('customer_email', 'LIKE', "%{$search}%")
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('name', 'LIKE', "%{$search}%");
+                    });
             });
         }
 
         // Status filter
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
         // Payment status filter
-        if (!empty($filters['payment_status'])) {
+        if (! empty($filters['payment_status'])) {
             $query->where('payment_status', $filters['payment_status']);
         }
 
         // Payment method filter
-        if (!empty($filters['payment_method'])) {
+        if (! empty($filters['payment_method'])) {
             $query->where('payment_method', $filters['payment_method']);
         }
 
         // Date range filter (from)
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->whereDate('created_at', '>=', $filters['date_from']);
         }
 
         // Date range filter (to)
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->whereDate('created_at', '<=', $filters['date_to']);
         }
 
         // Total amount range (min)
-        if (!empty($filters['total_min'])) {
+        if (! empty($filters['total_min'])) {
             $query->where('total', '>=', $filters['total_min']);
         }
 
         // Total amount range (max)
-        if (!empty($filters['total_max'])) {
+        if (! empty($filters['total_max'])) {
             $query->where('total', '<=', $filters['total_max']);
         }
 
         // Customer filter (user_id)
-        if (!empty($filters['customer_id'])) {
+        if (! empty($filters['customer_id'])) {
             $query->where('user_id', $filters['customer_id']);
         }
 
         // Shipping method filter
-        if (!empty($filters['shipping_method'])) {
+        if (! empty($filters['shipping_method'])) {
             $query->where('shipping_method', $filters['shipping_method']);
         }
 
         // Sort by
         $sortBy = $filters['sort_by'] ?? 'created_at';
         $sortOrder = $filters['sort_order'] ?? 'desc';
-        
+
         $allowedSorts = ['created_at', 'total', 'status', 'payment_status', 'order_number'];
         if (in_array($sortBy, $allowedSorts)) {
             $query->orderBy($sortBy, $sortOrder);
@@ -93,8 +90,6 @@ class OrderRepository
 
     /**
      * Get order statistics for admin dashboard.
-     *
-     * @return array
      */
     public function getStatistics(): array
     {
@@ -105,38 +100,38 @@ class OrderRepository
         return [
             // Total orders
             'total_orders' => Order::count(),
-            
+
             // Today's orders
             'today_orders' => Order::where('created_at', '>=', $today)->count(),
-            
+
             // This month's orders
             'month_orders' => Order::where('created_at', '>=', $thisMonth)->count(),
-            
+
             // Last month's orders
             'last_month_orders' => Order::whereBetween('created_at', [
                 $lastMonth,
-                $lastMonth->copy()->endOfMonth()
+                $lastMonth->copy()->endOfMonth(),
             ])->count(),
 
             // Total revenue
             'total_revenue' => Order::where('payment_status', Order::PAYMENT_PAID)
                 ->sum('total'),
-            
+
             // Today's revenue
             'today_revenue' => Order::where('payment_status', Order::PAYMENT_PAID)
                 ->where('created_at', '>=', $today)
                 ->sum('total'),
-            
+
             // This month's revenue
             'month_revenue' => Order::where('payment_status', Order::PAYMENT_PAID)
                 ->where('created_at', '>=', $thisMonth)
                 ->sum('total'),
-            
+
             // Last month's revenue
             'last_month_revenue' => Order::where('payment_status', Order::PAYMENT_PAID)
                 ->whereBetween('created_at', [
                     $lastMonth,
-                    $lastMonth->copy()->endOfMonth()
+                    $lastMonth->copy()->endOfMonth(),
                 ])
                 ->sum('total'),
 
@@ -158,10 +153,10 @@ class OrderRepository
 
             // Pending orders (requires action)
             'pending_orders' => Order::where('status', Order::STATUS_PENDING)->count(),
-            
+
             // Processing orders
             'processing_orders' => Order::where('status', Order::STATUS_PROCESSING)->count(),
-            
+
             // Failed payments (requires attention)
             'failed_payments' => Order::where('payment_status', Order::PAYMENT_FAILED)->count(),
 
@@ -207,8 +202,7 @@ class OrderRepository
     /**
      * Get orders for export (without pagination).
      *
-     * @param array $filters
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
     public function getOrdersForExport(array $filters = [])
     {
@@ -216,30 +210,30 @@ class OrderRepository
             ->select('orders.*');
 
         // Apply same filters as getAdminOrders
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('order_number', 'LIKE', "%{$search}%")
-                  ->orWhere('customer_email', 'LIKE', "%{$search}%")
-                  ->orWhereHas('user', function ($userQuery) use ($search) {
-                      $userQuery->where('name', 'LIKE', "%{$search}%");
-                  });
+                    ->orWhere('customer_email', 'LIKE', "%{$search}%")
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('name', 'LIKE', "%{$search}%");
+                    });
             });
         }
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['payment_status'])) {
+        if (! empty($filters['payment_status'])) {
             $query->where('payment_status', $filters['payment_status']);
         }
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->whereDate('created_at', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->whereDate('created_at', '<=', $filters['date_to']);
         }
 
@@ -248,9 +242,6 @@ class OrderRepository
 
     /**
      * Get order by ID with all relationships.
-     *
-     * @param int $orderId
-     * @return Order|null
      */
     public function getOrderWithRelations(int $orderId): ?Order
     {
@@ -259,7 +250,7 @@ class OrderRepository
             'items.product',
             'addresses',
             'histories.adminUser',
-            'shipments.shipmentItems.orderItem.product'
+            'shipments.shipmentItems.orderItem.product',
         ])->find($orderId);
     }
 }

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Cartxis\UIEditor\Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use Cartxis\UIEditor\Models\GlobalRegion;
+use Illuminate\Database\Seeder;
 
 class GlobalRegionSeeder extends Seeder
 {
@@ -17,36 +17,36 @@ class GlobalRegionSeeder extends Seeder
     {
         $regions = [
             [
-                'name'        => 'Main Header',
-                'slug'        => 'main-header',
+                'name' => 'Main Header',
+                'slug' => 'main-header',
                 'description' => 'Site-wide header with logo, navigation and cart.',
                 'region_type' => 'header',
-                'status'      => 'published',
+                'status' => 'published',
                 'published_at' => now(),
                 'layout_data' => json_encode([
-                    'version'  => '1.0',
+                    'version' => '1.0',
                     'sections' => [
                         [
-                            'id'       => 'sec_header_1',
-                            'type'     => 'section',
+                            'id' => 'sec_header_1',
+                            'type' => 'section',
                             'settings' => [
                                 'background_color' => '#ffffff',
-                                'padding_top'      => 0,
-                                'padding_bottom'   => 0,
-                                'full_width'       => true,
+                                'padding_top' => 0,
+                                'padding_bottom' => 0,
+                                'full_width' => true,
                             ],
                             'columns' => [
                                 [
-                                    'id'       => 'col_header_1',
-                                    'width'    => 12,
+                                    'id' => 'col_header_1',
+                                    'width' => 12,
                                     'settings' => [],
-                                    'blocks'   => [
+                                    'blocks' => [
                                         [
-                                            'id'       => 'blk_header_1',
-                                            'type'     => 'heading',
+                                            'id' => 'blk_header_1',
+                                            'type' => 'heading',
                                             'settings' => [
                                                 'level' => 'h1',
-                                                'text'  => 'My Store',
+                                                'text' => 'My Store',
                                                 'align' => 'center',
                                                 'color' => '#111827',
                                             ],
@@ -59,52 +59,52 @@ class GlobalRegionSeeder extends Seeder
                 ]),
             ],
             [
-                'name'        => 'Main Footer',
-                'slug'        => 'main-footer',
+                'name' => 'Main Footer',
+                'slug' => 'main-footer',
                 'description' => 'Site-wide footer with links, newsletter and copyright.',
                 'region_type' => 'footer',
-                'status'      => 'published',
+                'status' => 'published',
                 'published_at' => now(),
                 'layout_data' => json_encode([
-                    'version'  => '1.0',
+                    'version' => '1.0',
                     'sections' => [
                         [
-                            'id'       => 'sec_footer_1',
-                            'type'     => 'section',
+                            'id' => 'sec_footer_1',
+                            'type' => 'section',
                             'settings' => [
                                 'background_color' => '#0f172a',
-                                'padding_top'      => 48,
-                                'padding_bottom'   => 48,
-                                'full_width'       => true,
+                                'padding_top' => 48,
+                                'padding_bottom' => 48,
+                                'full_width' => true,
                             ],
                             'columns' => [
                                 [
-                                    'id'       => 'col_footer_1',
-                                    'width'    => 12,
+                                    'id' => 'col_footer_1',
+                                    'width' => 12,
                                     'settings' => [],
-                                    'blocks'   => [
+                                    'blocks' => [
                                         [
-                                            'id'       => 'blk_footer_brand',
-                                            'type'     => 'heading',
+                                            'id' => 'blk_footer_brand',
+                                            'type' => 'heading',
                                             'settings' => [
                                                 'level' => 'h3',
-                                                'text'  => 'My Store',
+                                                'text' => 'My Store',
                                                 'align' => 'center',
                                                 'color' => '#ffffff',
                                             ],
                                         ],
                                         [
-                                            'id'       => 'blk_footer_tagline',
-                                            'type'     => 'text',
+                                            'id' => 'blk_footer_tagline',
+                                            'type' => 'text',
                                             'settings' => [
                                                 'content' => '<p style="text-align:center;color:rgba(255,255,255,0.55)">Your trusted e-commerce platform.</p>',
                                             ],
                                         ],
                                         [
-                                            'id'       => 'blk_footer_copy',
-                                            'type'     => 'text',
+                                            'id' => 'blk_footer_copy',
+                                            'type' => 'text',
                                             'settings' => [
-                                                'content' => '<p style="text-align:center;color:rgba(255,255,255,0.35);font-size:12px">&copy; ' . date('Y') . ' My Store. All rights reserved.</p>',
+                                                'content' => '<p style="text-align:center;color:rgba(255,255,255,0.35);font-size:12px">&copy; '.date('Y').' My Store. All rights reserved.</p>',
                                             ],
                                         ],
                                     ],

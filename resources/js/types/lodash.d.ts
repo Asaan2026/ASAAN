@@ -14,7 +14,10 @@ declare module 'lodash' {
     }
 
     export interface DebouncedFunction<T extends (...args: any[]) => any> {
-        (this: ThisParameterType<T>, ...args: Parameters<T>): ReturnType<T> | undefined;
+        (
+            this: ThisParameterType<T>,
+            ...args: Parameters<T>
+        ): ReturnType<T> | undefined;
         cancel(): void;
         flush(): ReturnType<T> | undefined;
         pending(): boolean;

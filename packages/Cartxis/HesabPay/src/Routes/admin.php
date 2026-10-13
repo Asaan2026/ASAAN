@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Cartxis\HesabPay\Http\Controllers\HesabPayController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------

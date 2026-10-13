@@ -2,11 +2,12 @@
 
 namespace Cartxis\Shop\Http\Controllers;
 
+use Cartxis\Core\Services\ThemeViewResolver;
 use Cartxis\Shop\Services\CategoryService;
 use Cartxis\Shop\Services\ProductService;
-use Cartxis\Core\Services\ThemeViewResolver;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class CategoryController extends Controller
 {
@@ -27,10 +28,6 @@ class CategoryController extends Controller
 
     /**
      * Create a new controller instance.
-     *
-     * @param CategoryService $categoryService
-     * @param ProductService $productService
-     * @param ThemeViewResolver $themeResolver
      */
     public function __construct(
         CategoryService $categoryService,
@@ -45,15 +42,14 @@ class CategoryController extends Controller
     /**
      * Display category page with products.
      *
-     * @param string $slug
-     * @param Request $request
-     * @return \Inertia\Response
+     * @param  string  $slug
+     * @return Response
      */
     public function show($slug, Request $request)
     {
         $category = $this->categoryService->getCategoryBySlug($slug);
 
-        if (!$category) {
+        if (! $category) {
             abort(404, 'Category not found');
         }
 

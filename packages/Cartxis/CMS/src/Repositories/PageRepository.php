@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Cartxis\CMS\Repositories;
 
 use Cartxis\CMS\Models\Page;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 
 class PageRepository
 {
@@ -48,17 +48,17 @@ class PageRepository
         $query = Page::query()->with(['creator', 'updater']);
 
         // Search filter
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('url_key', 'like', "%{$search}%")
-                  ->orWhereRaw('MATCH(title, content) AGAINST(? IN BOOLEAN MODE)', [$search]);
+                    ->orWhere('url_key', 'like', "%{$search}%")
+                    ->orWhereRaw('MATCH(title, content) AGAINST(? IN BOOLEAN MODE)', [$search]);
             });
         }
 
         // Status filter
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 

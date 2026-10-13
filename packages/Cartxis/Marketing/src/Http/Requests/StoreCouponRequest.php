@@ -2,8 +2,8 @@
 
 namespace Cartxis\Marketing\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Cartxis\Marketing\Models\Coupon;
+use Illuminate\Foundation\Http\FormRequest;
 
 class StoreCouponRequest extends FormRequest
 {
@@ -24,7 +24,7 @@ class StoreCouponRequest extends FormRequest
             'code' => 'required|string|max:50|unique:coupons,code',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:' . implode(',', [
+            'type' => 'required|in:'.implode(',', [
                 Coupon::TYPE_PERCENTAGE,
                 Coupon::TYPE_FIXED_AMOUNT,
                 Coupon::TYPE_FREE_SHIPPING,

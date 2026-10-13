@@ -5,9 +5,9 @@ namespace Cartxis\Core\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Cartxis\Core\Models\Currency;
 use Cartxis\Core\Support\DisplayCurrency;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 /**
  * Lets a shopper choose which of the store's two currencies prices are shown

@@ -3,19 +3,18 @@
 namespace Cartxis\System\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Cartxis\Core\Repositories\PermissionRepository;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\Core\Repositories\PermissionRepository;
 
 class PermissionController extends Controller
 {
     public function __construct(
         protected PermissionRepository $permissionRepository
-    ) {
-    }
+    ) {}
 
     /**
      * Display a listing of permissions.
@@ -91,7 +90,7 @@ class PermissionController extends Controller
     {
         $permission = $this->permissionRepository->findPermission($id);
 
-        if (!$permission) {
+        if (! $permission) {
             abort(404, 'Permission not found');
         }
 
@@ -122,12 +121,12 @@ class PermissionController extends Controller
     {
         $permission = $this->permissionRepository->findPermission($id);
 
-        if (!$permission) {
+        if (! $permission) {
             abort(404, 'Permission not found');
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:permissions,name,' . $id,
+            'name' => 'required|string|max:255|unique:permissions,name,'.$id,
             'display_name' => 'required|string|max:255',
             'group' => 'required|string|max:255',
             'description' => 'nullable|string|max:500',
@@ -151,7 +150,7 @@ class PermissionController extends Controller
     {
         $permission = $this->permissionRepository->findPermission($id);
 
-        if (!$permission) {
+        if (! $permission) {
             abort(404, 'Permission not found');
         }
 

@@ -3,11 +3,11 @@
 namespace Cartxis\Sales\Services;
 
 use Cartxis\Core\Services\SettingService;
+use Cartxis\Core\Support\StoreCountry;
 use Cartxis\Sales\Models\Shipment;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 
 class ShiprocketService
 {
@@ -31,7 +31,7 @@ class ShiprocketService
             throw new \RuntimeException('Shiprocket credentials are not configured.');
         }
 
-        if (!$force) {
+        if (! $force) {
             $cached = Cache::get(self::TOKEN_CACHE_KEY);
             if (is_string($cached) && $cached !== '') {
                 return $cached;
@@ -43,13 +43,13 @@ class ShiprocketService
 
     public function authenticate(string $email, string $password): string
     {
-        $response = Http::acceptJson()->post($this->apiBaseUrl() . '/auth/login', [
+        $response = Http::acceptJson()->post($this->apiBaseUrl().'/auth/login', [
             'email' => $email,
             'password' => $password,
         ]);
 
-        if (!$response->successful()) {
-            throw new \RuntimeException('Shiprocket authentication failed: ' . $response->body());
+        if (! $response->successful()) {
+            throw new \RuntimeException('Shiprocket authentication failed: '.$response->body());
         }
 
         $token = (string) (Arr::get($response->json(), 'token', ''));
@@ -64,7 +64,7 @@ class ShiprocketService
 
     public function createOrderForShipment(Shipment $shipment): array
     {
-        if (!$this->isEnabled()) {
+        if (! $this->isEnabled()) {
             throw new \RuntimeException('Shiprocket integration is disabled.');
         }
 
@@ -75,12 +75,12 @@ class ShiprocketService
         ]);
 
         $order = $shipment->order;
-        if (!$order) {
+        if (! $order) {
             throw new \RuntimeException('Shipment order not found.');
         }
 
         $shippingAddress = $order->shippingAddress;
-        if (!$shippingAddress) {
+        if (! $shippingAddress) {
             throw new \RuntimeException('Order shipping address not found.');
         }
 
@@ -89,17 +89,17 @@ class ShiprocketService
 
         $response = Http::acceptJson()
             ->withToken($token)
-            ->post($this->apiBaseUrl() . '/orders/create/adhoc', $payload);
+            ->post($this->apiBaseUrl().'/orders/create/adhoc', $payload);
 
         if ($response->status() === 401) {
             $token = $this->authenticateFromSettings(true);
             $response = Http::acceptJson()
                 ->withToken($token)
-                ->post($this->apiBaseUrl() . '/orders/create/adhoc', $payload);
+                ->post($this->apiBaseUrl().'/orders/create/adhoc', $payload);
         }
 
-        if (!$response->successful()) {
-            throw new \RuntimeException('Shiprocket create order failed: ' . $response->body());
+        if (! $response->successful()) {
+            throw new \RuntimeException('Shiprocket create order failed: '.$response->body());
         }
 
         $data = $response->json();
@@ -140,7 +140,7 @@ class ShiprocketService
                 Arr::get($data, 'errors.0.message'),
             ]) ?? 'Unknown Shiprocket response';
 
-            throw new \RuntimeException('Shiprocket create order failed: ' . $apiMessage);
+            throw new \RuntimeException('Shiprocket create order failed: '.$apiMessage);
         }
 
         return $result;
@@ -156,17 +156,17 @@ class ShiprocketService
 
         $response = Http::acceptJson()
             ->withToken($token)
-            ->get($this->apiBaseUrl() . '/courier/track/awb/' . urlencode($awbCode));
+            ->get($this->apiBaseUrl().'/courier/track/awb/'.urlencode($awbCode));
 
         if ($response->status() === 401) {
             $token = $this->authenticateFromSettings(true);
             $response = Http::acceptJson()
                 ->withToken($token)
-                ->get($this->apiBaseUrl() . '/courier/track/awb/' . urlencode($awbCode));
+                ->get($this->apiBaseUrl().'/courier/track/awb/'.urlencode($awbCode));
         }
 
-        if (!$response->successful()) {
-            throw new \RuntimeException('Shiprocket tracking fetch failed: ' . $response->body());
+        if (! $response->successful()) {
+            throw new \RuntimeException('Shiprocket tracking fetch failed: '.$response->body());
         }
 
         $data = $response->json();
@@ -189,7 +189,7 @@ class ShiprocketService
         $data = $this->getWithToken($authToken, '/settings/company/pickup');
 
         $rows = Arr::get($data, 'data.shipping_address', Arr::get($data, 'data.data', Arr::get($data, 'data', [])));
-        if (!is_array($rows)) {
+        if (! is_array($rows)) {
             $rows = [];
         }
 
@@ -209,7 +209,7 @@ class ShiprocketService
                     Arr::get($row, 'seller_name'),
                 ]);
 
-                if (!$code || !$label) {
+                if (! $code || ! $label) {
                     return null;
                 }
 
@@ -233,10 +233,10 @@ class ShiprocketService
         $data = $this->getWithToken($authToken, '/channels');
 
         $rows = Arr::get($data, 'data', []);
-        if (!is_array($rows)) {
+        if (! is_array($rows)) {
             $rows = Arr::get($data, 'data.data', []);
         }
-        if (!is_array($rows)) {
+        if (! is_array($rows)) {
             $rows = [];
         }
 
@@ -253,7 +253,7 @@ class ShiprocketService
                     Arr::get($row, 'channel_name'),
                 ]);
 
-                if (!$id || !$name) {
+                if (! $id || ! $name) {
                     return null;
                 }
 
@@ -285,7 +285,7 @@ class ShiprocketService
 
                 return [
                     'name' => (string) ($orderItem->product_name ?? 'Product'),
-                    'sku' => (string) ($orderItem->product_sku ?? ('ITEM-' . $orderItem->id)),
+                    'sku' => (string) ($orderItem->product_sku ?? ('ITEM-'.$orderItem->id)),
                     'units' => (int) ($shipmentItem->quantity ?? 1),
                     'selling_price' => (float) ($orderItem->price ?? 0),
                     'discount' => (float) ($orderItem->discount_amount ?? 0),
@@ -313,7 +313,7 @@ class ShiprocketService
             'billing_city' => (string) ($address->city ?? ''),
             'billing_pincode' => (string) ($address->postal_code ?? ''),
             'billing_state' => (string) ($address->state ?? ''),
-            'billing_country' => \Cartxis\Core\Support\StoreCountry::normalise($address->country ?? null),
+            'billing_country' => StoreCountry::normalise($address->country ?? null),
             'billing_email' => (string) ($address->email ?: $order->customer_email),
             'billing_phone' => (string) ($address->phone ?: $order->customer_phone),
             'shipping_is_billing' => true,
@@ -376,20 +376,21 @@ class ShiprocketService
     {
         $response = Http::acceptJson()
             ->withToken($token)
-            ->get($this->apiBaseUrl() . $path);
+            ->get($this->apiBaseUrl().$path);
 
         if ($response->status() === 401) {
             $newToken = $this->authenticateFromSettings(true);
             $response = Http::acceptJson()
                 ->withToken($newToken)
-                ->get($this->apiBaseUrl() . $path);
+                ->get($this->apiBaseUrl().$path);
         }
 
-        if (!$response->successful()) {
-            throw new \RuntimeException('Shiprocket request failed for ' . $path . ': ' . $response->body());
+        if (! $response->successful()) {
+            throw new \RuntimeException('Shiprocket request failed for '.$path.': '.$response->body());
         }
 
         $data = $response->json();
+
         return is_array($data) ? $data : [];
     }
 }

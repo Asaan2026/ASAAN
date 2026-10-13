@@ -3,10 +3,10 @@
 namespace Cartxis\API\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Cartxis\API\Helpers\ApiResponse;
 use Cartxis\API\Http\Resources\ProductResource;
 use Cartxis\Product\Models\Product;
+use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
@@ -34,16 +34,16 @@ class SearchController extends Controller
 
         $products = Product::query()
             ->where('status', 'enabled')
-            ->where(function($q) use ($query) {
+            ->where(function ($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
-                  ->orWhere('description', 'like', "%{$query}%")
-                  ->orWhere('sku', 'like', "%{$query}%");
+                    ->orWhere('description', 'like', "%{$query}%")
+                    ->orWhere('sku', 'like', "%{$query}%");
             })
             ->with(['images', 'brand', 'categories'])
             ->paginate($perPage);
 
         return ApiResponse::paginated(
-            $products->through(fn($product) => new ProductResource($product)),
+            $products->through(fn ($product) => new ProductResource($product)),
             "Search results for '{$query}'"
         );
     }
@@ -68,7 +68,7 @@ class SearchController extends Controller
             ->select('id', 'name', 'sku')
             ->limit($limit)
             ->get()
-            ->map(fn($product) => [
+            ->map(fn ($product) => [
                 'id' => $product->id,
                 'name' => $product->name,
                 'sku' => $product->sku,

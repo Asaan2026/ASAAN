@@ -16,53 +16,46 @@
 *  limitations under the License.
 */
 
-
 namespace PhonePe\payments\v2\models\response\ResponseComponents;
 
 use PhonePe\common\configs\Instruments;
 
 class CreditCardInstrument extends Instrument
 {
-	public string $bankTransactionId;
-	public string $bankId;
-	public string $arn;
-	public string $brn;
+    public string $bankTransactionId;
 
+    public string $bankId;
 
-	/**
-	 * @param string $bankTransactionId
-	 * @param string $bankId
-	 * @param string $arn
-	 * @param string $brn
-	 */
-	public function __construct(string $bankTransactionId, string $bankId, string $arn, string $brn)
-	{
-		$this->type = Instruments::CREDIT_CARD;
-		$this->bankTransactionId = $bankTransactionId;
-		$this->bankId = $bankId;
-		$this->arn = $arn;
-		$this->brn = $brn;
-	}
+    public string $arn;
 
-	public function getBankTransactionId(): string
-	{
-		return $this->bankTransactionId;
-	}
+    public string $brn;
 
-	public function getBankId(): string
-	{
-		return $this->bankId;
-	}
+    public function __construct(string $bankTransactionId, string $bankId, string $arn, string $brn)
+    {
+        $this->type = Instruments::CREDIT_CARD;
+        $this->bankTransactionId = $bankTransactionId;
+        $this->bankId = $bankId;
+        $this->arn = $arn;
+        $this->brn = $brn;
+    }
 
-	public function getArn(): string
-	{
-		return $this->arn;
-	}
+    public function getBankTransactionId(): string
+    {
+        return $this->bankTransactionId;
+    }
 
-	public function getBrn(): string
-	{
-		return $this->brn;
-	}
+    public function getBankId(): string
+    {
+        return $this->bankId;
+    }
 
+    public function getArn(): string
+    {
+        return $this->arn;
+    }
 
+    public function getBrn(): string
+    {
+        return $this->brn;
+    }
 }

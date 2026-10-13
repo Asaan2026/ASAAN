@@ -2,9 +2,9 @@
 
 namespace Cartxis\Core\Console\Commands;
 
-use Illuminate\Console\Command;
 use Cartxis\Core\Models\Theme;
 use Cartxis\Core\Services\ThemeService;
+use Illuminate\Console\Command;
 
 class ThemeListCommand extends Command
 {
@@ -21,6 +21,7 @@ class ThemeListCommand extends Command
 
         if ($themes->isEmpty()) {
             $this->components->warn('No themes registered. Place a template under templates/storefront/ and run theme:discover.');
+
             return self::SUCCESS;
         }
 

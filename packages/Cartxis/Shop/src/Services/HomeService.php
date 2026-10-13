@@ -2,11 +2,12 @@
 
 namespace Cartxis\Shop\Services;
 
-use Cartxis\Shop\Contracts\ProductRepositoryInterface;
-use Cartxis\Shop\Contracts\CategoryRepositoryInterface;
-use Cartxis\Shop\Services\ShopService;
 use Cartxis\CMS\Models\Block;
 use Cartxis\Core\Models\Theme;
+use Cartxis\Product\Models\Product;
+use Cartxis\Shop\Contracts\CategoryRepositoryInterface;
+use Cartxis\Shop\Contracts\ProductRepositoryInterface;
+use Illuminate\Support\Collection;
 
 class HomeService extends ShopService
 {
@@ -22,9 +23,6 @@ class HomeService extends ShopService
 
     /**
      * Create a new service instance.
-     *
-     * @param ProductRepositoryInterface $productRepository
-     * @param CategoryRepositoryInterface $categoryRepository
      */
     public function __construct(
         ProductRepositoryInterface $productRepository,
@@ -55,7 +53,7 @@ class HomeService extends ShopService
                 }
 
                 return array_values(array_unique([
-                    $slug . '-' . $identifier,
+                    $slug.'-'.$identifier,
                     $identifier,
                 ]));
             };
@@ -63,7 +61,7 @@ class HomeService extends ShopService
             // Primary hero identifier is configurable; fall back to existing demo identifiers.
             $primaryHeroIdentifier = (string) config('shop.homepage.hero_block_identifier', 'homepage-hero');
             $configuredHeroIdentifiers = config('shop.homepage.hero_block_identifiers');
-            if (!is_array($configuredHeroIdentifiers)) {
+            if (! is_array($configuredHeroIdentifiers)) {
                 $configuredHeroIdentifiers = [];
             }
 
@@ -114,7 +112,7 @@ class HomeService extends ShopService
             $blocksUpdatedAt = Block::whereIn('identifier', $blockIdentifiers)->max('updated_at');
             $blocksVersion = $blocksUpdatedAt ? (int) strtotime((string) $blocksUpdatedAt) : 0;
 
-            return $this->remember('homepage.data.v5.' . $activeThemeSlug . '.' . $blocksVersion, 3600, function () use ($featuredCount, $blockIdentifiers, $heroCandidateGroups, $sectionCandidateGroups) {
+            return $this->remember('homepage.data.v5.'.$activeThemeSlug.'.'.$blocksVersion, 3600, function () use ($featuredCount, $blockIdentifiers, $heroCandidateGroups, $sectionCandidateGroups) {
                 // Get active CMS blocks for homepage
                 $blocks = Block::whereIn('identifier', $blockIdentifiers)
                     ->active()
@@ -151,7 +149,7 @@ class HomeService extends ShopService
                 $offer1Block = $resolveBlock($sectionCandidateGroups['homepage-offer-1'] ?? []);
                 $offer2Block = $resolveBlock($sectionCandidateGroups['homepage-offer-2'] ?? []);
                 $marqueeBlock = $resolveBlock($sectionCandidateGroups['homepage-marquee'] ?? []);
-                
+
                 // Get categories with product counts
                 $categories = $this->categoryRepository->getRootCategories()
                     ->map(function ($category) {
@@ -167,7 +165,7 @@ class HomeService extends ShopService
                     })
                     ->values()
                     ->all();
-                
+
                 // Convert to plain arrays before caching so appended attributes
                 // (image, in_stock, etc.) are computed now, not after deserialization.
                 $toProductArray = fn ($collection) => $collection->map(function ($product) {
@@ -223,7 +221,7 @@ class HomeService extends ShopService
 
                 return [
                     'featured_products' => $toProductArray($featuredProducts),
-                    
+
                     'new_products' => $toProductArray($newProducts),
 
                     'hero_products' => $toProductArray($heroProducts),
@@ -233,9 +231,9 @@ class HomeService extends ShopService
                     'banner_product' => $bannerProduct
                         ? ($toProductArray(collect([$bannerProduct]))[0] ?? null)
                         : null,
-                    
+
                     'categories' => $categories,
-                    
+
                     'blocks' => [
                         'hero' => $heroBlock ? [
                             'id' => $heroBlock->id,
@@ -244,7 +242,7 @@ class HomeService extends ShopService
                             'type' => $heroBlock->type,
                             'data' => $heroBlock->type === 'banner' ? json_decode($heroBlock->content, true) : null,
                         ] : null,
-                        'hero_slides' => !empty($heroBlocks) ? array_values(array_map(function ($block) {
+                        'hero_slides' => ! empty($heroBlocks) ? array_values(array_map(function ($block) {
                             return [
                                 'id' => $block->id,
                                 'title' => $block->title,
@@ -315,14 +313,14 @@ class HomeService extends ShopService
     /**
      * Get featured products.
      *
-     * @param int $limit
+     * @param  int  $limit
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getFeaturedProducts($limit = null)
     {
         try {
             $limit = $limit ?? config('shop.homepage.featured_products_count', 12);
-            
+
             return $this->remember("featured_products.{$limit}", 3600, function () use ($limit) {
                 return $this->productRepository->getFeaturedProducts($limit);
             });
@@ -334,14 +332,14 @@ class HomeService extends ShopService
     /**
      * Get new products.
      *
-     * @param int $limit
+     * @param  int  $limit
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getNewProducts($limit = null)
     {
         try {
             $limit = $limit ?? config('shop.homepage.featured_products_count', 12);
-            
+
             return $this->remember("new_products.{$limit}", 1800, function () use ($limit) {
                 return $this->productRepository->getNewProducts($limit);
             });
@@ -363,7 +361,7 @@ class HomeService extends ShopService
     }
 
     /**
-     * @param  array<int, \Cartxis\CMS\Models\Block|null>  $blocks
+     * @param  array<int, Block|null>  $blocks
      * @return array<int, array{type: string, value: int|string}>
      */
     protected function extractProductReferencesFromBlocks(array $blocks): array
@@ -393,8 +391,8 @@ class HomeService extends ShopService
 
     /**
      * @param  array<int, array{type: string, value: int|string}>  $references
-     * @param  \Illuminate\Support\Collection<int, \Cartxis\Product\Models\Product>  $fallback
-     * @return \Illuminate\Support\Collection<int, \Cartxis\Product\Models\Product>
+     * @param  Collection<int, Product>  $fallback
+     * @return Collection<int, Product>
      */
     protected function resolveLinkedProducts(array $references, $fallback, int $limit)
     {

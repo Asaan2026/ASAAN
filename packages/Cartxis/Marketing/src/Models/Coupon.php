@@ -2,14 +2,14 @@
 
 namespace Cartxis\Marketing\Models;
 
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Builder;
-use App\Models\User;
-use Carbon\Carbon;
 
 class Coupon extends Model
 {
@@ -24,9 +24,13 @@ class Coupon extends Model
      * Coupon type constants
      */
     const TYPE_PERCENTAGE = 'percentage';
+
     const TYPE_FIXED_AMOUNT = 'fixed_amount';
+
     const TYPE_FREE_SHIPPING = 'free_shipping';
+
     const TYPE_BUY_X_GET_Y = 'buy_x_get_y';
+
     const TYPE_FIXED_PRICE = 'fixed_price';
 
     /**
@@ -158,7 +162,7 @@ class Coupon extends Model
      */
     public function isValid(): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return false;
         }
 
@@ -183,14 +187,14 @@ class Coupon extends Model
     /**
      * Check if coupon is valid for specific day/time.
      */
-    public function isValidForDateTime(Carbon $dateTime = null): bool
+    public function isValidForDateTime(?Carbon $dateTime = null): bool
     {
         $dateTime = $dateTime ?? now();
 
         // Check day of week
         if ($this->days_of_week) {
             $dayName = strtolower($dateTime->format('l'));
-            if (!in_array($dayName, $this->days_of_week)) {
+            if (! in_array($dayName, $this->days_of_week)) {
                 return false;
             }
         }
@@ -218,7 +222,7 @@ class Coupon extends Model
      */
     public function getRemainingUsageAttribute(): ?int
     {
-        if (!$this->usage_limit_total) {
+        if (! $this->usage_limit_total) {
             return null; // Unlimited
         }
 
@@ -256,11 +260,12 @@ class Coupon extends Model
      */
     public function canBeUsedByCustomer(int $customerId): bool
     {
-        if (!$this->usage_limit_per_customer) {
+        if (! $this->usage_limit_per_customer) {
             return true; // No per-customer limit
         }
 
         $usageCount = $this->getCustomerUsageCount($customerId);
+
         return $usageCount < $this->usage_limit_per_customer;
     }
 }

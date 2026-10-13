@@ -2,11 +2,11 @@
 
 namespace Cartxis\Settings\Http\Controllers\Admin;
 
+use Cartxis\Core\Models\TaxZone;
+use Cartxis\Core\Support\StoreCountry;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\Core\Models\TaxZone;
-use Cartxis\Core\Support\StoreCountry;
 
 class TaxZonesController
 {
@@ -58,7 +58,7 @@ class TaxZonesController
         $taxZone = TaxZone::findOrFail($id);
 
         $validated = $request->validate([
-            'code' => 'required|string|max:100|unique:tax_zones,code,' . $id,
+            'code' => 'required|string|max:100|unique:tax_zones,code,'.$id,
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'is_active' => 'boolean',

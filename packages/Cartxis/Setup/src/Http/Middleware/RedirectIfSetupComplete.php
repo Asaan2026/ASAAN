@@ -27,7 +27,7 @@ class RedirectIfSetupComplete
     {
         try {
             // Check if settings table exists
-            if (!DB::getSchemaBuilder()->hasTable('settings')) {
+            if (! DB::getSchemaBuilder()->hasTable('settings')) {
                 return false;
             }
 

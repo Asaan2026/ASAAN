@@ -16,7 +16,6 @@
 *  limitations under the License.
 */
 
-
 namespace PhonePe\payments\v2\models\response;
 
 use JsonMapper;
@@ -24,38 +23,35 @@ use PhonePe\payments\v2\models\response\ResponseComponents\Payload;
 
 class CallbackResponse implements \JsonSerializable
 {
-	public $type;
-	public Payload $payload;
+    public $type;
 
-	public function jsonSerialize(): array
-	{
-		return get_object_vars($this);
-	}
+    public Payload $payload;
 
-	public static function getInstance($body): CallbackResponse
-	{
-		$obj = json_decode($body);
-		$mapper = new JsonMapper();
-		$callbackResponse = $mapper->map($obj, new CallbackResponse());
-		return $callbackResponse;
+    public function jsonSerialize(): array
+    {
+        return get_object_vars($this);
+    }
 
-	}
+    public static function getInstance($body): CallbackResponse
+    {
+        $obj = json_decode($body);
+        $mapper = new JsonMapper;
+        $callbackResponse = $mapper->map($obj, new CallbackResponse);
 
-	/**
-	 * @return mixed
-	 */
-	public function getType()
-	{
-		return $this->type;
-	}
+        return $callbackResponse;
 
-	/**
-	 * @return Payload
-	 */
-	public function getPayload(): Payload
-	{
-		return $this->payload;
-	}
+    }
 
+    /**
+     * @return mixed
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
 
+    public function getPayload(): Payload
+    {
+        return $this->payload;
+    }
 }

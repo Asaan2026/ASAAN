@@ -2,21 +2,23 @@
 
 namespace Cartxis\Shop\Services;
 
+use Illuminate\Support\Collection;
+
 abstract class ShopService
 {
     /**
      * Handle service exceptions.
      *
-     * @param \Exception $e
-     * @param string $message
+     * @param  string  $message
      * @return void
+     *
      * @throws \Exception
      */
     protected function handleException(\Exception $e, $message = 'An error occurred')
     {
-        \Log::error($message . ': ' . $e->getMessage(), [
+        \Log::error($message.': '.$e->getMessage(), [
             'exception' => $e,
-            'trace' => $e->getTraceAsString()
+            'trace' => $e->getTraceAsString(),
         ]);
 
         throw $e;
@@ -25,9 +27,9 @@ abstract class ShopService
     /**
      * Format response data.
      *
-     * @param mixed $data
-     * @param string $message
-     * @param bool $success
+     * @param  mixed  $data
+     * @param  string  $message
+     * @param  bool  $success
      * @return array
      */
     protected function formatResponse($data = null, $message = '', $success = true)
@@ -52,20 +54,19 @@ abstract class ShopService
     /**
      * Get cache key.
      *
-     * @param string $key
+     * @param  string  $key
      * @return string
      */
     protected function getCacheKey($key)
     {
-        return $this->cachePrefix() . '.' . $key;
+        return $this->cachePrefix().'.'.$key;
     }
 
     /**
      * Remember cache.
      *
-     * @param string $key
-     * @param int $ttl
-     * @param \Closure $callback
+     * @param  string  $key
+     * @param  int  $ttl
      * @return mixed
      */
     protected function remember($key, $ttl, \Closure $callback)
@@ -97,7 +98,7 @@ abstract class ShopService
             return true;
         }
 
-        if ($value instanceof \Illuminate\Support\Collection) {
+        if ($value instanceof Collection) {
             foreach ($value as $item) {
                 if ($this->isBrokenCachedValue($item)) {
                     return true;
@@ -111,7 +112,7 @@ abstract class ShopService
     /**
      * Forget cache.
      *
-     * @param string $key
+     * @param  string  $key
      * @return bool
      */
     protected function forget($key)

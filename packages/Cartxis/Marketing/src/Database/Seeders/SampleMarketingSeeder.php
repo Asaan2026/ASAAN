@@ -2,10 +2,10 @@
 
 namespace Cartxis\Marketing\Database\Seeders;
 
-use Illuminate\Database\Seeder;
+use Carbon\Carbon;
 use Cartxis\Marketing\Models\Coupon;
 use Cartxis\Marketing\Models\Promotion;
-use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class SampleMarketingSeeder extends Seeder
 {

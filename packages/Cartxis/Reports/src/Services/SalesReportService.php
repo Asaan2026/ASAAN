@@ -39,14 +39,14 @@ class SalesReportService
      */
     protected function parseDateRange(array $filters): array
     {
-        $startDate = isset($filters['start_date']) 
+        $startDate = isset($filters['start_date'])
             ? Carbon::parse($filters['start_date'])->startOfDay()
             : Carbon::now()->subDays(30)->startOfDay();
-            
+
         $endDate = isset($filters['end_date'])
             ? Carbon::parse($filters['end_date'])->endOfDay()
             : Carbon::now()->endOfDay();
-            
+
         return [$startDate, $endDate];
     }
 

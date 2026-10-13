@@ -10,14 +10,14 @@ return [
          */
         'public_key' => env('STRIPE_PUBLIC_KEY', ''),
         'secret_key' => env('STRIPE_SECRET_KEY', ''),
-        
+
         /**
          * Payment Settings
          */
         'currency' => env('STRIPE_CURRENCY', 'usd'),
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET', ''),
         'api_version' => env('STRIPE_API_VERSION', '2023-10-16'),
-        
+
         /**
          * Features
          */

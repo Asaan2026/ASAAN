@@ -2,10 +2,10 @@
 
 namespace Cartxis\Product\Database\Seeders;
 
+use App\Models\User;
+use Cartxis\Product\Models\Product;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Cartxis\Product\Models\Product;
-use App\Models\User;
 
 class ReviewSeeder extends Seeder
 {
@@ -19,6 +19,7 @@ class ReviewSeeder extends Seeder
 
         if (empty($products)) {
             $this->command->warn('No products found. Please seed products first.');
+
             return;
         }
 

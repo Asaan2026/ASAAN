@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Cartxis\UIEditor\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use Cartxis\Core\Services\HookService;
+use Cartxis\UIEditor\Repositories\LayoutRepository;
 use Cartxis\UIEditor\Services\BlockRegistry;
 use Cartxis\UIEditor\Services\LayoutService;
-use Cartxis\UIEditor\Repositories\LayoutRepository;
+use Illuminate\Support\ServiceProvider;
 
 class UIEditorServiceProvider extends ServiceProvider
 {
@@ -19,8 +20,9 @@ class UIEditorServiceProvider extends ServiceProvider
         $this->app->singleton(LayoutRepository::class);
         $this->app->singleton(LayoutService::class);
         $this->app->singleton(BlockRegistry::class, function ($app) {
-            $registry = new BlockRegistry();
+            $registry = new BlockRegistry;
             $registry->registerDefaults();
+
             return $registry;
         });
     }
@@ -31,16 +33,16 @@ class UIEditorServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load migrations
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
 
         // Load admin routes
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/admin.php');
+        $this->loadRoutesFrom(__DIR__.'/../Routes/admin.php');
 
         // Fire hook so extensions can register custom block types
         $this->app->booted(function () {
-            if ($this->app->bound(\Cartxis\Core\Services\HookService::class)) {
+            if ($this->app->bound(HookService::class)) {
                 $registry = $this->app->make(BlockRegistry::class);
-                app(\Cartxis\Core\Services\HookService::class)
+                app(HookService::class)
                     ->doAction('uieditor.register_blocks', $registry);
             }
         });

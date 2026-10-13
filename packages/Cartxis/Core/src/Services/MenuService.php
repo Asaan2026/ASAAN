@@ -31,7 +31,7 @@ class MenuService
         $user = Auth::user();
 
         return $items->filter(function ($item) use ($user) {
-            if (!$this->canAccess($item, $user)) {
+            if (! $this->canAccess($item, $user)) {
                 return false;
             }
 
@@ -48,11 +48,11 @@ class MenuService
      */
     protected function canAccess(MenuItem $item, $user): bool
     {
-        if (!$item->permission) {
+        if (! $item->permission) {
             return true;
         }
 
-        if (!$user) {
+        if (! $user) {
             return false;
         }
 

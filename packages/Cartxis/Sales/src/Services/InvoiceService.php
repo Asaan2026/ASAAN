@@ -5,8 +5,8 @@ namespace Cartxis\Sales\Services;
 use Cartxis\Sales\Models\Invoice;
 use Cartxis\Sales\Repositories\InvoiceRepository;
 use Cartxis\Shop\Models\Order;
-use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class InvoiceService
 {
@@ -86,11 +86,11 @@ class InvoiceService
     {
         $invoice = $this->invoiceRepository->find($invoiceId);
 
-        if (!$invoice) {
+        if (! $invoice) {
             throw new Exception('Invoice not found');
         }
 
-        if (!$invoice->isPending()) {
+        if (! $invoice->isPending()) {
             throw new Exception('Only pending invoices can be marked as sent');
         }
 
@@ -107,7 +107,7 @@ class InvoiceService
         try {
             $invoice = $this->invoiceRepository->find($invoiceId);
 
-            if (!$invoice) {
+            if (! $invoice) {
                 throw new Exception('Invoice not found');
             }
 
@@ -136,7 +136,7 @@ class InvoiceService
     {
         $invoice = $this->invoiceRepository->find($invoiceId);
 
-        if (!$invoice) {
+        if (! $invoice) {
             throw new Exception('Invoice not found');
         }
 
@@ -154,7 +154,7 @@ class InvoiceService
     {
         $invoice = $this->invoiceRepository->find($invoiceId);
 
-        if (!$invoice) {
+        if (! $invoice) {
             throw new Exception('Invoice not found');
         }
 

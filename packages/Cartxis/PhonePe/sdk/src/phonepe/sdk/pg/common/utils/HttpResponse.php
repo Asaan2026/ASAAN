@@ -16,73 +16,73 @@
 *  limitations under the License.
 */
 
-
 namespace PhonePe\common\utils;
 
 class HttpResponse implements \JsonSerializable
 {
+    private $statusCode;
 
-	private $statusCode;
-	private $headers;
-	private $response;
+    private $headers;
 
-	public function __construct($statusCode = null, $headers = null, $response = null)
-	{
-		$this->statusCode = $statusCode;
-		$this->headers = $headers;
-		$this->response = $response;
-	}
+    private $response;
 
-	/**
-	 * @return mixed
-	 */
-	public function getStatusCode()
-	{
-		return $this->statusCode;
-	}
+    public function __construct($statusCode = null, $headers = null, $response = null)
+    {
+        $this->statusCode = $statusCode;
+        $this->headers = $headers;
+        $this->response = $response;
+    }
 
-	/**
-	 * @param mixed $statusCode
-	 */
-	public function setStatusCode($statusCode)
-	{
-		$this->statusCode = $statusCode;
-	}
+    /**
+     * @return mixed
+     */
+    public function getStatusCode()
+    {
+        return $this->statusCode;
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getHeaders()
-	{
-		return $this->headers;
-	}
+    /**
+     * @param  mixed  $statusCode
+     */
+    public function setStatusCode($statusCode)
+    {
+        $this->statusCode = $statusCode;
+    }
 
-	/**
-	 * @param mixed $headers
-	 */
-	public function setHeaders($headers)
-	{
-		$this->headers = $headers;
-	}
+    /**
+     * @return mixed
+     */
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getResponse()
-	{
-		return $this->response;
-	}
+    /**
+     * @param  mixed  $headers
+     */
+    public function setHeaders($headers)
+    {
+        $this->headers = $headers;
+    }
 
-	/**
-	 * @param mixed $response
-	 */
-	public function setResponse($response)
-	{
-		$this->response = $response;
-	}
+    /**
+     * @return mixed
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
 
-	public function jsonSerialize(): array
-	{
-		return get_object_vars($this);
-	}
+    /**
+     * @param  mixed  $response
+     */
+    public function setResponse($response)
+    {
+        $this->response = $response;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return get_object_vars($this);
+    }
 }

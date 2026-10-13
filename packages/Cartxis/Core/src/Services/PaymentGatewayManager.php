@@ -8,7 +8,7 @@ use Illuminate\Support\Collection;
 
 /**
  * Payment Gateway Manager
- * 
+ *
  * Central registry for all payment gateway extensions.
  * Extensions register themselves during service provider boot.
  */
@@ -16,7 +16,7 @@ class PaymentGatewayManager
 {
     /**
      * Registered payment gateways.
-     * 
+     *
      * @var Collection<string, PaymentGatewayInterface>
      */
     protected Collection $gateways;
@@ -54,7 +54,7 @@ class PaymentGatewayManager
 
     /**
      * Get all registered gateways.
-     * 
+     *
      * @return Collection<string, PaymentGatewayInterface>
      */
     public function all(): Collection
@@ -89,11 +89,11 @@ class PaymentGatewayManager
 
         $gateway = $this->getByPaymentMethod($paymentMethod);
 
-        if (!$gateway) {
+        if (! $gateway) {
             throw new \Exception("No payment gateway found for method: {$paymentMethod}");
         }
 
-        if (!$gateway->isConfigured()) {
+        if (! $gateway->isConfigured()) {
             throw new \Exception("Payment gateway {$gateway->getCode()} is not properly configured");
         }
 
@@ -107,7 +107,7 @@ class PaymentGatewayManager
     {
         $gateway = $this->getByPaymentMethod($order->payment_method);
 
-        if (!$gateway) {
+        if (! $gateway) {
             return false;
         }
 
@@ -121,7 +121,7 @@ class PaymentGatewayManager
     {
         $gateway = $this->getByPaymentMethod($order->payment_method);
 
-        if (!$gateway) {
+        if (! $gateway) {
             throw new \Exception("No payment gateway found for order payment method: {$order->payment_method}");
         }
 

@@ -3,10 +3,10 @@
 namespace Cartxis\Settings\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Cartxis\Core\Services\SettingService;
-use Cartxis\Core\Support\StoreCountry;
 use Cartxis\Core\Models\ShippingMethod;
 use Cartxis\Core\Models\ShippingRate;
+use Cartxis\Core\Services\SettingService;
+use Cartxis\Core\Support\StoreCountry;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -107,8 +107,8 @@ class ShippingMethodsController extends Controller
     public function update(Request $request, ShippingMethod $shippingMethod)
     {
         $validated = $request->validate([
-            'name' => 'required|string|unique:shipping_methods,name,' . $shippingMethod->id . '|max:255',
-            'slug' => 'required|string|unique:shipping_methods,slug,' . $shippingMethod->id . '|max:255',
+            'name' => 'required|string|unique:shipping_methods,name,'.$shippingMethod->id.'|max:255',
+            'slug' => 'required|string|unique:shipping_methods,slug,'.$shippingMethod->id.'|max:255',
             'type' => 'required|in:flat-rate,calculated',
             'base_cost' => 'required|numeric|min:0|max:99999.99',
             'cost_per_kg' => 'required|numeric|min:0|max:99999.9999',

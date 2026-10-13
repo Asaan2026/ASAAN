@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('admin_name')->nullable();
             $table->string('ip_address', 45)->nullable();
             $table->timestamp('created_at')->useCurrent();
-            
+
             $table->index('admin_id');
             $table->index('created_at');
         });

@@ -2,18 +2,19 @@
 
 namespace Cartxis\Shop\Http\Middleware;
 
+use Cartxis\CMS\Services\StorefrontMenuService;
+use Cartxis\Core\Models\Theme;
+use Cartxis\Core\Services\SettingService;
+use Cartxis\Shop\Repositories\CategoryRepository;
+use Cartxis\UIEditor\Models\GlobalRegion;
 use Closure;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Cartxis\Core\Models\Theme;
-use Cartxis\CMS\Services\StorefrontMenuService;
-use Cartxis\Shop\Repositories\CategoryRepository;
-use Cartxis\Core\Services\SettingService;
-use Cartxis\UIEditor\Models\GlobalRegion;
 
 class ShareFrontendData
 {
     protected $categoryRepository;
+
     protected $settingService;
 
     public function __construct(
@@ -28,8 +29,6 @@ class ShareFrontendData
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
@@ -48,7 +47,7 @@ class ShareFrontendData
                 'logo' => $this->settingService->get('site_logo') ?? config('branding.logo'),
                 'favicon' => $this->settingService->get('site_favicon') ?? config('branding.favicon'),
             ],
-            
+
             // Share categories for header navigation
             'categories' => function () {
                 try {
@@ -74,6 +73,7 @@ class ShareFrontendData
                 } catch (\Exception $e) {
                     // Silent fail during migrations
                 }
+
                 return [];
             },
 
@@ -105,6 +105,7 @@ class ShareFrontendData
                 } catch (\Exception $e) {
                     // Silent fail during migrations
                 }
+
                 return null;
             },
 
@@ -117,7 +118,9 @@ class ShareFrontendData
                     if ($region && $region->published_layout_data) {
                         return $region->published_layout_data;
                     }
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                }
+
                 return null;
             },
 
@@ -129,7 +132,9 @@ class ShareFrontendData
                     if ($region && $region->published_layout_data) {
                         return $region->published_layout_data;
                     }
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                }
+
                 return null;
             },
         ];
@@ -163,13 +168,14 @@ class ShareFrontendData
     {
         $flat = [];
         foreach ($settings as $key => $value) {
-            $fullKey = $prefix === '' ? $key : $prefix . '.' . $key;
-            if (is_array($value) && !array_is_list($value)) {
+            $fullKey = $prefix === '' ? $key : $prefix.'.'.$key;
+            if (is_array($value) && ! array_is_list($value)) {
                 $flat = array_merge($flat, $this->flattenSettings($value, $fullKey));
             } else {
                 $flat[$fullKey] = $value;
             }
         }
+
         return $flat;
     }
 
@@ -187,11 +193,11 @@ class ShareFrontendData
         ];
 
         foreach ($aliases as $canonical => $alias) {
-            if (!array_key_exists($canonical, $settings) && array_key_exists($alias, $settings)) {
+            if (! array_key_exists($canonical, $settings) && array_key_exists($alias, $settings)) {
                 $settings[$canonical] = $settings[$alias];
             }
 
-            if (!array_key_exists($alias, $settings) && array_key_exists($canonical, $settings)) {
+            if (! array_key_exists($alias, $settings) && array_key_exists($canonical, $settings)) {
                 $settings[$alias] = $settings[$canonical];
             }
         }

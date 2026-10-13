@@ -5,6 +5,14 @@ declare(strict_types=1);
 namespace Cartxis\Setup\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Cartxis\Core\Models\Country;
+use Cartxis\Core\Models\Currency;
+use Cartxis\Core\Services\SettingService;
+use Cartxis\Core\Support\StoreCountry;
+use Cartxis\Setup\Services\DemoDataService;
+use Cartxis\UIEditor\Models\PageLayout;
+use Cartxis\UIEditor\Services\LayoutService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -12,13 +20,6 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\Setup\Services\DemoDataService;
-use Cartxis\Core\Models\Country;
-use Cartxis\Core\Services\SettingService;
-use Cartxis\Core\Support\StoreCountry;
-use Cartxis\Core\Models\Currency;
-use Cartxis\UIEditor\Models\PageLayout;
-use Cartxis\UIEditor\Services\LayoutService;
 
 class SetupController extends Controller
 {
@@ -62,7 +63,7 @@ class SetupController extends Controller
             ->get(['code', 'name', 'symbol'])
             ->toArray();
 
-        if (!empty($currenciesFromTable)) {
+        if (! empty($currenciesFromTable)) {
             $currencies = $currenciesFromTable;
         } else {
             // First-run fallback: derive from countries reference data
@@ -78,7 +79,7 @@ class SetupController extends Controller
 
         return Inertia::render('Setup/BusinessSettings', [
             'businessType' => $businessType,
-            'currencies'   => $currencies,
+            'currencies' => $currencies,
         ]);
     }
 
@@ -165,7 +166,7 @@ class SetupController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to save settings: ' . $e->getMessage(),
+                'message' => 'Failed to save settings: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -204,7 +205,7 @@ class SetupController extends Controller
                 $themeDataPath = base_path('templates/storefront/general/cartxis-default/data/theme-data.json');
                 if (file_exists($themeDataPath)) {
                     $themeData = json_decode(file_get_contents($themeDataPath), true);
-                    if (!empty($themeData['homepage']) && !PageLayout::homepage()->published()->exists()) {
+                    if (! empty($themeData['homepage']) && ! PageLayout::homepage()->published()->exists()) {
                         $layoutService = app(LayoutService::class);
                         $layout = $layoutService->saveDraft($themeData['homepage'], PageLayout::TYPE_HOMEPAGE, null);
                         $layoutService->publish($layout);
@@ -225,7 +226,7 @@ class SetupController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to import demo data: ' . $e->getMessage(),
+                'message' => 'Failed to import demo data: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -249,7 +250,7 @@ class SetupController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to complete setup: ' . $e->getMessage(),
+                'message' => 'Failed to complete setup: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -266,19 +267,19 @@ class SetupController extends Controller
      * Proxy developer newsletter opt-in to Cartxis HQ.
      * Email is never stored locally — forwarded directly and forgotten.
      */
-    public function newsletterSubscribe(Request $request): \Illuminate\Http\JsonResponse
+    public function newsletterSubscribe(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'email'   => 'required|email|max:254',
-            'name'    => 'nullable|string|max:255',
+            'email' => 'required|email|max:254',
+            'name' => 'nullable|string|max:255',
             'consent' => 'required|accepted',
         ]);
 
         try {
             Http::timeout(5)->post('https://myapps.wontonee.com/api/cartxis/newsletter', [
                 'app_secret' => 'E8BD27515B6F32EA2E260DCF95DA88CF45A630AA81B3085C1A647D8087FFF76D',
-                'email'      => $validated['email'],
-                'name'       => $validated['name'] ?? '',
+                'email' => $validated['email'],
+                'name' => $validated['name'] ?? '',
             ]);
         } catch (\Exception $e) {
             // Silent failure — log warning only, never block the developer
@@ -296,11 +297,11 @@ class SetupController extends Controller
 
         if ($currency) {
             return [
-                'name'            => $currency->name,
-                'symbol'          => $currency->symbol,
+                'name' => $currency->name,
+                'symbol' => $currency->symbol,
                 'symbol_position' => $currency->symbol_position,
-                'decimal_places'  => $currency->decimal_places,
-                'exchange_rate'   => (float) $currency->exchange_rate,
+                'decimal_places' => $currency->decimal_places,
+                'exchange_rate' => (float) $currency->exchange_rate,
             ];
         }
 
@@ -310,11 +311,11 @@ class SetupController extends Controller
             ->first(['currency_symbol']);
 
         return [
-            'name'            => $code,
-            'symbol'          => $country?->currency_symbol ?? $code,
+            'name' => $code,
+            'symbol' => $country?->currency_symbol ?? $code,
             'symbol_position' => 'before',
-            'decimal_places'  => 2,
-            'exchange_rate'   => 1.0,
+            'decimal_places' => 2,
+            'exchange_rate' => 1.0,
         ];
     }
 }

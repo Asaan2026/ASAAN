@@ -18,22 +18,22 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained('products')->onDelete('restrict');
             $table->string('product_name');
             $table->string('sku', 100)->nullable();
-            
+
             // Quantities
             $table->integer('qty_refunded');
-            
+
             // Pricing
             $table->decimal('price', 12, 2);
             $table->decimal('tax_amount', 12, 2)->default(0.00);
             $table->decimal('discount_amount', 12, 2)->default(0.00);
             $table->decimal('row_total', 12, 2);
-            
+
             // Inventory
             $table->boolean('restore_stock')->default(true);
             $table->boolean('stock_restored')->default(false);
-            
+
             $table->timestamps();
-            
+
             // Indexes
             $table->index('credit_memo_id');
             $table->index('order_item_id');

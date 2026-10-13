@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Cartxis\UIEditor\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Cartxis\UIEditor\Models\GlobalRegion;
+use Cartxis\UIEditor\Services\BlockRegistry;
+use Cartxis\UIEditor\Services\LayoutService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\UIEditor\Models\GlobalRegion;
-use Cartxis\UIEditor\Services\BlockRegistry;
-use Cartxis\UIEditor\Services\LayoutService;
 
 class GlobalRegionController extends Controller
 {
@@ -30,14 +30,14 @@ class GlobalRegionController extends Controller
             ->orderBy('name')
             ->get()
             ->map(fn (GlobalRegion $r) => [
-                'id'          => $r->id,
-                'name'        => $r->name,
-                'slug'        => $r->slug,
+                'id' => $r->id,
+                'name' => $r->name,
+                'slug' => $r->slug,
                 'description' => $r->description,
                 'region_type' => $r->region_type,
-                'status'      => $r->status,
-                'published_at'=> $r->published_at?->toIso8601String(),
-                'updated_at'  => $r->updated_at?->toIso8601String(),
+                'status' => $r->status,
+                'published_at' => $r->published_at?->toIso8601String(),
+                'updated_at' => $r->updated_at?->toIso8601String(),
             ]);
 
         return Inertia::render('Admin/UIEditor/Regions/Index', [
@@ -50,16 +50,16 @@ class GlobalRegionController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'name'        => 'required|string|max:120',
+            'name' => 'required|string|max:120',
             'description' => 'nullable|string|max:250',
             'region_type' => 'required|in:header,footer,section,banner,sidebar',
         ]);
 
-        $data['slug']        = Str::slug($data['name']);
+        $data['slug'] = Str::slug($data['name']);
         $data['layout_data'] = $this->layoutService->emptyLayout();
 
         // Ensure unique slug
-        $base  = $data['slug'];
+        $base = $data['slug'];
         $count = 1;
         while (GlobalRegion::where('slug', $data['slug'])->exists()) {
             $data['slug'] = "{$base}-{$count}";
@@ -76,24 +76,24 @@ class GlobalRegionController extends Controller
     public function editor(GlobalRegion $region): Response
     {
         return Inertia::render('Admin/UIEditor/Editor', [
-            'page'         => null,          // no CMS page association
-            'pageType'     => 'global_region',
-            'regionMeta'   => [
-                'id'          => $region->id,
-                'name'        => $region->name,
-                'slug'        => $region->slug,
+            'page' => null,          // no CMS page association
+            'pageType' => 'global_region',
+            'regionMeta' => [
+                'id' => $region->id,
+                'name' => $region->name,
+                'slug' => $region->slug,
                 'description' => $region->description,
                 'region_type' => $region->region_type,
-                'status'      => $region->status,
+                'status' => $region->status,
             ],
-            'layoutData'   => $region->layout_data   ?? $this->layoutService->emptyLayout(),
+            'layoutData' => $region->layout_data ?? $this->layoutService->emptyLayout(),
             'layoutStatus' => $region->status,
-            'publishedAt'  => $region->published_at?->toIso8601String(),
-            'blockTypes'   => array_values($this->blockRegistry->all()),
-            'saveUrl'      => route('admin.uieditor.regions.save',      $region),
-            'publishUrl'   => route('admin.uieditor.regions.publish',   $region),
+            'publishedAt' => $region->published_at?->toIso8601String(),
+            'blockTypes' => array_values($this->blockRegistry->all()),
+            'saveUrl' => route('admin.uieditor.regions.save', $region),
+            'publishUrl' => route('admin.uieditor.regions.publish', $region),
             'unpublishUrl' => route('admin.uieditor.regions.unpublish', $region),
-            'previewUrl'   => route('admin.uieditor.regions.preview',   $region),
+            'previewUrl' => route('admin.uieditor.regions.preview', $region),
         ]);
     }
 
@@ -102,18 +102,18 @@ class GlobalRegionController extends Controller
     public function save(Request $request, GlobalRegion $region): JsonResponse
     {
         $validated = $request->validate([
-            'layout_data'          => 'required|array',
-            'layout_data.version'  => 'required|string',
+            'layout_data' => 'required|array',
+            'layout_data.version' => 'required|string',
             'layout_data.sections' => 'present|array',
         ]);
 
         $region->update([
             'layout_data' => $validated['layout_data'],
-            'status'      => GlobalRegion::STATUS_DRAFT,
+            'status' => GlobalRegion::STATUS_DRAFT,
         ]);
 
         return response()->json([
-            'status'  => $region->status,
+            'status' => $region->status,
             'savedAt' => now()->toIso8601String(),
             'message' => 'Region draft saved.',
         ]);
@@ -128,15 +128,15 @@ class GlobalRegionController extends Controller
         }
 
         $region->update([
-            'status'                => GlobalRegion::STATUS_PUBLISHED,
-            'published_at'          => now(),
+            'status' => GlobalRegion::STATUS_PUBLISHED,
+            'published_at' => now(),
             'published_layout_data' => $region->layout_data,
         ]);
 
         return response()->json([
-            'status'      => $region->status,
+            'status' => $region->status,
             'publishedAt' => $region->published_at->toIso8601String(),
-            'message'     => 'Region published. All pages using this region now show the updated version.',
+            'message' => 'Region published. All pages using this region now show the updated version.',
         ]);
     }
 
@@ -145,13 +145,13 @@ class GlobalRegionController extends Controller
     public function unpublish(GlobalRegion $region): JsonResponse
     {
         $region->update([
-            'status'                => GlobalRegion::STATUS_DRAFT,
-            'published_at'          => null,
+            'status' => GlobalRegion::STATUS_DRAFT,
+            'published_at' => null,
             'published_layout_data' => null,
         ]);
 
         return response()->json([
-            'status'  => $region->status,
+            'status' => $region->status,
             'message' => 'Region unpublished.',
         ]);
     }
@@ -162,8 +162,8 @@ class GlobalRegionController extends Controller
     {
         return Inertia::render('Admin/UIEditor/Preview', [
             'layoutData' => $region->layout_data ?? $this->layoutService->emptyLayout(),
-            'title'      => $region->name,
-            'type'       => 'global_region',
+            'title' => $region->name,
+            'type' => 'global_region',
         ]);
     }
 
@@ -172,7 +172,7 @@ class GlobalRegionController extends Controller
     public function update(Request $request, GlobalRegion $region): JsonResponse
     {
         $data = $request->validate([
-            'name'        => 'sometimes|string|max:120',
+            'name' => 'sometimes|string|max:120',
             'description' => 'nullable|string|max:250',
             'region_type' => 'sometimes|in:header,footer,section,banner,sidebar',
         ]);
@@ -197,7 +197,7 @@ class GlobalRegionController extends Controller
     {
         return response()->json([
             'layout_data' => $region->layout_data ?? $this->layoutService->emptyLayout(),
-            'status'      => $region->status,
+            'status' => $region->status,
         ]);
     }
 
@@ -208,11 +208,11 @@ class GlobalRegionController extends Controller
         $regions = GlobalRegion::orderBy('region_type')->orderBy('name')
             ->get()
             ->map(fn (GlobalRegion $r) => [
-                'id'          => $r->id,
-                'name'        => $r->name,
-                'slug'        => $r->slug,
+                'id' => $r->id,
+                'name' => $r->name,
+                'slug' => $r->slug,
                 'region_type' => $r->region_type,
-                'status'      => $r->status,
+                'status' => $r->status,
             ]);
 
         return response()->json($regions);

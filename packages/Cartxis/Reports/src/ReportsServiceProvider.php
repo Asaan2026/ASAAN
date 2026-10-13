@@ -2,6 +2,11 @@
 
 namespace Cartxis\Reports;
 
+use Cartxis\Reports\Services\CustomerReportService;
+use Cartxis\Reports\Services\DeliveryReportService;
+use Cartxis\Reports\Services\ProductReportService;
+use Cartxis\Reports\Services\ReportCacheService;
+use Cartxis\Reports\Services\SalesReportService;
 use Illuminate\Support\ServiceProvider;
 
 class ReportsServiceProvider extends ServiceProvider
@@ -18,11 +23,11 @@ class ReportsServiceProvider extends ServiceProvider
         );
 
         // Register services
-        $this->app->singleton(\Cartxis\Reports\Services\SalesReportService::class);
-        $this->app->singleton(\Cartxis\Reports\Services\ProductReportService::class);
-        $this->app->singleton(\Cartxis\Reports\Services\CustomerReportService::class);
-        $this->app->singleton(\Cartxis\Reports\Services\ReportCacheService::class);
-        $this->app->singleton(\Cartxis\Reports\Services\DeliveryReportService::class);
+        $this->app->singleton(SalesReportService::class);
+        $this->app->singleton(ProductReportService::class);
+        $this->app->singleton(CustomerReportService::class);
+        $this->app->singleton(ReportCacheService::class);
+        $this->app->singleton(DeliveryReportService::class);
     }
 
     /**

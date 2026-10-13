@@ -3,14 +3,14 @@
 namespace Cartxis\API\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Cartxis\API\Helpers\ApiResponse;
 use Cartxis\API\Http\Resources\CartResource;
 use Cartxis\Cart\Models\Cart;
 use Cartxis\Cart\Models\CartItem;
 use Cartxis\Marketing\Services\CouponService;
 use Cartxis\Product\Models\Product;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CartController extends Controller
 {
@@ -44,7 +44,7 @@ class CartController extends Controller
 
         $product = Product::find($request->product_id);
 
-        if (!$product || $product->status !== 'enabled') {
+        if (! $product || $product->status !== 'enabled') {
             return ApiResponse::error('Product not available', null, 400, 'PRODUCT_UNAVAILABLE');
         }
 
@@ -96,10 +96,10 @@ class CartController extends Controller
             return ApiResponse::validationError($validator);
         }
 
-        $cartItem = CartItem::whereHas('cart', fn($q) => $q->where('user_id', $request->user()->id))
+        $cartItem = CartItem::whereHas('cart', fn ($q) => $q->where('user_id', $request->user()->id))
             ->find($itemId);
 
-        if (!$cartItem) {
+        if (! $cartItem) {
             return ApiResponse::notFound('Cart item not found', 'CART_ITEM_NOT_FOUND');
         }
 
@@ -123,10 +123,10 @@ class CartController extends Controller
      */
     public function remove(Request $request, $itemId)
     {
-        $cartItem = CartItem::whereHas('cart', fn($q) => $q->where('user_id', $request->user()->id))
+        $cartItem = CartItem::whereHas('cart', fn ($q) => $q->where('user_id', $request->user()->id))
             ->find($itemId);
 
-        if (!$cartItem) {
+        if (! $cartItem) {
             return ApiResponse::notFound('Cart item not found', 'CART_ITEM_NOT_FOUND');
         }
 
@@ -177,13 +177,13 @@ class CartController extends Controller
 
         $cart = Cart::where('user_id', $request->user()->id)->first();
 
-        if (!$cart || $cart->items->isEmpty()) {
+        if (! $cart || $cart->items->isEmpty()) {
             return ApiResponse::error('Cart is empty', null, 400, 'CART_EMPTY');
         }
 
         // Validate and apply coupon
         $couponService = app(CouponService::class);
-        $cartTotal = $cart->items->sum(fn($item) => $item->price * $item->quantity);
+        $cartTotal = $cart->items->sum(fn ($item) => $item->price * $item->quantity);
         $result = $couponService->validate(
             $request->coupon_code,
             $request->user()->id,
@@ -191,7 +191,7 @@ class CartController extends Controller
             $cart->items
         );
 
-        if (!$result['valid']) {
+        if (! $result['valid']) {
             return ApiResponse::error($result['message'], null, 422, 'INVALID_COUPON');
         }
 

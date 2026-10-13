@@ -20,7 +20,6 @@ namespace Tests\Unit\payments\v2\standardCheckout;
 
 use Mockery;
 use Mockery\MockInterface;
-use PHPUnit\Framework\MockObject\MockObject;
 use PhonePe\common\exceptions\PhonePeException;
 use PhonePe\common\tokenHandler\TokenService;
 use PhonePe\common\utils\CurlHttpClient;
@@ -34,20 +33,24 @@ use PhonePe\payments\v2\models\response\StandardCheckoutPayResponse;
 use PhonePe\payments\v2\models\response\StandardCheckoutRefundResponse;
 use PhonePe\payments\v2\models\response\StatusCheckResponse;
 use PhonePe\payments\v2\standardCheckout\StandardCheckoutClient;
+use PHPUnit\Framework\MockObject\MockObject;
 use Tests\Fixtures\TestDataProvider;
 use Tests\Unit\BaseTestCase;
 
 /**
  * @runTestsInSeparateProcesses
+ *
  * @preserveGlobalState disabled
  */
 class StandardCheckoutClientTest extends BaseTestCase
 {
     private StandardCheckoutClient $client;
+
     private MockInterface $mockHttpClient;
+
     private MockObject $mockTokenService;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -57,7 +60,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         // Mock the TokenService to avoid its internal logic
         $this->mockTokenService = $this->createMock(TokenService::class);
         $this->mockTokenService->method('getAuthHeaders')
-            ->willReturn('O-Bearer ' . TestDataProvider::TEST_ACCESS_TOKEN);
+            ->willReturn('O-Bearer '.TestDataProvider::TEST_ACCESS_TOKEN);
 
         // Create client instance
         $merchantConfig = TestDataProvider::getMerchantConfig();
@@ -67,14 +70,14 @@ class StandardCheckoutClientTest extends BaseTestCase
             $merchantConfig['clientSecret'],
             $merchantConfig['env'],
             false,
-            new CurlHttpClient()
+            new CurlHttpClient
         );
 
         // Use reflection to inject the mocked TokenService
         $this->setPrivateProperty($this->client, 'tokenService', $this->mockTokenService);
     }
 
-    public function testGetInstance(): void
+    public function test_get_instance(): void
     {
         $merchantConfig = TestDataProvider::getMerchantConfig();
         $client = StandardCheckoutClient::getInstance(
@@ -87,7 +90,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         $this->assertInstanceOf(StandardCheckoutClient::class, $client);
     }
 
-    public function testGetInstanceSingleton(): void
+    public function test_get_instance_singleton(): void
     {
         $merchantConfig = TestDataProvider::getMerchantConfig();
 
@@ -109,7 +112,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         $this->assertSame($client1, $client2);
     }
 
-    public function testGetInstanceDifferentConfig(): void
+    public function test_get_instance_different_config(): void
     {
         $merchantConfig = TestDataProvider::getMerchantConfig();
 
@@ -131,7 +134,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         $this->assertNotSame($client1, $client2);
     }
 
-    public function testPaySuccess(): void
+    public function test_pay_success(): void
     {
         $responseData = TestDataProvider::getPaymentResponseData();
 
@@ -155,7 +158,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         $this->assertEquals($responseData['redirectUrl'], $response->getRedirectUrl());
     }
 
-    public function testPayWithBuilderRequest(): void
+    public function test_pay_with_builder_request(): void
     {
         $responseData = TestDataProvider::getPaymentResponseData();
 
@@ -178,7 +181,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         $this->assertEquals($responseData['orderId'], $response->getOrderId());
     }
 
-    public function testPayWithUnauthorizedError(): void
+    public function test_pay_with_unauthorized_error(): void
     {
         $this->expectException(PhonePeException::class);
         $this->expectExceptionMessage('Unauthorized access');
@@ -201,7 +204,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         $this->client->pay($payRequest);
     }
 
-    public function testPayWithBadRequestError(): void
+    public function test_pay_with_bad_request_error(): void
     {
         $this->expectException(PhonePeException::class);
         $this->expectExceptionMessage('Invalid amount');
@@ -221,7 +224,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         $this->client->pay($payRequest);
     }
 
-    public function testGetOrderStatusSuccess(): void
+    public function test_get_order_status_success(): void
     {
         $responseData = TestDataProvider::getOrderStatusResponseData();
 
@@ -236,7 +239,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         $this->assertEquals($responseData['amount'], $response->getAmount());
     }
 
-    public function testGetOrderStatusWithDetails(): void
+    public function test_get_order_status_with_details(): void
     {
         $responseData = TestDataProvider::getOrderStatusResponseData();
 
@@ -253,7 +256,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         $this->assertEquals($responseData['state'], $response->getState());
     }
 
-    public function testGetOrderStatusWithoutDetails(): void
+    public function test_get_order_status_without_details(): void
     {
         $responseData = TestDataProvider::getOrderStatusResponseData();
 
@@ -269,7 +272,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         $this->assertInstanceOf(StatusCheckResponse::class, $response);
     }
 
-    public function testGetOrderStatusNotFound(): void
+    public function test_get_order_status_not_found(): void
     {
         $this->expectException(PhonePeException::class);
         $this->expectExceptionMessage('Order not found');
@@ -281,7 +284,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         $this->client->getOrderStatus('NONEXISTENT_ORDER_ID');
     }
 
-    public function testRefundSuccess(): void
+    public function test_refund_success(): void
     {
         $responseData = TestDataProvider::getRefundResponseData();
 
@@ -304,7 +307,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         $this->assertEquals($responseData['state'], $response->getState());
     }
 
-    public function testRefundWithInsufficientAmount(): void
+    public function test_refund_with_insufficient_amount(): void
     {
         $this->expectException(PhonePeException::class);
         $this->expectExceptionMessage('Insufficient amount for refund');
@@ -322,13 +325,13 @@ class StandardCheckoutClientTest extends BaseTestCase
         $this->client->refund($refundRequest);
     }
 
-    public function testGetRefundStatusSuccess(): void
+    public function test_get_refund_status_success(): void
     {
         $responseData = [
             'originalMerchantOrderId' => TestDataProvider::TEST_MERCHANT_ORDER_ID,
             'amount' => TestDataProvider::TEST_REFUND_AMOUNT,
             'state' => 'COMPLETED',
-            'paymentDetails' => []
+            'paymentDetails' => [],
         ];
 
         $this->mockHttpClient->shouldReceive('getRequest')
@@ -342,7 +345,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         $this->assertEquals($responseData['amount'], $response->getAmount());
     }
 
-    public function testVerifyCallbackResponseSuccess(): void
+    public function test_verify_callback_response_success(): void
     {
         $callbackData = TestDataProvider::getCallbackData();
 
@@ -356,7 +359,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         $this->assertInstanceOf(CallbackResponse::class, $response);
     }
 
-    public function testVerifyCallbackResponseInvalidSignature(): void
+    public function test_verify_callback_response_invalid_signature(): void
     {
         $this->expectException(PhonePeException::class);
         $this->expectExceptionMessage('Invalid callback');
@@ -372,7 +375,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         );
     }
 
-    public function testGetAuthHeadersToken(): void
+    public function test_get_auth_headers_token(): void
     {
         // Create a fresh client with a clean mock for this specific test
         $freshMockTokenService = $this->createMock(TokenService::class);
@@ -383,12 +386,12 @@ class StandardCheckoutClientTest extends BaseTestCase
         // Create a fresh client instance for this test
         $merchantConfig = TestDataProvider::getMerchantConfig();
         $freshClient = StandardCheckoutClient::getInstance(
-            'unique_client_' . uniqid(), // Unique client to avoid singleton conflicts
+            'unique_client_'.uniqid(), // Unique client to avoid singleton conflicts
             $merchantConfig['clientVersion'],
             $merchantConfig['clientSecret'],
             $merchantConfig['env'],
             false,
-            new CurlHttpClient()
+            new CurlHttpClient
         );
 
         // Inject the fresh mock
@@ -399,7 +402,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         $this->assertEquals('O-Bearer test_token_12345', $authHeaders);
     }
 
-    public function testGetAuthHeadersTokenWithRefresh(): void
+    public function test_get_auth_headers_token_with_refresh(): void
     {
         $this->mockTokenService->expects($this->once())
             ->method('getAuthHeaders')
@@ -414,7 +417,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         $this->client->getAuthHeadersToken();
     }
 
-    public function testGetMerchantConfig(): void
+    public function test_get_merchant_config(): void
     {
         $config = $this->client->getMerchantConfig();
 
@@ -424,7 +427,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         $this->assertEquals(TestDataProvider::TEST_CLIENT_SECRET, $config->getClientSecret());
     }
 
-    public function testGetHostUrl(): void
+    public function test_get_host_url(): void
     {
         $hostUrl = $this->client->getHostUrl();
 
@@ -432,7 +435,7 @@ class StandardCheckoutClientTest extends BaseTestCase
         $this->assertStringStartsWith('https://', $hostUrl);
     }
 
-    public function testGetHeaders(): void
+    public function test_get_headers(): void
     {
         $headers = $this->client->getHeaders();
 
@@ -453,7 +456,7 @@ class StandardCheckoutClientTest extends BaseTestCase
     /**
      * @dataProvider httpErrorStatusProvider
      */
-    public function testPaymentErrorHandling(int $httpStatus, string $errorCode): void
+    public function test_payment_error_handling(int $httpStatus, string $errorCode): void
     {
         $this->expectException(PhonePeException::class);
 
@@ -484,7 +487,7 @@ class StandardCheckoutClientTest extends BaseTestCase
     /**
      * @dataProvider environmentDataProvider
      */
-    public function testClientWithDifferentEnvironments(string $environment): void
+    public function test_client_with_different_environments(string $environment): void
     {
         $client = StandardCheckoutClient::getInstance(
             TestDataProvider::TEST_CLIENT_ID,

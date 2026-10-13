@@ -3,9 +3,9 @@
 namespace Cartxis\Core\Services;
 
 use Cartxis\Core\Models\Extension;
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
-use Exception;
 
 class ExtensionService
 {
@@ -63,20 +63,20 @@ class ExtensionService
     {
         $extensions = collect();
 
-        if (!File::isDirectory($path)) {
+        if (! File::isDirectory($path)) {
             return $extensions;
         }
 
         foreach (File::directories($path) as $directory) {
-            $manifestPath = $directory . '/extension.json';
+            $manifestPath = $directory.'/extension.json';
 
-            if (!File::exists($manifestPath)) {
+            if (! File::exists($manifestPath)) {
                 continue;
             }
 
             $manifest = json_decode(File::get($manifestPath), true);
 
-            if (!$this->isValidManifest($manifest)) {
+            if (! $this->isValidManifest($manifest)) {
                 continue;
             }
 
@@ -96,8 +96,8 @@ class ExtensionService
      */
     protected function isValidManifest(array $manifest): bool
     {
-        return isset($manifest['code']) 
-            && isset($manifest['name']) 
+        return isset($manifest['code'])
+            && isset($manifest['name'])
             && isset($manifest['version']);
     }
 
@@ -114,7 +114,7 @@ class ExtensionService
 
         $discovered = $this->discover()->firstWhere('manifest.code', $code);
 
-        if (!$discovered) {
+        if (! $discovered) {
             throw new Exception("Extension {$code} not found.");
         }
 
@@ -157,7 +157,7 @@ class ExtensionService
     {
         $extension = Extension::where('code', $code)->first();
 
-        if (!$extension || !$extension->installed) {
+        if (! $extension || ! $extension->installed) {
             throw new Exception("Extension {$code} is not installed.");
         }
 
@@ -183,7 +183,7 @@ class ExtensionService
     {
         $extension = Extension::where('code', $code)->firstOrFail();
 
-        if (!$extension->canActivate()) {
+        if (! $extension->canActivate()) {
             throw new Exception("Extension {$code} cannot be activated.");
         }
 
@@ -204,7 +204,7 @@ class ExtensionService
     {
         $extension = Extension::where('code', $code)->firstOrFail();
 
-        if (!$extension->canDeactivate()) {
+        if (! $extension->canDeactivate()) {
             throw new Exception("Extension {$code} cannot be deactivated.");
         }
 
@@ -225,13 +225,13 @@ class ExtensionService
     {
         $discovered = $this->discover()->firstWhere('manifest.code', $code);
 
-        if (!$discovered) {
+        if (! $discovered) {
             return;
         }
 
         $providerClass = $discovered['manifest']['provider'] ?? null;
 
-        if (!$providerClass) {
+        if (! $providerClass) {
             return;
         }
 
@@ -253,13 +253,13 @@ class ExtensionService
     protected function requireProviderIfNeeded(array $discovered): void
     {
         $providerClass = $discovered['manifest']['provider'] ?? null;
-        if (!$providerClass || class_exists($providerClass)) {
+        if (! $providerClass || class_exists($providerClass)) {
             return;
         }
 
         $providerFile = $discovered['manifest']['provider_file'] ?? null;
         if ($providerFile) {
-            $providerPath = rtrim($discovered['path'], '/\\') . '/' . ltrim($providerFile, '/\\');
+            $providerPath = rtrim($discovered['path'], '/\\').'/'.ltrim($providerFile, '/\\');
             if (File::exists($providerPath)) {
                 require_once $providerPath;
             }
@@ -268,7 +268,7 @@ class ExtensionService
         }
 
         // Legacy fallback
-        $legacyProviderPath = $discovered['path'] . '/src/' . str_replace('\\', '/', $providerClass) . '.php';
+        $legacyProviderPath = $discovered['path'].'/src/'.str_replace('\\', '/', $providerClass).'.php';
         if (File::exists($legacyProviderPath)) {
             require_once $legacyProviderPath;
         }

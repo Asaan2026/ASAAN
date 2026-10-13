@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Cartxis\CMS\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Blade;
 use Cartxis\CMS\Repositories\BlockRepository;
+use Cartxis\CMS\Repositories\PageRepository;
 use Cartxis\CMS\Services\BlockService;
+use Cartxis\CMS\Services\PageService;
+use Cartxis\CMS\Services\StorefrontMenuService;
+use Cartxis\CMS\Services\StorefrontMenuSyncService;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\ServiceProvider;
 
 class CMSServiceProvider extends ServiceProvider
 {
@@ -18,17 +22,17 @@ class CMSServiceProvider extends ServiceProvider
     {
         // Merge configuration
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/cms.php',
+            __DIR__.'/../config/cms.php',
             'cms'
         );
 
         // Register services
-            $this->app->singleton(\Cartxis\CMS\Services\PageService::class);
-            $this->app->singleton(\Cartxis\CMS\Repositories\PageRepository::class);
-            $this->app->singleton(\Cartxis\CMS\Services\BlockService::class);
-            $this->app->singleton(\Cartxis\CMS\Repositories\BlockRepository::class);
-            $this->app->singleton(\Cartxis\CMS\Services\StorefrontMenuSyncService::class);
-            $this->app->singleton(\Cartxis\CMS\Services\StorefrontMenuService::class);
+        $this->app->singleton(PageService::class);
+        $this->app->singleton(PageRepository::class);
+        $this->app->singleton(BlockService::class);
+        $this->app->singleton(BlockRepository::class);
+        $this->app->singleton(StorefrontMenuSyncService::class);
+        $this->app->singleton(StorefrontMenuService::class);
     }
 
     /**
@@ -37,15 +41,15 @@ class CMSServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load migrations
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
 
         // Load routes
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/admin.php');
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
+        $this->loadRoutesFrom(__DIR__.'/../Routes/admin.php');
+        $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
 
         // Publish configuration
         $this->publishes([
-            __DIR__ . '/../config/cms.php' => config_path('cms.php'),
+            __DIR__.'/../config/cms.php' => config_path('cms.php'),
         ], 'cms-config');
 
         // Register @block Blade directive

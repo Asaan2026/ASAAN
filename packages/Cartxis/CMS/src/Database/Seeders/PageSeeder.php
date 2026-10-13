@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Cartxis\CMS\Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use Cartxis\CMS\Models\Page;
+use Illuminate\Database\Seeder;
 
 class PageSeeder extends Seeder
 {
@@ -16,11 +16,11 @@ class PageSeeder extends Seeder
     {
         $pages = [
             [
-                'title'       => 'Homepage',
-                'url_key'     => 'home',
-                'content'     => '',
-                'meta_title'  => 'Home',
-                'status'      => 'published',
+                'title' => 'Homepage',
+                'url_key' => 'home',
+                'content' => '',
+                'meta_title' => 'Home',
+                'status' => 'published',
                 'is_homepage' => true,
             ],
             [

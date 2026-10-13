@@ -39,7 +39,7 @@ class DeliveryLoginController extends Controller
             $isDelivery = (string) ($driver->role ?? '') === 'delivery';
             $isActive = (bool) $driver->is_active;
 
-            if (!$isDelivery) {
+            if (! $isDelivery) {
                 Auth::guard('delivery')->logout();
                 $request->hitRateLimiter();
                 throw ValidationException::withMessages([
@@ -47,7 +47,7 @@ class DeliveryLoginController extends Controller
                 ]);
             }
 
-            if (!$isActive) {
+            if (! $isActive) {
                 Auth::guard('delivery')->logout();
                 $request->hitRateLimiter();
                 throw ValidationException::withMessages([

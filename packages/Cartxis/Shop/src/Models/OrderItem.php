@@ -2,11 +2,12 @@
 
 namespace Cartxis\Shop\Models;
 
+use Cartxis\Core\Support\DisplayCurrency;
+use Cartxis\Product\Models\Product;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Cartxis\Shop\Models\Order;
-use Cartxis\Product\Models\Product;
 
 class OrderItem extends Model
 {
@@ -56,8 +57,6 @@ class OrderItem extends Model
 
     /**
      * Get the order that owns the order item.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function order(): BelongsTo
     {
@@ -66,8 +65,6 @@ class OrderItem extends Model
 
     /**
      * Get the product associated with the order item.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function product(): BelongsTo
     {
@@ -76,28 +73,22 @@ class OrderItem extends Model
 
     /**
      * Get the formatted price.
-     *
-     * @return string
      */
     public function getFormattedPriceAttribute(): string
     {
-        return \Cartxis\Core\Support\DisplayCurrency::format((float) $this->price);
+        return DisplayCurrency::format((float) $this->price);
     }
 
     /**
      * Get the formatted total.
-     *
-     * @return string
      */
     public function getFormattedTotalAttribute(): string
     {
-        return \Cartxis\Core\Support\DisplayCurrency::format((float) $this->total);
+        return DisplayCurrency::format((float) $this->total);
     }
 
     /**
      * Calculate the subtotal (quantity * price).
-     *
-     * @return float
      */
     public function calculateSubtotal(): float
     {
@@ -106,23 +97,20 @@ class OrderItem extends Model
 
     /**
      * Calculate the total including tax and discount.
-     *
-     * @return float
      */
     public function calculateTotal(): float
     {
         $subtotal = $this->calculateSubtotal();
+
         return $subtotal + $this->tax_amount - $this->discount_amount;
     }
 
     /**
      * Check if the product is still available.
-     *
-     * @return bool
      */
     public function isProductAvailable(): bool
     {
-        if (!$this->product) {
+        if (! $this->product) {
             return false;
         }
 
@@ -131,12 +119,10 @@ class OrderItem extends Model
 
     /**
      * Get the product URL.
-     *
-     * @return string|null
      */
     public function getProductUrlAttribute(): ?string
     {
-        if (!$this->product) {
+        if (! $this->product) {
             return null;
         }
 
@@ -145,8 +131,6 @@ class OrderItem extends Model
 
     /**
      * Get the product thumbnail URL.
-     *
-     * @return string|null
      */
     public function getProductThumbnailAttribute(): ?string
     {
@@ -164,9 +148,8 @@ class OrderItem extends Model
     /**
      * Scope a query to only include items for a specific order.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  int  $orderId
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeForOrder($query, int $orderId)
     {
@@ -176,9 +159,8 @@ class OrderItem extends Model
     /**
      * Scope a query to only include items for a specific product.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  int  $productId
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeForProduct($query, int $productId)
     {

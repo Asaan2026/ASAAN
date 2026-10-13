@@ -2,10 +2,10 @@
 
 namespace Cartxis\Shop\Http\Controllers\Account;
 
-use Illuminate\Http\Request;
+use Cartxis\Core\Services\ThemeViewResolver;
 use Cartxis\Shop\Http\Controllers\Controller;
 use Cartxis\Shop\Models\Order;
-use Cartxis\Core\Services\ThemeViewResolver;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {

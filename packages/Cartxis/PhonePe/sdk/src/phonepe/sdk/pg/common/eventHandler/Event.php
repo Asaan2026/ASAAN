@@ -16,40 +16,37 @@
 *  limitations under the License.
 */
 
-
 namespace PhonePe\common\eventHandler;
 
 class Event
 {
-	public string $merchantOrderId;
-	public string $eventName;
-	public string $eventTime;
-	public array $data;
+    public string $merchantOrderId;
 
-	public function __construct()
-	{
-	}
+    public string $eventName;
 
-	public function setMerchantOrderId(string $merchantOrderId): void
-	{
-		$this->merchantOrderId = $merchantOrderId;
-	}
+    public string $eventTime;
 
-	public function setEventName(string $eventName): void
-	{
-		$this->eventName = $eventName;
-	}
+    public array $data;
 
-	public function setEventTime(string $eventTime): void
-	{
-		$this->eventTime = $eventTime;
-	}
+    public function __construct() {}
 
-	public function setData(array $data): void
-	{
-		$this->data = $data;
-	}
+    public function setMerchantOrderId(string $merchantOrderId): void
+    {
+        $this->merchantOrderId = $merchantOrderId;
+    }
 
+    public function setEventName(string $eventName): void
+    {
+        $this->eventName = $eventName;
+    }
 
+    public function setEventTime(string $eventTime): void
+    {
+        $this->eventTime = $eventTime;
+    }
 
+    public function setData(array $data): void
+    {
+        $this->data = $data;
+    }
 }

@@ -1,15 +1,16 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Cartxis\Admin\Http\Controllers\Auth\AdminLoginController;
-use Cartxis\Admin\Http\Controllers\UserController;
-use Cartxis\Admin\Http\Controllers\ProfileController;
-use Cartxis\Admin\Http\Controllers\PasswordController;
-use Cartxis\Admin\Http\Controllers\NotificationController;
 use Cartxis\Admin\Http\Controllers\ActivityLogController;
+use Cartxis\Admin\Http\Controllers\Auth\AdminLoginController;
+use Cartxis\Admin\Http\Controllers\NotificationController;
+use Cartxis\Admin\Http\Controllers\PasswordController;
+use Cartxis\Admin\Http\Controllers\ProfileController;
+use Cartxis\Admin\Http\Controllers\UserController;
+use Cartxis\Admin\Http\Middleware\RedirectIfAdminAuthenticated;
 use Cartxis\Core\Http\Controllers\Admin\DashboardController;
-use Cartxis\Core\Http\Controllers\Admin\ThemeController;
 use Cartxis\Core\Http\Controllers\Admin\TemplateZoneController;
+use Cartxis\Core\Http\Controllers\Admin\ThemeController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,7 +24,7 @@ use Cartxis\Core\Http\Controllers\Admin\TemplateZoneController;
 
 Route::prefix('admin')->name('admin.')->middleware(['web'])->group(function () {
     // Admin Authentication Routes (Guest)
-    Route::middleware(\Cartxis\Admin\Http\Middleware\RedirectIfAdminAuthenticated::class)->group(function () {
+    Route::middleware(RedirectIfAdminAuthenticated::class)->group(function () {
         Route::get('/login', [AdminLoginController::class, 'create'])->name('login');
         Route::post('/login', [AdminLoginController::class, 'store'])
             ->name('login.store');
@@ -32,7 +33,7 @@ Route::prefix('admin')->name('admin.')->middleware(['web'])->group(function () {
     // Admin Authenticated Routes
     Route::middleware(['auth:admin', 'prevent.user.admin'])->group(function () {
         Route::post('/logout', [AdminLoginController::class, 'destroy'])->name('logout');
-        
+
         // Dashboard
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -46,7 +47,7 @@ Route::prefix('admin')->name('admin.')->middleware(['web'])->group(function () {
         // Activity logs
         Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
         Route::get('/activity-logs/data', [ActivityLogController::class, 'data'])->name('activity-logs.data');
-        
+
         // User Management
         Route::prefix('users')->name('users.')->group(function () {
             Route::get('/', [UserController::class, 'index'])->name('index');
@@ -55,19 +56,19 @@ Route::prefix('admin')->name('admin.')->middleware(['web'])->group(function () {
             Route::put('/{user}/change-password', [UserController::class, 'changePassword'])->name('change-password');
             Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
         });
-        
+
         // Admin Profile Management
         Route::prefix('profile')->name('profile.')->group(function () {
             Route::get('/', [ProfileController::class, 'edit'])->name('edit');
             Route::post('/', [ProfileController::class, 'update'])->name('update');
         });
-        
+
         // Admin Password Management
         Route::prefix('password')->name('password.')->group(function () {
             Route::get('/', [PasswordController::class, 'edit'])->name('edit');
             Route::post('/', [PasswordController::class, 'update'])->name('update');
         });
-        
+
         // Appearance -> Themes
         Route::get('appearance', [ThemeController::class, 'appearance'])->name('appearance.index');
         Route::prefix('appearance/themes')->name('themes.')->group(function () {
@@ -93,4 +94,3 @@ Route::prefix('admin')->name('admin.')->middleware(['web'])->group(function () {
         });
     });
 });
-

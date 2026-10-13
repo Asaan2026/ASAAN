@@ -27,7 +27,7 @@ if (! function_exists('solar_hijri')) {
      *
      * @param  mixed  $date  Any date-shaped value.
      * @param  string|null  $locale  'fa', 'fa_alt', 'ps' or 'en'.
-     *                                Null uses the request's language.
+     *                               Null uses the request's language.
      * @param  array  $options  See SolarHijriFormatter::format().
      */
     function solar_hijri(mixed $date, ?string $locale = null, array $options = []): string

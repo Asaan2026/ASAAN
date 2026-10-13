@@ -2,11 +2,11 @@
 
 namespace Cartxis\Core\Console\Commands;
 
-use Illuminate\Console\Command;
 use Cartxis\Core\Models\Theme;
 use Cartxis\Core\Services\ThemeService;
 use Cartxis\UIEditor\Models\PageLayout;
 use Cartxis\UIEditor\Services\LayoutService;
+use Illuminate\Console\Command;
 
 class ThemeActivateCommand extends Command
 {
@@ -28,16 +28,19 @@ class ThemeActivateCommand extends Command
 
         if (! $theme) {
             $this->components->error("Theme '{$slug}' not found. Run theme:list to see available themes.");
+
             return self::FAILURE;
         }
 
         if (! $theme->exists()) {
-            $this->components->error("Theme files for '{$slug}' are missing at: " . $theme->getPath());
+            $this->components->error("Theme files for '{$slug}' are missing at: ".$theme->getPath());
+
             return self::FAILURE;
         }
 
         if ($theme->is_active) {
             $this->components->info("Theme '{$theme->name}' is already active.");
+
             return self::SUCCESS;
         }
 
@@ -47,8 +50,8 @@ class ThemeActivateCommand extends Command
             $this->components->info("Theme '{$theme->name}' activated successfully!");
 
             if ($this->option('import-layout')) {
-                $dataPath = $theme->getPath() . '/data/theme-data.json';
-                if (!file_exists($dataPath)) {
+                $dataPath = $theme->getPath().'/data/theme-data.json';
+                if (! file_exists($dataPath)) {
                     $this->components->warn('No theme-data.json found — skipping layout import.');
                 } else {
                     $themeData = json_decode(file_get_contents($dataPath), true);
@@ -65,6 +68,7 @@ class ThemeActivateCommand extends Command
             }
         } else {
             $this->components->error('Failed to activate theme.');
+
             return self::FAILURE;
         }
 

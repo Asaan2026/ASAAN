@@ -3,41 +3,50 @@
 namespace Cartxis\Shop\Http\Controllers\Checkout;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
-use Cartxis\Cart\Services\CartTaxCalculator;
 use Cartxis\Cart\Services\CartShippingCalculator;
-use Cartxis\Shop\Services\CheckoutService;
-use Cartxis\Shop\Models\ShippingMethod;
-use Cartxis\Core\Support\GatewayCurrency;
-use Cartxis\Shop\Models\Order;
-use Cartxis\Product\Models\Product;
-use Cartxis\Core\Models\PaymentMethod;
+use Cartxis\Cart\Services\CartTaxCalculator;
+use Cartxis\CMS\Models\Page;
 use Cartxis\Core\Models\EmailTemplate;
-use Cartxis\Core\Services\ThemeViewResolver;
-use Cartxis\Core\Services\SettingService;
+use Cartxis\Core\Models\PaymentMethod;
 use Cartxis\Core\Services\PaymentGatewayManager;
+use Cartxis\Core\Services\SettingService;
+use Cartxis\Core\Services\ThemeViewResolver;
+use Cartxis\Core\Support\GatewayCurrency;
 use Cartxis\Core\Support\StoreCountry;
+use Cartxis\Product\Models\Product;
+use Cartxis\Referral\Services\ReferralCheckoutService;
 use Cartxis\Sales\Services\InvoiceService;
 use Cartxis\Sales\Services\TransactionService;
+use Cartxis\Shop\Models\Order;
+use Cartxis\Shop\Services\CheckoutService;
 use Cartxis\UIEditor\Services\LayoutService;
-use Cartxis\CMS\Models\Page;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class CheckoutController extends Controller
 {
     protected CartTaxCalculator $taxCalculator;
+
     protected CartShippingCalculator $shippingCalculator;
+
     protected CheckoutService $checkoutService;
+
     protected ThemeViewResolver $themeResolver;
+
     protected SettingService $settingService;
+
     protected PaymentGatewayManager $gatewayManager;
+
     protected InvoiceService $invoiceService;
+
     protected TransactionService $transactionService;
+
     protected LayoutService $layoutService;
 
     public function __construct(
@@ -50,7 +59,7 @@ class CheckoutController extends Controller
         InvoiceService $invoiceService,
         TransactionService $transactionService,
         LayoutService $layoutService,
-        protected \Cartxis\Referral\Services\ReferralCheckoutService $referralCheckout,
+        protected ReferralCheckoutService $referralCheckout,
     ) {
         $this->taxCalculator = $taxCalculator;
         $this->shippingCalculator = $shippingCalculator;
@@ -96,7 +105,7 @@ class CheckoutController extends Controller
                     'enable_newsletter_signup' => (bool) config('shop.checkout.enable_newsletter_signup', true),
                     'enable_order_notes' => (bool) config('shop.checkout.enable_order_notes', true),
                 ],
-'userAddresses' => [],
+                'userAddresses' => [],
                 'paymentMethods' => [],
             ]);
         }
@@ -120,7 +129,7 @@ class CheckoutController extends Controller
             $selectedShipping = collect($shippingResult['options'])->firstWhere('id', $selectedShippingId);
         }
 
-        if (!$selectedShipping) {
+        if (! $selectedShipping) {
             $selectedShipping = $shippingResult['default'] ?? null;
         }
 
@@ -164,7 +173,7 @@ class CheckoutController extends Controller
                         && (! $gateway || $gateway->isConfigured()),
                 ];
             })
-            ->filter(fn($method) => $method['is_available'])
+            ->filter(fn ($method) => $method['is_available'])
             ->values()
             ->toArray();
 
@@ -206,6 +215,7 @@ class CheckoutController extends Controller
         return Inertia::render($this->themeResolver->resolve('Checkout/Index'), [
             'cartItems' => collect($items)->map(function ($item) {
                 $product = Product::find($item['product_id']);
+
                 return [
                     'id' => $item['id'] ?? $item['product_id'],
                     'product_id' => $item['product_id'],
@@ -244,7 +254,7 @@ class CheckoutController extends Controller
                 'rules_url' => route('shop.account.referrals.index'),
             ],
             'checkoutConfig' => $checkoutConfig,
-'userAddresses' => $userAddresses,
+            'userAddresses' => $userAddresses,
             'paymentMethods' => $paymentMethods,
             'cartEmpty' => false,
         ]);
@@ -305,7 +315,7 @@ class CheckoutController extends Controller
         $requireAccount = (bool) $this->settingService->get('checkout_require_account', false);
         $allowGuest = (bool) $this->settingService->get('checkout_allow_guest', true);
 
-        if ($requireAccount && !$allowGuest && !Auth::check()) {
+        if ($requireAccount && ! $allowGuest && ! Auth::check()) {
             $request->validate([
                 'create_account' => 'accepted',
                 'password' => 'required|string|min:8|confirmed',
@@ -332,7 +342,7 @@ class CheckoutController extends Controller
         $selectedShipping = collect($shippingResult['options'])
             ->firstWhere('id', $validated['shipping_method_id']);
 
-        if (!$selectedShipping) {
+        if (! $selectedShipping) {
             return back()->with('error', 'Invalid shipping method');
         }
 
@@ -353,7 +363,7 @@ class CheckoutController extends Controller
             'shipping_method' => $selectedShipping['name'],
             'shipping_address' => $validated['shipping_address'],
             'billing_address' => ($validated['billing_same_as_shipping'] ?? true)
-                ? $validated['shipping_address'] 
+                ? $validated['shipping_address']
                 : ($validated['billing_address'] ?? $validated['shipping_address']),
             'same_as_shipping' => $validated['billing_same_as_shipping'] ?? true,
             'notes' => $validated['order_notes'] ?? null,
@@ -371,7 +381,7 @@ class CheckoutController extends Controller
         // Create order
         $result = $this->checkoutService->createOrder($orderData);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return back()->with('error', $result['message'] ?? 'Failed to create order');
         }
 
@@ -391,45 +401,46 @@ class CheckoutController extends Controller
 
         // Handle payment via gateway manager
         $paymentMethod = $validated['payment_method'];
-        
+
         // Check if a payment gateway handles this payment method
         $gateway = $this->gatewayManager->getByPaymentMethod($paymentMethod);
-        
+
         if ($gateway) {
             // Gateway exists - check if it's properly configured
             $isConfigured = $gateway->isConfigured();
-            
-            if (!$isConfigured) {
+
+            if (! $isConfigured) {
                 Log::warning('Checkout: Gateway not configured', [
                     'gateway_code' => $gateway->getCode(),
                 ]);
+
                 return back()->with('error', "Payment gateway {$paymentMethod} is not properly configured. Please contact support or try another payment method.");
             }
-            
+
             try {
                 // Process payment (will redirect to gateway or return success)
                 $response = $this->gatewayManager->processPayment($order, $validated);
-                
+
                 // Handle different response types from payment gateways
-                if ($response instanceof \Illuminate\Http\RedirectResponse) {
+                if ($response instanceof RedirectResponse) {
                     // External redirect (Stripe Checkout, etc.)
                     // Cart will be cleared when user returns successfully
                     $redirectUrl = $response->getTargetUrl();
 
                     Session::put('checkout.last_order_id', $order->id);
-                    
+
                     return back()->with([
                         'redirect_url' => $redirectUrl,
                     ]);
                 }
-                
+
                 // Handle array response (Razorpay, etc. - payment data for frontend)
                 if (is_array($response)) {
                     // Don't clear cart yet - will be cleared after payment verification in callback
                     // Store payment data in session for redundancy
                     Session::put('razorpay_payment_data', $response);
                     Session::put('checkout.last_order_id', $order->id);
-                    
+
                     // Return back to checkout with payment_response as flash data
                     // Flash data will be automatically included in Inertia props
                     return back()->with([
@@ -437,14 +448,14 @@ class CheckoutController extends Controller
                         'redirect_url' => $response['redirect_url'] ?? null,
                     ]);
                 }
-                
+
                 // For immediate payment methods (COD, etc.), clear cart now
                 Session::forget('cart');
                 Session::put('checkout.last_order_id', $order->id);
-                
+
                 // For any other response type, return as-is
                 return $response;
-                
+
             } catch (\Exception $e) {
                 Log::error('Payment gateway error', [
                     'order_id' => $order->id,
@@ -452,11 +463,11 @@ class CheckoutController extends Controller
                     'error' => $e->getMessage(),
                     'trace' => $e->getTraceAsString(),
                 ]);
-                
-                return back()->with('error', 'Payment processing failed: ' . $e->getMessage());
+
+                return back()->with('error', 'Payment processing failed: '.$e->getMessage());
             }
         }
-        
+
         // No gateway found - treat as COD or immediate payment method
         // This handles COD and any custom payment methods without gateways
         $order->update([
@@ -477,11 +488,11 @@ class CheckoutController extends Controller
         // Send order confirmation email
         try {
             $template = EmailTemplate::findByCode('order_placed');
-            
+
             if ($template) {
-                $customerName = $validated['shipping_address']['first_name'] . ' ' . 
+                $customerName = $validated['shipping_address']['first_name'].' '.
                                $validated['shipping_address']['last_name'];
-                
+
                 $template->send($order->customer_email, [
                     'customer_name' => $customerName,
                     'order_number' => $order->order_number,
@@ -494,7 +505,7 @@ class CheckoutController extends Controller
         } catch (\Exception $e) {
             Log::error('Order confirmation email failed', [
                 'order_id' => $order->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
 
@@ -506,7 +517,7 @@ class CheckoutController extends Controller
 
         // Redirect to success page
         return redirect()->route('shop.checkout.success', [
-            'order' => $order->id
+            'order' => $order->id,
         ])->with('success', 'Order placed successfully!');
     }
 
@@ -515,7 +526,7 @@ class CheckoutController extends Controller
      */
     public function success(Request $request, $order)
     {
-        $order = \Cartxis\Shop\Models\Order::with(['items', 'addresses'])->findOrFail($order);
+        $order = Order::with(['items', 'addresses'])->findOrFail($order);
         $lastOrderId = (int) Session::get('checkout.last_order_id');
 
         if (Auth::check()) {
@@ -591,7 +602,7 @@ class CheckoutController extends Controller
                 'order_number' => $prefilledOrderNumber,
             ],
             'trackedOrder' => null,
-            'layoutData'   => $layoutData,
+            'layoutData' => $layoutData,
         ]);
     }
 
@@ -606,21 +617,21 @@ class CheckoutController extends Controller
 
         $orderNumber = ltrim(trim((string) $validated['order_number']), '#');
 
-        $trackPage   = Page::where('url_key', 'track-order')->where('status', 'published')->first();
-        $layoutData  = $trackPage ? $this->layoutService->getPublishedForPage($trackPage)?->layout_data : null;
+        $trackPage = Page::where('url_key', 'track-order')->where('status', 'published')->first();
+        $layoutData = $trackPage ? $this->layoutService->getPublishedForPage($trackPage)?->layout_data : null;
 
         $order = Order::with(['items', 'shippingAddress'])
             ->where('order_number', $orderNumber)
             ->whereNull('user_id')
             ->first();
 
-        if (!$order) {
+        if (! $order) {
             return Inertia::render($this->themeResolver->resolve('Checkout/GuestTrack'), [
                 'lookup' => [
                     'order_number' => $validated['order_number'],
                 ],
                 'trackedOrder' => null,
-                'layoutData'   => $layoutData,
+                'layoutData' => $layoutData,
                 'error' => 'Guest order not found. Please check your order ID.',
             ]);
         }
@@ -629,7 +640,7 @@ class CheckoutController extends Controller
             'lookup' => [
                 'order_number' => $validated['order_number'],
             ],
-            'layoutData'   => $layoutData,
+            'layoutData' => $layoutData,
             'trackedOrder' => [
                 'id' => $order->id,
                 'order_number' => $order->order_number,
@@ -663,17 +674,17 @@ class CheckoutController extends Controller
 
         return back();
     }
-    
+
     /**
      * Get cart items from session
      */
     private function getCartItems(): array
     {
         $items = Session::get('cart', []);
-        
+
         // Enrich items with product data if needed
         foreach ($items as &$item) {
-            if (!isset($item['tax_class_id']) || !isset($item['weight'])) {
+            if (! isset($item['tax_class_id']) || ! isset($item['weight'])) {
                 $product = Product::find($item['product_id']);
                 if ($product) {
                     $item['tax_class_id'] = $product->tax_class_id;
@@ -681,7 +692,7 @@ class CheckoutController extends Controller
                 }
             }
         }
-        
+
         return $items;
     }
 }

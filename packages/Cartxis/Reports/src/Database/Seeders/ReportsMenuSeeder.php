@@ -15,7 +15,7 @@ class ReportsMenuSeeder extends Seeder
             ->where('parent_id', null)
             ->first();
 
-        if (!$reportsMenu) {
+        if (! $reportsMenu) {
             // Create Reports parent menu
             $reportsMenuId = DB::table('menu_items')->insertGetId([
                 'title' => 'Reports',

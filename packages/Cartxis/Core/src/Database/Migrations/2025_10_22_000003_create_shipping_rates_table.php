@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('shipping_rates')) {
+        if (! Schema::hasTable('shipping_rates')) {
             Schema::create('shipping_rates', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('shipping_method_id')
-                      ->constrained('shipping_methods')
-                      ->cascadeOnDelete();
+                    ->constrained('shipping_methods')
+                    ->cascadeOnDelete();
                 $table->string('country', 2); // ISO country code
                 $table->string('state', 2)->nullable(); // ISO state code or null for entire country
                 $table->decimal('min_weight', 8, 3)->default(0);

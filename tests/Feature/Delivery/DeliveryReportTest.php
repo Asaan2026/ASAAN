@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 function reportOrder(): Order
 {
     return Order::create([
-        'order_number' => 'ORD-' . Str::upper(Str::random(8)),
+        'order_number' => 'ORD-'.Str::upper(Str::random(8)),
         'status' => 'processing',
         'payment_status' => 'paid',
         'customer_email' => 'customer@example.com',
@@ -135,13 +135,13 @@ test('the report filters by driver and status', function () {
         'status' => Delivery::STATUS_OUT_FOR_DELIVERY,
     ]);
 
-    $response = $this->actingAs($admin, 'admin')->get('/admin/reports/delivery?driver_id=' . $driverA->id);
+    $response = $this->actingAs($admin, 'admin')->get('/admin/reports/delivery?driver_id='.$driverA->id);
 
     $response->assertInertia(fn ($page) => $page
         ->where('statistics.total', 1)
         ->where('statistics.delivered', 1));
 
-    $response = $this->actingAs($admin, 'admin')->get('/admin/reports/delivery?status=' . Delivery::STATUS_DELIVERED);
+    $response = $this->actingAs($admin, 'admin')->get('/admin/reports/delivery?status='.Delivery::STATUS_DELIVERED);
 
     $response->assertInertia(fn ($page) => $page
         ->where('statistics.total', 1)

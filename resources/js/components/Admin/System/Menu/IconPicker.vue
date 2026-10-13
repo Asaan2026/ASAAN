@@ -1,12 +1,43 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
 import {
-    LayoutDashboard, Package, ShoppingCart, ShoppingBag, Users, TrendingUp,
-    FileText, BarChart3, Settings, Server, FolderOpen, FolderTree, Image,
-    Menu, X, Search, Check, ListChecks, Tag, Star, Truck, Receipt,
-    CreditCard, Megaphone, Ticket, Mail, Globe, BookOpen, Newspaper,
-    Wrench, Store, Flag, Laptop, Percent, Clock, Shield
+    BarChart3,
+    BookOpen,
+    Check,
+    Clock,
+    CreditCard,
+    FileText,
+    Flag,
+    FolderOpen,
+    FolderTree,
+    Globe,
+    Image,
+    Laptop,
+    LayoutDashboard,
+    ListChecks,
+    Mail,
+    Megaphone,
+    Menu,
+    Newspaper,
+    Package,
+    Percent,
+    Receipt,
+    Search,
+    Server,
+    Settings,
+    Shield,
+    ShoppingBag,
+    ShoppingCart,
+    Star,
+    Store,
+    Tag,
+    Ticket,
+    TrendingUp,
+    Truck,
+    Users,
+    Wrench,
+    X,
 } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 interface Props {
     modelValue: string | null;
@@ -24,7 +55,11 @@ const searchQuery = ref('');
 
 // Common Lucide icons for admin menu
 const availableIcons = [
-    { name: 'layout-dashboard', label: 'Dashboard', component: LayoutDashboard },
+    {
+        name: 'layout-dashboard',
+        label: 'Dashboard',
+        component: LayoutDashboard,
+    },
     { name: 'package', label: 'Package', component: Package },
     { name: 'shopping-bag', label: 'Shopping Bag', component: ShoppingBag },
     { name: 'shopping-cart', label: 'Shopping Cart', component: ShoppingCart },
@@ -61,15 +96,18 @@ const availableIcons = [
 
 const filteredIcons = computed(() => {
     if (!searchQuery.value) return availableIcons;
-    
-    return availableIcons.filter(icon =>
-        icon.label.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        icon.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+
+    return availableIcons.filter(
+        (icon) =>
+            icon.label
+                .toLowerCase()
+                .includes(searchQuery.value.toLowerCase()) ||
+            icon.name.toLowerCase().includes(searchQuery.value.toLowerCase()),
     );
 });
 
 const selectedIcon = computed(() => {
-    return availableIcons.find(icon => icon.name === props.modelValue);
+    return availableIcons.find((icon) => icon.name === props.modelValue);
 });
 
 const selectIcon = (iconName: string) => {
@@ -91,7 +129,7 @@ const clearIcon = () => {
             <button
                 type="button"
                 @click="showPicker = !showPicker"
-                class="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                class="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700"
             >
                 <component
                     v-if="selectedIcon"
@@ -109,7 +147,7 @@ const clearIcon = () => {
                 v-if="modelValue"
                 type="button"
                 @click="clearIcon"
-                class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                class="p-2 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-300"
             >
                 <X :size="16" />
             </button>
@@ -118,23 +156,26 @@ const clearIcon = () => {
         <!-- Icon Picker Modal -->
         <div
             v-if="showPicker"
-            class="absolute top-full left-0 mt-2 w-96 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50"
+            class="absolute top-full left-0 z-50 mt-2 w-96 rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800"
         >
             <!-- Search -->
-            <div class="p-3 border-b border-gray-200 dark:border-gray-700">
+            <div class="border-b border-gray-200 p-3 dark:border-gray-700">
                 <div class="relative">
-                    <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <Search
+                        :size="16"
+                        class="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400"
+                    />
                     <input
                         v-model="searchQuery"
                         type="text"
                         :placeholder="$t('Search icons...')"
-                        class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        class="w-full rounded-lg border border-gray-300 bg-white py-2 pr-4 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     />
                 </div>
             </div>
 
             <!-- Icon Grid -->
-            <div class="p-3 max-h-80 overflow-y-auto">
+            <div class="max-h-80 overflow-y-auto p-3">
                 <div class="grid grid-cols-4 gap-2">
                     <button
                         v-for="icon in filteredIcons"
@@ -142,14 +183,16 @@ const clearIcon = () => {
                         type="button"
                         @click="selectIcon(icon.name)"
                         :class="[
-                            'flex flex-col items-center gap-1 p-3 rounded-lg transition-colors relative',
+                            'relative flex flex-col items-center gap-1 rounded-lg p-3 transition-colors',
                             modelValue === icon.name
-                                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                                : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400'
+                                ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
+                                : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700',
                         ]"
                     >
                         <component :is="icon.component" :size="24" />
-                        <span class="text-xs text-center leading-tight">{{ $t(icon.label) }}</span>
+                        <span class="text-center text-xs leading-tight">{{
+                            $t(icon.label)
+                        }}</span>
                         <Check
                             v-if="modelValue === icon.name"
                             :size="14"
@@ -159,7 +202,10 @@ const clearIcon = () => {
                 </div>
 
                 <!-- No Results -->
-                <div v-if="filteredIcons.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
+                <div
+                    v-if="filteredIcons.length === 0"
+                    class="py-8 text-center text-gray-500 dark:text-gray-400"
+                >
                     {{ $t('No icons found') }}
                 </div>
             </div>

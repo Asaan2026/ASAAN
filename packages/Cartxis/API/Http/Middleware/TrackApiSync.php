@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Cartxis\API\Http\Middleware;
 
+use Cartxis\Core\Services\SettingService;
 use Closure;
 use Illuminate\Http\Request;
-use Cartxis\Core\Services\SettingService;
 
 class TrackApiSync
 {

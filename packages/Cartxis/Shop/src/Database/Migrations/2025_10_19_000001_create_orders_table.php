@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('order_number')->unique();
             $table->string('status')->default('pending')->index();
             $table->string('payment_status')->default('pending')->index();
-            
+
             // Pricing
             $table->decimal('subtotal', 10, 2)->default(0);
             $table->decimal('tax', 10, 2)->default(0);
@@ -28,26 +28,26 @@ return new class extends Migration
             $table->decimal('discount', 10, 2)->default(0);
             $table->decimal('total', 10, 2)->default(0);
             $table->decimal('total_refunded', 12, 2)->default(0.00);
-            
+
             // Payment & Shipping
             $table->string('payment_method')->nullable();
             $table->json('payment_data')->nullable();
             $table->string('shipping_method')->nullable();
             $table->string('tracking_number')->nullable();
-            
+
             // Customer Info (for guest checkout)
             $table->string('customer_email')->nullable();
             $table->string('customer_phone')->nullable();
-            
+
             // Additional Info
             $table->text('notes')->nullable();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->string('source_channel', 50)->default('web');
-            
+
             $table->softDeletes();
             $table->timestamps();
-            
+
             // Indexes
             $table->index('order_number');
             $table->index('created_at');

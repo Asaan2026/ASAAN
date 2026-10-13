@@ -2,8 +2,8 @@
 
 namespace Cartxis\Marketing\Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use Cartxis\Core\Models\MenuItem;
+use Illuminate\Database\Seeder;
 
 class MarketingMenuSeeder extends Seeder
 {

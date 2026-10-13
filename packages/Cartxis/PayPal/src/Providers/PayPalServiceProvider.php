@@ -2,12 +2,12 @@
 
 namespace Cartxis\PayPal\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Schema;
 use Cartxis\Core\Models\Extension;
 use Cartxis\Core\Models\PaymentMethod;
 use Cartxis\Core\Services\PaymentGatewayManager;
 use Cartxis\PayPal\Services\PayPalGateway;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\ServiceProvider;
 
 class PayPalServiceProvider extends ServiceProvider
 {
@@ -34,12 +34,12 @@ class PayPalServiceProvider extends ServiceProvider
         $this->seedPaymentMethod();
 
         // Only load routes and register gateway if extension is active
-        if (!$this->isExtensionActive()) {
+        if (! $this->isExtensionActive()) {
             return;
         }
 
         // Load routes
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
+        $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
 
         // Register the gateway
         $this->registerGateway();
@@ -51,7 +51,7 @@ class PayPalServiceProvider extends ServiceProvider
     protected function isExtensionActive(): bool
     {
         try {
-            if (!Schema::hasTable('extensions')) {
+            if (! Schema::hasTable('extensions')) {
                 return true; // Allow during installation
             }
 
@@ -72,7 +72,7 @@ class PayPalServiceProvider extends ServiceProvider
                 ]
             );
 
-            if (!$extension->installed) {
+            if (! $extension->installed) {
                 $extension->update(['installed' => true, 'installed_at' => now()]);
             }
 
@@ -88,7 +88,7 @@ class PayPalServiceProvider extends ServiceProvider
     protected function registerGateway(): void
     {
         $manager = $this->app->make(PaymentGatewayManager::class);
-        $manager->register(new PayPalGateway());
+        $manager->register(new PayPalGateway);
     }
 
     /**
@@ -97,14 +97,14 @@ class PayPalServiceProvider extends ServiceProvider
     protected function seedPaymentMethod(): void
     {
         try {
-            if (!Schema::hasTable('payment_methods')) {
+            if (! Schema::hasTable('payment_methods')) {
                 return;
             }
 
             // Check if payment method already exists
             $exists = PaymentMethod::where('code', 'paypal')->exists();
 
-            if (!$exists) {
+            if (! $exists) {
                 PaymentMethod::create([
                     'code' => 'paypal',
                     'name' => 'PayPal',

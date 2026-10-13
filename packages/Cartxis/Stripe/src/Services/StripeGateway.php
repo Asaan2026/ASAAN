@@ -7,10 +7,12 @@ use Cartxis\Core\Models\PaymentMethod;
 use Cartxis\Core\Support\GatewayCurrency;
 use Cartxis\Core\Support\StoreCountry;
 use Cartxis\Shop\Models\Order;
-use Stripe\Checkout\Session;
-use Stripe\Stripe;
-use Stripe\Exception\ApiErrorException;
 use Illuminate\Support\Facades\Log;
+use Stripe\Checkout\Session;
+use Stripe\Exception\ApiErrorException;
+use Stripe\PaymentIntent;
+use Stripe\Refund;
+use Stripe\Stripe;
 
 /**
  * Stripe Payment Gateway Implementation
@@ -37,7 +39,7 @@ class StripeGateway implements PaymentGatewayInterface
      */
     protected function getPaymentMethod(): ?PaymentMethod
     {
-        if (!$this->paymentMethod) {
+        if (! $this->paymentMethod) {
             $this->paymentMethod = PaymentMethod::where('code', 'stripe')
                 ->where('is_active', true)
                 ->first();
@@ -52,14 +54,18 @@ class StripeGateway implements PaymentGatewayInterface
     protected function getConfig(string $key, mixed $default = null): mixed
     {
         $method = $this->getPaymentMethod();
-        if (!$method) return $default;
+        if (! $method) {
+            return $default;
+        }
 
         // Resolve credential keys based on mode (test vs live)
         if (in_array($key, ['publishable_key', 'secret_key', 'webhook_secret'])) {
             $mode = $method->getConfigValue('mode', 'live');
             if ($mode === 'test') {
-                $testVal = $method->getConfigValue('test_' . $key);
-                if ($testVal) return $testVal;
+                $testVal = $method->getConfigValue('test_'.$key);
+                if ($testVal) {
+                    return $testVal;
+                }
             }
             // Live mode or no test value set — use live key
             // Also fall back to legacy 'public_key' field name for publishable_key
@@ -67,11 +73,13 @@ class StripeGateway implements PaymentGatewayInterface
             if ($val === null && $key === 'publishable_key') {
                 $val = $method->getConfigValue('public_key', $default);
             }
+
             return $val ?? $default;
         }
 
         return $method->getConfigValue($key, $default);
     }
+
     /**
      * Get the gateway code.
      */
@@ -105,19 +113,19 @@ class StripeGateway implements PaymentGatewayInterface
         try {
             // Set Stripe API key from database configuration
             $secretKey = $this->getConfig('secret_key');
-            
-            if (!$secretKey) {
+
+            if (! $secretKey) {
                 throw new \Exception('Stripe secret key not configured');
             }
-            
+
             Stripe::setApiKey($secretKey);
-            
+
             // Create Stripe Checkout Session
             $session = Session::create([
                 'payment_method_types' => ['card'],
                 'line_items' => $this->formatLineItems($order),
                 'mode' => 'payment',
-                'success_url' => route('stripe.success', ['order' => $order->id]) . '?session_id={CHECKOUT_SESSION_ID}',
+                'success_url' => route('stripe.success', ['order' => $order->id]).'?session_id={CHECKOUT_SESSION_ID}',
                 'cancel_url' => route('stripe.cancel', ['order' => $order->id]),
                 'customer_email' => $order->customer_email,
                 'client_reference_id' => $order->order_number,
@@ -151,7 +159,7 @@ class StripeGateway implements PaymentGatewayInterface
                     'enabled' => true,
                 ],
             ]);
-            
+
             // Store session ID in order metadata
             $order->update([
                 'payment_data' => json_encode([
@@ -159,7 +167,7 @@ class StripeGateway implements PaymentGatewayInterface
                     'stripe_payment_intent' => $session->payment_intent,
                 ]),
             ]);
-            
+
             // Redirect to Stripe Checkout
             return redirect($session->url);
 
@@ -208,7 +216,7 @@ class StripeGateway implements PaymentGatewayInterface
                 'price_data' => [
                     'currency' => $this->getSettlementCurrency(),
                     'product_data' => [
-                        'name' => 'Shipping - ' . $order->shipping_method,
+                        'name' => 'Shipping - '.$order->shipping_method,
                     ],
                     'unit_amount' => GatewayCurrency::minorUnits((float) $order->shipping_cost, $code),
                 ],
@@ -241,7 +249,7 @@ class StripeGateway implements PaymentGatewayInterface
         try {
             $sessionId = $data['session_id'] ?? null;
 
-            if (!$sessionId) {
+            if (! $sessionId) {
                 return [
                     'success' => false,
                     'message' => 'Invalid callback data',
@@ -296,20 +304,21 @@ class StripeGateway implements PaymentGatewayInterface
             // Flutter path: verify via PaymentIntent ID passed from the SDK
             $paymentIntentId = $data['payment_intent_id'] ?? null;
 
-            if (!$paymentIntentId) {
+            if (! $paymentIntentId) {
                 // Fallback: try order payment_data
-                $paymentData     = is_array($order->payment_data)
+                $paymentData = is_array($order->payment_data)
                     ? $order->payment_data
                     : json_decode($order->payment_data ?? '{}', true);
                 $paymentIntentId = $paymentData['payment_intent_id'] ?? null;
             }
 
             if ($paymentIntentId) {
-                $intent = \Stripe\PaymentIntent::retrieve($paymentIntentId);
+                $intent = PaymentIntent::retrieve($paymentIntentId);
                 $succeeded = $intent->status === 'succeeded';
                 if ($succeeded) {
                     $order->update(['payment_gateway_transaction_id' => $paymentIntentId]);
                 }
+
                 return $succeeded;
             }
 
@@ -319,19 +328,22 @@ class StripeGateway implements PaymentGatewayInterface
                 : json_decode($order->payment_data ?? '{}', true);
             $sessionId = $paymentData['stripe_session_id'] ?? null;
 
-            if (!$sessionId) {
+            if (! $sessionId) {
                 Log::warning('StripeGateway: no payment_intent_id or session_id', ['order_id' => $order->id]);
+
                 return false;
             }
 
             $session = Session::retrieve($sessionId);
+
             return $session->payment_status === 'paid';
 
         } catch (ApiErrorException $e) {
             Log::error('Stripe payment verification failed', [
                 'order_id' => $order->id,
-                'error'    => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
@@ -349,7 +361,7 @@ class StripeGateway implements PaymentGatewayInterface
             $paymentData = json_decode($order->payment_data, true);
             $paymentIntentId = $paymentData['stripe_payment_intent'] ?? null;
 
-            if (!$paymentIntentId) {
+            if (! $paymentIntentId) {
                 return [
                     'success' => false,
                     'message' => 'Payment intent not found',
@@ -369,7 +381,7 @@ class StripeGateway implements PaymentGatewayInterface
                 $refundData['reason'] = $reason;
             }
 
-            $refund = \Stripe\Refund::create($refundData);
+            $refund = Refund::create($refundData);
 
             return [
                 'success' => true,
@@ -397,60 +409,60 @@ class StripeGateway implements PaymentGatewayInterface
     {
         return [
             [
-                'key'      => 'mode',
-                'label'    => 'Mode',
-                'type'     => 'select',
+                'key' => 'mode',
+                'label' => 'Mode',
+                'type' => 'select',
                 'required' => true,
-                'default'  => 'live',
-                'options'  => [
+                'default' => 'live',
+                'options' => [
                     ['value' => 'live', 'label' => 'Live'],
                     ['value' => 'test', 'label' => 'Test'],
                 ],
-                'help'     => 'Use Test mode for development; switch to Live for real payments',
+                'help' => 'Use Test mode for development; switch to Live for real payments',
             ],
             // ── Live credentials ──────────────────────────────────────────
             [
-                'key'      => 'publishable_key',
-                'label'    => 'Live Publishable Key',
-                'type'     => 'text',
+                'key' => 'publishable_key',
+                'label' => 'Live Publishable Key',
+                'type' => 'text',
                 'required' => true,
-                'help'     => 'Stripe live publishable key (pk_live_...)',
+                'help' => 'Stripe live publishable key (pk_live_...)',
             ],
             [
-                'key'      => 'secret_key',
-                'label'    => 'Live Secret Key',
-                'type'     => 'password',
+                'key' => 'secret_key',
+                'label' => 'Live Secret Key',
+                'type' => 'password',
                 'required' => true,
-                'help'     => 'Stripe live secret key (sk_live_...)',
+                'help' => 'Stripe live secret key (sk_live_...)',
             ],
             [
-                'key'      => 'webhook_secret',
-                'label'    => 'Live Webhook Secret',
-                'type'     => 'password',
+                'key' => 'webhook_secret',
+                'label' => 'Live Webhook Secret',
+                'type' => 'password',
                 'required' => false,
-                'help'     => 'Stripe live webhook signing secret (whsec_...)',
+                'help' => 'Stripe live webhook signing secret (whsec_...)',
             ],
             // ── Test credentials ──────────────────────────────────────────
             [
-                'key'      => 'test_publishable_key',
-                'label'    => 'Test Publishable Key',
-                'type'     => 'text',
+                'key' => 'test_publishable_key',
+                'label' => 'Test Publishable Key',
+                'type' => 'text',
                 'required' => false,
-                'help'     => 'Stripe test publishable key (pk_test_...)',
+                'help' => 'Stripe test publishable key (pk_test_...)',
             ],
             [
-                'key'      => 'test_secret_key',
-                'label'    => 'Test Secret Key',
-                'type'     => 'password',
+                'key' => 'test_secret_key',
+                'label' => 'Test Secret Key',
+                'type' => 'password',
                 'required' => false,
-                'help'     => 'Stripe test secret key (sk_test_...)',
+                'help' => 'Stripe test secret key (sk_test_...)',
             ],
             [
-                'key'      => 'test_webhook_secret',
-                'label'    => 'Test Webhook Secret',
-                'type'     => 'password',
+                'key' => 'test_webhook_secret',
+                'label' => 'Test Webhook Secret',
+                'type' => 'password',
                 'required' => false,
-                'help'     => 'Stripe test webhook signing secret (whsec_...)',
+                'help' => 'Stripe test webhook signing secret (whsec_...)',
             ],
         ];
     }
@@ -460,6 +472,6 @@ class StripeGateway implements PaymentGatewayInterface
      */
     public function isConfigured(): bool
     {
-        return !empty($this->getConfig('publishable_key')) && !empty($this->getConfig('secret_key'));
+        return ! empty($this->getConfig('publishable_key')) && ! empty($this->getConfig('secret_key'));
     }
 }

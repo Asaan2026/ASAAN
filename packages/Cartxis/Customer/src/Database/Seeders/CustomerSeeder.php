@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Cartxis\Customer\Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
+use Cartxis\Core\Support\StoreCountry;
 use Cartxis\Customer\Models\Customer;
 use Cartxis\Customer\Models\CustomerAddress;
 use Cartxis\Customer\Models\CustomerGroup;
-use Cartxis\Core\Support\StoreCountry;
+use Illuminate\Database\Seeder;
 
 class CustomerSeeder extends Seeder
 {
@@ -23,8 +22,9 @@ class CustomerSeeder extends Seeder
         $wholesaleGroup = CustomerGroup::where('code', 'wholesale')->first();
         $vipGroup = CustomerGroup::where('code', 'vip')->first();
 
-        if (!$generalGroup) {
+        if (! $generalGroup) {
             $this->command->error('Please run CustomerGroupSeeder first!');
+
             return;
         }
 

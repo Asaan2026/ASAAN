@@ -1,14 +1,16 @@
 <?php
 
 use App\Models\User;
+use Cartxis\Admin\Database\Seeders\AdminMenuSeeder;
 use Cartxis\Service\Models\Service;
 use Cartxis\Service\Models\ServiceCategory;
+use Cartxis\Service\Services\ServiceMenuService;
 use Illuminate\Console\Events\CommandFinished;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 
-require_once __DIR__ . '/helpers.php';
+require_once __DIR__.'/helpers.php';
 
 test('the services menu entries are seeded under Catalog', function () {
     // A brand new store has no menu yet, so the entries must already be there
@@ -19,7 +21,7 @@ test('the services menu entries are seeded under Catalog', function () {
     $this->assertDatabaseHas('menu_items', ['key' => 'services-bookings', 'location' => 'admin']);
     $this->assertDatabaseHas('menu_items', ['key' => 'services-settings', 'location' => 'admin']);
 
-    $this->artisan('db:seed', ['--class' => Cartxis\Admin\Database\Seeders\AdminMenuSeeder::class])
+    $this->artisan('db:seed', ['--class' => AdminMenuSeeder::class])
         ->assertSuccessful();
 
     $catalogId = DB::table('menu_items')->where('key', 'catalog')->value('id');
@@ -101,7 +103,7 @@ test('the admin sidebar and the storefront both keep a Services entry', function
     // menu_items.key is unique across the whole table, so the two menus cannot
     // share one row. Run the sync again, the way a second "migrate --seed"
     // would, and check both links survive.
-    app(Cartxis\Service\Services\ServiceMenuService::class)->sync();
+    app(ServiceMenuService::class)->sync();
 
     $admin = DB::table('menu_items')->where('key', 'services')->where('location', 'admin')->first();
     $header = DB::table('menu_items')->where('key', 'services-header')->where('location', 'storefront')->first();
@@ -128,8 +130,8 @@ test('the Services link shows up in the storefront header', function () {
 test('syncing the menu twice does not create duplicates', function () {
     $before = DB::table('menu_items')->where('location', 'storefront')->where('key', 'services-header')->count();
 
-    app(Cartxis\Service\Services\ServiceMenuService::class)->sync();
-    app(Cartxis\Service\Services\ServiceMenuService::class)->sync();
+    app(ServiceMenuService::class)->sync();
+    app(ServiceMenuService::class)->sync();
 
     $after = DB::table('menu_items')->where('location', 'storefront')->where('key', 'services-header')->count();
 
@@ -248,7 +250,7 @@ test('an admin can update a service without changing its web address', function 
     $service = makeService(['name' => 'Garden Care', 'slug' => 'garden-care']);
 
     $this->actingAs($admin, 'admin')
-        ->put('/admin/services/' . $service->slug, [
+        ->put('/admin/services/'.$service->slug, [
             'name' => 'Garden Maintenance',
             'slug' => 'garden-care',
             'price' => 2000,
@@ -269,7 +271,7 @@ test('a service with no jobs is deleted outright', function () {
     $service = makeService();
 
     $this->actingAs($admin, 'admin')
-        ->delete('/admin/services/' . $service->slug)
+        ->delete('/admin/services/'.$service->slug)
         ->assertStatus(302);
 
     $this->assertSoftDeleted('services', ['id' => $service->id]);
@@ -282,7 +284,7 @@ test('a service that already has jobs is hidden rather than deleted', function (
     bookServiceJob($service);
 
     $this->actingAs($admin, 'admin')
-        ->delete('/admin/services/' . $service->slug)
+        ->delete('/admin/services/'.$service->slug)
         ->assertStatus(302);
 
     // The job is a financial record, so the service is hidden instead of removed.
@@ -308,7 +310,7 @@ test('a category holding services cannot be deleted', function () {
     makeService(['service_category_id' => $category->id]);
 
     $this->actingAs($admin, 'admin')
-        ->delete('/admin/services/categories/' . $category->slug)
+        ->delete('/admin/services/categories/'.$category->slug)
         ->assertStatus(302);
 
     $this->assertDatabaseHas('service_categories', ['id' => $category->id]);
@@ -321,7 +323,7 @@ test('a category cannot be filed under its own sub-category', function () {
     $child = makeServiceCategory(['name' => 'Cleaning', 'parent_id' => $parent->id]);
 
     $this->actingAs($admin, 'admin')
-        ->put('/admin/services/categories/' . $parent->slug, [
+        ->put('/admin/services/categories/'.$parent->slug, [
             'name' => 'Home',
             'parent_id' => $child->id,
             'status' => 'enabled',

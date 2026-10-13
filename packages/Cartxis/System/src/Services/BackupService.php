@@ -19,19 +19,19 @@ class BackupService
     {
         $disks = config('backup.backup.destination.disks', []);
         $backupName = config('backup.backup.name');
-        
+
         $allBackups = collect();
-        
+
         foreach ($disks as $diskName) {
             try {
                 $disk = Storage::disk($diskName);
-                
+
                 // Get all zip files in the backup directory
                 $backupPath = $backupName;
-                
+
                 if ($disk->exists($backupPath)) {
                     $files = $disk->files($backupPath);
-                    
+
                     foreach ($files as $file) {
                         if (str_ends_with($file, '.zip')) {
                             $allBackups->push([
@@ -47,7 +47,7 @@ class BackupService
                 continue;
             }
         }
-        
+
         return $allBackups->sortByDesc('date')->values();
     }
 
@@ -59,27 +59,30 @@ class BackupService
      */
     public function createBackup(string $option = ''): void
     {
-        $needsDb    = $option !== 'only-files';
+        $needsDb = $option !== 'only-files';
         $needsFiles = $option !== 'only-db';
         $hasMysqldump = $this->isMysqldumpAvailable();
 
         // If mysqldump is available, use Spatie for everything
         if ($hasMysqldump) {
             $this->runSpatieBackup($option);
+
             return;
         }
 
         // mysqldump NOT available — handle each scenario
 
-        if ($needsDb && !$needsFiles) {
+        if ($needsDb && ! $needsFiles) {
             // Database-only: pure PHP dump
             $this->createPhpDatabaseBackup();
+
             return;
         }
 
-        if ($needsFiles && !$needsDb) {
+        if ($needsFiles && ! $needsDb) {
             // Files-only: Spatie can handle this without mysqldump
             $this->runSpatieBackup('only-files');
+
             return;
         }
 
@@ -106,6 +109,7 @@ class BackupService
         if (Storage::disk($disk)->exists($path)) {
             return Storage::disk($disk)->path($path);
         }
+
         return null;
     }
 
@@ -126,14 +130,14 @@ class BackupService
     {
         $binary = config('database.connections.mysql.dump.dump_binary_path', '');
         // Validate the configured path — only allow filesystem-safe characters to prevent command injection
-        if ($binary && !preg_match('#^[a-zA-Z0-9/_\-\.]+$#', $binary)) {
+        if ($binary && ! preg_match('#^[a-zA-Z0-9/_\-\.]+$#', $binary)) {
             Log::warning('BackupService: invalid dump_binary_path in config — using default mysqldump');
             $binary = '';
         }
-        $cmd    = $binary ? rtrim($binary, '/') . '/mysqldump' : 'mysqldump';
+        $cmd = $binary ? rtrim($binary, '/').'/mysqldump' : 'mysqldump';
 
         // Silence stderr; just check exit code
-        exec($cmd . ' --version 2>/dev/null', $output, $exitCode);
+        exec($cmd.' --version 2>/dev/null', $output, $exitCode);
 
         return $exitCode === 0;
     }
@@ -160,27 +164,27 @@ class BackupService
      */
     protected function createPhpDatabaseBackup(): void
     {
-        $sql  = $this->generateDatabaseDump();
+        $sql = $this->generateDatabaseDump();
         $disk = $this->getDestinationDisk();
         $backupName = config('backup.backup.name');
 
-        $filename = date('Y-m-d-H-i-s') . '.zip';
-        $zipRelativePath = $backupName . '/' . $filename;
+        $filename = date('Y-m-d-H-i-s').'.zip';
+        $zipRelativePath = $backupName.'/'.$filename;
         $zipAbsolutePath = Storage::disk($disk)->path($zipRelativePath);
 
         // Ensure directory exists
         $dir = dirname($zipAbsolutePath);
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
 
-        $zip = new ZipArchive();
+        $zip = new ZipArchive;
         if ($zip->open($zipAbsolutePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
             throw new \RuntimeException('Could not create backup zip archive.');
         }
 
         $dbName = config('database.connections.mysql.database', 'database');
-        $zip->addFromString('db-dumps/' . $dbName . '-mysql.sql', $sql);
+        $zip->addFromString('db-dumps/'.$dbName.'-mysql.sql', $sql);
         $zip->close();
     }
 
@@ -193,21 +197,21 @@ class BackupService
         $backupName = config('backup.backup.name');
         $storage = Storage::disk($disk);
 
-        if (!$storage->exists($backupName)) {
+        if (! $storage->exists($backupName)) {
             return;
         }
 
         $latestZip = collect($storage->files($backupName))
-            ->filter(fn(string $f) => str_ends_with($f, '.zip'))
-            ->sortByDesc(fn(string $f) => $storage->lastModified($f))
+            ->filter(fn (string $f) => str_ends_with($f, '.zip'))
+            ->sortByDesc(fn (string $f) => $storage->lastModified($f))
             ->first();
 
-        if (!$latestZip) {
+        if (! $latestZip) {
             return;
         }
 
         $zipPath = $storage->path($latestZip);
-        $zip = new ZipArchive();
+        $zip = new ZipArchive;
 
         if ($zip->open($zipPath) !== true) {
             return;
@@ -215,7 +219,7 @@ class BackupService
 
         $sql = $this->generateDatabaseDump();
         $dbName = config('database.connections.mysql.database', 'database');
-        $zip->addFromString('db-dumps/' . $dbName . '-mysql.sql', $sql);
+        $zip->addFromString('db-dumps/'.$dbName.'-mysql.sql', $sql);
         $zip->close();
     }
 
@@ -230,8 +234,8 @@ class BackupService
 
         $lines = [];
         $lines[] = '-- Cartxis Database Backup';
-        $lines[] = '-- Generated: ' . date('Y-m-d H:i:s');
-        $lines[] = '-- Database: ' . $dbName;
+        $lines[] = '-- Generated: '.date('Y-m-d H:i:s');
+        $lines[] = '-- Database: '.$dbName;
         $lines[] = '-- PHP-native dump (no mysqldump required)';
         $lines[] = '';
         $lines[] = 'SET NAMES utf8mb4;';
@@ -248,7 +252,7 @@ class BackupService
             $createStmt = $pdo->query("SHOW CREATE TABLE `{$table}`")->fetch(\PDO::FETCH_ASSOC);
             $createSql = $createStmt['Create Table'] ?? $createStmt['Create View'] ?? null;
 
-            if (!$createSql) {
+            if (! $createSql) {
                 continue;
             }
 
@@ -256,7 +260,7 @@ class BackupService
             $lines[] = "-- Table: `{$table}`";
             $lines[] = '-- ---------------------------------------------------';
             $lines[] = "DROP TABLE IF EXISTS `{$table}`;";
-            $lines[] = $createSql . ';';
+            $lines[] = $createSql.';';
             $lines[] = '';
 
             // Check if it's a view (no data to dump)
@@ -268,8 +272,9 @@ class BackupService
             $count = (int) $pdo->query("SELECT COUNT(*) FROM `{$table}`")->fetchColumn();
 
             if ($count === 0) {
-                $lines[] = "-- (empty table)";
+                $lines[] = '-- (empty table)';
                 $lines[] = '';
+
                 continue;
             }
 
@@ -298,16 +303,16 @@ class BackupService
                             $values[] = $pdo->quote((string) $value);
                         }
                     }
-                    $valueGroups[] = '(' . implode(', ', $values) . ')';
+                    $valueGroups[] = '('.implode(', ', $values).')';
                 }
 
                 $lines[] = "INSERT INTO `{$table}` (`{$columnList}`) VALUES";
-                $lines[] = implode(",\n", $valueGroups) . ';';
+                $lines[] = implode(",\n", $valueGroups).';';
 
                 $offset += $chunkSize;
             }
 
-            $lines[] = "UNLOCK TABLES;";
+            $lines[] = 'UNLOCK TABLES;';
             $lines[] = '';
         }
 
@@ -323,6 +328,7 @@ class BackupService
     protected function getDestinationDisk(): string
     {
         $disks = config('backup.backup.destination.disks', ['local']);
+
         return $disks[0] ?? 'local';
     }
 
@@ -330,8 +336,8 @@ class BackupService
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
         $power = $bytes > 0 ? floor(log($bytes, 1024)) : 0;
-        
-        return number_format($bytes / pow(1024, $power), 2) . ' ' . $units[$power];
+
+        return number_format($bytes / pow(1024, $power), 2).' '.$units[$power];
     }
 
     /**
@@ -369,7 +375,7 @@ class BackupService
             }
 
             $zipPath = $disk->path($latestZip);
-            $zip = new ZipArchive();
+            $zip = new ZipArchive;
 
             if ($zip->open($zipPath) !== true) {
                 continue;
@@ -386,14 +392,16 @@ class BackupService
 
             if (! $needsFix) {
                 $zip->close();
+
                 continue;
             }
 
-            $tmpPath = $zipPath . '.tmp';
-            $newZip = new ZipArchive();
+            $tmpPath = $zipPath.'.tmp';
+            $newZip = new ZipArchive;
 
             if ($newZip->open($tmpPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
                 $zip->close();
+
                 continue;
             }
 

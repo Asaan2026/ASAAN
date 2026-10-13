@@ -22,9 +22,9 @@ class CustomerServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load migrations
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
 
         // Load routes
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/customer.php');
+        $this->loadRoutesFrom(__DIR__.'/../Routes/customer.php');
     }
 }

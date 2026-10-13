@@ -12,7 +12,7 @@ class BannerResource extends JsonResource
 
         $image = $content['image'] ?? null;
         $imageUrl = null;
-        if (!empty($image)) {
+        if (! empty($image)) {
             $imageUrl = str_starts_with($image, 'http://') || str_starts_with($image, 'https://')
                 ? $image
                 : url($image);
@@ -20,7 +20,7 @@ class BannerResource extends JsonResource
 
         $link = $content['link'] ?? ($content['url'] ?? null);
         $linkUrl = null;
-        if (!empty($link)) {
+        if (! empty($link)) {
             $linkUrl = str_starts_with($link, 'http://') || str_starts_with($link, 'https://')
                 ? $link
                 : url($link);

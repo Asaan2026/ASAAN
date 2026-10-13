@@ -6,7 +6,6 @@
  * Dari or Pashto shopper would see the English sentence (or worse, a
  * "settings.missing_key" style string) with no error anywhere.
  */
-
 $skipNamespaces = [
     'validation', 'auth', 'passwords', 'password', 'pagination', 'http',
     'Illuminate', 'components', 'livewire', 'sanctum', 'fortify', 'jetstream',

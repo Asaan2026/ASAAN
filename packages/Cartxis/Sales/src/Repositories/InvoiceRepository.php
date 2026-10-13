@@ -16,34 +16,34 @@ class InvoiceRepository
         $query = Invoice::with('order.user');
 
         // Apply filters
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('invoice_number', 'like', "%{$search}%")
-                  ->orWhereHas('order', function ($orderQuery) use ($search) {
-                      $orderQuery->where('order_number', 'like', "%{$search}%")
-                                ->orWhere('customer_email', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('order', function ($orderQuery) use ($search) {
+                        $orderQuery->where('order_number', 'like', "%{$search}%")
+                            ->orWhere('customer_email', 'like', "%{$search}%");
+                    });
             });
         }
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->whereDate('issue_date', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->whereDate('issue_date', '<=', $filters['date_to']);
         }
 
-        if (!empty($filters['min_amount'])) {
+        if (! empty($filters['min_amount'])) {
             $query->where('total', '>=', $filters['min_amount']);
         }
 
-        if (!empty($filters['max_amount'])) {
+        if (! empty($filters['max_amount'])) {
             $query->where('total', '<=', $filters['max_amount']);
         }
 
@@ -85,12 +85,12 @@ class InvoiceRepository
     public function create(array $data): Invoice
     {
         // Generate invoice number if not provided
-        if (!isset($data['invoice_number'])) {
+        if (! isset($data['invoice_number'])) {
             $data['invoice_number'] = Invoice::generateInvoiceNumber();
         }
 
         // Set issue date if not provided
-        if (!isset($data['issue_date'])) {
+        if (! isset($data['issue_date'])) {
             $data['issue_date'] = now();
         }
 
@@ -103,8 +103,8 @@ class InvoiceRepository
     public function update(int $id, array $data): bool
     {
         $invoice = Invoice::find($id);
-        
-        if (!$invoice) {
+
+        if (! $invoice) {
             return false;
         }
 
@@ -117,8 +117,8 @@ class InvoiceRepository
     public function delete(int $id): bool
     {
         $invoice = Invoice::find($id);
-        
-        if (!$invoice) {
+
+        if (! $invoice) {
             return false;
         }
 

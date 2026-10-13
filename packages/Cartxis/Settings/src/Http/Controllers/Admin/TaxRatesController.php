@@ -2,10 +2,10 @@
 
 namespace Cartxis\Settings\Http\Controllers\Admin;
 
+use Cartxis\Core\Models\TaxRate;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\Core\Models\TaxRate;
 
 class TaxRatesController
 {
@@ -39,7 +39,7 @@ class TaxRatesController
         $taxRate = TaxRate::findOrFail($id);
 
         $validated = $request->validate([
-            'code' => 'required|string|max:100|unique:tax_rates,code,' . $id,
+            'code' => 'required|string|max:100|unique:tax_rates,code,'.$id,
             'name' => 'required|string|max:255',
             'percentage' => 'required|numeric|min:0|max:100',
             'priority' => 'integer|min:0',

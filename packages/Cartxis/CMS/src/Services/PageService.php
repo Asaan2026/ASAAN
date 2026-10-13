@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Cartxis\CMS\Services;
 
 use Cartxis\CMS\Models\Page;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Mews\Purifier\Facades\Purifier;
 
@@ -83,7 +83,7 @@ class PageService
         $counter = 1;
 
         while ($this->slugExists($slug, $excludeId)) {
-            $slug = $originalSlug . '-' . $counter;
+            $slug = $originalSlug.'-'.$counter;
             $counter++;
         }
 
@@ -118,11 +118,11 @@ class PageService
     public function duplicate(Page $page): Page
     {
         return DB::transaction(function () use ($page) {
-            $baseSlug = $page->url_key . '-copy';
-            $uniqueSlug = $this->generateUniqueSlug('Copy of ' . $page->title, $baseSlug);
+            $baseSlug = $page->url_key.'-copy';
+            $uniqueSlug = $this->generateUniqueSlug('Copy of '.$page->title, $baseSlug);
 
             $newPage = $page->replicate();
-            $newPage->title = 'Copy of ' . $page->title;
+            $newPage->title = 'Copy of '.$page->title;
             $newPage->url_key = $uniqueSlug;
             $newPage->status = 'draft';
             $newPage->is_homepage = false;

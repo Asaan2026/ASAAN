@@ -2,8 +2,8 @@
 
 namespace Cartxis\Product\Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use Cartxis\Product\Models\Category;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
@@ -81,7 +81,7 @@ class CategorySeeder extends Seeder
                 'description' => $categoryData['description'],
                 'status' => 'enabled',
                 'sort_order' => 0,
-                'meta_title' => $categoryData['name'] . ' - Cartxis Commerce',
+                'meta_title' => $categoryData['name'].' - Cartxis Commerce',
                 'meta_description' => $categoryData['description'],
             ]);
 
@@ -96,7 +96,7 @@ class CategorySeeder extends Seeder
                     'status' => 'enabled',
                     'parent_id' => $parent->id,
                     'sort_order' => 0,
-                    'meta_title' => $childData['name'] . ' - Cartxis Commerce',
+                    'meta_title' => $childData['name'].' - Cartxis Commerce',
                     'meta_description' => $childData['description'],
                 ]);
 

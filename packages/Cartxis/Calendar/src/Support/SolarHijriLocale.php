@@ -240,10 +240,8 @@ final class SolarHijriLocale
         return match (true) {
             $locale === '' => self::FALLBACK_LOCALE,
             $locale === 'fa_alt' => 'fa_alt',
-            str_starts_with($locale, 'fa'), str_starts_with($locale, 'prs'), str_contains($locale, 'dari')
-                => 'fa',
-            str_starts_with($locale, 'ps'), str_starts_with($locale, 'pus'), str_contains($locale, 'pashto')
-                => 'ps',
+            str_starts_with($locale, 'fa'), str_starts_with($locale, 'prs'), str_contains($locale, 'dari') => 'fa',
+            str_starts_with($locale, 'ps'), str_starts_with($locale, 'pus'), str_contains($locale, 'pashto') => 'ps',
             str_starts_with($locale, 'en') => 'en',
             default => self::FALLBACK_LOCALE,
         };

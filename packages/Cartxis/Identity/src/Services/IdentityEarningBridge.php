@@ -4,6 +4,7 @@ namespace Cartxis\Identity\Services;
 
 use App\Models\User;
 use Cartxis\Identity\Events\IdentityVerified;
+use Cartxis\Identity\Models\IdentityVerification;
 use Cartxis\Referral\Services\ReferralEarningService;
 use Illuminate\Support\Facades\Log;
 
@@ -24,7 +25,7 @@ class IdentityEarningBridge
     /**
      * Called after an approval is committed. Never throws.
      */
-    public function afterVerification(User $user, \Cartxis\Identity\Models\IdentityVerification $verification): void
+    public function afterVerification(User $user, IdentityVerification $verification): void
     {
         $this->payUnblockedReferralRewards($user);
 

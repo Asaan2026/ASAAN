@@ -3,11 +3,11 @@
 namespace Cartxis\Settings\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Cartxis\Core\Models\Country;
+use Cartxis\Core\Models\Currency;
+use Cartxis\Core\Models\Locale;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Cartxis\Core\Models\Country;
-use Cartxis\Core\Models\Locale;
-use Cartxis\Core\Models\Currency;
 
 class LocalesController extends Controller
 {
@@ -21,13 +21,13 @@ class LocalesController extends Controller
         $countries = Country::ordered()->get();
 
         return Inertia::render('Admin/Settings/Locales/Index', [
-            'locales'    => $locales,
+            'locales' => $locales,
             'currencies' => $currencies,
-            'countries'  => $countries,
+            'countries' => $countries,
             // Built by the model so the form label and the stored value can
             // never describe different things.
-            'exchangeRateLabel'    => Currency::exchangeRateLabel(),
-            'usdToAfn'             => Currency::usdToAfn(),
+            'exchangeRateLabel' => Currency::exchangeRateLabel(),
+            'usdToAfn' => Currency::usdToAfn(),
             'supportedCurrencyCodes' => Currency::SUPPORTED_CODES,
         ]);
     }
@@ -59,7 +59,7 @@ class LocalesController extends Controller
     public function updateLocale(Request $request, Locale $locale)
     {
         $validated = $request->validate([
-            'code' => 'required|string|max:10|unique:locales,code,' . $locale->id . '|alpha_dash',
+            'code' => 'required|string|max:10|unique:locales,code,'.$locale->id.'|alpha_dash',
             'name' => 'required|string|max:100|min:2',
             'native_name' => 'nullable|string|max:100|min:2',
             'direction' => 'required|in:ltr,rtl',
@@ -138,7 +138,7 @@ class LocalesController extends Controller
         $currency = Currency::findOrFail($id);
 
         $validated = $request->validate([
-            'code' => 'required|string|max:10|unique:currencies,code,' . $currency->id . '|alpha',
+            'code' => 'required|string|max:10|unique:currencies,code,'.$currency->id.'|alpha',
             'name' => 'required|string|max:100|min:2',
             'symbol' => 'required|string|max:10',
             'symbol_position' => 'required|in:before,after',

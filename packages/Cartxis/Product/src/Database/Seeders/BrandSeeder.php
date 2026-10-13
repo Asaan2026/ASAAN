@@ -2,9 +2,8 @@
 
 namespace Cartxis\Product\Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use Cartxis\Product\Models\Brand;
-use Illuminate\Support\Str;
+use Illuminate\Database\Seeder;
 
 class BrandSeeder extends Seeder
 {
@@ -171,7 +170,7 @@ class BrandSeeder extends Seeder
                 ['slug' => $brandData['slug']],
                 $brandData
             );
-            
+
             echo "Created/Updated brand: {$brandData['name']}\n";
         }
 

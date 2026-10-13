@@ -21,10 +21,10 @@ return new class extends Migration
                 ->constrained('users')
                 ->onDelete('set null')
                 ->comment('Admin user who created the note');
-            
+
             $table->text('note');
             $table->boolean('is_visible_to_customer')->default(false);
-            
+
             $table->timestamps();
 
             // Indexes

@@ -3,12 +3,12 @@
 namespace Cartxis\Product\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Cartxis\Product\Models\Product;
+use Cartxis\Product\Models\ProductReview;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\Product\Models\ProductReview;
-use Cartxis\Product\Models\Product;
 
 class ReviewController extends Controller
 {
@@ -201,6 +201,7 @@ class ReviewController extends Controller
         });
 
         $actionLabel = ucfirst($request->action);
+
         return back()->with('success', "{$count} review(s) {$actionLabel}d successfully.");
     }
 

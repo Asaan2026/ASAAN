@@ -2,15 +2,15 @@
 
 namespace Cartxis\Marketing\Models;
 
+use App\Models\User;
+use Carbon\Carbon;
+use Cartxis\Product\Models\Product;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Builder;
-use App\Models\User;
-use Cartxis\Product\Models\Product;
-use Carbon\Carbon;
 
 class Promotion extends Model
 {
@@ -25,23 +25,31 @@ class Promotion extends Model
      * Promotion type constants
      */
     const TYPE_CATALOG_RULE = 'catalog_rule';
+
     const TYPE_CART_RULE = 'cart_rule';
+
     const TYPE_BUNDLE = 'bundle';
+
     const TYPE_FLASH_SALE = 'flash_sale';
+
     const TYPE_TIERED_PRICING = 'tiered_pricing';
 
     /**
      * Discount type constants
      */
     const DISCOUNT_PERCENTAGE = 'percentage';
+
     const DISCOUNT_FIXED_AMOUNT = 'fixed_amount';
 
     /**
      * Badge position constants
      */
     const BADGE_TOP_LEFT = 'top-left';
+
     const BADGE_TOP_RIGHT = 'top-right';
+
     const BADGE_BOTTOM_LEFT = 'bottom-left';
+
     const BADGE_BOTTOM_RIGHT = 'bottom-right';
 
     /**
@@ -183,7 +191,7 @@ class Promotion extends Model
      */
     public function isValid(): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return false;
         }
 
@@ -218,7 +226,7 @@ class Promotion extends Model
      */
     public function getTimeRemaining(): ?Carbon
     {
-        if (!$this->isFlashSale() || !$this->end_date) {
+        if (! $this->isFlashSale() || ! $this->end_date) {
             return null;
         }
 
@@ -230,11 +238,12 @@ class Promotion extends Model
      */
     public function getSecondsRemainingAttribute(): ?int
     {
-        if (!$this->end_date) {
+        if (! $this->end_date) {
             return null;
         }
 
         $diff = now()->diffInSeconds($this->end_date, false);
+
         return max(0, $diff);
     }
 

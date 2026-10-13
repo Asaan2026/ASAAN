@@ -2,139 +2,263 @@
     <AdminLayout :title="$t('Edit: {name}', { name: category.name })">
         <Head :title="$t('Edit Category: {name}', { name: category.name })" />
 
-        <div class="p-6 space-y-6">
+        <div class="space-y-6 p-6">
             <!-- Header -->
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('Edit Category') }}</h1>
+                    <h1
+                        class="text-2xl font-bold text-gray-900 dark:text-white"
+                    >
+                        {{ $t('Edit Category') }}
+                    </h1>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                         {{
                             category.posts_count !== 1
-                                ? $t('{count} posts in this category', { count: category.posts_count })
-                                : $t('{count} post in this category', { count: category.posts_count })
+                                ? $t('{count} posts in this category', {
+                                      count: category.posts_count,
+                                  })
+                                : $t('{count} post in this category', {
+                                      count: category.posts_count,
+                                  })
                         }}
                     </p>
                 </div>
                 <Link
                     :href="categoryRoutes.index().url"
-                    class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700"
+                    class="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                        />
                     </svg>
                     {{ $t('Back to Categories') }}
                 </Link>
             </div>
 
             <!-- Flash messages -->
-            <div v-if="$page.props.flash?.success" class="p-4 rounded-lg bg-green-50 border border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300">
+            <div
+                v-if="$page.props.flash?.success"
+                class="rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300"
+            >
                 {{ $page.props.flash.success }}
             </div>
-            <div v-if="$page.props.flash?.error" class="p-4 rounded-lg bg-red-50 border border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300">
+            <div
+                v-if="$page.props.flash?.error"
+                class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300"
+            >
                 {{ $page.props.flash.error }}
             </div>
 
             <form @submit.prevent="submit">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     <!-- Main -->
-                    <div class="lg:col-span-2 space-y-6">
-                        <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 space-y-6">
+                    <div class="space-y-6 lg:col-span-2">
+                        <div
+                            class="space-y-6 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800"
+                        >
                             <!-- Name -->
                             <div>
-                                <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    {{ $t('Name') }} <span class="text-red-500">*</span>
+                                <label
+                                    for="name"
+                                    class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    {{ $t('Name') }}
+                                    <span class="text-red-500">*</span>
                                 </label>
                                 <input
                                     id="name"
                                     v-model="form.name"
                                     type="text"
                                     required
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                    :class="{ 'border-red-500': form.errors.name }"
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                    :class="{
+                                        'border-red-500': form.errors.name,
+                                    }"
                                 />
-                                <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">{{ form.errors.name }}</p>
+                                <p
+                                    v-if="form.errors.name"
+                                    class="mt-1 text-sm text-red-600"
+                                >
+                                    {{ form.errors.name }}
+                                </p>
                             </div>
 
                             <!-- Slug -->
                             <div>
-                                <label for="slug" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    {{ $t('URL Slug') }} <span class="text-red-500">*</span>
+                                <label
+                                    for="slug"
+                                    class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    {{ $t('URL Slug') }}
+                                    <span class="text-red-500">*</span>
                                 </label>
                                 <input
                                     id="slug"
                                     v-model="form.slug"
                                     type="text"
                                     required
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono"
-                                    :class="{ 'border-red-500': form.errors.slug }"
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                    :class="{
+                                        'border-red-500': form.errors.slug,
+                                    }"
                                 />
-                                <p v-if="form.errors.slug" class="mt-1 text-sm text-red-600">{{ form.errors.slug }}</p>
-                                <p class="mt-1 text-xs text-yellow-600 dark:text-yellow-400" v-if="form.slug !== category.slug">
-                                    {{ $t('⚠ Changing the slug will break existing URLs for this category.') }}
+                                <p
+                                    v-if="form.errors.slug"
+                                    class="mt-1 text-sm text-red-600"
+                                >
+                                    {{ form.errors.slug }}
+                                </p>
+                                <p
+                                    class="mt-1 text-xs text-yellow-600 dark:text-yellow-400"
+                                    v-if="form.slug !== category.slug"
+                                >
+                                    {{
+                                        $t(
+                                            '⚠ Changing the slug will break existing URLs for this category.',
+                                        )
+                                    }}
                                 </p>
                             </div>
 
                             <!-- Description -->
                             <div>
-                                <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Description') }}</label>
+                                <label
+                                    for="description"
+                                    class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >{{ $t('Description') }}</label
+                                >
                                 <textarea
                                     id="description"
                                     v-model="form.description"
                                     rows="3"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                                 ></textarea>
                             </div>
                         </div>
 
                         <!-- SEO -->
-                        <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 space-y-4">
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ $t('SEO Settings') }}</h3>
+                        <div
+                            class="space-y-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800"
+                        >
+                            <h3
+                                class="text-lg font-medium text-gray-900 dark:text-white"
+                            >
+                                {{ $t('SEO Settings') }}
+                            </h3>
                             <div>
-                                <label for="meta_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Meta Title') }}</label>
-                                <input id="meta_title" v-model="form.meta_title" type="text" maxlength="255" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
-                                <p class="mt-1 text-xs text-gray-500">{{ form.meta_title?.length || 0 }}/255</p>
+                                <label
+                                    for="meta_title"
+                                    class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >{{ $t('Meta Title') }}</label
+                                >
+                                <input
+                                    id="meta_title"
+                                    v-model="form.meta_title"
+                                    type="text"
+                                    maxlength="255"
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                />
+                                <p class="mt-1 text-xs text-gray-500">
+                                    {{ form.meta_title?.length || 0 }}/255
+                                </p>
                             </div>
                             <div>
-                                <label for="meta_description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Meta Description') }}</label>
-                                <textarea id="meta_description" v-model="form.meta_description" rows="2" maxlength="500" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
-                                <p class="mt-1 text-xs text-gray-500">{{ form.meta_description?.length || 0 }}/500</p>
+                                <label
+                                    for="meta_description"
+                                    class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >{{ $t('Meta Description') }}</label
+                                >
+                                <textarea
+                                    id="meta_description"
+                                    v-model="form.meta_description"
+                                    rows="2"
+                                    maxlength="500"
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                ></textarea>
+                                <p class="mt-1 text-xs text-gray-500">
+                                    {{ form.meta_description?.length || 0 }}/500
+                                </p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Sidebar -->
                     <div class="space-y-6">
-                        <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 space-y-4">
-                            <h3 class="text-base font-medium text-gray-900 dark:text-white">{{ $t('Settings') }}</h3>
+                        <div
+                            class="space-y-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800"
+                        >
+                            <h3
+                                class="text-base font-medium text-gray-900 dark:text-white"
+                            >
+                                {{ $t('Settings') }}
+                            </h3>
                             <div>
-                                <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Status') }}</label>
-                                <select id="status" v-model="form.status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                    <option value="active">{{ $t('Active') }}</option>
-                                    <option value="inactive">{{ $t('Inactive') }}</option>
+                                <label
+                                    for="status"
+                                    class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >{{ $t('Status') }}</label
+                                >
+                                <select
+                                    id="status"
+                                    v-model="form.status"
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                >
+                                    <option value="active">
+                                        {{ $t('Active') }}
+                                    </option>
+                                    <option value="inactive">
+                                        {{ $t('Inactive') }}
+                                    </option>
                                 </select>
                             </div>
-                            <div class="pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col gap-2">
+                            <div
+                                class="flex flex-col gap-2 border-t border-gray-200 pt-4 dark:border-gray-700"
+                            >
                                 <button
                                     type="submit"
                                     :disabled="form.processing"
-                                    class="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    class="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
-                                    <span v-if="form.processing">{{ $t('Saving...') }}</span>
+                                    <span v-if="form.processing">{{
+                                        $t('Saving...')
+                                    }}</span>
                                     <span v-else>{{ $t('Save Changes') }}</span>
                                 </button>
                                 <button
                                     v-if="category.posts_count === 0"
                                     type="button"
                                     @click="deleteCategory"
-                                    class="w-full px-4 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition-colors dark:bg-transparent dark:border-red-700 dark:hover:bg-red-900/20"
+                                    class="w-full rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-700 dark:bg-transparent dark:hover:bg-red-900/20"
                                 >
                                     {{ $t('Delete Category') }}
                                 </button>
-                                <p v-else class="text-xs text-center text-gray-400 dark:text-gray-500">
+                                <p
+                                    v-else
+                                    class="text-center text-xs text-gray-400 dark:text-gray-500"
+                                >
                                     {{
                                         category.posts_count !== 1
-                                            ? $t('Cannot delete — category has {count} posts', { count: category.posts_count })
-                                            : $t('Cannot delete — category has {count} post', { count: category.posts_count })
+                                            ? $t(
+                                                  'Cannot delete — category has {count} posts',
+                                                  {
+                                                      count: category.posts_count,
+                                                  },
+                                              )
+                                            : $t(
+                                                  'Cannot delete — category has {count} post',
+                                                  {
+                                                      count: category.posts_count,
+                                                  },
+                                              )
                                     }}
                                 </p>
                             </div>
@@ -147,9 +271,9 @@
 </template>
 
 <script setup lang="ts">
-import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import * as categoryRoutes from '@/routes/admin/blog/categories';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 
 interface Category {
     id: number;
@@ -178,7 +302,10 @@ function submit() {
 }
 
 function deleteCategory() {
-    if (!confirm(`Delete "${props.category.name}"? This cannot be undone.`)) return;
-    router.delete(categoryRoutes.destroy({ category: props.category.slug }).url);
+    if (!confirm(`Delete "${props.category.name}"? This cannot be undone.`))
+        return;
+    router.delete(
+        categoryRoutes.destroy({ category: props.category.slug }).url,
+    );
 }
 </script>

@@ -176,7 +176,7 @@ class ServiceBooking extends Model
             return $query;
         }
 
-        $like = '%' . $term . '%';
+        $like = '%'.$term.'%';
 
         return $query->where(function (Builder $q) use ($like) {
             $q->where('reference', 'like', $like)
@@ -210,7 +210,7 @@ class ServiceBooking extends Model
     {
         $unit = Service::UNIT_LABELS[$this->price_unit] ?? Service::UNIT_LABELS[Service::UNIT_PER_JOB];
 
-        return $this->price_snapshot . ' ' . $unit;
+        return $this->price_snapshot.' '.$unit;
     }
 
     /**

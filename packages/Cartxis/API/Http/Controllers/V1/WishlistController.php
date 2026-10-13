@@ -3,14 +3,14 @@
 namespace Cartxis\API\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Cartxis\API\Helpers\ApiResponse;
 use Cartxis\API\Http\Resources\ProductResource;
 use Cartxis\Cart\Models\Cart;
 use Cartxis\Cart\Models\CartItem;
 use Cartxis\Customer\Models\Wishlist;
 use Cartxis\Product\Models\Product;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class WishlistController extends Controller
 {
@@ -28,7 +28,7 @@ class WishlistController extends Controller
             ->get();
 
         return ApiResponse::success([
-            'items' => $wishlistItems->map(fn($item) => [
+            'items' => $wishlistItems->map(fn ($item) => [
                 'id' => $item->id,
                 'product' => new ProductResource($item->product),
                 'added_at' => $item->created_at->toIso8601String(),
@@ -55,7 +55,7 @@ class WishlistController extends Controller
 
         $product = Product::find($request->product_id);
 
-        if (!$product || $product->status !== 'enabled') {
+        if (! $product || $product->status !== 'enabled') {
             return ApiResponse::error('Product not available', null, 400, 'PRODUCT_UNAVAILABLE');
         }
 
@@ -92,7 +92,7 @@ class WishlistController extends Controller
 
         $wishlistItem = Wishlist::where('customer_id', $customerId)->find($id);
 
-        if (!$wishlistItem) {
+        if (! $wishlistItem) {
             return ApiResponse::notFound('Wishlist item not found', 'WISHLIST_ITEM_NOT_FOUND');
         }
 
@@ -113,13 +113,13 @@ class WishlistController extends Controller
             ->where('customer_id', $customerId)
             ->find($id);
 
-        if (!$wishlistItem) {
+        if (! $wishlistItem) {
             return ApiResponse::notFound('Wishlist item not found', 'WISHLIST_ITEM_NOT_FOUND');
         }
 
         $product = $wishlistItem->product;
 
-        if (!$product || $product->status !== 'enabled') {
+        if (! $product || $product->status !== 'enabled') {
             return ApiResponse::error('Product not available', null, 400, 'PRODUCT_UNAVAILABLE');
         }
 
@@ -136,10 +136,10 @@ class WishlistController extends Controller
             $cartItem->save();
         } else {
             CartItem::create([
-                'cart_id'    => $cart->id,
+                'cart_id' => $cart->id,
                 'product_id' => $product->id,
-                'quantity'   => 1,
-                'price'      => $product->special_price ?? $product->price,
+                'quantity' => 1,
+                'price' => $product->special_price ?? $product->price,
             ]);
         }
 

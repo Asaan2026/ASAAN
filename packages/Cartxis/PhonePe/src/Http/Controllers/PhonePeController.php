@@ -3,29 +3,31 @@
 namespace Cartxis\PhonePe\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Cartxis\Core\Support\GatewayCurrency;
-use Cartxis\Shop\Models\Order;
 use Cartxis\Core\Models\EmailTemplate;
 use Cartxis\Core\Models\PaymentMethod;
 use Cartxis\Core\Services\PaymentGatewayManager;
+use Cartxis\Core\Support\GatewayCurrency;
 use Cartxis\Sales\Services\InvoiceService;
 use Cartxis\Sales\Services\TransactionService;
+use Cartxis\Shop\Models\Order;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use PhonePe\common\exceptions\PhonePeException;
 
 class PhonePeController extends Controller
 {
     protected PaymentGatewayManager $gatewayManager;
+
     protected InvoiceService $invoiceService;
+
     protected TransactionService $transactionService;
 
     public function __construct(
         PaymentGatewayManager $gatewayManager,
         InvoiceService $invoiceService,
         TransactionService $transactionService
-    )
-    {
+    ) {
         $this->gatewayManager = $gatewayManager;
         $this->invoiceService = $invoiceService;
         $this->transactionService = $transactionService;
@@ -47,7 +49,7 @@ class PhonePeController extends Controller
         // Verify payment with PhonePe gateway
         $gateway = $this->gatewayManager->get('phonepe');
 
-        if (!$gateway) {
+        if (! $gateway) {
             return redirect()->route('cart.index')
                 ->with('error', 'Payment gateway not found');
         }
@@ -55,7 +57,7 @@ class PhonePeController extends Controller
         // Verify payment status
         $verified = $gateway->verifyPayment($order);
 
-        if (!$verified) {
+        if (! $verified) {
             Log::warning('PhonePeController: Payment verification failed', [
                 'order_id' => $order->id,
             ]);
@@ -136,22 +138,25 @@ class PhonePeController extends Controller
                 ->where('is_active', true)
                 ->first();
 
-            if (!$paymentMethod) {
+            if (! $paymentMethod) {
                 Log::error('PhonePeController: Payment method not found or inactive');
+
                 return response()->json(['error' => 'Payment method not configured'], 400);
             }
 
             $callbackUsername = $paymentMethod->getConfigValue('callback_username');
             $callbackPassword = $paymentMethod->getConfigValue('callback_password');
 
-            if (!$callbackUsername || !$callbackPassword) {
+            if (! $callbackUsername || ! $callbackPassword) {
                 Log::error('PhonePeController: Callback credentials not configured');
+
                 return response()->json(['error' => 'Callback credentials not configured'], 400);
             }
 
             // Check if PhonePe SDK is available
-            if (!class_exists('\PhonePe\payments\v2\standardCheckout\StandardCheckoutClient')) {
+            if (! class_exists('\PhonePe\payments\v2\standardCheckout\StandardCheckoutClient')) {
                 Log::error('PhonePeController: PhonePe SDK not installed');
+
                 return response()->json(['error' => 'SDK not installed'], 500);
             }
 
@@ -192,7 +197,7 @@ class PhonePeController extends Controller
             // Return 200 OK to acknowledge receipt
             return response()->json(['status' => 'received'], 200);
 
-        } catch (\PhonePe\common\exceptions\PhonePeException $e) {
+        } catch (PhonePeException $e) {
             Log::error('PhonePeController: Callback verification failed', [
                 'error' => $e->getMessage(),
             ]);
@@ -221,18 +226,20 @@ class PhonePeController extends Controller
             $state = $callbackResponse->getState() ?? null;
             $transactionId = $callbackResponse->getTransactionId() ?? null;
 
-            if (!$merchantOrderId) {
+            if (! $merchantOrderId) {
                 Log::warning('PhonePeController: No merchant order ID in callback');
+
                 return;
             }
 
             // Find order by order_number
             $order = Order::where('order_number', $merchantOrderId)->first();
 
-            if (!$order) {
+            if (! $order) {
                 Log::warning('PhonePeController: Order not found', [
                     'merchant_order_id' => $merchantOrderId,
                 ]);
+
                 return;
             }
 
@@ -318,7 +325,7 @@ class PhonePeController extends Controller
             if ($template) {
                 $shippingAddress = $order->shippingAddress;
                 $customerName = $shippingAddress
-                    ? $shippingAddress->first_name . ' ' . $shippingAddress->last_name
+                    ? $shippingAddress->first_name.' '.$shippingAddress->last_name
                     : $order->customer_name ?? 'Customer';
 
                 $template->send($order->customer_email, [

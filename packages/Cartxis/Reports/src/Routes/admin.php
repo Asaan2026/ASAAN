@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Cartxis\Reports\Http\Controllers\SalesReportController;
-use Cartxis\Reports\Http\Controllers\ProductReportController;
 use Cartxis\Reports\Http\Controllers\CustomerReportController;
 use Cartxis\Reports\Http\Controllers\DeliveryReportController;
+use Cartxis\Reports\Http\Controllers\ProductReportController;
+use Cartxis\Reports\Http\Controllers\SalesReportController;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web', 'auth:admin'])
     ->prefix('admin/reports')

@@ -148,7 +148,7 @@ class ServiceCategory extends Model
     public function getFullNameAttribute(): string
     {
         return $this->parent
-            ? $this->parent->name . ' → ' . $this->name
+            ? $this->parent->name.' → '.$this->name
             : $this->name;
     }
 
@@ -167,7 +167,7 @@ class ServiceCategory extends Model
             ->when($ignoreId, fn ($q) => $q->whereKeyNot($ignoreId))
             ->exists()
         ) {
-            $slug = $base . '-' . $suffix++;
+            $slug = $base.'-'.$suffix++;
         }
 
         return $slug;

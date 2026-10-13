@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { router } from '@inertiajs/vue3';
-import { Upload, X, FileIcon, AlertCircle } from 'lucide-vue-next';
 import * as mediaRoutes from '@/routes/admin/content/media/index';
+import { router } from '@inertiajs/vue3';
+import { AlertCircle, FileIcon, Upload, X } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 interface Props {
     folderId?: number | null;
@@ -65,32 +65,34 @@ const handleDragLeave = () => {
 const addFiles = (files: File[]) => {
     errors.value = [];
     const validFiles: File[] = [];
-    
-    files.forEach(file => {
+
+    files.forEach((file) => {
         // Check file size
         const maxSize = props.maxFileSize * 1024 * 1024; // Convert to bytes
         if (file.size > maxSize) {
-            errors.value.push(`${file.name} exceeds maximum size of ${props.maxFileSize}MB`);
+            errors.value.push(
+                `${file.name} exceeds maximum size of ${props.maxFileSize}MB`,
+            );
             return;
         }
-        
+
         // Check file type
-        const isTypeAccepted = props.acceptedTypes.some(type => {
+        const isTypeAccepted = props.acceptedTypes.some((type) => {
             if (type.endsWith('/*')) {
                 const category = type.split('/')[0];
                 return file.type.startsWith(category + '/');
             }
             return file.type === type;
         });
-        
+
         if (!isTypeAccepted) {
             errors.value.push(`${file.name} is not an accepted file type`);
             return;
         }
-        
+
         validFiles.push(file);
     });
-    
+
     selectedFiles.value = [...selectedFiles.value, ...validFiles];
 };
 
@@ -106,20 +108,20 @@ const clearFiles = () => {
 
 const uploadFiles = async () => {
     if (selectedFiles.value.length === 0) return;
-    
+
     isUploading.value = true;
     errors.value = [];
-    
+
     const formData = new FormData();
-    
+
     selectedFiles.value.forEach((file, index) => {
         formData.append(`files[${index}]`, file);
     });
-    
+
     if (props.folderId) {
         formData.append('folder_id', props.folderId.toString());
     }
-    
+
     try {
         router.post(mediaRoutes.upload().url, formData, {
             forceFormData: true,
@@ -151,12 +153,12 @@ const formatFileSize = (bytes: number): string => {
     const units = ['B', 'KB', 'MB', 'GB'];
     let size = bytes;
     let unitIndex = 0;
-    
+
     while (size > 1024 && unitIndex < units.length - 1) {
         size /= 1024;
         unitIndex++;
     }
-    
+
     return `${size.toFixed(2)} ${units[unitIndex]}`;
 };
 </script>
@@ -170,10 +172,10 @@ const formatFileSize = (bytes: number): string => {
             @dragleave="handleDragLeave"
             @click="openFileDialog"
             :class="[
-                'relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all',
+                'relative cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-all',
                 isDragging
                     ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 bg-gray-50 dark:bg-gray-800/50'
+                    : 'border-gray-300 bg-gray-50 hover:border-gray-400 dark:border-gray-600 dark:bg-gray-800/50 dark:hover:border-gray-500',
             ]"
         >
             <input
@@ -184,55 +186,69 @@ const formatFileSize = (bytes: number): string => {
                 @change="handleFileSelect"
                 class="hidden"
             />
-            
-            <Upload :size="48" class="mx-auto text-gray-400 mb-4" />
-            
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+
+            <Upload :size="48" class="mx-auto mb-4 text-gray-400" />
+
+            <h3 class="mb-2 text-lg font-medium text-gray-900 dark:text-white">
                 {{ $t('Drop files here or click to browse') }}
             </h3>
-            
+
             <p class="text-sm text-gray-500 dark:text-gray-400">
                 {{ $t('Maximum file size: {size}MB', { size: maxFileSize }) }}
             </p>
         </div>
-        
+
         <!-- Errors -->
         <div v-if="errors.length > 0" class="space-y-2">
             <div
                 v-for="(error, index) in errors"
                 :key="index"
-                class="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+                class="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20"
             >
-                <AlertCircle :size="18" class="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-                <p class="text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+                <AlertCircle
+                    :size="18"
+                    class="mt-0.5 flex-shrink-0 text-red-600 dark:text-red-400"
+                />
+                <p class="text-sm text-red-600 dark:text-red-400">
+                    {{ error }}
+                </p>
             </div>
         </div>
-        
+
         <!-- Selected Files List -->
         <div v-if="selectedFiles.length > 0" class="space-y-3">
             <div class="flex items-center justify-between">
                 <h4 class="text-sm font-medium text-gray-900 dark:text-white">
-                    {{ $t('{count} file(s) selected', { count: selectedFiles.length }) }}
+                    {{
+                        $t('{count} file(s) selected', {
+                            count: selectedFiles.length,
+                        })
+                    }}
                 </h4>
                 <button
                     @click="clearFiles"
                     type="button"
-                    class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                    class="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
                 >
                     {{ $t('Clear all') }}
                 </button>
             </div>
-            
+
             <div class="space-y-2">
                 <div
                     v-for="(file, index) in selectedFiles"
                     :key="index"
-                    class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
+                    class="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800"
                 >
-                    <div class="flex items-center gap-3 flex-1 min-w-0">
-                        <FileIcon :size="18" class="text-gray-400 flex-shrink-0" />
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    <div class="flex min-w-0 flex-1 items-center gap-3">
+                        <FileIcon
+                            :size="18"
+                            class="flex-shrink-0 text-gray-400"
+                        />
+                        <div class="min-w-0 flex-1">
+                            <p
+                                class="truncate text-sm font-medium text-gray-900 dark:text-white"
+                            >
                                 {{ file.name }}
                             </p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">
@@ -243,33 +259,39 @@ const formatFileSize = (bytes: number): string => {
                     <button
                         @click="removeFile(index)"
                         type="button"
-                        class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                        class="rounded p-1 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                         <X :size="16" class="text-gray-400" />
                     </button>
                 </div>
             </div>
-            
+
             <!-- Upload Progress -->
             <div v-if="isUploading" class="space-y-2">
                 <div class="flex items-center justify-between text-sm">
-                    <span class="text-gray-600 dark:text-gray-400">{{ $t('Uploading...') }}</span>
-                    <span class="font-medium text-gray-900 dark:text-white">{{ Math.round(uploadProgress) }}%</span>
+                    <span class="text-gray-600 dark:text-gray-400">{{
+                        $t('Uploading...')
+                    }}</span>
+                    <span class="font-medium text-gray-900 dark:text-white"
+                        >{{ Math.round(uploadProgress) }}%</span
+                    >
                 </div>
-                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div
+                    class="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700"
+                >
                     <div
-                        class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                        class="h-2 rounded-full bg-blue-600 transition-all duration-300"
                         :style="{ width: `${uploadProgress}%` }"
                     />
                 </div>
             </div>
-            
+
             <!-- Upload Button -->
             <button
                 @click="uploadFiles"
                 :disabled="isUploading"
                 type="button"
-                class="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="inline-flex w-full items-center justify-center rounded-lg border border-transparent bg-blue-600 px-4 py-2 text-xs font-semibold tracking-widest text-white uppercase transition duration-150 ease-in-out hover:bg-blue-700 focus:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none active:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-gray-800"
             >
                 <Upload :size="16" class="mr-2" />
                 {{ $t(isUploading ? 'Uploading...' : 'Upload Files') }}

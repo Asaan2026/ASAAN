@@ -16,77 +16,82 @@
 *  limitations under the License.
 */
 
-
 namespace PhonePe\payments\v2\models\response\ResponseComponents;
 
 use AllowDynamicProperties;
 
 #[AllowDynamicProperties] class PaymentDetail
 {
-	public string $paymentMode;
-	public $timestamp;
-	public int $amount;
-	public string $transactionId;
-	public string $state;
-	public string $errorCode;
-	public string $detailedErrorCode;
-	public Rail $rail;
-	public Instrument $instrument;
-	public $splitInstruments = array();
+    public string $paymentMode;
 
-	public function getPaymentMode(): string
-	{
-		return $this->paymentMode;
-	}
+    public $timestamp;
 
-	/**
-	 * @return mixed
-	 */
-	public function getTimestamp()
-	{
-		return $this->timestamp;
-	}
+    public int $amount;
 
-	public function getAmount(): int
-	{
-		return $this->amount;
-	}
+    public string $transactionId;
 
-	public function getTransactionId(): string
-	{
-		return $this->transactionId;
-	}
+    public string $state;
 
-	public function getState(): string
-	{
-		return $this->state;
-	}
+    public string $errorCode;
 
-	public function getErrorCode(): string
-	{
-		return $this->errorCode;
-	}
+    public string $detailedErrorCode;
 
-	public function getDetailedErrorCode(): string
-	{
-		return $this->detailedErrorCode;
-	}
+    public Rail $rail;
 
-	public function getRail(): Rail
-	{
-		return $this->rail;
-	}
+    public Instrument $instrument;
 
-	public function getInstrument(): Instrument
-	{
-		return $this->instrument;
-	}
+    public $splitInstruments = [];
 
-	public function getSplitInstruments(): array
-	{
-		return $this->splitInstruments;
-	}
+    public function getPaymentMode(): string
+    {
+        return $this->paymentMode;
+    }
 
+    /**
+     * @return mixed
+     */
+    public function getTimestamp()
+    {
+        return $this->timestamp;
+    }
 
+    public function getAmount(): int
+    {
+        return $this->amount;
+    }
 
+    public function getTransactionId(): string
+    {
+        return $this->transactionId;
+    }
+
+    public function getState(): string
+    {
+        return $this->state;
+    }
+
+    public function getErrorCode(): string
+    {
+        return $this->errorCode;
+    }
+
+    public function getDetailedErrorCode(): string
+    {
+        return $this->detailedErrorCode;
+    }
+
+    public function getRail(): Rail
+    {
+        return $this->rail;
+    }
+
+    public function getInstrument(): Instrument
+    {
+        return $this->instrument;
+    }
+
+    public function getSplitInstruments(): array
+    {
+        return $this->splitInstruments;
+    }
 }

@@ -6,19 +6,22 @@ use App\Http\Controllers\Controller;
 use Cartxis\Core\Services\SettingService;
 use Cartxis\Sales\Models\Shipment;
 use Cartxis\Sales\Services\DeliveryService;
-use Cartxis\Sales\Services\ShiprocketService;
 use Cartxis\Sales\Services\ShipmentService;
+use Cartxis\Sales\Services\ShiprocketService;
 use Cartxis\Shop\Models\Order;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Http\RedirectResponse;
 
 class ShipmentController extends Controller
 {
     protected ShipmentService $shipmentService;
+
     protected ShiprocketService $shiprocketService;
+
     protected DeliveryService $deliveryService;
+
     protected SettingService $settingService;
 
     public function __construct(ShipmentService $shipmentService, ShiprocketService $shiprocketService, DeliveryService $deliveryService, SettingService $settingService)
@@ -64,9 +67,9 @@ class ShipmentController extends Controller
     public function create(Request $request): Response|RedirectResponse
     {
         $orderId = $request->input('order_id');
-        
+
         // Require order_id - shipments must be linked to orders
-        if (!$orderId) {
+        if (! $orderId) {
             return redirect()
                 ->route('admin.sales.orders.index')
                 ->with('error', 'Please select an order first. Shipments must be created from an order.');
@@ -75,7 +78,7 @@ class ShipmentController extends Controller
         $order = Order::with(['items.product', 'user', 'shipments.shipmentItems'])
             ->findOrFail($orderId);
 
-        if (!$order->canBeShipped()) {
+        if (! $order->canBeShipped()) {
             return redirect()
                 ->route('admin.sales.orders.show', $orderId)
                 ->with('error', 'This order cannot be shipped');
@@ -121,7 +124,7 @@ class ShipmentController extends Controller
                     && (string) $this->settingService->get('shipping.shiprocket.email', '') !== ''
                     && (string) $this->settingService->get('shipping.shiprocket.password', '') !== '';
 
-                if (!$shiprocketConfigured) {
+                if (! $shiprocketConfigured) {
                     $shipment->delete();
 
                     return back()
@@ -141,12 +144,12 @@ class ShipmentController extends Controller
 
                     return back()
                         ->withInput()
-                        ->with('error', 'Shiprocket shipment creation failed: ' . $shiprocketError->getMessage());
+                        ->with('error', 'Shiprocket shipment creation failed: '.$shiprocketError->getMessage());
                 }
             }
 
             if (($validated['shipment_mode'] ?? 'manual') === 'courier') {
-                if (!$this->deliveryService->isConfigured()) {
+                if (! $this->deliveryService->isConfigured()) {
                     $shipment->delete();
 
                     return back()
@@ -166,7 +169,7 @@ class ShipmentController extends Controller
 
                     return back()
                         ->withInput()
-                        ->with('error', 'External courier shipment creation failed: ' . $deliveryError->getMessage());
+                        ->with('error', 'External courier shipment creation failed: '.$deliveryError->getMessage());
                 }
             }
 
@@ -202,7 +205,7 @@ class ShipmentController extends Controller
         $shipment = Shipment::with([
             'order.user',
             'order.items.product',
-            'shipmentItems.orderItem.product'
+            'shipmentItems.orderItem.product',
         ])->findOrFail($id);
 
         return Inertia::render('Admin/Sales/Shipments/Show', [
@@ -222,10 +225,10 @@ class ShipmentController extends Controller
             'order.user',
             'order.items.product',
             'order.shipments.shipmentItems',
-            'shipmentItems.orderItem.product'
+            'shipmentItems.orderItem.product',
         ])->findOrFail($id);
 
-        if (!$shipment->canEdit()) {
+        if (! $shipment->canEdit()) {
             return redirect()
                 ->route('admin.sales.shipments.show', $id)
                 ->with('error', 'This shipment cannot be edited');
@@ -307,7 +310,7 @@ class ShipmentController extends Controller
     public function updateStatus(Request $request, int $id): RedirectResponse
     {
         $validated = $request->validate([
-            'status' => 'required|string|in:' . implode(',', array_keys(Shipment::getStatuses())),
+            'status' => 'required|string|in:'.implode(',', array_keys(Shipment::getStatuses())),
         ]);
 
         try {
@@ -348,7 +351,7 @@ class ShipmentController extends Controller
             'order.user',
             'order.billingAddress',
             'order.shippingAddress',
-            'shipmentItems.orderItem.product'
+            'shipmentItems.orderItem.product',
         ])->findOrFail($id);
 
         // TODO: Implement shipping label generation with PDF
@@ -399,7 +402,7 @@ class ShipmentController extends Controller
                 'shiprocket_synced_at' => now(),
             ];
 
-            if (!empty($updateData['shiprocket_courier_name'])) {
+            if (! empty($updateData['shiprocket_courier_name'])) {
                 $updateData['carrier'] = $updateData['shiprocket_courier_name'];
             }
 
@@ -465,7 +468,7 @@ class ShipmentController extends Controller
                 'delivery_synced_at' => now(),
             ];
 
-            if (!empty($updateData['delivery_courier_name'])) {
+            if (! empty($updateData['delivery_courier_name'])) {
                 $updateData['carrier'] = $updateData['delivery_courier_name'];
             }
 
@@ -490,7 +493,7 @@ class ShipmentController extends Controller
 
     private function mapDeliveryStatusToShipmentStatus(?string $deliveryStatus): ?string
     {
-        if (!is_string($deliveryStatus) || trim($deliveryStatus) === '') {
+        if (! is_string($deliveryStatus) || trim($deliveryStatus) === '') {
             return null;
         }
 
@@ -529,7 +532,7 @@ class ShipmentController extends Controller
 
     private function mapShiprocketStatusToShipmentStatus(?string $shiprocketStatus): ?string
     {
-        if (!is_string($shiprocketStatus) || trim($shiprocketStatus) === '') {
+        if (! is_string($shiprocketStatus) || trim($shiprocketStatus) === '') {
             return null;
         }
 
@@ -580,12 +583,12 @@ class ShipmentController extends Controller
             'shiprocket_synced_at' => now(),
         ];
 
-        if (!empty($updateData['shiprocket_awb_code'])) {
+        if (! empty($updateData['shiprocket_awb_code'])) {
             $updateData['tracking_number'] = $updateData['shiprocket_awb_code'];
-            $updateData['tracking_url'] = 'https://shiprocket.co/tracking/' . $updateData['shiprocket_awb_code'];
+            $updateData['tracking_url'] = 'https://shiprocket.co/tracking/'.$updateData['shiprocket_awb_code'];
         }
 
-        if (!empty($updateData['shiprocket_courier_name'])) {
+        if (! empty($updateData['shiprocket_courier_name'])) {
             $updateData['carrier'] = $updateData['shiprocket_courier_name'];
         }
 
@@ -611,11 +614,11 @@ class ShipmentController extends Controller
             'delivery_synced_at' => now(),
         ];
 
-        if (!empty($updateData['delivery_awb_code'])) {
+        if (! empty($updateData['delivery_awb_code'])) {
             $updateData['tracking_number'] = $updateData['delivery_awb_code'];
         }
 
-        if (!empty($updateData['delivery_courier_name'])) {
+        if (! empty($updateData['delivery_courier_name'])) {
             $updateData['carrier'] = $updateData['delivery_courier_name'];
         }
 

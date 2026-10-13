@@ -2,15 +2,18 @@
 
 namespace Cartxis\Marketing\Services;
 
+use Carbon\Carbon;
+use Cartxis\Core\Models\Currency;
+use Cartxis\Customer\Models\Customer;
 use Cartxis\Marketing\Models\Coupon;
 use Cartxis\Marketing\Models\CouponUsage;
+use Cartxis\Shop\Models\Order;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 /**
  * CouponService
- * 
+ *
  * Handles coupon validation, application, and management.
  */
 class CouponService
@@ -29,15 +32,15 @@ class CouponService
 
     /**
      * Validate coupon for application.
-     * 
+     *
      * @return array ['valid' => bool, 'message' => string, 'coupon' => ?Coupon]
      */
-    public function validate(string $code, ?int $customerId = null, float $cartTotal = 0, Collection $cartItems = null): array
+    public function validate(string $code, ?int $customerId = null, float $cartTotal = 0, ?Collection $cartItems = null): array
     {
         // 1. Find coupon (case-insensitive)
         $coupon = $this->findByCode($code);
 
-        if (!$coupon) {
+        if (! $coupon) {
             return [
                 'valid' => false,
                 'message' => 'Coupon code not found.',
@@ -46,7 +49,7 @@ class CouponService
         }
 
         // 2. Check if active
-        if (!$coupon->is_active) {
+        if (! $coupon->is_active) {
             return [
                 'valid' => false,
                 'message' => 'This coupon is no longer active.',
@@ -60,7 +63,7 @@ class CouponService
         if ($coupon->start_date && $now->lt($coupon->start_date)) {
             return [
                 'valid' => false,
-                'message' => 'This coupon is not yet active. Valid from: ' . $coupon->start_date->format('M d, Y'),
+                'message' => 'This coupon is not yet active. Valid from: '.$coupon->start_date->format('M d, Y'),
                 'coupon' => $coupon,
             ];
         }
@@ -96,8 +99,9 @@ class CouponService
         }
 
         // 6. Check day of week restriction
-        if (!$coupon->isValidForDateTime()) {
+        if (! $coupon->isValidForDateTime()) {
             $allowedDays = implode(', ', array_map('ucfirst', $coupon->days_of_week ?? []));
+
             return [
                 'valid' => false,
                 'message' => "This coupon is only valid on: {$allowedDays}",
@@ -107,8 +111,9 @@ class CouponService
 
         // 7. Check minimum order amount
         if ($coupon->min_order_amount && $cartTotal < $coupon->min_order_amount) {
-                $currency = \Cartxis\Core\Models\Currency::getDefault();
+            $currency = Currency::getDefault();
             $minAmount = $currency->format($coupon->min_order_amount);
+
             return [
                 'valid' => false,
                 'message' => "Minimum order amount of {$minAmount} required.",
@@ -118,7 +123,7 @@ class CouponService
 
         // 8. Check first order only restriction
         if ($coupon->first_order_only && $customerId) {
-                $orderCount = \Cartxis\Shop\Models\Order::where('customer_id', $customerId)
+            $orderCount = Order::where('customer_id', $customerId)
                 ->where('status', '!=', 'cancelled')
                 ->count();
 
@@ -133,9 +138,9 @@ class CouponService
 
         // 9. Check customer group eligibility
         if ($coupon->customer_groups && $customerId) {
-                $customer = \Cartxis\Customer\Models\Customer::find($customerId);
-            
-            if (!$customer || !in_array($customer->group_id, $coupon->customer_groups)) {
+            $customer = Customer::find($customerId);
+
+            if (! $customer || ! in_array($customer->group_id, $coupon->customer_groups)) {
                 return [
                     'valid' => false,
                     'message' => 'This coupon is not available for your customer group.',
@@ -146,11 +151,11 @@ class CouponService
 
         // 10. Check account age requirement
         if ($coupon->min_account_age_days && $customerId) {
-                $customer = \Cartxis\Customer\Models\Customer::find($customerId);
-            
+            $customer = Customer::find($customerId);
+
             if ($customer) {
                 $accountAge = now()->diffInDays($customer->created_at);
-                
+
                 if ($accountAge < $coupon->min_account_age_days) {
                     return [
                         'valid' => false,
@@ -189,9 +194,9 @@ class CouponService
      * Record coupon usage after order completion.
      */
     public function recordUsage(
-        int $couponId, 
-        int $orderId, 
-        float $discountAmount, 
+        int $couponId,
+        int $orderId,
+        float $discountAmount,
         float $orderSubtotal,
         ?int $customerId = null,
         ?int $userId = null,
@@ -238,8 +243,8 @@ class CouponService
 
         // Filter by customer group if applicable
         if ($customerId) {
-            $customer = \Cartxis\Customer\Models\Customer::find($customerId);
-            
+            $customer = Customer::find($customerId);
+
             if ($customer && $customer->group_id) {
                 $query->where(function ($q) use ($customer) {
                     $q->whereNull('customer_groups')
@@ -256,16 +261,16 @@ class CouponService
      */
     protected function getDiscountMessage(Coupon $coupon, float $discountAmount): string
     {
-        $currency = \Cartxis\Core\Models\Currency::getDefault();
+        $currency = Currency::getDefault();
         $formatted = $currency->format($discountAmount);
 
-        return match($coupon->type) {
+        return match ($coupon->type) {
             Coupon::TYPE_PERCENTAGE => "Coupon applied: {$coupon->value}% off ({$formatted} discount)",
             Coupon::TYPE_FIXED_AMOUNT => "Coupon applied: {$formatted} off",
-            Coupon::TYPE_FREE_SHIPPING => "Free shipping applied",
+            Coupon::TYPE_FREE_SHIPPING => 'Free shipping applied',
             Coupon::TYPE_BUY_X_GET_Y => "Buy {$coupon->buy_quantity} get {$coupon->get_quantity} free applied ({$formatted} discount)",
             Coupon::TYPE_FIXED_PRICE => "Special pricing applied ({$formatted} discount)",
-            default => "Coupon applied",
+            default => 'Coupon applied',
         };
     }
 

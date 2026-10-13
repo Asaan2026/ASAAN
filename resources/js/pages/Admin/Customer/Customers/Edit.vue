@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { Head, useForm, router } from '@inertiajs/vue3';
-import AdminLayout from '@/layouts/AdminLayout.vue';
-import * as customerRoutes from '@/routes/admin/customers';
 import DatePicker from '@/components/Calendar/DatePicker.vue';
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import { today } from '@/lib/solar-hijri';
+import * as customerRoutes from '@/routes/admin/customers';
+import { Head, router, useForm } from '@inertiajs/vue3';
 
 interface CustomerGroup {
     id: number;
@@ -59,7 +59,7 @@ const submit = () => {
         console.error('Cannot submit: customer ID is undefined');
         return;
     }
-    
+
     form.put(customerRoutes.update({ customer: props.customer.id }).url, {
         preserveScroll: true,
     });
@@ -71,8 +71,10 @@ const submit = () => {
 
     <AdminLayout :title="$t('Edit Customer')">
         <div v-if="!props.customer" class="p-6">
-            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <p class="text-yellow-800">{{ $t('Loading customer data...') }}</p>
+            <div class="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+                <p class="text-yellow-800">
+                    {{ $t('Loading customer data...') }}
+                </p>
             </div>
         </div>
 
@@ -82,141 +84,268 @@ const submit = () => {
                 <button
                     type="button"
                     @click="router.visit('/admin/customers')"
-                    class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                    class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    <svg
+                        class="mr-2 h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                        />
                     </svg>
                     {{ $t('Back to Customers') }}
                 </button>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
                 <form @submit.prevent="submit" class="space-y-6">
                     <!-- Customer Information -->
                     <div>
-                        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">{{ $t('Customer Information') }}</h2>
+                        <h2
+                            class="mb-4 text-lg font-medium text-gray-900 dark:text-gray-100"
+                        >
+                            {{ $t('Customer Information') }}
+                        </h2>
                         <div class="space-y-4">
                             <!-- Basic Information -->
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('First Name *') }}</label>
+                                    <label
+                                        class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        >{{ $t('First Name *') }}</label
+                                    >
                                     <input
                                         v-model="form.first_name"
                                         type="text"
                                         required
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                                        :class="{ 'border-red-500': form.errors.first_name }"
+                                        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                        :class="{
+                                            'border-red-500':
+                                                form.errors.first_name,
+                                        }"
                                         :placeholder="$t('Enter first name')"
                                     />
-                                    <div v-if="form.errors.first_name" class="text-red-600 text-sm mt-1">{{ form.errors.first_name }}</div>
+                                    <div
+                                        v-if="form.errors.first_name"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.first_name }}
+                                    </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Last Name *') }}</label>
+                                    <label
+                                        class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        >{{ $t('Last Name *') }}</label
+                                    >
                                     <input
                                         v-model="form.last_name"
                                         type="text"
                                         required
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                                        :class="{ 'border-red-500': form.errors.last_name }"
+                                        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                        :class="{
+                                            'border-red-500':
+                                                form.errors.last_name,
+                                        }"
                                         :placeholder="$t('Enter last name')"
                                     />
-                                    <div v-if="form.errors.last_name" class="text-red-600 text-sm mt-1">{{ form.errors.last_name }}</div>
+                                    <div
+                                        v-if="form.errors.last_name"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.last_name }}
+                                    </div>
                                 </div>
                             </div>
 
                             <!-- Contact Information -->
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Email *') }}</label>
+                                    <label
+                                        class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        >{{ $t('Email *') }}</label
+                                    >
                                     <input
                                         v-model="form.email"
                                         type="email"
                                         required
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                                        :class="{ 'border-red-500': form.errors.email }"
+                                        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                        :class="{
+                                            'border-red-500': form.errors.email,
+                                        }"
                                         placeholder="customer@example.com"
                                     />
-                                    <div v-if="form.errors.email" class="text-red-600 text-sm mt-1">{{ form.errors.email }}</div>
+                                    <div
+                                        v-if="form.errors.email"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.email }}
+                                    </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Phone') }}</label>
+                                    <label
+                                        class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        >{{ $t('Phone') }}</label
+                                    >
                                     <input
                                         v-model="form.phone"
                                         type="text"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                                        :class="{ 'border-red-500': form.errors.phone }"
+                                        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                        :class="{
+                                            'border-red-500': form.errors.phone,
+                                        }"
                                         placeholder="+1 (555) 000-0000"
                                     />
-                                    <div v-if="form.errors.phone" class="text-red-600 text-sm mt-1">{{ form.errors.phone }}</div>
+                                    <div
+                                        v-if="form.errors.phone"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.phone }}
+                                    </div>
                                 </div>
                             </div>
 
                             <!-- Personal Information -->
                             <div class="grid grid-cols-3 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Date of Birth') }}</label>
+                                    <label
+                                        class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        >{{ $t('Date of Birth') }}</label
+                                    >
                                     <DatePicker
                                         v-model="form.date_of_birth"
                                         min="1900-01-01"
                                         :max="maxDob"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        :class="{ 'border-red-500': form.errors.date_of_birth }"
+                                        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600"
+                                        :class="{
+                                            'border-red-500':
+                                                form.errors.date_of_birth,
+                                        }"
                                     />
-                                    <div v-if="form.errors.date_of_birth" class="text-red-600 text-sm mt-1">{{ form.errors.date_of_birth }}</div>
+                                    <div
+                                        v-if="form.errors.date_of_birth"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.date_of_birth }}
+                                    </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Gender') }}</label>
+                                    <label
+                                        class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        >{{ $t('Gender') }}</label
+                                    >
                                     <select
                                         v-model="form.gender"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                                        :class="{ 'border-red-500': form.errors.gender }"
+                                        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                        :class="{
+                                            'border-red-500':
+                                                form.errors.gender,
+                                        }"
                                     >
-                                        <option value="">{{ $t('Select Gender') }}</option>
-                                        <option value="male">{{ $t('Male') }}</option>
-                                        <option value="female">{{ $t('Female') }}</option>
-                                        <option value="other">{{ $t('Other') }}</option>
+                                        <option value="">
+                                            {{ $t('Select Gender') }}
+                                        </option>
+                                        <option value="male">
+                                            {{ $t('Male') }}
+                                        </option>
+                                        <option value="female">
+                                            {{ $t('Female') }}
+                                        </option>
+                                        <option value="other">
+                                            {{ $t('Other') }}
+                                        </option>
                                     </select>
-                                    <div v-if="form.errors.gender" class="text-red-600 text-sm mt-1">{{ form.errors.gender }}</div>
+                                    <div
+                                        v-if="form.errors.gender"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.gender }}
+                                    </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Customer Group *') }}</label>
+                                    <label
+                                        class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        >{{ $t('Customer Group *') }}</label
+                                    >
                                     <select
                                         v-model="form.customer_group_id"
                                         required
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                                        :class="{ 'border-red-500': form.errors.customer_group_id }"
+                                        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                        :class="{
+                                            'border-red-500':
+                                                form.errors.customer_group_id,
+                                        }"
                                     >
-                                        <option value="">{{ $t('Select Group') }}</option>
-                                        <option v-for="group in customerGroups" :key="group.id" :value="group.id">{{ group.name }}</option>
+                                        <option value="">
+                                            {{ $t('Select Group') }}
+                                        </option>
+                                        <option
+                                            v-for="group in customerGroups"
+                                            :key="group.id"
+                                            :value="group.id"
+                                        >
+                                            {{ group.name }}
+                                        </option>
                                     </select>
-                                    <div v-if="form.errors.customer_group_id" class="text-red-600 text-sm mt-1">{{ form.errors.customer_group_id }}</div>
+                                    <div
+                                        v-if="form.errors.customer_group_id"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.customer_group_id }}
+                                    </div>
                                 </div>
                             </div>
 
                             <!-- Company Information -->
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Company Name') }}</label>
+                                    <label
+                                        class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        >{{ $t('Company Name') }}</label
+                                    >
                                     <input
                                         v-model="form.company_name"
                                         type="text"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                                        :class="{ 'border-red-500': form.errors.company_name }"
+                                        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                        :class="{
+                                            'border-red-500':
+                                                form.errors.company_name,
+                                        }"
                                         :placeholder="$t('Enter company name')"
                                     />
-                                    <div v-if="form.errors.company_name" class="text-red-600 text-sm mt-1">{{ form.errors.company_name }}</div>
+                                    <div
+                                        v-if="form.errors.company_name"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.company_name }}
+                                    </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Tax ID') }}</label>
+                                    <label
+                                        class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        >{{ $t('Tax ID') }}</label
+                                    >
                                     <input
                                         v-model="form.tax_id"
                                         type="text"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                                        :class="{ 'border-red-500': form.errors.tax_id }"
+                                        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                        :class="{
+                                            'border-red-500':
+                                                form.errors.tax_id,
+                                        }"
                                         :placeholder="$t('Enter tax ID')"
                                     />
-                                    <div v-if="form.errors.tax_id" class="text-red-600 text-sm mt-1">{{ form.errors.tax_id }}</div>
+                                    <div
+                                        v-if="form.errors.tax_id"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.tax_id }}
+                                    </div>
                                 </div>
                             </div>
 
@@ -227,60 +356,88 @@ const submit = () => {
                                         v-model="form.is_active"
                                         type="checkbox"
                                         id="is_active"
-                                        class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 dark:bg-gray-700"
+                                        class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
                                     />
-                                    <label for="is_active" class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('Active') }}</label>
+                                    <label
+                                        for="is_active"
+                                        class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        >{{ $t('Active') }}</label
+                                    >
                                 </div>
                                 <div class="flex items-center">
                                     <input
                                         v-model="form.is_verified"
                                         type="checkbox"
                                         id="is_verified"
-                                        class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 dark:bg-gray-700"
+                                        class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
                                     />
-                                    <label for="is_verified" class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('Verified') }}</label>
+                                    <label
+                                        for="is_verified"
+                                        class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        >{{ $t('Verified') }}</label
+                                    >
                                 </div>
                                 <div class="flex items-center">
                                     <input
                                         v-model="form.newsletter_subscribed"
                                         type="checkbox"
                                         id="newsletter"
-                                        class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 dark:bg-gray-700"
+                                        class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
                                     />
-                                    <label for="newsletter" class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('Newsletter') }}</label>
+                                    <label
+                                        for="newsletter"
+                                        class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        >{{ $t('Newsletter') }}</label
+                                    >
                                 </div>
                             </div>
 
                             <!-- Notes -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Notes') }}</label>
+                                <label
+                                    class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    >{{ $t('Notes') }}</label
+                                >
                                 <textarea
                                     v-model="form.notes"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
-                                    :class="{ 'border-red-500': form.errors.notes }"
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                    :class="{
+                                        'border-red-500': form.errors.notes,
+                                    }"
                                     rows="4"
-                                    :placeholder="$t('Add any additional notes')"
+                                    :placeholder="
+                                        $t('Add any additional notes')
+                                    "
                                 ></textarea>
-                                <div v-if="form.errors.notes" class="text-red-600 text-sm mt-1">{{ form.errors.notes }}</div>
+                                <div
+                                    v-if="form.errors.notes"
+                                    class="mt-1 text-sm text-red-600"
+                                >
+                                    {{ form.errors.notes }}
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Form Actions -->
-                    <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <div
+                        class="flex items-center justify-end gap-3 border-t border-gray-200 pt-6 dark:border-gray-700"
+                    >
                         <button
                             type="button"
                             @click="router.visit('/admin/customers')"
-                            class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                            class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                         >
                             {{ $t('Cancel') }}
                         </button>
                         <button
                             type="submit"
                             :disabled="form.processing"
-                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
                         >
-                            <span v-if="form.processing">{{ $t('Saving...') }}</span>
+                            <span v-if="form.processing">{{
+                                $t('Saving...')
+                            }}</span>
                             <span v-else>{{ $t('Save Changes') }}</span>
                         </button>
                     </div>

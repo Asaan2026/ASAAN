@@ -1,7 +1,7 @@
 <?php
 
+use App\Http\Controllers\LocaleController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +23,7 @@ Route::get('/dashboard', function () {
     if (auth()->guard('admin')->check()) {
         return redirect()->route('admin.dashboard');
     }
+
     return redirect()->route('shop.account.dashboard');
 })->middleware(['auth'])->name('dashboard');
 
@@ -30,5 +31,5 @@ require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
 
 // Language switch used by the storefront and admin/delivery language dropdowns
-Route::post('/locale/{locale}', [App\Http\Controllers\LocaleController::class, 'store'])
+Route::post('/locale/{locale}', [LocaleController::class, 'store'])
     ->name('locale.store');

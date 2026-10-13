@@ -1,31 +1,42 @@
-let initial = new Map<Element, string>()
+let initial = new Map<Element, string>();
 
-let dirty = false
+let dirty = false;
 
-const TRACKABLE_INPUT_TYPES = ['button', 'submit', 'reset', 'file', 'hidden']
+const TRACKABLE_INPUT_TYPES = ['button', 'submit', 'reset', 'file', 'hidden'];
 
 function trackable(el: Element): boolean {
-    return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement
+    return (
+        el instanceof HTMLInputElement ||
+        el instanceof HTMLTextAreaElement ||
+        el instanceof HTMLSelectElement
+    );
 }
 
 function currentValue(el: Element): string {
-    if (el instanceof HTMLInputElement && (el.type === 'checkbox' || el.type === 'radio')) {
-        return el.checked ? '1' : '0'
+    if (
+        el instanceof HTMLInputElement &&
+        (el.type === 'checkbox' || el.type === 'radio')
+    ) {
+        return el.checked ? '1' : '0';
     }
-    return (el as HTMLInputElement).value
+    return (el as HTMLInputElement).value;
 }
 
 function handleInputEvent(event: Event): void {
-    const el = event.target
-    if (!(el instanceof Element) || !trackable(el)) return
-    if (el instanceof HTMLInputElement && TRACKABLE_INPUT_TYPES.includes(el.type)) return
+    const el = event.target;
+    if (!(el instanceof Element) || !trackable(el)) return;
+    if (
+        el instanceof HTMLInputElement &&
+        TRACKABLE_INPUT_TYPES.includes(el.type)
+    )
+        return;
 
     if (!initial.has(el)) {
-        initial.set(el, currentValue(el))
+        initial.set(el, currentValue(el));
     }
 
     if (initial.get(el) !== currentValue(el)) {
-        dirty = true
+        dirty = true;
     }
 }
 
@@ -35,13 +46,21 @@ function handleInputEvent(event: Event): void {
  * treated as unsaved.
  */
 export function snapshotPage(): void {
-    initial = new Map()
-    dirty = false
+    initial = new Map();
+    dirty = false;
 
-    document.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>('input, textarea, select').forEach((el) => {
-        if (el instanceof HTMLInputElement && TRACKABLE_INPUT_TYPES.includes(el.type)) return
-        initial.set(el, currentValue(el))
-    })
+    document
+        .querySelectorAll<
+            HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >('input, textarea, select')
+        .forEach((el) => {
+            if (
+                el instanceof HTMLInputElement &&
+                TRACKABLE_INPUT_TYPES.includes(el.type)
+            )
+                return;
+            initial.set(el, currentValue(el));
+        });
 }
 
 /**
@@ -50,11 +69,11 @@ export function snapshotPage(): void {
  * automatically - no screen has to wire this up by hand.
  */
 export function installUnsavedTracker(): void {
-    snapshotPage()
-    document.addEventListener('input', handleInputEvent, true)
-    document.addEventListener('change', handleInputEvent, true)
+    snapshotPage();
+    document.addEventListener('input', handleInputEvent, true);
+    document.addEventListener('change', handleInputEvent, true);
 }
 
 export function hasUnsavedChanges(): boolean {
-    return dirty
+    return dirty;
 }

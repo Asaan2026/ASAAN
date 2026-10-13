@@ -2,13 +2,15 @@
 
 namespace Cartxis\Cart\Http\Controllers\Api;
 
+use Cartxis\Marketing\Services\CouponService;
+use Cartxis\Product\Models\Attribute;
+use Cartxis\Product\Models\AttributeOption;
+use Cartxis\Product\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
-use Cartxis\Product\Models\Product;
-use Cartxis\Marketing\Services\CouponService;
 
 class CartController extends Controller
 {
@@ -24,7 +26,7 @@ class CartController extends Controller
         return response()->json([
             'items' => $items,
             'count' => collect($items)->sum('quantity'),
-            'subtotal' => collect($items)->sum(fn($item) => $item['price'] * $item['quantity']),
+            'subtotal' => collect($items)->sum(fn ($item) => $item['price'] * $item['quantity']),
             'coupon' => $coupon,
         ]);
     }
@@ -88,7 +90,7 @@ class CartController extends Controller
             'message' => 'Product added to cart successfully',
             'items' => $items,
             'count' => collect($items)->sum('quantity'),
-            'subtotal' => collect($items)->sum(fn($item) => $item['price'] * $item['quantity']),
+            'subtotal' => collect($items)->sum(fn ($item) => $item['price'] * $item['quantity']),
             'coupon' => $this->getCartCoupon(),
         ]);
     }
@@ -120,14 +122,14 @@ class CartController extends Controller
         $items[$key]['quantity'] = $request->quantity;
         $this->saveCartItems($items);
         $this->recalculateCoupon($items);
-        
+
         $items = $this->refreshCartItemImages($items);
 
         return response()->json([
             'message' => 'Cart updated successfully',
             'items' => $items,
             'count' => collect($items)->sum('quantity'),
-            'subtotal' => collect($items)->sum(fn($item) => $item['price'] * $item['quantity']),
+            'subtotal' => collect($items)->sum(fn ($item) => $item['price'] * $item['quantity']),
             'coupon' => $this->getCartCoupon(),
         ]);
     }
@@ -147,14 +149,14 @@ class CartController extends Controller
         array_splice($items, $key, 1);
         $this->saveCartItems($items);
         $this->recalculateCoupon($items);
-        
+
         $items = $this->refreshCartItemImages($items);
 
         return response()->json([
             'message' => 'Item removed from cart',
             'items' => $items,
             'count' => collect($items)->sum('quantity'),
-            'subtotal' => collect($items)->sum(fn($item) => $item['price'] * $item['quantity']),
+            'subtotal' => collect($items)->sum(fn ($item) => $item['price'] * $item['quantity']),
             'coupon' => $this->getCartCoupon(),
         ]);
     }
@@ -189,8 +191,8 @@ class CartController extends Controller
             return response()->json(['message' => 'Your cart is empty.'], 422);
         }
 
-        $subtotal = collect($items)->sum(fn($i) => $i['price'] * $i['quantity']);
-        $cartItemsCollection = collect($items)->map(fn($i) => (object) $i);
+        $subtotal = collect($items)->sum(fn ($i) => $i['price'] * $i['quantity']);
+        $cartItemsCollection = collect($items)->map(fn ($i) => (object) $i);
         $customerId = Auth::id();
 
         $couponService = app(CouponService::class);
@@ -201,23 +203,23 @@ class CartController extends Controller
             $cartItemsCollection
         );
 
-        if (!$result['valid']) {
+        if (! $result['valid']) {
             return response()->json(['message' => $result['message']], 422);
         }
 
         $applied = $couponService->apply($result['coupon'], $subtotal, $cartItemsCollection);
 
         $coupon = [
-            'code'            => $applied['coupon_code'],
+            'code' => $applied['coupon_code'],
             'discount_amount' => $applied['discount_amount'],
-            'message'         => $applied['message'],
+            'message' => $applied['message'],
         ];
 
         $this->saveCartCoupon($coupon);
 
         return response()->json([
             'message' => 'Coupon applied successfully.',
-            'coupon'  => $coupon,
+            'coupon' => $coupon,
         ]);
     }
 
@@ -266,17 +268,18 @@ class CartController extends Controller
     private function recalculateCoupon(array $items): void
     {
         $coupon = $this->getCartCoupon();
-        if (!$coupon || empty($coupon['code'])) {
+        if (! $coupon || empty($coupon['code'])) {
             return;
         }
 
         if (empty($items)) {
             $this->clearCartCoupon();
+
             return;
         }
 
-        $subtotal = collect($items)->sum(fn($i) => $i['price'] * $i['quantity']);
-        $cartItemsCollection = collect($items)->map(fn($i) => (object) $i);
+        $subtotal = collect($items)->sum(fn ($i) => $i['price'] * $i['quantity']);
+        $cartItemsCollection = collect($items)->map(fn ($i) => (object) $i);
 
         try {
             $couponService = app(CouponService::class);
@@ -290,9 +293,9 @@ class CartController extends Controller
             if ($result['valid']) {
                 $applied = $couponService->apply($result['coupon'], $subtotal, $cartItemsCollection);
                 $this->saveCartCoupon([
-                    'code'            => $applied['coupon_code'],
+                    'code' => $applied['coupon_code'],
                     'discount_amount' => $applied['discount_amount'],
-                    'message'         => $applied['message'],
+                    'message' => $applied['message'],
                 ]);
             } else {
                 // Coupon no longer valid (e.g. min spend no longer met) — remove it
@@ -373,8 +376,8 @@ class CartController extends Controller
 
         foreach ($attributes as $attributeId => $optionId) {
             // Get the attribute and option details
-            $attribute = \Cartxis\Product\Models\Attribute::find($attributeId);
-            $option = \Cartxis\Product\Models\AttributeOption::find($optionId);
+            $attribute = Attribute::find($attributeId);
+            $option = AttributeOption::find($optionId);
 
             if ($attribute && $option) {
                 $readable[$attribute->name] = $option->label;
@@ -395,6 +398,7 @@ class CartController extends Controller
             if ($product) {
                 $item['product_image'] = $product->image;
             }
+
             return $item;
         }, $items);
     }

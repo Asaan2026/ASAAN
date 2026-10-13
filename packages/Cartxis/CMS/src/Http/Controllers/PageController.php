@@ -9,10 +9,10 @@ use Cartxis\CMS\Models\Page;
 use Cartxis\CMS\Repositories\PageRepository;
 use Cartxis\Core\Services\ThemeViewResolver;
 use Cartxis\UIEditor\Services\LayoutService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Http\RedirectResponse;
 
 class PageController extends Controller
 {
@@ -39,17 +39,17 @@ class PageController extends Controller
             }
 
             return [
-                'id'               => $page->id,
-                'title'            => $page->title,
-                'content'          => $page->content,
-                'meta_title'       => $page->meta_title ?? $page->title,
+                'id' => $page->id,
+                'title' => $page->title,
+                'content' => $page->content,
+                'meta_title' => $page->meta_title ?? $page->title,
                 'meta_description' => $page->meta_description,
-                'meta_keywords'    => $page->meta_keywords,
-                'url_key'          => $page->url_key,
-                'status'           => $page->status,
-                'is_homepage'      => (bool) $page->is_homepage,
-                'created_at'       => $page->created_at?->format('F j, Y'),
-                'updated_at'       => $page->updated_at?->format('F j, Y'),
+                'meta_keywords' => $page->meta_keywords,
+                'url_key' => $page->url_key,
+                'status' => $page->status,
+                'is_homepage' => (bool) $page->is_homepage,
+                'created_at' => $page->created_at?->format('F j, Y'),
+                'updated_at' => $page->updated_at?->format('F j, Y'),
             ];
         });
 
@@ -66,15 +66,15 @@ class PageController extends Controller
 
         return Inertia::render($this->themeResolver->resolve('CMS/Page'), [
             'page' => [
-                'id'               => $pageData['id'],
-                'title'            => $pageData['title'],
-                'content'          => $pageData['content'],
-                'meta_title'       => $pageData['meta_title'],
+                'id' => $pageData['id'],
+                'title' => $pageData['title'],
+                'content' => $pageData['content'],
+                'meta_title' => $pageData['meta_title'],
                 'meta_description' => $pageData['meta_description'],
-                'meta_keywords'    => $pageData['meta_keywords'],
-                'url_key'          => $pageData['url_key'],
-                'created_at'       => $pageData['created_at'],
-                'updated_at'       => $pageData['updated_at'],
+                'meta_keywords' => $pageData['meta_keywords'],
+                'url_key' => $pageData['url_key'],
+                'created_at' => $pageData['created_at'],
+                'updated_at' => $pageData['updated_at'],
             ],
             'layoutData' => $page ? $this->layoutService->getPublishedForPage($page)?->layout_data : null,
         ]);

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Cartxis\Service\Services;
 
-use Cartxis\Service\Models\ServiceBooking;
 use Carbon\CarbonImmutable;
+use Cartxis\Service\Models\ServiceBooking;
 use Illuminate\Support\Collection;
 
 /**
@@ -71,11 +71,11 @@ class ServiceSlotService
         if ($day->lessThan($earliest)) {
             return $this->settings->sameDayAllowed()
                 ? 'Please choose today or a later date.'
-                : 'The earliest date you can book is ' . $earliest->format('j M Y') . '.';
+                : 'The earliest date you can book is '.$earliest->format('j M Y').'.';
         }
 
         if ($day->greaterThan($this->latestDate())) {
-            return 'Bookings are open up to ' . $this->latestDate()->format('j M Y') . '.';
+            return 'Bookings are open up to '.$this->latestDate()->format('j M Y').'.';
         }
 
         return null;

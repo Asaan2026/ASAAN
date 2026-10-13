@@ -2,9 +2,9 @@
 
 namespace Cartxis\Marketing\Http\Requests;
 
+use Cartxis\Marketing\Models\Coupon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Cartxis\Marketing\Models\Coupon;
 
 class UpdateCouponRequest extends FormRequest
 {
@@ -32,7 +32,7 @@ class UpdateCouponRequest extends FormRequest
             ],
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:' . implode(',', [
+            'type' => 'required|in:'.implode(',', [
                 Coupon::TYPE_PERCENTAGE,
                 Coupon::TYPE_FIXED_AMOUNT,
                 Coupon::TYPE_FREE_SHIPPING,

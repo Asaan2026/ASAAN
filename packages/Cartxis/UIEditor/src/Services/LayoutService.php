@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Cartxis\UIEditor\Services;
 
+use Cartxis\CMS\Models\Page;
 use Cartxis\UIEditor\Models\PageLayout;
 use Cartxis\UIEditor\Repositories\LayoutRepository;
-use Cartxis\CMS\Models\Page;
 use Mews\Purifier\Facades\Purifier;
 
 class LayoutService
@@ -55,17 +55,17 @@ class LayoutService
     {
         $existing = match ($pageType) {
             PageLayout::TYPE_CMS_PAGE => $this->repository->findForPage(
-                \Cartxis\CMS\Models\Page::findOrFail($pageId)
+                Page::findOrFail($pageId)
             ),
             PageLayout::TYPE_HOMEPAGE => $this->repository->findHomepage(),
-            default                   => null,
+            default => null,
         };
 
         $layoutData = $this->sanitizeLayoutBlocks($layoutData);
 
         $payload = [
             'layout_data' => $layoutData,
-            'status'      => PageLayout::STATUS_DRAFT,
+            'status' => PageLayout::STATUS_DRAFT,
         ];
 
         if ($existing) {
@@ -74,7 +74,7 @@ class LayoutService
 
         return $this->repository->create(array_merge($payload, [
             'page_type' => $pageType,
-            'page_id'   => $pageType === PageLayout::TYPE_CMS_PAGE ? $pageId : null,
+            'page_id' => $pageType === PageLayout::TYPE_CMS_PAGE ? $pageId : null,
         ]));
     }
 
@@ -84,7 +84,7 @@ class LayoutService
     public function publish(PageLayout $layout): PageLayout
     {
         return $this->repository->update($layout, [
-            'status'       => PageLayout::STATUS_PUBLISHED,
+            'status' => PageLayout::STATUS_PUBLISHED,
             'published_at' => now(),
         ]);
     }
@@ -95,7 +95,7 @@ class LayoutService
     public function unpublish(PageLayout $layout): PageLayout
     {
         return $this->repository->update($layout, [
-            'status'       => PageLayout::STATUS_DRAFT,
+            'status' => PageLayout::STATUS_DRAFT,
             'published_at' => null,
         ]);
     }
@@ -106,7 +106,7 @@ class LayoutService
     public function emptyLayout(): array
     {
         return [
-            'version'  => '1.0',
+            'version' => '1.0',
             'sections' => [],
         ];
     }
@@ -118,20 +118,20 @@ class LayoutService
      */
     private function sanitizeLayoutBlocks(array $layoutData): array
     {
-        if (empty($layoutData['sections']) || !is_array($layoutData['sections'])) {
+        if (empty($layoutData['sections']) || ! is_array($layoutData['sections'])) {
             return $layoutData;
         }
 
         foreach ($layoutData['sections'] as $si => $section) {
-            if (!empty($section['blocks']) && is_array($section['blocks'])) {
+            if (! empty($section['blocks']) && is_array($section['blocks'])) {
                 foreach ($section['blocks'] as $bi => $block) {
                     $layoutData['sections'][$si]['blocks'][$bi] = $this->sanitizeBlock($block);
                 }
             }
             // Handle column-based layouts where blocks live inside columns
-            if (!empty($section['columns']) && is_array($section['columns'])) {
+            if (! empty($section['columns']) && is_array($section['columns'])) {
                 foreach ($section['columns'] as $ci => $column) {
-                    if (!empty($column['blocks']) && is_array($column['blocks'])) {
+                    if (! empty($column['blocks']) && is_array($column['blocks'])) {
                         foreach ($column['blocks'] as $bi => $block) {
                             $layoutData['sections'][$si]['columns'][$ci]['blocks'][$bi] = $this->sanitizeBlock($block);
                         }
@@ -155,7 +155,7 @@ class LayoutService
                 }
                 break;
             case 'tabs':
-                if (!empty($settings['tabs']) && is_array($settings['tabs'])) {
+                if (! empty($settings['tabs']) && is_array($settings['tabs'])) {
                     foreach ($settings['tabs'] as $ti => $tab) {
                         if (isset($tab['content'])) {
                             $settings['tabs'][$ti]['content'] = Purifier::clean($tab['content']);
@@ -164,7 +164,7 @@ class LayoutService
                 }
                 break;
             case 'accordion':
-                if (!empty($settings['items']) && is_array($settings['items'])) {
+                if (! empty($settings['items']) && is_array($settings['items'])) {
                     foreach ($settings['items'] as $ii => $item) {
                         if (isset($item['content'])) {
                             $settings['items'][$ii]['content'] = Purifier::clean($item['content']);
@@ -180,6 +180,7 @@ class LayoutService
         }
 
         $block['settings'] = $settings;
+
         return $block;
     }
 }

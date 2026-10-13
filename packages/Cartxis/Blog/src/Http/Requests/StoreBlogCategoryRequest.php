@@ -16,11 +16,11 @@ class StoreBlogCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'             => ['required', 'string', 'max:255'],
-            'slug'             => ['nullable', 'string', 'max:255', 'unique:blog_categories,slug'],
-            'description'      => ['nullable', 'string'],
-            'status'           => ['required', 'in:active,inactive'],
-            'meta_title'       => ['nullable', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
+            'slug' => ['nullable', 'string', 'max:255', 'unique:blog_categories,slug'],
+            'description' => ['nullable', 'string'],
+            'status' => ['required', 'in:active,inactive'],
+            'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:500'],
         ];
     }

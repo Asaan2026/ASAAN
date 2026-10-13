@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Cartxis\Blog\Services;
 
 use Cartxis\Blog\Models\BlogPost;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Mews\Purifier\Facades\Purifier;
 
@@ -61,6 +61,7 @@ class BlogService
     public function delete(BlogPost $post): bool
     {
         $this->clearPostCache($post->slug);
+
         return $post->delete();
     }
 
@@ -74,7 +75,7 @@ class BlogService
         $counter = 1;
 
         while ($this->slugExists($slug, $excludeId)) {
-            $slug = $originalSlug . '-' . $counter;
+            $slug = $originalSlug.'-'.$counter;
             $counter++;
         }
 

@@ -8,10 +8,10 @@ use App\Http\Controllers\Controller;
 use Cartxis\CMS\Http\Requests\PageRequest;
 use Cartxis\CMS\Http\Resources\PageResource;
 use Cartxis\CMS\Models\Page;
-use Cartxis\CMS\Services\PageService;
 use Cartxis\CMS\Repositories\PageRepository;
-use Illuminate\Http\Request;
+use Cartxis\CMS\Services\PageService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -63,7 +63,7 @@ class PagesController extends Controller
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Failed to create page: ' . $e->getMessage());
+                ->with('error', 'Failed to create page: '.$e->getMessage());
         }
     }
 
@@ -90,7 +90,7 @@ class PagesController extends Controller
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Failed to update page: ' . $e->getMessage());
+                ->with('error', 'Failed to update page: '.$e->getMessage());
         }
     }
 
@@ -104,7 +104,7 @@ class PagesController extends Controller
 
             return back()->with('success', 'Page deleted successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to delete page: ' . $e->getMessage());
+            return back()->with('error', 'Failed to delete page: '.$e->getMessage());
         }
     }
 
@@ -120,16 +120,17 @@ class PagesController extends Controller
         ]);
 
         try {
-            $count = match($validated['action']) {
+            $count = match ($validated['action']) {
                 'enable' => $this->pageService->bulkUpdateStatus($validated['ids'], 'published'),
                 'disable' => $this->pageService->bulkUpdateStatus($validated['ids'], 'disabled'),
                 'delete' => $this->pageService->bulkDelete($validated['ids']),
             };
 
             $action = ucfirst($validated['action']);
+
             return back()->with('success', "{$action} action completed successfully on {$count} page(s).");
         } catch (\Exception $e) {
-            return back()->with('error', 'Bulk action failed: ' . $e->getMessage());
+            return back()->with('error', 'Bulk action failed: '.$e->getMessage());
         }
     }
 
@@ -153,7 +154,7 @@ class PagesController extends Controller
                 ->route('admin.uieditor.pages.editor', $newPage)
                 ->with('success', 'Page duplicated successfully. You are now editing the copy.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to duplicate page: ' . $e->getMessage());
+            return back()->with('error', 'Failed to duplicate page: '.$e->getMessage());
         }
     }
 
@@ -177,7 +178,7 @@ class PagesController extends Controller
         $exists = $this->pageService->slugExists($slug, $excludeId);
 
         return response()->json([
-            'available' => !$exists,
+            'available' => ! $exists,
             'slug' => $slug,
         ]);
     }

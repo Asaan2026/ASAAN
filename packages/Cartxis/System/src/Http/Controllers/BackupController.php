@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use Cartxis\System\Services\BackupService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Spatie\DbDumper\Exceptions\CannotStartDump;
 
 class BackupController extends Controller
 {
@@ -31,11 +31,12 @@ class BackupController extends Controller
 
         try {
             $this->backupService->createBackup($request->input('option', ''));
+
             return redirect()->back()->with('success', 'Backup started successfully.');
-        } catch (\Spatie\DbDumper\Exceptions\CannotStartDump $e) {
+        } catch (CannotStartDump $e) {
             return redirect()->back()->with('error', 'Backup failed: mysqldump not found. Please install mysqldump on the server.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Backup failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Backup failed: '.$e->getMessage());
         }
     }
 
@@ -64,9 +65,10 @@ class BackupController extends Controller
 
         try {
             $this->backupService->deleteBackup($request->disk, $request->path);
+
             return redirect()->back()->with('success', 'Backup deleted successfully.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Deletion failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Deletion failed: '.$e->getMessage());
         }
     }
 }

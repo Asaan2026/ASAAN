@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->text('short_description')->nullable();
             $table->longText('description')->nullable();
-            
+
             // Pricing
             $table->decimal('price', 12, 4)->default(0);
             $table->unsignedBigInteger('tax_class_id')->nullable()
@@ -29,13 +29,13 @@ return new class extends Migration
             $table->decimal('special_price', 12, 4)->nullable();
             $table->date('special_price_from')->nullable();
             $table->date('special_price_to')->nullable();
-            
+
             // Status & Visibility
             $table->enum('status', ['enabled', 'disabled'])->default('enabled');
             $table->enum('visibility', ['catalog', 'search', 'both', 'none'])->default('both');
             $table->boolean('featured')->default(false);
             $table->boolean('new')->default(false);
-            
+
             // Inventory
             $table->integer('quantity')->default(0);
             $table->enum('stock_status', ['in_stock', 'out_of_stock', 'on_backorder'])->default('in_stock');
@@ -43,28 +43,28 @@ return new class extends Migration
             $table->integer('min_quantity')->default(1);
             $table->integer('max_quantity')->nullable();
             $table->integer('notify_stock_qty')->default(5);
-            
+
             // Product Type & Configuration
             $table->enum('type', ['simple', 'configurable', 'virtual', 'downloadable', 'grouped', 'bundle'])->default('simple');
             $table->string('weight')->nullable();
             $table->string('length')->nullable();
             $table->string('width')->nullable();
             $table->string('height')->nullable();
-            
+
             // SEO
             $table->string('meta_title')->nullable();
             $table->text('meta_description')->nullable();
             $table->text('meta_keywords')->nullable();
-            
+
             // Sorting & Display
             $table->integer('sort_order')->default(0);
             $table->integer('views_count')->default(0);
             $table->integer('sales_count')->default(0);
-            
+
             // Timestamps
             $table->timestamps();
             $table->softDeletes();
-            
+
             // Indexes
             $table->index('sku');
             $table->index('slug');

@@ -25,7 +25,7 @@ class ExtensionMakeCommand extends Command
     public function handle(): int
     {
         $extensionRoot = base_path('extension');
-        $templatesRoot = $extensionRoot . '/templates';
+        $templatesRoot = $extensionRoot.'/templates';
 
         $nameInput = trim((string) ($this->argument('name') ?? ''));
         $codeInput = trim((string) ($this->option('code') ?? ''));
@@ -40,7 +40,7 @@ class ExtensionMakeCommand extends Command
             $templates = $this->discoverTemplates($templatesRoot);
 
             if ($templateInput === '') {
-                if (!empty($templates)) {
+                if (! empty($templates)) {
                     $defaultIndex = array_search('payment-gateway', $templates, true);
                     $templateInput = $this->choice(
                         'Choose extension template',
@@ -75,12 +75,13 @@ class ExtensionMakeCommand extends Command
         }
 
         $template = $templateInput !== '' ? $templateInput : 'payment-gateway';
-        $templatePath = $templatesRoot . '/' . $template;
+        $templatePath = $templatesRoot.'/'.$template;
 
         $code = $this->normalizeCode($codeInput !== '' ? $codeInput : $nameInput);
 
         if ($code === '') {
             $this->error('Unable to determine extension code. Provide a valid name or --code option.');
+
             return self::FAILURE;
         }
 
@@ -89,22 +90,25 @@ class ExtensionMakeCommand extends Command
         $author = $authorInput !== '' ? $authorInput : 'Cartxis Commerce';
         $authorUrl = $authorUrlInput !== '' ? $authorUrlInput : 'https://cartxiscommerce.com';
 
-        if (!File::isDirectory($templatePath)) {
+        if (! File::isDirectory($templatePath)) {
             $this->error("Template not found: {$templatePath}");
+
             return self::FAILURE;
         }
 
-        $targetPath = $extensionRoot . '/' . $code;
+        $targetPath = $extensionRoot.'/'.$code;
         if (File::exists($targetPath)) {
-            if (!$this->option('force')) {
+            if (! $this->option('force')) {
                 if ($this->input->isInteractive() && $interactiveRequested) {
                     $overwrite = (bool) $this->confirm("Target already exists: {$targetPath}. Overwrite?", false);
-                    if (!$overwrite) {
+                    if (! $overwrite) {
                         $this->warn('Scaffold cancelled.');
+
                         return self::FAILURE;
                     }
                 } else {
                     $this->error("Target already exists: {$targetPath}. Use --force to overwrite.");
+
                     return self::FAILURE;
                 }
             }
@@ -116,13 +120,13 @@ class ExtensionMakeCommand extends Command
         File::copyDirectory($templatePath, $targetPath);
 
         $extensionStudly = Str::studly(str_replace('-', ' ', $code));
-        $namespace = $vendor . '\\' . $extensionStudly;
-        $providerClass = $extensionStudly . 'ServiceProvider';
-        $gatewayClass = $extensionStudly . 'Gateway';
+        $namespace = $vendor.'\\'.$extensionStudly;
+        $providerClass = $extensionStudly.'ServiceProvider';
+        $gatewayClass = $extensionStudly.'Gateway';
         $paymentCode = Str::snake(str_replace('-', ' ', $code));
 
         $this->rewriteManifest(
-            $targetPath . '/extension.json',
+            $targetPath.'/extension.json',
             $code,
             $name,
             $author,
@@ -132,13 +136,13 @@ class ExtensionMakeCommand extends Command
         );
 
         $this->renameIfExists(
-            $targetPath . '/src/Providers/AcmeExampleServiceProvider.php',
-            $targetPath . '/src/Providers/' . $providerClass . '.php'
+            $targetPath.'/src/Providers/AcmeExampleServiceProvider.php',
+            $targetPath.'/src/Providers/'.$providerClass.'.php'
         );
 
         $this->renameIfExists(
-            $targetPath . '/src/Services/AcmeExampleGateway.php',
-            $targetPath . '/src/Services/' . $gatewayClass . '.php'
+            $targetPath.'/src/Services/AcmeExampleGateway.php',
+            $targetPath.'/src/Services/'.$gatewayClass.'.php'
         );
 
         $replacements = [
@@ -156,7 +160,7 @@ class ExtensionMakeCommand extends Command
         foreach (File::allFiles($targetPath) as $file) {
             $path = $file->getPathname();
             $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-            if (!in_array($ext, ['php', 'json', 'md'], true)) {
+            if (! in_array($ext, ['php', 'json', 'md'], true)) {
                 continue;
             }
 
@@ -190,7 +194,7 @@ class ExtensionMakeCommand extends Command
         string $namespace,
         string $providerClass
     ): void {
-        if (!File::exists($manifestPath)) {
+        if (! File::exists($manifestPath)) {
             return;
         }
 
@@ -200,12 +204,12 @@ class ExtensionMakeCommand extends Command
         $manifest['name'] = $name;
         $manifest['author'] = $author;
         $manifest['author_url'] = $authorUrl;
-        $manifest['provider'] = $namespace . '\\Providers\\' . $providerClass;
-        $manifest['provider_file'] = 'src/Providers/' . $providerClass . '.php';
+        $manifest['provider'] = $namespace.'\\Providers\\'.$providerClass;
+        $manifest['provider_file'] = 'src/Providers/'.$providerClass.'.php';
 
         File::put(
             $manifestPath,
-            json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL
+            json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES).PHP_EOL
         );
     }
 
@@ -255,7 +259,7 @@ class ExtensionMakeCommand extends Command
      */
     protected function discoverTemplates(string $templatesRoot): array
     {
-        if (!File::isDirectory($templatesRoot)) {
+        if (! File::isDirectory($templatesRoot)) {
             return [];
         }
 

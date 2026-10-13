@@ -20,9 +20,9 @@ class SetAdminSessionCookie
     public function handle(Request $request, Closure $next): Response
     {
         if ($request->is('admin') || $request->is('admin/*')) {
-            config(['session.cookie' => config('session.cookie') . '_admin']);
+            config(['session.cookie' => config('session.cookie').'_admin']);
         } elseif ($request->is('delivery') || $request->is('delivery/*')) {
-            config(['session.cookie' => config('session.cookie') . '_delivery']);
+            config(['session.cookie' => config('session.cookie').'_delivery']);
         }
 
         return $next($request);

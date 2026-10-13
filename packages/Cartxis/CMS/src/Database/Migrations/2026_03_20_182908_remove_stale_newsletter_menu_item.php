@@ -1,9 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -17,9 +15,9 @@ return new class extends Migration
             ->where('key', 'marketing-newsletters')
             ->orWhere(function ($q) {
                 $q->where('location', 'admin')
-                  ->whereRaw("LOWER(title) = 'newsletters'")
-                  ->whereNotNull('route')
-                  ->where('route', 'like', '%newsletter%');
+                    ->whereRaw("LOWER(title) = 'newsletters'")
+                    ->whereNotNull('route')
+                    ->where('route', 'like', '%newsletter%');
             })
             ->delete();
 
@@ -39,9 +37,9 @@ return new class extends Migration
         // The 'marketing-newsletters' menu item was a stale DB record with no
         // backing route, controller, or Vue page. Re-inserting it would restore
         // a broken 404 link. If you need to roll back, restore it manually.
-        throw new \RuntimeException(
+        throw new RuntimeException(
             'Migration 2026_03_20_182908_remove_stale_newsletter_menu_item is irreversible. '
-            . 'Re-inserting the stale newsletter menu item would reintroduce a 404 link.'
+            .'Re-inserting the stale newsletter menu item would reintroduce a 404 link.'
         );
     }
 };

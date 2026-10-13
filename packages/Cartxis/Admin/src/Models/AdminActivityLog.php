@@ -2,6 +2,7 @@
 
 namespace Cartxis\Admin\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -29,6 +30,6 @@ class AdminActivityLog extends Model
 
     public function actor(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'actor_user_id');
+        return $this->belongsTo(User::class, 'actor_user_id');
     }
 }

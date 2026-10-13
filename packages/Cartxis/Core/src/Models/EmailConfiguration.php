@@ -103,14 +103,14 @@ class EmailConfiguration extends Model
     public function testConnection(): bool
     {
         try {
-            $result = match($this->mail_driver) {
+            $result = match ($this->mail_driver) {
                 'smtp' => $this->testSmtp(),
                 'ses' => $this->testSes(),
                 'postmark' => $this->testPostmark(),
                 default => true, // sendmail, log always succeed
             };
 
-            if (!$result) {
+            if (! $result) {
                 throw new \Exception('Connection test failed');
             }
 
@@ -137,13 +137,13 @@ class EmailConfiguration extends Model
      */
     private function testSmtp(): bool
     {
-        if (!$this->smtp_host || !$this->smtp_port) {
+        if (! $this->smtp_host || ! $this->smtp_port) {
             throw new \Exception('SMTP Host and Port are required');
         }
 
         // Validate host format
-        if (!filter_var(gethostbyname($this->smtp_host), FILTER_VALIDATE_IP) && 
-            !filter_var($this->smtp_host, FILTER_VALIDATE_DOMAIN)) {
+        if (! filter_var(gethostbyname($this->smtp_host), FILTER_VALIDATE_IP) &&
+            ! filter_var($this->smtp_host, FILTER_VALIDATE_DOMAIN)) {
             throw new \Exception('SMTP Host is invalid');
         }
 
@@ -162,7 +162,7 @@ class EmailConfiguration extends Model
             $timeout
         );
 
-        if (!$connection) {
+        if (! $connection) {
             throw new \Exception("Cannot connect to SMTP server {$this->smtp_host}:{$this->smtp_port}. Error: $errstr");
         }
 
@@ -174,13 +174,15 @@ class EmailConfiguration extends Model
         }
 
         // Send EHLO command (required for STARTTLS)
-        fputs($connection, "EHLO localhost\r\n");
+        fwrite($connection, "EHLO localhost\r\n");
         $response = '';
         while ($line = fgets($connection, 1024)) {
             $response .= $line;
-            if (preg_match('/^\d{3} /', $line)) break;
+            if (preg_match('/^\d{3} /', $line)) {
+                break;
+            }
         }
-        
+
         if (strpos($response, '250') === false) {
             fclose($connection);
             throw new \Exception('SMTP EHLO command failed');
@@ -188,9 +190,9 @@ class EmailConfiguration extends Model
 
         // If TLS encryption is enabled and server supports STARTTLS, upgrade connection
         if ($this->smtp_encryption === 'tls' && strpos($response, 'STARTTLS') !== false) {
-            fputs($connection, "STARTTLS\r\n");
+            fwrite($connection, "STARTTLS\r\n");
             $response = fgets($connection, 1024);
-            
+
             if (strpos($response, '220') === false) {
                 fclose($connection);
                 throw new \Exception('STARTTLS command failed');
@@ -198,43 +200,45 @@ class EmailConfiguration extends Model
 
             // Upgrade to TLS
             $crypto = stream_socket_enable_crypto($connection, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
-            if (!$crypto) {
+            if (! $crypto) {
                 fclose($connection);
                 throw new \Exception('Failed to establish TLS connection');
             }
 
             // Send EHLO again after TLS upgrade
-            fputs($connection, "EHLO localhost\r\n");
+            fwrite($connection, "EHLO localhost\r\n");
             $response = '';
             while ($line = fgets($connection, 1024)) {
                 $response .= $line;
-                if (preg_match('/^\d{3} /', $line)) break;
+                if (preg_match('/^\d{3} /', $line)) {
+                    break;
+                }
             }
         }
 
         // If SMTP authentication is required, test it
         if ($this->smtp_username && $this->smtp_password) {
-            fputs($connection, "AUTH LOGIN\r\n");
+            fwrite($connection, "AUTH LOGIN\r\n");
             $response = fgets($connection, 1024);
-            
+
             if (strpos($response, '334') === false) {
                 fclose($connection);
                 throw new \Exception('SMTP authentication not supported by server');
             }
 
             // Send base64 encoded username
-            fputs($connection, base64_encode($this->smtp_username) . "\r\n");
+            fwrite($connection, base64_encode($this->smtp_username)."\r\n");
             $response = fgets($connection, 1024);
-            
+
             if (strpos($response, '334') === false) {
                 fclose($connection);
                 throw new \Exception('SMTP authentication failed: invalid username');
             }
 
             // Send base64 encoded password
-            fputs($connection, base64_encode($this->smtp_password) . "\r\n");
+            fwrite($connection, base64_encode($this->smtp_password)."\r\n");
             $response = fgets($connection, 1024);
-            
+
             if (strpos($response, '235') === false) {
                 fclose($connection);
                 throw new \Exception('SMTP authentication failed: invalid password');
@@ -242,7 +246,7 @@ class EmailConfiguration extends Model
         }
 
         // Send QUIT
-        fputs($connection, "QUIT\r\n");
+        fwrite($connection, "QUIT\r\n");
         fclose($connection);
 
         return true;
@@ -253,7 +257,7 @@ class EmailConfiguration extends Model
      */
     private function testSes(): bool
     {
-        if (!$this->ses_key || !$this->ses_secret || !$this->ses_region) {
+        if (! $this->ses_key || ! $this->ses_secret || ! $this->ses_region) {
             throw new \Exception('SES credentials incomplete: Access Key, Secret Key, and Region are required');
         }
 
@@ -267,7 +271,7 @@ class EmailConfiguration extends Model
         }
 
         // Validate region format (e.g., us-east-1, eu-west-1, ap-southeast-1)
-        if (!preg_match('/^[a-z]{2}-[a-z\-]+-\d{1}$/', $this->ses_region)) {
+        if (! preg_match('/^[a-z]{2}-[a-z\-]+-\d{1}$/', $this->ses_region)) {
             throw new \Exception('SES Region format is invalid. Use format like us-east-1, eu-west-1, etc.');
         }
 
@@ -291,40 +295,40 @@ class EmailConfiguration extends Model
         try {
             // Use reflection to avoid type errors if AWS SDK not installed
             $sesClientClass = 'Aws\Ses\SesClient';
-            if (!class_exists($sesClientClass)) {
+            if (! class_exists($sesClientClass)) {
                 throw new \Exception('AWS SDK for PHP not installed');
             }
 
             $sesClient = new $sesClientClass([
                 'version' => 'latest',
-                'region'  => $this->ses_region,
+                'region' => $this->ses_region,
                 'credentials' => [
-                    'key'    => $this->ses_key,
+                    'key' => $this->ses_key,
                     'secret' => $this->ses_secret,
                 ],
             ]);
 
             // Try to list verified email addresses
             $result = $sesClient->listVerifiedEmailAddresses();
-            
-            if (!isset($result['VerifiedEmailAddresses'])) {
+
+            if (! isset($result['VerifiedEmailAddresses'])) {
                 throw new \Exception('Invalid AWS SES credentials');
             }
 
             return true;
         } catch (\Exception $e) {
             $message = $e->getMessage();
-            
-            if (strpos($message, 'InvalidClientTokenId') !== false || 
+
+            if (strpos($message, 'InvalidClientTokenId') !== false ||
                 strpos($message, 'AuthFailure') !== false ||
                 strpos($message, 'invalid access key') !== false) {
                 throw new \Exception('SES credentials are invalid. Check your Access Key and Secret Key');
             } elseif (strpos($message, 'SignatureDoesNotMatch') !== false) {
                 throw new \Exception('SES Secret Key is incorrect');
             } elseif (strpos($message, 'not a valid region') !== false) {
-                throw new \Exception('SES Region is invalid: ' . $this->ses_region);
+                throw new \Exception('SES Region is invalid: '.$this->ses_region);
             }
-            
+
             throw $e;
         }
     }
@@ -340,7 +344,7 @@ class EmailConfiguration extends Model
 
             // Create signature (AWS Signature Version 4)
             $host = "email.{$this->ses_region}.amazonaws.com";
-            
+
             // For simplicity, we'll make a request to SES to verify credentials
             $response = Http::withHeaders([
                 'Content-Type' => 'application/x-www-form-urlencoded',
@@ -350,12 +354,12 @@ class EmailConfiguration extends Model
             ]);
 
             // If we get a response, credentials exist (even if invalid region etc)
-            if (!$response->successful() && $response->status() === 401) {
+            if (! $response->successful() && $response->status() === 401) {
                 throw new \Exception('SES credentials are invalid. Check your Access Key and Secret Key');
             }
 
             if ($response->status() === 404) {
-                throw new \Exception('SES Region is invalid: ' . $this->ses_region);
+                throw new \Exception('SES Region is invalid: '.$this->ses_region);
             }
 
             return true;
@@ -364,7 +368,7 @@ class EmailConfiguration extends Model
             if (strpos($e->getMessage(), 'undefined') === false) {
                 throw $e;
             }
-            
+
             // Format is valid but we can't test without SDK
             return true;
         }
@@ -375,7 +379,7 @@ class EmailConfiguration extends Model
      */
     private function testPostmark(): bool
     {
-        if (!$this->postmark_token) {
+        if (! $this->postmark_token) {
             throw new \Exception('Postmark server token is required');
         }
 
@@ -399,13 +403,13 @@ class EmailConfiguration extends Model
                 throw new \Exception('Postmark API endpoint not found');
             }
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 $error = $response->json('error') ?? $response->json('Message') ?? 'Unknown error';
                 throw new \Exception("Postmark API error: {$error}");
             }
 
             // Verify we got server information
-            if (!$response->json('ServerLink')) {
+            if (! $response->json('ServerLink')) {
                 throw new \Exception('Invalid response from Postmark API');
             }
 
@@ -431,7 +435,7 @@ class EmailConfiguration extends Model
      */
     public function getMaskedSesKey(): string
     {
-        return $this->ses_key ? substr($this->ses_key, 0, 4) . '••••••••' : '';
+        return $this->ses_key ? substr($this->ses_key, 0, 4).'••••••••' : '';
     }
 
     /**

@@ -16,11 +16,11 @@ return new class extends Migration
             $table->foreignId('customer_id')
                 ->constrained('customers')
                 ->onDelete('cascade');
-            
+
             // Address Type
             $table->enum('type', ['shipping', 'billing'])->default('shipping');
             $table->string('label', 50)->nullable()->comment('Address label like home, office, etc.');
-            
+
             // Address Fields
             $table->string('first_name', 100);
             $table->string('last_name', 100);
@@ -32,11 +32,11 @@ return new class extends Migration
             $table->string('postal_code', 20);
             $table->string('country', 2); // ISO 3166-1 alpha-2
             $table->string('phone', 20)->nullable();
-            
+
             // Default Flags
             $table->boolean('is_default_shipping')->default(false);
             $table->boolean('is_default_billing')->default(false);
-            
+
             $table->softDeletes();
             $table->timestamps();
 

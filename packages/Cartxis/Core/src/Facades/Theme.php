@@ -2,6 +2,7 @@
 
 namespace Cartxis\Core\Facades;
 
+use Cartxis\Core\Services\ThemeService;
 use Illuminate\Support\Facades\Facade;
 
 /**
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static array getSettingsSchema(\Cartxis\Core\Models\Theme $theme)
  * @method static void loadAssets(\Cartxis\Core\Models\Theme|null $theme = null)
  *
- * @see \Cartxis\Core\Services\ThemeService
+ * @see ThemeService
  */
 class Theme extends Facade
 {

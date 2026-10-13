@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Cartxis\CMS\Repositories;
 
+use Cartxis\CMS\Models\Block;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use Cartxis\CMS\Models\Block;
 
 class BlockRepository
 {
@@ -28,7 +28,7 @@ class BlockRepository
     {
         $query = Block::active()->scheduled();
 
-        if (!empty($filters['type'])) {
+        if (! empty($filters['type'])) {
             $query->where('type', $filters['type']);
         }
 
@@ -43,7 +43,7 @@ class BlockRepository
         $query = Block::query();
 
         // Search
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
@@ -52,12 +52,12 @@ class BlockRepository
         }
 
         // Filter by status
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
         // Filter by type
-        if (!empty($filters['type'])) {
+        if (! empty($filters['type'])) {
             $query->where('type', $filters['type']);
         }
 

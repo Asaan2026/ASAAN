@@ -2,22 +2,22 @@
 
 namespace Cartxis\Shop\Services;
 
+use App\Models\User;
+use Cartxis\Admin\Services\AdminNotificationService;
 use Cartxis\Core\Support\StoreCountry;
-use Cartxis\Shop\Contracts\OrderRepositoryInterface;
-use Cartxis\Shop\Models\Order;
-use Cartxis\Shop\Models\OrderItem;
-use Cartxis\Shop\Models\Address;
-use Cartxis\Product\Models\Product;
 use Cartxis\Customer\Models\Customer;
 use Cartxis\Customer\Models\CustomerAddress;
-use Cartxis\Admin\Services\AdminNotificationService;
-use App\Models\User;
+use Cartxis\Product\Models\Product;
+use Cartxis\Shop\Contracts\OrderRepositoryInterface;
+use Cartxis\Shop\Models\Address;
+use Cartxis\Shop\Models\Order;
+use Cartxis\Shop\Models\OrderItem;
+use Exception;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Hash;
-use Exception;
-
 
 class CheckoutService extends ShopService
 {
@@ -29,7 +29,6 @@ class CheckoutService extends ShopService
     /**
      * Create a new CheckoutService instance.
      *
-     * @param  OrderRepositoryInterface  $orderRepository
      * @return void
      */
     public function __construct(
@@ -41,9 +40,6 @@ class CheckoutService extends ShopService
 
     /**
      * Create an order from cart data.
-     *
-     * @param  array  $data
-     * @return array
      */
     public function createOrder(array $data): array
     {
@@ -52,7 +48,7 @@ class CheckoutService extends ShopService
 
             // Get cart items from session
             $cartItems = Session::get('cart', []);
-            
+
             if (empty($cartItems)) {
                 throw new Exception('Cart is empty');
             }
@@ -78,11 +74,11 @@ class CheckoutService extends ShopService
             // Handle customer and user account creation
             $userId = $data['user_id'] ?? null;
             $customerId = null;
-            
+
             // If no user_id (guest checkout)
-            if (!$userId && isset($data['customer_email'])) {
+            if (! $userId && isset($data['customer_email'])) {
                 // Check if user wants to create an account
-                if (!empty($data['create_account']) && !empty($data['password'])) {
+                if (! empty($data['create_account']) && ! empty($data['password'])) {
                     // Create user account and customer
                     $result = $this->createUserAndCustomer($data);
                     $userId = $result['user_id'];
@@ -157,7 +153,7 @@ class CheckoutService extends ShopService
             // Create shipping address
             if (isset($data['shipping_address'])) {
                 $this->createAddress($order, $data['shipping_address'], Address::TYPE_SHIPPING);
-                
+
                 // Save to customer address book if this is their first order
                 if ($customerId) {
                     $this->saveToCustomerAddressBook($customerId, $data['shipping_address'], 'shipping');
@@ -167,7 +163,7 @@ class CheckoutService extends ShopService
             // Create billing address
             if (isset($data['billing_address'])) {
                 $this->createAddress($order, $data['billing_address'], Address::TYPE_BILLING);
-                
+
                 // Save to customer address book if this is their first order
                 if ($customerId) {
                     $this->saveToCustomerAddressBook($customerId, $data['billing_address'], 'billing');
@@ -191,7 +187,8 @@ class CheckoutService extends ShopService
 
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Order creation failed: ' . $e->getMessage());
+            Log::error('Order creation failed: '.$e->getMessage());
+
             return $this->handleException($e, 'Failed to create order');
         }
     }
@@ -255,9 +252,7 @@ class CheckoutService extends ShopService
     /**
      * Calculate order totals.
      *
-     * @param  \Illuminate\Support\Collection  $cartItems
-     * @param  array  $data
-     * @return array
+     * @param  Collection  $cartItems
      */
     protected function calculateTotals($cartItems, array $data): array
     {
@@ -285,16 +280,12 @@ class CheckoutService extends ShopService
 
     /**
      * Calculate shipping cost.
-     *
-     * @param  string|null  $shippingMethod
-     * @param  float  $subtotal
-     * @return float
      */
     protected function calculateShipping(?string $shippingMethod, float $subtotal): float
     {
         // Free shipping threshold
         $freeShippingThreshold = config('shop.checkout.free_shipping_threshold', 100);
-        
+
         if ($subtotal >= $freeShippingThreshold) {
             return 0;
         }
@@ -311,14 +302,10 @@ class CheckoutService extends ShopService
 
     /**
      * Calculate discount amount.
-     *
-     * @param  string|null  $discountCode
-     * @param  float  $subtotal
-     * @return float
      */
     protected function calculateDiscount(?string $discountCode, float $subtotal): float
     {
-        if (!$discountCode) {
+        if (! $discountCode) {
             return 0;
         }
 
@@ -330,11 +317,6 @@ class CheckoutService extends ShopService
 
     /**
      * Create an address for an order.
-     *
-     * @param  Order  $order
-     * @param  array  $addressData
-     * @param  string  $type
-     * @return Address
      */
     protected function createAddress(Order $order, array $addressData, string $type): Address
     {
@@ -359,17 +341,12 @@ class CheckoutService extends ShopService
     /**
      * Save address to customer's address book.
      * Only saves if customer has no saved addresses yet (first order).
-     *
-     * @param  int  $customerId
-     * @param  array  $addressData
-     * @param  string  $type
-     * @return void
      */
     protected function saveToCustomerAddressBook(int $customerId, array $addressData, string $type): void
     {
         // Check if customer already has saved addresses
         $hasAddresses = CustomerAddress::where('customer_id', $customerId)->exists();
-        
+
         if ($hasAddresses) {
             // Customer already has saved addresses, don't auto-save
             return;
@@ -396,9 +373,6 @@ class CheckoutService extends ShopService
 
     /**
      * Validate checkout data.
-     *
-     * @param  array  $data
-     * @return array
      */
     public function validateCheckout(array $data): array
     {
@@ -416,8 +390,8 @@ class CheckoutService extends ShopService
                 $productId = is_array($item) ? $item['product_id'] : $item->product_id;
                 $quantity = is_array($item) ? $item['quantity'] : $item->quantity;
                 $product = Product::find($productId);
-                
-                if (!$product || $product->quantity < $quantity) {
+
+                if (! $product || $product->quantity < $quantity) {
                     $errors[] = "Product '{$product->name}' is out of stock";
                 }
             }
@@ -432,7 +406,7 @@ class CheckoutService extends ShopService
                 $errors[] = 'Payment method is required';
             }
 
-            if (!empty($errors)) {
+            if (! empty($errors)) {
                 return $this->formatResponse(null, 'Validation failed', false, $errors);
             }
 
@@ -445,16 +419,13 @@ class CheckoutService extends ShopService
 
     /**
      * Get order by order number.
-     *
-     * @param  string  $orderNumber
-     * @return array
      */
     public function getOrderByNumber(string $orderNumber): array
     {
         try {
             $order = $this->orderRepository->findByOrderNumber($orderNumber);
 
-            if (!$order) {
+            if (! $order) {
                 return $this->formatResponse(null, 'Order not found', false);
             }
 
@@ -469,10 +440,6 @@ class CheckoutService extends ShopService
 
     /**
      * Get user orders.
-     *
-     * @param  int  $userId
-     * @param  int  $perPage
-     * @return array
      */
     public function getUserOrders(int $userId, int $perPage = 10): array
     {
@@ -488,17 +455,13 @@ class CheckoutService extends ShopService
 
     /**
      * Cancel an order.
-     *
-     * @param  int  $orderId
-     * @param  int  $userId
-     * @return array
      */
     public function cancelOrder(int $orderId, int $userId): array
     {
         try {
             $order = $this->orderRepository->find($orderId);
 
-            if (!$order) {
+            if (! $order) {
                 return $this->formatResponse(null, 'Order not found', false);
             }
 
@@ -506,7 +469,7 @@ class CheckoutService extends ShopService
                 return $this->formatResponse(null, 'Unauthorized', false);
             }
 
-            if (!$order->canBeCancelled()) {
+            if (! $order->canBeCancelled()) {
                 return $this->formatResponse(null, 'Order cannot be cancelled', false);
             }
 
@@ -521,9 +484,6 @@ class CheckoutService extends ShopService
 
     /**
      * Get or create a guest customer record.
-     *
-     * @param  array  $data
-     * @return Customer
      */
     protected function getOrCreateGuestCustomer(array $data): Customer
     {
@@ -541,6 +501,7 @@ class CheckoutService extends ShopService
             // Update total orders and total spent
             $customer->increment('total_orders');
             $customer->increment('total_spent', $data['total'] ?? 0);
+
             return $customer;
         }
 
@@ -563,8 +524,8 @@ class CheckoutService extends ShopService
     /**
      * Create a user account and customer record during checkout.
      *
-     * @param  array  $data
      * @return array ['user_id' => int, 'customer_id' => int]
+     *
      * @throws Exception
      */
     protected function createUserAndCustomer(array $data): array
@@ -586,14 +547,14 @@ class CheckoutService extends ShopService
         $existingCustomer = Customer::where('email', $email)
             ->where('is_guest', false)
             ->first();
-        
+
         if ($existingCustomer) {
             throw new Exception('A customer account with this email already exists.');
         }
 
         // Create user account
         $user = User::create([
-            'name' => trim($firstName . ' ' . $lastName),
+            'name' => trim($firstName.' '.$lastName),
             'email' => $email,
             'password' => Hash::make($password),
             'email_verified_at' => now(), // Auto-verify on checkout

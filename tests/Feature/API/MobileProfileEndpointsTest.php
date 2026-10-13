@@ -1,17 +1,15 @@
 <?php
 
 use App\Models\User;
-use Cartxis\API\Http\Controllers\V1\IdentityController;
-use Cartxis\API\Http\Controllers\V1\LocaleController;
-use Cartxis\API\Http\Controllers\V1\ServiceController;
 use Cartxis\Core\Models\Locale;
+use Cartxis\Core\Services\SettingService;
 use Cartxis\Identity\Models\IdentityVerification;
 use Cartxis\Identity\Services\IdentityService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
-require_once __DIR__ . '/../Services/helpers.php';
-require_once __DIR__ . '/../Identity/helpers.php';
+require_once __DIR__.'/../Services/helpers.php';
+require_once __DIR__.'/../Identity/helpers.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -49,7 +47,7 @@ it('serves one service with its booking window', function () {
     configureServices();
     $service = makeService(['name' => 'Deep Cleaning']);
 
-    $response = $this->getJson('/api/v1/services/' . $service->slug)->assertOk();
+    $response = $this->getJson('/api/v1/services/'.$service->slug)->assertOk();
 
     expect($response->json('data.service.name'))->toBe('Deep Cleaning')
         ->and($response->json('data.booking.enabled'))->toBeTrue()
@@ -61,7 +59,7 @@ it('hides a service whose category is switched off', function () {
     $category = makeServiceCategory(['status' => 'disabled']);
     $service = makeService(['service_category_id' => $category->id]);
 
-    $this->getJson('/api/v1/services/' . $service->slug)->assertNotFound();
+    $this->getJson('/api/v1/services/'.$service->slug)->assertNotFound();
 
     $names = array_column($this->getJson('/api/v1/services')->json('data'), 'name');
     expect($names)->not->toContain('Deep Cleaning');
@@ -101,7 +99,7 @@ it('takes a booking from the app and returns the reference', function () {
     configureServices();
     $service = makeService();
 
-    $response = $this->postJson('/api/v1/services/' . $service->slug . '/book', [
+    $response = $this->postJson('/api/v1/services/'.$service->slug.'/book', [
         'customer_name' => 'Test Customer',
         'customer_phone' => '0700000000',
         'address' => 'House 12, Street 4, Kabul',
@@ -125,7 +123,7 @@ it('tells the app which field a booking problem belongs to', function () {
 
     // The booking window is seven days, so a date three weeks out is outside
     // it. This is the same refusal the website gives.
-    $response = $this->postJson('/api/v1/services/' . $service->slug . '/book', [
+    $response = $this->postJson('/api/v1/services/'.$service->slug.'/book', [
         'customer_name' => 'Test Customer',
         'customer_phone' => '0700000000',
         'address' => 'House 12, Street 4, Kabul',
@@ -141,7 +139,7 @@ it('reports a booking that is missing a required field under that field', functi
     configureServices();
     $service = makeService();
 
-    $response = $this->postJson('/api/v1/services/' . $service->slug . '/book', [
+    $response = $this->postJson('/api/v1/services/'.$service->slug.'/book', [
         'customer_name' => 'Test Customer',
         'scheduled_date' => bookableDate(),
         'scheduled_slot' => 'Morning',
@@ -155,7 +153,7 @@ it('refuses a booking from a guest when the owner requires an account', function
     configureServices(['require_login_to_book' => true]);
     $service = makeService();
 
-    $this->postJson('/api/v1/services/' . $service->slug . '/book', [
+    $this->postJson('/api/v1/services/'.$service->slug.'/book', [
         'customer_name' => 'Test Customer',
         'customer_phone' => '0700000000',
         'address' => 'House 12, Street 4, Kabul',
@@ -175,7 +173,7 @@ it('lets a signed-in customer book when the owner requires an account', function
     ]);
 
     $this->actingAs($customer)
-        ->postJson('/api/v1/services/' . $service->slug . '/book', [
+        ->postJson('/api/v1/services/'.$service->slug.'/book', [
             'customer_name' => 'Test Customer',
             'customer_phone' => '0700000000',
             'address' => 'House 12, Street 4, Kabul',
@@ -191,7 +189,7 @@ it('serves the booking slots and dates for the date picker', function () {
     configureServices();
     $service = makeService();
 
-    $response = $this->getJson('/api/v1/services/' . $service->slug . '/slots')->assertOk();
+    $response = $this->getJson('/api/v1/services/'.$service->slug.'/slots')->assertOk();
 
     expect($response->json('data.slots'))->toBe(['Morning', 'Afternoon'])
         ->and($response->json('data.earliest_date'))->not->toBeNull();
@@ -308,7 +306,7 @@ it('refuses the same Tazkira from a second account through the API too', functio
 
 it('says the feature is off rather than taking a document nobody will review', function () {
     Storage::fake('identity_private');
-    app(\Cartxis\Core\Services\SettingService::class)
+    app(SettingService::class)
         ->set('identity.enabled', false, 'boolean', 'identity');
     $customer = identityCustomer();
 

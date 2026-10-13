@@ -2,10 +2,10 @@
 
 namespace Cartxis\Product\Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Cartxis\Product\Models\Product;
-use Cartxis\Product\Models\Category;
 use Cartxis\Product\Models\Brand;
+use Cartxis\Product\Models\Category;
+use Cartxis\Product\Models\Product;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class ProductSeeder extends Seeder
@@ -20,6 +20,7 @@ class ProductSeeder extends Seeder
 
         if ($categories->isEmpty()) {
             $this->command->warn('No categories found. Please seed categories first.');
+
             return;
         }
 
@@ -238,10 +239,10 @@ class ProductSeeder extends Seeder
                     'featured' => $productData['featured'] ?? false,
                     'new' => $productData['new'] ?? false,
                 ]);
-                $this->command->info("Updated product: {$product->name} (Brand: " . ($brandId ? $productData['brand_slug'] : 'None') . ")");
+                $this->command->info("Updated product: {$product->name} (Brand: ".($brandId ? $productData['brand_slug'] : 'None').')');
             } else {
                 // Generate SKU from name
-                $sku = 'PRD-' . strtoupper(substr(str_replace([' ', '-'], '', $productData['name']), 0, 6)) . '-' . rand(1000, 9999);
+                $sku = 'PRD-'.strtoupper(substr(str_replace([' ', '-'], '', $productData['name']), 0, 6)).'-'.rand(1000, 9999);
 
                 $product = Product::create([
                     'sku' => $sku,
@@ -262,8 +263,8 @@ class ProductSeeder extends Seeder
                     'manage_stock' => true,
                     'min_quantity' => 1,
                     'max_quantity' => 10,
-                    'weight' => rand(100, 5000) . 'g',
-                    'meta_title' => $productData['name'] . ' - Cartxis Commerce',
+                    'weight' => rand(100, 5000).'g',
+                    'meta_title' => $productData['name'].' - Cartxis Commerce',
                     'meta_description' => $productData['short_description'],
                 ]);
 
@@ -271,7 +272,7 @@ class ProductSeeder extends Seeder
                 $randomCategories = $categories->random(rand(1, min(3, $categories->count())));
                 $product->categories()->attach($randomCategories->pluck('id'));
 
-                $this->command->info("Created product: {$product->name} (Brand: " . ($brandId ? $productData['brand_slug'] : 'None') . ")");
+                $this->command->info("Created product: {$product->name} (Brand: ".($brandId ? $productData['brand_slug'] : 'None').')');
             }
         }
 

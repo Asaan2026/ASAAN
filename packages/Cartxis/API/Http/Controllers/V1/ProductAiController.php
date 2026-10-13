@@ -30,12 +30,13 @@ class ProductAiController extends Controller
         ]);
 
         $product = Product::find($productId);
-        if (!$product) {
+        if (! $product) {
             return ApiResponse::notFound('Product not found', 'PRODUCT_NOT_FOUND');
         }
 
         try {
             $result = $this->service->generate($product, $validated);
+
             return ApiResponse::success($result, 'Product description generated');
         } catch (\Throwable $e) {
             return ApiResponse::error($e->getMessage(), null, 422, 'AI_GENERATION_FAILED');

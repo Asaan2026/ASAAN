@@ -27,16 +27,16 @@ class SaveStripeConfigRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
             'instructions' => ['nullable', 'string', 'max:2000'],
-            
+
             // Stripe API Keys - no max length restriction for flexibility
             'configuration.secret_key' => ['required', 'string', 'regex:/^sk_(test|live)_/'],
             'configuration.public_key' => ['required', 'string', 'regex:/^pk_(test|live)_/'],
             'configuration.webhook_secret' => ['nullable', 'string', 'regex:/^whsec_/'],
-            
+
             // Stripe Features
             'configuration.enable_3d_secure' => ['nullable', 'boolean'],
             'configuration.save_payment_method' => ['nullable', 'boolean'],
-            
+
             // Payment Methods
             'configuration.payment_methods' => ['nullable', 'array'],
             'configuration.payment_methods.card' => ['nullable', 'boolean'],

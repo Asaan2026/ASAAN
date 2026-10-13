@@ -3,7 +3,6 @@
 use Cartxis\Sales\Http\Controllers\Delivery\DashboardController;
 use Cartxis\Sales\Http\Controllers\Delivery\DeliveriesController;
 use Cartxis\Sales\Http\Controllers\Delivery\DeliveryLoginController;
-use Cartxis\Sales\Http\Middleware\EnsureDeliveryRole;
 use Cartxis\Sales\Http\Middleware\RedirectIfDeliveryAuthenticated;
 use Illuminate\Support\Facades\Route;
 

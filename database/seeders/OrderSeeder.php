@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use Cartxis\Customer\Models\Customer;
 use Cartxis\Product\Models\Product;
 use Cartxis\Shop\Models\Order;
 use Cartxis\Shop\Models\OrderItem;
@@ -43,7 +44,7 @@ class OrderSeeder extends Seeder
             return;
         }
 
-        $customers = \Cartxis\Customer\Models\Customer::query()->get();
+        $customers = Customer::query()->get();
 
         $outcomes = [
             ['status' => Order::STATUS_COMPLETED, 'payment' => Order::PAYMENT_PAID],

@@ -7,10 +7,12 @@
  * names are prefixed to stay out of the way of the other test files.
  */
 
+use App\Http\Middleware\HandleInertiaRequests;
 use Cartxis\Core\Database\Seeders\CurrencySeeder;
 use Cartxis\Core\Models\Currency;
 use Cartxis\Core\Support\DisplayCurrency;
 use Cartxis\Shop\Models\Order;
+use Illuminate\Http\Request;
 
 if (! function_exists('currencySeed')) {
     /**
@@ -85,10 +87,10 @@ if (! function_exists('currencySharedProps')) {
         $flag->setValue($app, false);
 
         try {
-            $request = Illuminate\Http\Request::create('/', 'GET');
+            $request = Request::create('/', 'GET');
             $request->setLaravelSession(app('session')->driver());
 
-            $shared = (new App\Http\Middleware\HandleInertiaRequests())->share($request);
+            $shared = (new HandleInertiaRequests)->share($request);
 
             return array_map(
                 fn ($value) => $value instanceof Closure ? $value() : $value,
@@ -110,7 +112,7 @@ if (! function_exists('currencyOrder')) {
         $counter++;
 
         return Order::create(array_merge([
-            'order_number' => 'CUR-' . str_pad((string) $counter, 6, '0', STR_PAD_LEFT),
+            'order_number' => 'CUR-'.str_pad((string) $counter, 6, '0', STR_PAD_LEFT),
             'status' => Order::STATUS_PENDING,
             'payment_status' => Order::PAYMENT_PENDING,
             'payment_method' => 'cod',

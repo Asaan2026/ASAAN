@@ -55,7 +55,7 @@ class DeliverySettingsController extends Controller
                 $errors['pickup_location'] = 'Pickup location is required when Delivery extension is enabled.';
             }
 
-            if (!empty($errors)) {
+            if (! empty($errors)) {
                 return back()->withErrors($errors)->withInput();
             }
         }
@@ -109,7 +109,7 @@ class DeliverySettingsController extends Controller
     public function fetchMetadata(): JsonResponse
     {
         try {
-            if (!(bool) $this->settingService->get('shipping.courier.enabled', false)) {
+            if (! (bool) $this->settingService->get('shipping.courier.enabled', false)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Delivery is disabled.',

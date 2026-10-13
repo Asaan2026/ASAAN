@@ -45,9 +45,9 @@ class DeliveryController extends Controller
 
         if ($filters['search']) {
             $query->whereHas('order', function ($q) use ($filters) {
-                $q->where('order_number', 'like', '%' . $filters['search'] . '%')
-                    ->orWhere('customer_phone', 'like', '%' . $filters['search'] . '%')
-                    ->orWhere('customer_email', 'like', '%' . $filters['search'] . '%');
+                $q->where('order_number', 'like', '%'.$filters['search'].'%')
+                    ->orWhere('customer_phone', 'like', '%'.$filters['search'].'%')
+                    ->orWhere('customer_email', 'like', '%'.$filters['search'].'%');
             });
         }
 
@@ -107,7 +107,7 @@ class DeliveryController extends Controller
         ]);
 
         $driver = User::find($validated['assigned_to']);
-        if ($driver->role !== 'delivery' || !$driver->is_active) {
+        if ($driver->role !== 'delivery' || ! $driver->is_active) {
             return back()->with('error', 'Select an active delivery person for this assignment.');
         }
 
@@ -211,9 +211,9 @@ class DeliveryController extends Controller
         ]);
 
         try {
-            if (!empty($validated['assigned_to'])) {
+            if (! empty($validated['assigned_to'])) {
                 $driver = User::find($validated['assigned_to']);
-                if ($driver->role !== 'delivery' || !$driver->is_active) {
+                if ($driver->role !== 'delivery' || ! $driver->is_active) {
                     return back()->with('error', 'Select an active delivery person.');
                 }
 

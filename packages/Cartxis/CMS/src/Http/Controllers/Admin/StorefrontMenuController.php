@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Cartxis\CMS\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Cartxis\Core\Models\MenuItem;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Http\RedirectResponse;
-use Cartxis\Core\Models\MenuItem;
 
 class StorefrontMenuController extends Controller
 {
@@ -110,7 +110,7 @@ class StorefrontMenuController extends Controller
 
         // Delete children first
         $menuItem->children()->delete();
-        
+
         // Delete the item
         $menuItem->delete();
 
@@ -151,7 +151,7 @@ class StorefrontMenuController extends Controller
             return redirect()->back()->with('error', 'Invalid menu item.');
         }
 
-        $menuItem->update(['active' => !$menuItem->active]);
+        $menuItem->update(['active' => ! $menuItem->active]);
 
         return redirect()->back()->with('success', 'Menu item status updated.');
     }

@@ -643,7 +643,7 @@ final class SolarHijri
      *
      * @param  DateTimeInterface|string|int|null  $date  Null means "now".
      * @param  string|null  $locale  'fa' (the store default), 'fa_alt', 'ps'
-     *                                or 'en'. Null uses the app's locale.
+     *                               or 'en'. Null uses the app's locale.
      * @param  array  $options  See SolarHijriFormatter::format().
      */
     public static function format(

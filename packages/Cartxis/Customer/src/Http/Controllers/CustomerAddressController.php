@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Cartxis\Customer\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
 use Cartxis\Customer\Http\Requests\StoreCustomerAddressRequest;
 use Cartxis\Customer\Http\Requests\UpdateCustomerAddressRequest;
 use Cartxis\Customer\Http\Resources\CustomerAddressResource;
 use Cartxis\Customer\Models\Customer;
 use Cartxis\Customer\Models\CustomerAddress;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class CustomerAddressController extends Controller
 {
@@ -43,7 +43,7 @@ class CustomerAddressController extends Controller
 
         $address = CustomerAddress::create($data);
 
-        if (!empty($data['is_default_shipping']) || !empty($data['is_default_billing'])) {
+        if (! empty($data['is_default_shipping']) || ! empty($data['is_default_billing'])) {
             $address->setAsDefault();
         }
 
@@ -66,7 +66,7 @@ class CustomerAddressController extends Controller
 
         $address->update($data);
 
-        if (!empty($data['is_default_shipping']) || !empty($data['is_default_billing'])) {
+        if (! empty($data['is_default_shipping']) || ! empty($data['is_default_billing'])) {
             $address->setAsDefault();
         }
 

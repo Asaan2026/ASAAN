@@ -22,32 +22,44 @@ class TestDataProvider
 {
     // Merchant Configuration
     public const TEST_CLIENT_ID = 'test_client_id_12345';
+
     public const TEST_CLIENT_VERSION = 1;
+
     public const TEST_CLIENT_SECRET = 'test_client_secret_abcdef123456789';
+
     public const TEST_ENV = 'UAT';
 
     // Payment Data
     public const TEST_MERCHANT_ORDER_ID = 'ORDER_TEST_123456789';
+
     public const TEST_AMOUNT = 10000; // ₹100.00 in paise
+
     public const TEST_MESSAGE = 'Test Payment Transaction';
+
     public const TEST_REDIRECT_URL = 'https://merchant-test.example.com/callback';
 
     // Refund Data
     public const TEST_REFUND_ID = 'REFUND_TEST_987654321';
+
     public const TEST_REFUND_AMOUNT = 5000; // ₹50.00 in paise
 
     // Response Data
     public const TEST_ORDER_ID = 'PE_ORDER_123456789';
+
     public const TEST_PAYMENT_STATE = 'PENDING';
+
     public const TEST_REDIRECT_RESPONSE_URL = 'https://phonepe.com/payment-redirect?token=abc123';
 
     // OAuth Data
     public const TEST_ACCESS_TOKEN = 'test_access_token_abcdef123456789';
+
     public const TEST_TOKEN_TYPE = 'bearer';
+
     public const TEST_EXPIRES_IN = 3600;
 
     // Error Data
     public const TEST_ERROR_MESSAGE = 'Test error occurred';
+
     public const TEST_ERROR_CODE = 'TEST_ERROR_001';
 
     /**
@@ -59,7 +71,7 @@ class TestDataProvider
             'clientId' => self::TEST_CLIENT_ID,
             'clientVersion' => self::TEST_CLIENT_VERSION,
             'clientSecret' => self::TEST_CLIENT_SECRET,
-            'env' => self::TEST_ENV
+            'env' => self::TEST_ENV,
         ];
     }
 
@@ -75,8 +87,8 @@ class TestDataProvider
             'redirectUrl' => self::TEST_REDIRECT_URL,
             'metaInfo' => [
                 'udf1' => 'test_user_data_1',
-                'udf2' => 'test_user_data_2'
-            ]
+                'udf2' => 'test_user_data_2',
+            ],
         ];
     }
 
@@ -89,7 +101,7 @@ class TestDataProvider
             'orderId' => self::TEST_ORDER_ID,
             'state' => self::TEST_PAYMENT_STATE,
             'redirectUrl' => self::TEST_REDIRECT_RESPONSE_URL,
-            'expireAt' => time() + 600
+            'expireAt' => time() + 600,
         ];
     }
 
@@ -101,7 +113,7 @@ class TestDataProvider
         return [
             'merchantRefundId' => self::TEST_REFUND_ID,
             'originalMerchantOrderId' => self::TEST_MERCHANT_ORDER_ID,
-            'amount' => self::TEST_REFUND_AMOUNT
+            'amount' => self::TEST_REFUND_AMOUNT,
         ];
     }
 
@@ -113,7 +125,7 @@ class TestDataProvider
         return [
             'refundId' => self::TEST_REFUND_ID,
             'amount' => self::TEST_REFUND_AMOUNT,
-            'state' => 'PENDING'
+            'state' => 'PENDING',
         ];
     }
 
@@ -129,12 +141,12 @@ class TestDataProvider
             'expireAt' => time() + 600,
             'metaInfo' => [
                 'udf1' => 'test_user_data_1',
-                'udf2' => 'test_user_data_2'
+                'udf2' => 'test_user_data_2',
             ],
             'paymentDetails' => [
                 'method' => 'UPI',
-                'vpa' => 'test@phonepe'
-            ]
+                'vpa' => 'test@phonepe',
+            ],
         ];
     }
 
@@ -144,15 +156,16 @@ class TestDataProvider
     public static function getOAuthTokenData(): array
     {
         $issuedAt = time();
+
         return [
             'access_token' => self::TEST_ACCESS_TOKEN,
-            'encrypted_access_token' => 'encrypted_' . self::TEST_ACCESS_TOKEN,
+            'encrypted_access_token' => 'encrypted_'.self::TEST_ACCESS_TOKEN,
             'refresh_token' => 'refresh_token_xyz789',
             'expires_in' => self::TEST_EXPIRES_IN,
             'issued_at' => $issuedAt,
             'expires_at' => $issuedAt + self::TEST_EXPIRES_IN,
             'session_expires_at' => $issuedAt + (self::TEST_EXPIRES_IN * 2),
-            'token_type' => self::TEST_TOKEN_TYPE
+            'token_type' => self::TEST_TOKEN_TYPE,
         ];
     }
 
@@ -163,21 +176,21 @@ class TestDataProvider
     {
         $username = 'test_callback_user';
         $password = 'test_callback_password';
-        $authorization = hash('sha256', $username . ':' . $password);
+        $authorization = hash('sha256', $username.':'.$password);
 
         return [
             'headers' => [
-                'authorization' => $authorization
+                'authorization' => $authorization,
             ],
             'body' => [
                 'orderId' => self::TEST_ORDER_ID,
                 'state' => 'COMPLETED',
-                'amount' => self::TEST_AMOUNT
+                'amount' => self::TEST_AMOUNT,
             ],
             'credentials' => [
                 'username' => $username,
-                'password' => $password
-            ]
+                'password' => $password,
+            ],
         ];
     }
 
@@ -190,9 +203,9 @@ class TestDataProvider
             'message' => self::TEST_ERROR_MESSAGE,
             'code' => $code ?? self::TEST_ERROR_CODE,
             'data' => [
-                'context' => 'test_error_context'
+                'context' => 'test_error_context',
             ],
-            'httpStatus' => $httpStatus
+            'httpStatus' => $httpStatus,
         ];
     }
 
@@ -204,7 +217,7 @@ class TestDataProvider
         return [
             'Production' => ['PRODUCTION'],
             'UAT' => ['UAT'],
-            'Stage' => ['STAGE']
+            'Stage' => ['STAGE'],
         ];
     }
 
@@ -217,7 +230,7 @@ class TestDataProvider
             'Empty string' => [''],
             'Null' => [null],
             'Invalid env' => ['INVALID_ENV'],
-            'Lowercase' => ['production']
+            'Lowercase' => ['production'],
         ];
     }
 
@@ -232,7 +245,7 @@ class TestDataProvider
             'Normal amount' => [10000],
             'Large amount' => [999999999],
             'Zero amount' => [0],
-            'Negative amount' => [-100]
+            'Negative amount' => [-100],
         ];
     }
 
@@ -247,7 +260,7 @@ class TestDataProvider
             'Forbidden' => [403, 'FORBIDDEN'],
             'Not Found' => [404, 'NOT_FOUND'],
             'Internal Server Error' => [500, 'INTERNAL_SERVER_ERROR'],
-            'Service Unavailable' => [503, 'SERVICE_UNAVAILABLE']
+            'Service Unavailable' => [503, 'SERVICE_UNAVAILABLE'],
         ];
     }
 }

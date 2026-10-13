@@ -1,12 +1,12 @@
 <?php
 
-use Cartxis\Product\Http\Controllers\Admin\ProductController;
-use Cartxis\Product\Http\Controllers\Admin\ProductImageController;
-use Cartxis\Product\Http\Controllers\Admin\CategoryController;
 use Cartxis\Product\Http\Controllers\Admin\AttributeController;
 use Cartxis\Product\Http\Controllers\Admin\BrandController;
-use Cartxis\Product\Http\Controllers\Admin\ReviewController;
+use Cartxis\Product\Http\Controllers\Admin\CategoryController;
 use Cartxis\Product\Http\Controllers\Admin\ProductAiController;
+use Cartxis\Product\Http\Controllers\Admin\ProductController;
+use Cartxis\Product\Http\Controllers\Admin\ProductImageController;
+use Cartxis\Product\Http\Controllers\Admin\ReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web', 'auth:admin'])
@@ -19,7 +19,7 @@ Route::middleware(['web', 'auth:admin'])
         Route::post('products/bulk-status', [ProductController::class, 'bulkUpdateStatus'])->name('products.bulk-status');
         Route::post('products/{product}/generate-description', [ProductAiController::class, 'generateDescription'])->name('products.generate-description');
         Route::post('products/price-comparison', [ProductAiController::class, 'generatePriceComparison'])->name('products.price-comparison');
-        
+
         // Product Image Management
         Route::post('products/{product}/images/upload', [ProductImageController::class, 'upload'])->name('products.images.upload');
         Route::delete('products/{product}/images/{image}', [ProductImageController::class, 'destroy'])->name('products.images.destroy');

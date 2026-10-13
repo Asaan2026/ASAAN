@@ -3,10 +3,10 @@
 namespace Cartxis\Reports\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Cartxis\Reports\Services\ProductReportService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\Reports\Services\ProductReportService;
 
 class ProductReportController extends Controller
 {

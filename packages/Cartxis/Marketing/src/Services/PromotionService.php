@@ -2,14 +2,16 @@
 
 namespace Cartxis\Marketing\Services;
 
+use Carbon\Carbon;
+use Cartxis\Customer\Models\Customer;
 use Cartxis\Marketing\Models\Promotion;
 use Cartxis\Product\Models\Product;
+use Cartxis\Shop\Models\Order;
 use Illuminate\Support\Collection;
-use Carbon\Carbon;
 
 /**
  * PromotionService
- * 
+ *
  * Handles promotion management and application.
  */
 class PromotionService
@@ -54,9 +56,9 @@ class PromotionService
     /**
      * Find best promotion for a product.
      */
-    public function findBestPromotionForProduct(Product $product, Collection $promotions = null): ?Promotion
+    public function findBestPromotionForProduct(Product $product, ?Collection $promotions = null): ?Promotion
     {
-        if (!$promotions) {
+        if (! $promotions) {
             $promotions = $this->getActiveCatalogRules();
         }
 
@@ -73,10 +75,11 @@ class PromotionService
         }
 
         // Sort by priority (higher first), then by discount amount (higher first)
-        usort($applicablePromotions, function($a, $b) {
+        usort($applicablePromotions, function ($a, $b) {
             if ($a->priority !== $b->priority) {
                 return $b->priority - $a->priority;
             }
+
             return $b->discount_value - $a->discount_value;
         });
 
@@ -117,7 +120,8 @@ class PromotionService
         // If specific categories are set, product must be in one
         if ($applicableCategories && $product->categories) {
             $productCategoryIds = $product->categories->pluck('id')->toArray();
-            return !empty(array_intersect($applicableCategories, $productCategoryIds));
+
+            return ! empty(array_intersect($applicableCategories, $productCategoryIds));
         }
 
         // Check if product is explicitly linked via pivot table
@@ -196,9 +200,9 @@ class PromotionService
 
         // Check customer groups
         if (isset($conditions['customer_groups']) && $customerId) {
-            $customer = \Cartxis\Customer\Models\Customer::find($customerId);
-            
-            if (!$customer || !in_array($customer->group_id, $conditions['customer_groups'])) {
+            $customer = Customer::find($customerId);
+
+            if (! $customer || ! in_array($customer->group_id, $conditions['customer_groups'])) {
                 return false;
             }
         }
@@ -206,16 +210,16 @@ class PromotionService
         // Check if specific products are required in cart
         if (isset($conditions['requires_products'])) {
             $cartProductIds = $cartItems->pluck('product_id')->toArray();
-            $hasRequired = !empty(array_intersect($conditions['requires_products'], $cartProductIds));
-            
-            if (!$hasRequired) {
+            $hasRequired = ! empty(array_intersect($conditions['requires_products'], $cartProductIds));
+
+            if (! $hasRequired) {
                 return false;
             }
         }
 
         // Check first order only
         if (isset($conditions['first_order_only']) && $conditions['first_order_only'] && $customerId) {
-            $orderCount = \Cartxis\Shop\Models\Order::where('customer_id', $customerId)
+            $orderCount = Order::where('customer_id', $customerId)
                 ->where('status', '!=', 'cancelled')
                 ->count();
 
@@ -237,7 +241,7 @@ class PromotionService
         $totalDiscount = 0;
 
         foreach ($cartRules as $rule) {
-            if (!$this->meetsConditions($cartItems, $cartSubtotal, $rule, $customerId)) {
+            if (! $this->meetsConditions($cartItems, $cartSubtotal, $rule, $customerId)) {
                 continue;
             }
 
@@ -269,7 +273,7 @@ class PromotionService
     public function recordUsage(int $promotionId, int $orderId, float $orderTotal): void
     {
         $promotion = Promotion::find($promotionId);
-        
+
         if ($promotion) {
             $promotion->incrementUsage();
             $promotion->incrementRevenue($orderTotal);
@@ -289,8 +293,8 @@ class PromotionService
             'total_revenue' => $promotion->total_revenue_generated,
             'conversion_count' => $promotion->conversion_count,
             'roi' => $promotion->roi,
-            'average_order_value' => $promotion->conversion_count > 0 
-                ? $promotion->total_revenue_generated / $promotion->conversion_count 
+            'average_order_value' => $promotion->conversion_count > 0
+                ? $promotion->total_revenue_generated / $promotion->conversion_count
                 : 0,
         ];
     }
@@ -300,7 +304,7 @@ class PromotionService
      */
     public function getTieredPrice(Promotion $promotion, float $basePrice, int $quantity): float
     {
-        if ($promotion->type !== Promotion::TYPE_TIERED_PRICING || !$promotion->price_tiers) {
+        if ($promotion->type !== Promotion::TYPE_TIERED_PRICING || ! $promotion->price_tiers) {
             return $basePrice;
         }
 
@@ -316,7 +320,7 @@ class PromotionService
             }
         }
 
-        if (!$applicableTier) {
+        if (! $applicableTier) {
             return $basePrice;
         }
 

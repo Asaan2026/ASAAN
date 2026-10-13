@@ -32,6 +32,7 @@ class StorefrontMenuSeeder extends Seeder
             DB::table('menu_items')
                 ->where('id', $existing->id)
                 ->update(array_merge($data, ['updated_at' => now()]));
+
             return $existing->id;
         }
 

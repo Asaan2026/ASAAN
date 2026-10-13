@@ -1,11 +1,15 @@
 <?php
 
-use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\FrontendMaintenanceMode;
+use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetLocaleFromCookie;
 use Cartxis\Admin\Http\Middleware\PreventAdminFrontendAccess;
 use Cartxis\Admin\Http\Middleware\PreventUserAdminAccess;
+use Cartxis\Core\Http\Middleware\SecurityHeaders;
+use Cartxis\Identity\Http\Middleware\ShareIdentityData;
+use Cartxis\Referral\Http\Middleware\CaptureReferralCode;
+use Cartxis\Referral\Http\Middleware\ShareReferralData;
 use Cartxis\Sales\Http\Middleware\EnsureDeliveryRole;
 use Cartxis\Sales\Http\Middleware\RedirectIfDeliveryAuthenticated;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -106,16 +110,16 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->web(append: [
             SetLocaleFromCookie::class,
-            \Cartxis\Referral\Http\Middleware\CaptureReferralCode::class,
-            \Cartxis\Referral\Http\Middleware\ShareReferralData::class,
-            \Cartxis\Identity\Http\Middleware\ShareIdentityData::class,
+            CaptureReferralCode::class,
+            ShareReferralData::class,
+            ShareIdentityData::class,
             FrontendMaintenanceMode::class,
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
             PreventAdminFrontendAccess::class, // Prevent admins from accessing frontend
             PreventUserAdminAccess::class,    // Enforce is_active + role on admin guard sessions
-            \Cartxis\Core\Http\Middleware\SecurityHeaders::class,
+            SecurityHeaders::class,
         ]);
 
         // Add middleware to admin routes to prevent regular users
@@ -133,6 +137,7 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->is('delivery/*')) {
                 return route('delivery.login');
             }
+
             return route('login');
         });
     })

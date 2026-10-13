@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Route;
-use Cartxis\Blog\Http\Controllers\Admin\BlogPostsController;
 use Cartxis\Blog\Http\Controllers\Admin\BlogCategoriesController;
+use Cartxis\Blog\Http\Controllers\Admin\BlogPostsController;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web', 'auth:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::prefix('blog/categories')->name('blog.categories.')->group(function () {

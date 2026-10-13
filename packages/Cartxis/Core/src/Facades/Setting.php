@@ -2,9 +2,10 @@
 
 namespace Cartxis\Core\Facades;
 
-use Illuminate\Support\Facades\Facade;
-use Illuminate\Support\Collection;
 use Cartxis\Core\Models\Setting as SettingModel;
+use Cartxis\Core\Services\SettingService;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Facade;
 
 /**
  * @method static mixed get(string $key, $default = null)
@@ -19,7 +20,7 @@ use Cartxis\Core\Models\Setting as SettingModel;
  * @method static Collection getByExtension(string $extensionCode)
  * @method static bool deleteByExtension(string $extensionCode)
  *
- * @see \Cartxis\Core\Services\SettingService
+ * @see SettingService
  */
 class Setting extends Facade
 {

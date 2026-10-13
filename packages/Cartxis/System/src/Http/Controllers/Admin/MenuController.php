@@ -2,9 +2,9 @@
 
 namespace Cartxis\System\Http\Controllers\Admin;
 
+use Cartxis\Core\Models\MenuItem;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Cartxis\Core\Models\MenuItem;
 
 class MenuController
 {
@@ -50,7 +50,7 @@ class MenuController
         }
 
         // Auto-assign order if not provided
-        if (!isset($validated['order'])) {
+        if (! isset($validated['order'])) {
             $maxOrder = MenuItem::byLocation('admin')
                 ->where('parent_id', $validated['parent_id'] ?? null)
                 ->max('order');
@@ -58,7 +58,7 @@ class MenuController
         }
 
         // Set default active if not provided
-        if (!isset($validated['active'])) {
+        if (! isset($validated['active'])) {
             $validated['active'] = true;
         }
 
@@ -121,7 +121,7 @@ class MenuController
     {
         // Delete children first
         $menu->children()->delete();
-        
+
         $menu->delete();
 
         return back()->with('success', 'Menu item deleted successfully.');
@@ -154,7 +154,7 @@ class MenuController
      */
     public function toggle(MenuItem $menu)
     {
-        $menu->update(['active' => !$menu->active]);
+        $menu->update(['active' => ! $menu->active]);
 
         return back()->with('success', 'Menu item status updated successfully.');
     }

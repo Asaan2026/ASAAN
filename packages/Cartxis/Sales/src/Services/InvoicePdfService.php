@@ -2,8 +2,8 @@
 
 namespace Cartxis\Sales\Services;
 
-use Cartxis\Sales\Models\Invoice;
 use Cartxis\Core\Models\Currency;
+use Cartxis\Sales\Models\Invoice;
 use Mpdf\Mpdf;
 use Mpdf\MpdfException;
 
@@ -12,8 +12,8 @@ class InvoicePdfService
     /**
      * Generate PDF for invoice
      *
-     * @param Invoice $invoice
      * @return string PDF file path
+     *
      * @throws MpdfException
      */
     public function generate(Invoice $invoice): string
@@ -28,27 +28,24 @@ class InvoicePdfService
         ]);
 
         $html = $this->generateHtml($invoice);
-        
+
         $mpdf->WriteHTML($html);
-        
-        $filename = storage_path('app/invoices/' . $invoice->invoice_number . '.pdf');
-        
+
+        $filename = storage_path('app/invoices/'.$invoice->invoice_number.'.pdf');
+
         // Ensure directory exists
-        if (!file_exists(dirname($filename))) {
+        if (! file_exists(dirname($filename))) {
             mkdir(dirname($filename), 0755, true);
         }
-        
+
         $mpdf->Output($filename, 'F');
-        
+
         return $filename;
     }
 
     /**
      * Generate and download PDF
      *
-     * @param Invoice $invoice
-     * @param bool $inline
-     * @return void
      * @throws MpdfException
      */
     public function download(Invoice $invoice, bool $inline = false): void
@@ -63,32 +60,29 @@ class InvoicePdfService
         ]);
 
         $html = $this->generateHtml($invoice);
-        
+
         $mpdf->WriteHTML($html);
-        
-        $filename = $invoice->invoice_number . '.pdf';
+
+        $filename = $invoice->invoice_number.'.pdf';
         $destination = $inline ? 'I' : 'D'; // I = inline, D = download
-        
+
         $mpdf->Output($filename, $destination);
     }
 
     /**
      * Generate HTML content for invoice
-     *
-     * @param Invoice $invoice
-     * @return string
      */
     protected function generateHtml(Invoice $invoice): string
     {
         $order = $invoice->order;
         $items = $order->items ?? [];
-        
+
         $html = '
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>Invoice ' . htmlspecialchars($invoice->invoice_number) . '</title>
+            <title>Invoice '.htmlspecialchars($invoice->invoice_number).'</title>
             <style>
                 body {
                     font-family: Arial, sans-serif;
@@ -243,20 +237,20 @@ class InvoicePdfService
                     <tr>
                         <td style="width: 50%; border: none; padding: 0; vertical-align: top;">
                             <div class="info-label">Invoice Number</div>
-                            <div class="info-value">' . htmlspecialchars($invoice->invoice_number) . '</div>
+                            <div class="info-value">'.htmlspecialchars($invoice->invoice_number).'</div>
                             
                             <div class="info-label" style="margin-top: 15px;">Order Number</div>
-                            <div class="info-value">' . htmlspecialchars($order->order_number) . '</div>
+                            <div class="info-value">'.htmlspecialchars($order->order_number).'</div>
                             
                             <div class="info-label" style="margin-top: 15px;">Status</div>
-                            <div class="status-badge status-' . $invoice->status . '">' . strtoupper($invoice->status) . '</div>
+                            <div class="status-badge status-'.$invoice->status.'">'.strtoupper($invoice->status).'</div>
                         </td>
                         <td style="width: 50%; border: none; padding: 0; vertical-align: top;">
                             <div class="info-label">Issue Date</div>
-                            <div class="info-value">' . $invoice->issue_date->format('F d, Y') . '</div>
+                            <div class="info-value">'.$invoice->issue_date->format('F d, Y').'</div>
                             
                             <div class="info-label" style="margin-top: 15px;">Due Date</div>
-                            <div class="info-value">' . $invoice->due_date->format('F d, Y') . '</div>
+                            <div class="info-value">'.$invoice->due_date->format('F d, Y').'</div>
                         </td>
                     </tr>
                 </table>
@@ -265,10 +259,10 @@ class InvoicePdfService
             <div class="info-section">
                 <div class="info-label">Bill To</div>
                 <div class="info-value">
-                    <strong>' . htmlspecialchars($order->customer_name ?? 'Guest') . '</strong><br>
-                    ' . htmlspecialchars($order->customer_email) . '<br>
-                    ' . ($order->phone ? htmlspecialchars($order->phone) . '<br>' : '') . '
-                    ' . ($order->billing_address ? nl2br(htmlspecialchars($order->billing_address)) : '') . '
+                    <strong>'.htmlspecialchars($order->customer_name ?? 'Guest').'</strong><br>
+                    '.htmlspecialchars($order->customer_email).'<br>
+                    '.($order->phone ? htmlspecialchars($order->phone).'<br>' : '').'
+                    '.($order->billing_address ? nl2br(htmlspecialchars($order->billing_address)) : '').'
                 </div>
             </div>
 
@@ -286,10 +280,10 @@ class InvoicePdfService
         foreach ($items as $item) {
             $html .= '
                     <tr>
-                        <td>' . htmlspecialchars($item->product_name) . '</td>
-                        <td class="text-right">' . number_format($item->quantity) . '</td>
-                        <td class="text-right">' . $this->formatCurrency($item->price) . '</td>
-                        <td class="text-right">' . $this->formatCurrency($item->quantity * $item->price) . '</td>
+                        <td>'.htmlspecialchars($item->product_name).'</td>
+                        <td class="text-right">'.number_format($item->quantity).'</td>
+                        <td class="text-right">'.$this->formatCurrency($item->price).'</td>
+                        <td class="text-right">'.$this->formatCurrency($item->quantity * $item->price).'</td>
                     </tr>';
         }
 
@@ -300,19 +294,19 @@ class InvoicePdfService
             <div class="totals">
                 <div class="total-row">
                     <span class="total-label">Subtotal:</span>
-                    <span class="total-value">' . $this->formatCurrency($invoice->subtotal) . '</span>
+                    <span class="total-value">'.$this->formatCurrency($invoice->subtotal).'</span>
                 </div>
                 <div class="total-row">
                     <span class="total-label">Tax:</span>
-                    <span class="total-value">' . $this->formatCurrency($invoice->tax) . '</span>
+                    <span class="total-value">'.$this->formatCurrency($invoice->tax).'</span>
                 </div>
                 <div class="total-row">
                     <span class="total-label">Shipping:</span>
-                    <span class="total-value">' . $this->formatCurrency($invoice->shipping) . '</span>
+                    <span class="total-value">'.$this->formatCurrency($invoice->shipping).'</span>
                 </div>
                 <div class="total-row">
                     <span>Total Amount:</span>
-                    <span>' . $this->formatCurrency($invoice->total) . '</span>
+                    <span>'.$this->formatCurrency($invoice->total).'</span>
                 </div>
             </div>
 
@@ -322,7 +316,7 @@ class InvoicePdfService
             $html .= '
             <div class="notes-section">
                 <div class="notes-title">Notes</div>
-                <div>' . nl2br(htmlspecialchars($invoice->notes)) . '</div>
+                <div>'.nl2br(htmlspecialchars($invoice->notes)).'</div>
             </div>';
         }
 
@@ -344,6 +338,6 @@ class InvoicePdfService
 
         return $currency
             ? $currency->format($amount)
-            : '$' . number_format($amount, 2);
+            : '$'.number_format($amount, 2);
     }
 }

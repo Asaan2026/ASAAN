@@ -2,18 +2,18 @@
 
 namespace Cartxis\Sales\Services;
 
-use Cartxis\Shop\Models\Order;
+use Cartxis\Admin\Services\AdminNotificationService;
+use Cartxis\Core\Models\Currency;
+use Cartxis\Core\Models\EmailConfiguration;
+use Cartxis\Core\Models\EmailTemplate;
+use Cartxis\Core\Support\GatewayCurrency;
 use Cartxis\Sales\Models\OrderHistory;
 use Cartxis\Sales\Repositories\OrderRepository;
-use Cartxis\Core\Models\EmailTemplate;
-use Cartxis\Core\Models\EmailConfiguration;
-use Cartxis\Core\Models\Currency;
-use Cartxis\Core\Support\GatewayCurrency;
-use Cartxis\Admin\Services\AdminNotificationService;
-use Illuminate\Support\Facades\DB;
+use Cartxis\Shop\Models\Order;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class OrderService
 {
@@ -24,12 +24,6 @@ class OrderService
 
     /**
      * Update order status and create history entry.
-     *
-     * @param Order $order
-     * @param string $newStatus
-     * @param string|null $comment
-     * @param bool $notifyCustomer
-     * @return bool
      */
     public function updateStatus(
         Order $order,
@@ -38,7 +32,7 @@ class OrderService
         bool $notifyCustomer = false
     ): bool {
         $oldStatus = $order->status;
-        
+
         if ($oldStatus === $newStatus) {
             return true; // No change needed
         }
@@ -80,24 +74,22 @@ class OrderService
             );
 
             DB::commit();
+
             return true;
 
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to update order status', [
                 'order_id' => $order->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
 
     /**
      * Update order payment status and create history entry.
-     *
-     * @param Order $order
-     * @param string $newPaymentStatus
-     * @return bool
      */
     public function updatePaymentStatus(
         Order $order,
@@ -105,7 +97,7 @@ class OrderService
         ?string $comment = null
     ): bool {
         $oldPaymentStatus = $order->payment_status;
-        
+
         if ($oldPaymentStatus === $newPaymentStatus) {
             return true;
         }
@@ -149,25 +141,22 @@ class OrderService
             );
 
             DB::commit();
+
             return true;
 
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to update payment status', [
                 'order_id' => $order->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
 
     /**
      * Cancel an order with optional stock restoration.
-     *
-     * @param Order $order
-     * @param string $reason
-     * @param bool $restoreStock
-     * @return bool
      */
     public function cancelOrder(
         Order $order,
@@ -216,23 +205,22 @@ class OrderService
             );
 
             DB::commit();
+
             return true;
 
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to cancel order', [
                 'order_id' => $order->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
 
     /**
      * Create a new order (admin-initiated).
-     *
-     * @param array $data
-     * @return Order
      */
     public function createOrder(array $data): Order
     {
@@ -291,6 +279,7 @@ class OrderService
             );
 
             DB::commit();
+
             return $order->fresh(['items', 'addresses']);
 
         } catch (\Exception $e) {
@@ -301,11 +290,6 @@ class OrderService
 
     /**
      * Send status change email notification.
-     *
-     * @param Order $order
-     * @param string $oldStatus
-     * @param string $newStatus
-     * @return void
      */
     public function sendStatusChangeEmail(
         Order $order,
@@ -325,7 +309,7 @@ class OrderService
             }
 
             // If no specific template for this status, skip email
-            if (!$templateCode) {
+            if (! $templateCode) {
                 return;
             }
 
@@ -336,13 +320,13 @@ class OrderService
 
             // Skip if email settings are not configured in Settings -> Email
             $emailConfig = EmailConfiguration::where('is_active', true)->first();
-            if (!$emailConfig || empty($emailConfig->mail_from_address)) {
+            if (! $emailConfig || empty($emailConfig->mail_from_address)) {
                 return;
             }
 
             $template = EmailTemplate::findByCode($templateCode);
-            
-            if (!$template || !$template->is_active) {
+
+            if (! $template || ! $template->is_active) {
                 return;
             }
 
@@ -365,18 +349,13 @@ class OrderService
         } catch (\Exception $e) {
             Log::error('Failed to send status change email', [
                 'order_id' => $order->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
 
     /**
      * Send payment status change email notification.
-     *
-     * @param Order $order
-     * @param string $oldPaymentStatus
-     * @param string $newPaymentStatus
-     * @return void
      */
     protected function sendPaymentStatusEmail(
         Order $order,
@@ -396,7 +375,7 @@ class OrderService
             }
 
             // If no specific template for this status, skip email
-            if (!$templateCode) {
+            if (! $templateCode) {
                 return;
             }
 
@@ -407,13 +386,13 @@ class OrderService
 
             // Skip if email settings are not configured in Settings -> Email
             $emailConfig = EmailConfiguration::where('is_active', true)->first();
-            if (!$emailConfig || empty($emailConfig->mail_from_address)) {
+            if (! $emailConfig || empty($emailConfig->mail_from_address)) {
                 return;
             }
 
             $template = EmailTemplate::findByCode($templateCode);
-            
-            if (!$template || !$template->is_active) {
+
+            if (! $template || ! $template->is_active) {
                 return;
             }
 
@@ -435,16 +414,13 @@ class OrderService
         } catch (\Exception $e) {
             Log::error('Failed to send payment status email', [
                 'order_id' => $order->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
 
     /**
      * Format a monetary amount using the default store currency.
-     *
-     * @param float $amount
-     * @return string
      */
     protected function formatCurrency(float $amount): string
     {
@@ -452,15 +428,11 @@ class OrderService
         // trades in, so the no-currency-row fallback falls back to AFN rather
         // than to "$x.xx".
         return (Currency::getDefault() ?? Currency::getByCode(Currency::BASE_CODE))?->format($amount)
-            ?? number_format($amount, 0, '.', ',') . ' ' . Currency::BASE_CODE;
+            ?? number_format($amount, 0, '.', ',').' '.Currency::BASE_CODE;
     }
 
     /**
      * Create order history entry.
-     *
-     * @param Order $order
-     * @param array $data
-     * @return OrderHistory
      */
     protected function createHistoryEntry(Order $order, array $data): OrderHistory
     {
@@ -472,10 +444,6 @@ class OrderService
 
     /**
      * Handle automatic actions when status changes.
-     *
-     * @param Order $order
-     * @param string $newStatus
-     * @return void
      */
     protected function handleStatusChangeActions(Order $order, string $newStatus): void
     {
@@ -495,9 +463,6 @@ class OrderService
 
     /**
      * Reduce product stock for order items.
-     *
-     * @param Order $order
-     * @return void
      */
     protected function reduceStock(Order $order): void
     {
@@ -510,9 +475,6 @@ class OrderService
 
     /**
      * Restore product stock for cancelled order.
-     *
-     * @param Order $order
-     * @return void
      */
     protected function restoreStock(Order $order): void
     {
@@ -525,17 +487,13 @@ class OrderService
 
     /**
      * Send order cancellation email.
-     *
-     * @param Order $order
-     * @param string $reason
-     * @return void
      */
     protected function sendCancellationEmail(Order $order, string $reason): void
     {
         try {
             $template = EmailTemplate::where('key', 'order_cancelled')->first();
-            
-            if (!$template || !$template->enabled) {
+
+            if (! $template || ! $template->enabled) {
                 return;
             }
 
@@ -554,23 +512,21 @@ class OrderService
         } catch (\Exception $e) {
             Log::error('Failed to send cancellation email', [
                 'order_id' => $order->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
 
     /**
      * Generate unique order number.
-     *
-     * @return string
      */
     protected function generateOrderNumber(): string
     {
         $prefix = config('sales.orders.number_prefix', 'ORD-');
         $length = config('sales.orders.number_length', 8);
-        
+
         do {
-            $number = $prefix . strtoupper(substr(uniqid(), -$length));
+            $number = $prefix.strtoupper(substr(uniqid(), -$length));
             $exists = Order::where('order_number', $number)->exists();
         } while ($exists);
 

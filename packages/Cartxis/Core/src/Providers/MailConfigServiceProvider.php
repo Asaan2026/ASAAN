@@ -2,10 +2,10 @@
 
 namespace Cartxis\Core\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use Cartxis\Core\Models\EmailConfiguration;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
-use Cartxis\Core\Models\EmailConfiguration;
+use Illuminate\Support\ServiceProvider;
 
 class MailConfigServiceProvider extends ServiceProvider
 {
@@ -19,7 +19,7 @@ class MailConfigServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap services.
-     * 
+     *
      * This provider loads email configuration from the database
      * and applies it to Laravel's mail configuration at runtime.
      */
@@ -31,7 +31,7 @@ class MailConfigServiceProvider extends ServiceProvider
             $this->configureMailFromDatabase();
         } catch (\Exception $e) {
             // Silently fail during installation
-            logger()->debug('Mail configuration not loaded: ' . $e->getMessage());
+            logger()->debug('Mail configuration not loaded: '.$e->getMessage());
         }
     }
 
@@ -41,13 +41,13 @@ class MailConfigServiceProvider extends ServiceProvider
     protected function configureMailFromDatabase(): void
     {
         // Check if table exists before querying
-        if (!Schema::hasTable('email_configurations')) {
+        if (! Schema::hasTable('email_configurations')) {
             return;
         }
 
         $config = EmailConfiguration::first();
 
-        if (!$config) {
+        if (! $config) {
             return;
         }
 

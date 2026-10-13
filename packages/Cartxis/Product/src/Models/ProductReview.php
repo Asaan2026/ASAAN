@@ -2,9 +2,9 @@
 
 namespace Cartxis\Product\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\User;
 
 class ProductReview extends Model
 {
@@ -100,6 +100,7 @@ class ProductReview extends Model
         if ($rating) {
             return $query->where('rating', $rating);
         }
+
         return $query;
     }
 
@@ -111,6 +112,7 @@ class ProductReview extends Model
         if ($productId) {
             return $query->where('product_id', $productId);
         }
+
         return $query;
     }
 
@@ -127,7 +129,7 @@ class ProductReview extends Model
      */
     public function hasAdminReply(): bool
     {
-        return !empty($this->admin_reply);
+        return ! empty($this->admin_reply);
     }
 
     /**
@@ -136,6 +138,7 @@ class ProductReview extends Model
     public function approve(): bool
     {
         $this->status = 'approved';
+
         return $this->save();
     }
 
@@ -145,6 +148,7 @@ class ProductReview extends Model
     public function reject(): bool
     {
         $this->status = 'rejected';
+
         return $this->save();
     }
 
@@ -154,6 +158,7 @@ class ProductReview extends Model
     public function setPending(): bool
     {
         $this->status = 'pending';
+
         return $this->save();
     }
 
@@ -165,6 +170,7 @@ class ProductReview extends Model
         $this->admin_reply = $reply;
         $this->admin_reply_by = $adminId;
         $this->admin_replied_at = now();
+
         return $this->save();
     }
 
@@ -174,6 +180,7 @@ class ProductReview extends Model
     public function incrementHelpful(): bool
     {
         $this->increment('helpful_count');
+
         return true;
     }
 }

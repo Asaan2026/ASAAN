@@ -13,14 +13,15 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        $name     = env('CARTXIS_ADMIN_NAME');
-        $email    = env('CARTXIS_ADMIN_EMAIL');
+        $name = env('CARTXIS_ADMIN_NAME');
+        $email = env('CARTXIS_ADMIN_EMAIL');
         $password = env('CARTXIS_ADMIN_PASSWORD');
 
         if (empty($email) || empty($password)) {
             $this->command->error(
                 'Admin credentials are not set. Run `php artisan cartxis:install` to set up Cartxis properly.'
             );
+
             return;
         }
 
@@ -29,15 +30,15 @@ class AdminUserSeeder extends Seeder
         User::firstOrCreate(
             ['email' => $email],
             [
-                'name'               => $name,
-                'password'           => Hash::make($password),
-                'role'               => 'admin',
-                'is_active'          => true,
-                'email_verified_at'  => now(),
+                'name' => $name,
+                'password' => Hash::make($password),
+                'role' => 'admin',
+                'is_active' => true,
+                'email_verified_at' => now(),
             ]
         );
 
         $this->command->info('Admin user created successfully!');
-        $this->command->info('Email: ' . $email);
+        $this->command->info('Email: '.$email);
     }
 }

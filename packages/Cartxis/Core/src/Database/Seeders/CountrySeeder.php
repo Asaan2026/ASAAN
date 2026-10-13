@@ -221,16 +221,16 @@ class CountrySeeder extends Seeder
         $rows = [];
         foreach ($countries as $i => $c) {
             $rows[] = [
-                'code'            => $c[0],
-                'code3'           => $c[1],
-                'name'            => $c[2],
-                'phone_code'      => $c[3],
-                'currency_code'   => $c[4],
+                'code' => $c[0],
+                'code3' => $c[1],
+                'name' => $c[2],
+                'phone_code' => $c[3],
+                'currency_code' => $c[4],
                 'currency_symbol' => $c[5],
-                'is_active'       => true,
-                'sort_order'      => 0,
-                'created_at'      => $now,
-                'updated_at'      => $now,
+                'is_active' => true,
+                'sort_order' => 0,
+                'created_at' => $now,
+                'updated_at' => $now,
             ];
         }
 

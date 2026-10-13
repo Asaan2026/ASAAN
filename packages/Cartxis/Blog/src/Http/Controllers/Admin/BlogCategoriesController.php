@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Cartxis\Blog\Http\Controllers\Admin;
 
-use Cartxis\Blog\Models\BlogCategory;
 use Cartxis\Blog\Http\Requests\StoreBlogCategoryRequest;
 use Cartxis\Blog\Http\Requests\UpdateBlogCategoryRequest;
+use Cartxis\Blog\Models\BlogCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -32,11 +32,11 @@ class BlogCategoriesController
 
         return Inertia::render('Admin/Blog/Categories/Index', [
             'categories' => $categories,
-            'filters'    => $request->only(['search', 'status']),
+            'filters' => $request->only(['search', 'status']),
             'statistics' => [
-                'total'      => BlogCategory::count(),
-                'active'     => BlogCategory::where('status', 'active')->count(),
-                'inactive'   => BlogCategory::where('status', 'inactive')->count(),
+                'total' => BlogCategory::count(),
+                'active' => BlogCategory::where('status', 'active')->count(),
+                'inactive' => BlogCategory::where('status', 'inactive')->count(),
                 'with_posts' => BlogCategory::has('posts')->count(),
             ],
         ]);
@@ -65,7 +65,7 @@ class BlogCategoriesController
     public function edit(BlogCategory $category): Response
     {
         return Inertia::render('Admin/Blog/Categories/Edit', [
-            'category'  => $category->loadCount('posts'),
+            'category' => $category->loadCount('posts'),
         ]);
     }
 

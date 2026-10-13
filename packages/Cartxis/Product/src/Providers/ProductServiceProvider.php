@@ -12,7 +12,7 @@ class ProductServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../Config/product.php', 'product'
+            __DIR__.'/../Config/product.php', 'product'
         );
     }
 
@@ -22,27 +22,27 @@ class ProductServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load migrations
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
 
         // Load routes
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/admin.php');
+        $this->loadRoutesFrom(__DIR__.'/../Routes/admin.php');
 
         // Load views
-        $this->loadViewsFrom(__DIR__ . '/../Resources/views', 'product');
+        $this->loadViewsFrom(__DIR__.'/../Resources/views', 'product');
 
         // Publish config
         $this->publishes([
-            __DIR__ . '/../Config/product.php' => config_path('product.php'),
+            __DIR__.'/../Config/product.php' => config_path('product.php'),
         ], 'product-config');
 
         // Publish migrations
         $this->publishes([
-            __DIR__ . '/../Database/Migrations' => database_path('migrations'),
+            __DIR__.'/../Database/Migrations' => database_path('migrations'),
         ], 'product-migrations');
 
         // Publish views
         $this->publishes([
-            __DIR__ . '/../Resources/views' => resource_path('views/vendor/product'),
+            __DIR__.'/../Resources/views' => resource_path('views/vendor/product'),
         ], 'product-views');
     }
 }

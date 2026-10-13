@@ -15,7 +15,7 @@ class CurrencyController extends Controller
     {
         $currency = Currency::getDefault();
 
-        if (!$currency) {
+        if (! $currency) {
             return ApiResponse::error('Default currency not configured', null, 500, 'CURRENCY_NOT_CONFIGURED');
         }
 

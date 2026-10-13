@@ -10,15 +10,17 @@ use Cartxis\Sales\Services\InvoiceService;
 use Cartxis\Sales\Services\TransactionService;
 use Cartxis\Shop\Models\Order;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
 class HesabPayController extends Controller
 {
     protected PaymentGatewayManager $gatewayManager;
+
     protected InvoiceService $invoiceService;
+
     protected TransactionService $transactionService;
 
     public function __construct(
@@ -100,7 +102,7 @@ class HesabPayController extends Controller
 
         $gateway = $this->gateway();
 
-        if (!$gateway) {
+        if (! $gateway) {
             Log::error('HesabPayController: Gateway not registered');
 
             return response()->json(['error' => 'Gateway not found'], 500);
@@ -108,7 +110,7 @@ class HesabPayController extends Controller
 
         $result = $gateway->handleWebhook($payload);
 
-        if (!($result['handled'] ?? false)) {
+        if (! ($result['handled'] ?? false)) {
             // Unverified or unmatched. Tell HesabPay so it does not treat a
             // retry as delivered, but never act on the payload.
             return response()->json(
@@ -153,14 +155,14 @@ class HesabPayController extends Controller
             if ($template) {
                 $shippingAddress = $order->shippingAddress;
                 $customerName = $shippingAddress
-                    ? trim($shippingAddress->first_name . ' ' . $shippingAddress->last_name)
+                    ? trim($shippingAddress->first_name.' '.$shippingAddress->last_name)
                     : ($order->customer_name ?? 'Customer');
 
                 $template->send($order->customer_email, [
                     'customer_name' => $customerName,
                     'order_number' => $order->order_number,
                     'order_date' => $order->created_at->format('F j, Y'),
-                    'order_total' => number_format((float) $order->total, 2) . ' AFN',
+                    'order_total' => number_format((float) $order->total, 2).' AFN',
                     'store_name' => config('app.name', 'Cartxis'),
                     'store_url' => url('/'),
                 ]);

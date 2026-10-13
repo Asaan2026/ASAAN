@@ -5,9 +5,9 @@ namespace Cartxis\Razorpay\Services;
 use Cartxis\Core\Contracts\PaymentGatewayInterface;
 use Cartxis\Core\Models\PaymentMethod;
 use Cartxis\Shop\Models\Order;
+use Illuminate\Support\Facades\Log;
 use Razorpay\Api\Api;
 use Razorpay\Api\Errors\SignatureVerificationError;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Razorpay Payment Gateway Implementation
@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Log;
 class RazorpayGateway implements PaymentGatewayInterface
 {
     protected ?PaymentMethod $paymentMethod = null;
+
     protected ?Api $razorpay = null;
 
     /**
@@ -22,7 +23,7 @@ class RazorpayGateway implements PaymentGatewayInterface
      */
     protected function getPaymentMethod(): ?PaymentMethod
     {
-        if (!$this->paymentMethod) {
+        if (! $this->paymentMethod) {
             $this->paymentMethod = PaymentMethod::where('code', 'razorpay')
                 ->where('is_active', true)
                 ->first();
@@ -37,15 +38,20 @@ class RazorpayGateway implements PaymentGatewayInterface
     protected function getConfig(string $key, mixed $default = null): mixed
     {
         $method = $this->getPaymentMethod();
-        if (!$method) return $default;
+        if (! $method) {
+            return $default;
+        }
 
         // Resolve key_id / key_secret based on mode (test vs production)
         if (in_array($key, ['key_id', 'key_secret'])) {
             $mode = $method->getConfigValue('mode', 'test');
             if ($mode === 'test') {
-                $testVal = $method->getConfigValue('test_' . $key);
-                if ($testVal) return $testVal;
+                $testVal = $method->getConfigValue('test_'.$key);
+                if ($testVal) {
+                    return $testVal;
+                }
             }
+
             // In production mode or no test key set, use the live key
             return $method->getConfigValue($key, $default);
         }
@@ -58,15 +64,15 @@ class RazorpayGateway implements PaymentGatewayInterface
      */
     protected function getRazorpayApi(): Api
     {
-        if (!$this->razorpay) {
+        if (! $this->razorpay) {
             $keyId = $this->getConfig('key_id');
             $keySecret = $this->getConfig('key_secret');
             $mode = $this->getPaymentMethod()?->getConfigValue('mode', 'test');
-            
-            if (!$keyId || !$keySecret) {
+
+            if (! $keyId || ! $keySecret) {
                 throw new \Exception('Razorpay API credentials not configured');
             }
-            
+
             $this->razorpay = new Api($keyId, $keySecret);
         }
 
@@ -109,7 +115,7 @@ class RazorpayGateway implements PaymentGatewayInterface
             // Get shipping address for receipt
             $shippingAddress = $order->shippingAddress;
             $customerName = $shippingAddress
-                ? trim($shippingAddress->first_name . ' ' . $shippingAddress->last_name)
+                ? trim($shippingAddress->first_name.' '.$shippingAddress->last_name)
                 : ($order->customer_name ?? 'Customer');
 
             // Create Razorpay Order
@@ -122,7 +128,7 @@ class RazorpayGateway implements PaymentGatewayInterface
                     'order_number' => $order->order_number,
                     'customer_name' => $customerName,
                     'customer_email' => $order->customer_email,
-                ]
+                ],
             ]);
 
             // Update order with Razorpay order ID
@@ -154,7 +160,7 @@ class RazorpayGateway implements PaymentGatewayInterface
                     ],
                     'callback_url' => route('razorpay.callback', ['order' => $order->id]),
                     'cancel_url' => route('razorpay.cancel', ['order' => $order->id]),
-                ]
+                ],
             ];
 
         } catch (\Exception $e) {
@@ -166,7 +172,7 @@ class RazorpayGateway implements PaymentGatewayInterface
 
             return [
                 'success' => false,
-                'message' => 'Failed to create payment: ' . $e->getMessage(),
+                'message' => 'Failed to create payment: '.$e->getMessage(),
             ];
         }
     }
@@ -181,7 +187,7 @@ class RazorpayGateway implements PaymentGatewayInterface
             $razorpayPaymentId = $data['razorpay_payment_id'] ?? null;
             $razorpaySignature = $data['razorpay_signature'] ?? null;
 
-            if (!$razorpayOrderId || !$razorpayPaymentId || !$razorpaySignature) {
+            if (! $razorpayOrderId || ! $razorpayPaymentId || ! $razorpaySignature) {
                 throw new \Exception('Missing payment verification data');
             }
 
@@ -192,7 +198,7 @@ class RazorpayGateway implements PaymentGatewayInterface
                 'razorpay_payment_id' => $razorpayPaymentId,
                 'razorpay_signature' => $razorpaySignature,
             ];
-            
+
             $api->utility->verifyPaymentSignature($attributes);
 
             // Fetch payment details
@@ -227,7 +233,7 @@ class RazorpayGateway implements PaymentGatewayInterface
 
             return [
                 'success' => false,
-                'message' => 'Payment verification failed: ' . $e->getMessage(),
+                'message' => 'Payment verification failed: '.$e->getMessage(),
             ];
         }
     }
@@ -239,17 +245,19 @@ class RazorpayGateway implements PaymentGatewayInterface
     {
         try {
             $webhookSecret = $this->getConfig('webhook_secret');
-            
-            if (!$webhookSecret) {
+
+            if (! $webhookSecret) {
                 Log::warning('RazorpayGateway: Webhook secret not configured');
+
                 return false;
             }
 
             // Verify webhook signature against the raw request body (not re-encoded array)
             $expectedSignature = hash_hmac('sha256', $rawBody, $webhookSecret);
-            
-            if (!hash_equals($expectedSignature, $signature)) {
+
+            if (! hash_equals($expectedSignature, $signature)) {
                 Log::error('RazorpayGateway: Webhook signature verification failed');
+
                 return false;
             }
 
@@ -257,8 +265,9 @@ class RazorpayGateway implements PaymentGatewayInterface
             $event = $payload['event'] ?? null;
             $paymentEntity = $payload['payload']['payment']['entity'] ?? null;
 
-            if (!$event || !$paymentEntity) {
+            if (! $event || ! $paymentEntity) {
                 Log::warning('RazorpayGateway: Invalid webhook payload');
+
                 return false;
             }
 
@@ -302,16 +311,18 @@ class RazorpayGateway implements PaymentGatewayInterface
     protected function handlePaymentCaptured(array $payment): void
     {
         $orderId = $payment['notes']['order_id'] ?? null;
-        
-        if (!$orderId) {
+
+        if (! $orderId) {
             Log::warning('RazorpayGateway: Order ID not found in payment notes');
+
             return;
         }
 
         $order = Order::find($orderId);
-        
-        if (!$order) {
+
+        if (! $order) {
             Log::warning('RazorpayGateway: Order not found', ['order_id' => $orderId]);
+
             return;
         }
 
@@ -331,16 +342,18 @@ class RazorpayGateway implements PaymentGatewayInterface
     protected function handlePaymentFailed(array $payment): void
     {
         $orderId = $payment['notes']['order_id'] ?? null;
-        
-        if (!$orderId) {
+
+        if (! $orderId) {
             Log::warning('RazorpayGateway: Order ID not found in payment notes');
+
             return;
         }
 
         $order = Order::find($orderId);
-        
-        if (!$order) {
+
+        if (! $order) {
             Log::warning('RazorpayGateway: Order not found', ['order_id' => $orderId]);
+
             return;
         }
 
@@ -363,7 +376,7 @@ class RazorpayGateway implements PaymentGatewayInterface
             'payment_id' => $refund['payment_id'] ?? null,
             'amount' => $refund['amount'] ?? null,
         ]);
-        
+
         // Additional refund handling logic can be added here
     }
 
@@ -373,7 +386,7 @@ class RazorpayGateway implements PaymentGatewayInterface
     protected function formatLineItems(Order $order): array
     {
         $items = [];
-        
+
         foreach ($order->items as $item) {
             $items[] = [
                 'name' => $item->product_name,
@@ -381,7 +394,7 @@ class RazorpayGateway implements PaymentGatewayInterface
                 'amount' => (int) ($item->price * 100), // Amount in paise
             ];
         }
-        
+
         return $items;
     }
 
@@ -394,10 +407,10 @@ class RazorpayGateway implements PaymentGatewayInterface
             $api = $this->getRazorpayApi();
             $paymentId = $order->payment_gateway_transaction_id;
 
-            if (!$paymentId) {
+            if (! $paymentId) {
                 throw new \Exception('Payment ID not found for order');
             }
-            
+
             // If amount is null, refund full amount
             $refundAmount = $amount ?? $order->total;
 
@@ -408,7 +421,7 @@ class RazorpayGateway implements PaymentGatewayInterface
                     'order_id' => $order->id,
                     'order_number' => $order->order_number,
                     'reason' => $reason ?? 'Customer refund request',
-                ]
+                ],
             ]);
 
             Log::info('RazorpayGateway: Refund created', [
@@ -432,7 +445,7 @@ class RazorpayGateway implements PaymentGatewayInterface
             return [
                 'success' => false,
                 'transaction_id' => '',
-                'message' => 'Refund failed: ' . $e->getMessage(),
+                'message' => 'Refund failed: '.$e->getMessage(),
             ];
         }
     }
@@ -447,34 +460,37 @@ class RazorpayGateway implements PaymentGatewayInterface
 
             // Prefer HMAC signature verification when Flutter passes the three fields
             $razorpayPaymentId = $data['razorpay_payment_id'] ?? null;
-            $razorpayOrderId   = $data['razorpay_order_id'] ?? null;
+            $razorpayOrderId = $data['razorpay_order_id'] ?? null;
             $razorpaySignature = $data['razorpay_signature'] ?? null;
 
             if ($razorpayPaymentId && $razorpayOrderId && $razorpaySignature) {
                 $api->utility->verifyPaymentSignature([
-                    'razorpay_order_id'   => $razorpayOrderId,
+                    'razorpay_order_id' => $razorpayOrderId,
                     'razorpay_payment_id' => $razorpayPaymentId,
-                    'razorpay_signature'  => $razorpaySignature,
+                    'razorpay_signature' => $razorpaySignature,
                 ]);
                 // Signature valid — mark transaction ID
                 $order->update(['payment_gateway_transaction_id' => $razorpayPaymentId]);
+
                 return true;
             }
 
             // Fallback: fetch payment status from Razorpay API
             $paymentId = $order->payment_gateway_transaction_id;
-            if (!$paymentId) {
+            if (! $paymentId) {
                 return false;
             }
 
             $payment = $api->payment->fetch($paymentId);
+
             return $payment->status === 'captured' || $payment->status === 'authorized';
 
         } catch (\Exception $e) {
             Log::error('RazorpayGateway: Payment verification failed', [
                 'order_id' => $order->id,
-                'error'    => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
@@ -542,6 +558,6 @@ class RazorpayGateway implements PaymentGatewayInterface
         $keyId = $this->getConfig('key_id');
         $keySecret = $this->getConfig('key_secret');
 
-        return !empty($keyId) && !empty($keySecret);
+        return ! empty($keyId) && ! empty($keySecret);
     }
 }

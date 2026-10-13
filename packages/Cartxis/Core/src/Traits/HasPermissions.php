@@ -2,8 +2,8 @@
 
 namespace Cartxis\Core\Traits;
 
-use Cartxis\Core\Models\Role;
 use Cartxis\Core\Models\Permission;
+use Cartxis\Core\Models\Role;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 trait HasPermissions
@@ -48,7 +48,7 @@ trait HasPermissions
     public function hasAllRoles(array $roles): bool
     {
         foreach ($roles as $role) {
-            if (!$this->hasRole($role)) {
+            if (! $this->hasRole($role)) {
                 return false;
             }
         }
@@ -92,7 +92,7 @@ trait HasPermissions
     public function hasAllPermissions(array $permissions): bool
     {
         foreach ($permissions as $permission) {
-            if (!$this->hasPermission($permission)) {
+            if (! $this->hasPermission($permission)) {
                 return false;
             }
         }

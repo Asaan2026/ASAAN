@@ -27,7 +27,7 @@ class BlogController
             ->get();
 
         return Inertia::render($this->themeResolver->resolve('Blog/Index'), [
-            'posts'      => $posts,
+            'posts' => $posts,
             'categories' => $categories,
         ]);
     }
@@ -49,7 +49,7 @@ class BlogController
             ->get();
 
         return Inertia::render($this->themeResolver->resolve('Blog/Show'), [
-            'post'    => $post,
+            'post' => $post,
             'related' => $related,
         ]);
     }

@@ -24,8 +24,8 @@ class RedirectIfSetupIncomplete
         if ($request->is('setup') || $request->is('setup/*')) {
             return $next($request);
         }
-        
-        if (!$this->isSetupComplete()) {
+
+        if (! $this->isSetupComplete()) {
             return redirect()->route('setup.welcome');
         }
 
@@ -36,7 +36,7 @@ class RedirectIfSetupIncomplete
     {
         try {
             // Check if settings table exists
-            if (!DB::getSchemaBuilder()->hasTable('settings')) {
+            if (! DB::getSchemaBuilder()->hasTable('settings')) {
                 return false;
             }
 

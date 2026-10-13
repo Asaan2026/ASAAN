@@ -2,6 +2,18 @@
 
 namespace Cartxis\Shop\Providers;
 
+use Cartxis\Admin\Services\AdminNotificationService;
+use Cartxis\Shop\Contracts\CategoryRepositoryInterface;
+use Cartxis\Shop\Contracts\OrderRepositoryInterface;
+use Cartxis\Shop\Contracts\ProductRepositoryInterface;
+use Cartxis\Shop\Http\Middleware\ShareFrontendData;
+use Cartxis\Shop\Repositories\CategoryRepository;
+use Cartxis\Shop\Repositories\OrderRepository;
+use Cartxis\Shop\Repositories\ProductRepository;
+use Cartxis\Shop\Services\CategoryService;
+use Cartxis\Shop\Services\CheckoutService;
+use Cartxis\Shop\Services\HomeService;
+use Cartxis\Shop\Services\ProductService;
 use Illuminate\Support\ServiceProvider;
 
 class ShopServiceProvider extends ServiceProvider
@@ -25,23 +37,23 @@ class ShopServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
-        
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/api.php');
-        
-        $this->loadViewsFrom(__DIR__ . '/../Resources/views', 'shop');
-        
-        $this->loadTranslationsFrom(__DIR__ . '/../Resources/lang', 'shop');
-        
+        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
+
+        $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
+        $this->loadRoutesFrom(__DIR__.'/../Routes/api.php');
+
+        $this->loadViewsFrom(__DIR__.'/../Resources/views', 'shop');
+
+        $this->loadTranslationsFrom(__DIR__.'/../Resources/lang', 'shop');
+
         $this->publishes([
-            __DIR__ . '/../Resources/assets' => public_path('vendor/shop'),
+            __DIR__.'/../Resources/assets' => public_path('vendor/shop'),
         ], 'shop-assets');
-        
+
         // Register middleware for frontend data sharing
         $this->registerMiddleware();
     }
-    
+
     /**
      * Register middleware.
      *
@@ -50,12 +62,12 @@ class ShopServiceProvider extends ServiceProvider
     protected function registerMiddleware()
     {
         $router = $this->app['router'];
-        
+
         // Add setup incomplete check to web middleware group
         $router->pushMiddlewareToGroup('web', 'setup.incomplete');
-        
+
         // Add to web middleware group
-        $router->pushMiddlewareToGroup('web', \Cartxis\Shop\Http\Middleware\ShareFrontendData::class);
+        $router->pushMiddlewareToGroup('web', ShareFrontendData::class);
     }
 
     /**
@@ -66,7 +78,7 @@ class ShopServiceProvider extends ServiceProvider
     protected function registerConfig()
     {
         $this->mergeConfigFrom(
-            dirname(__DIR__) . '/Config/shop.php',
+            dirname(__DIR__).'/Config/shop.php',
             'shop'
         );
     }
@@ -79,18 +91,18 @@ class ShopServiceProvider extends ServiceProvider
     protected function registerRepositories()
     {
         $this->app->singleton(
-            \Cartxis\Shop\Contracts\ProductRepositoryInterface::class,
-            \Cartxis\Shop\Repositories\ProductRepository::class
+            ProductRepositoryInterface::class,
+            ProductRepository::class
         );
 
         $this->app->singleton(
-            \Cartxis\Shop\Contracts\CategoryRepositoryInterface::class,
-            \Cartxis\Shop\Repositories\CategoryRepository::class
+            CategoryRepositoryInterface::class,
+            CategoryRepository::class
         );
 
         $this->app->singleton(
-            \Cartxis\Shop\Contracts\OrderRepositoryInterface::class,
-            \Cartxis\Shop\Repositories\OrderRepository::class
+            OrderRepositoryInterface::class,
+            OrderRepository::class
         );
     }
 
@@ -102,39 +114,39 @@ class ShopServiceProvider extends ServiceProvider
     protected function registerServices()
     {
         $this->app->singleton(
-            \Cartxis\Shop\Services\HomeService::class,
+            HomeService::class,
             function ($app) {
-                return new \Cartxis\Shop\Services\HomeService(
-                    $app->make(\Cartxis\Shop\Contracts\ProductRepositoryInterface::class),
-                    $app->make(\Cartxis\Shop\Contracts\CategoryRepositoryInterface::class)
+                return new HomeService(
+                    $app->make(ProductRepositoryInterface::class),
+                    $app->make(CategoryRepositoryInterface::class)
                 );
             }
         );
 
         $this->app->singleton(
-            \Cartxis\Shop\Services\ProductService::class,
+            ProductService::class,
             function ($app) {
-                return new \Cartxis\Shop\Services\ProductService(
-                    $app->make(\Cartxis\Shop\Contracts\ProductRepositoryInterface::class)
+                return new ProductService(
+                    $app->make(ProductRepositoryInterface::class)
                 );
             }
         );
 
         $this->app->singleton(
-            \Cartxis\Shop\Services\CategoryService::class,
+            CategoryService::class,
             function ($app) {
-                return new \Cartxis\Shop\Services\CategoryService(
-                    $app->make(\Cartxis\Shop\Contracts\CategoryRepositoryInterface::class)
+                return new CategoryService(
+                    $app->make(CategoryRepositoryInterface::class)
                 );
             }
         );
 
         $this->app->singleton(
-            \Cartxis\Shop\Services\CheckoutService::class,
+            CheckoutService::class,
             function ($app) {
-                return new \Cartxis\Shop\Services\CheckoutService(
-                    $app->make(\Cartxis\Shop\Contracts\OrderRepositoryInterface::class),
-                    $app->make(\Cartxis\Admin\Services\AdminNotificationService::class)
+                return new CheckoutService(
+                    $app->make(OrderRepositoryInterface::class),
+                    $app->make(AdminNotificationService::class)
                 );
             }
         );

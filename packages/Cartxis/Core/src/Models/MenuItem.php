@@ -3,8 +3,8 @@
 namespace Cartxis\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MenuItem extends Model
 {
@@ -117,18 +117,19 @@ class MenuItem extends Model
     public function getFullUrlAttribute(): ?string
     {
         // If there's an explicit URL, use it
-        if (!empty($this->attributes['url'])) {
+        if (! empty($this->attributes['url'])) {
             return $this->attributes['url'];
         }
 
         // If there's a route name, generate the URL
-        if (!empty($this->attributes['route'])) {
+        if (! empty($this->attributes['route'])) {
             try {
                 // Use route() to generate URL, but extract only the path
                 $fullUrl = route($this->attributes['route']);
-                
+
                 // Parse URL and return only the path component
                 $parsed = parse_url($fullUrl);
+
                 return $parsed['path'] ?? '#';
             } catch (\Exception $e) {
                 return '#';

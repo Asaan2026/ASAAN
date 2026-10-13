@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/helpers.php';
+require_once __DIR__.'/helpers.php';
 
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -31,7 +31,7 @@ it('opens a single submission for a reviewer', function () {
     $verification = submitTazkira(identityCustomer(), '100234567');
 
     $this->actingAs(identityStaff(), 'admin')
-        ->get('/admin/customers/identity/' . $verification->id)
+        ->get('/admin/customers/identity/'.$verification->id)
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('Admin/Customer/Identity/Show')

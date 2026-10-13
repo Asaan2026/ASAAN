@@ -18,7 +18,7 @@ class CacheService
     public function getStatistics(): array
     {
         $driver = config('cache.default');
-        
+
         return [
             'driver' => $driver,
             'total_size' => $this->getTotalSize(),
@@ -30,45 +30,45 @@ class CacheService
             'cache_types' => $this->getCacheTypes(),
         ];
     }
-    
+
     /**
      * Clear specified cache types
      */
     public function clearCache(array $types): array
     {
         $cleared = [];
-        
+
         foreach ($types as $type) {
             try {
                 $this->clearCacheType($type);
                 $cleared[] = $type;
             } catch (\Exception $e) {
-                Log::error("Failed to clear {$type} cache: " . $e->getMessage());
+                Log::error("Failed to clear {$type} cache: ".$e->getMessage());
             }
         }
-        
+
         return $cleared;
     }
-    
+
     /**
      * Rebuild specified cache types
      */
     public function rebuildCache(array $types): array
     {
         $rebuilt = [];
-        
+
         foreach ($types as $type) {
             try {
                 $this->rebuildCacheType($type);
                 $rebuilt[] = $type;
             } catch (\Exception $e) {
-                Log::error("Failed to rebuild {$type} cache: " . $e->getMessage());
+                Log::error("Failed to rebuild {$type} cache: ".$e->getMessage());
             }
         }
-        
+
         return $rebuilt;
     }
-    
+
     /**
      * Clear specific cache type
      */
@@ -83,7 +83,7 @@ class CacheService
             default => null,
         };
     }
-    
+
     /**
      * Rebuild specific cache type
      */
@@ -96,44 +96,44 @@ class CacheService
             default => null,
         };
     }
-    
+
     /**
      * Get total cache size
      */
     protected function getTotalSize(): string
     {
         $driver = config('cache.default');
-        
+
         if ($driver === 'file') {
             return $this->getFilesCacheSize();
         }
-        
+
         if ($driver === 'redis') {
             return $this->getRedisCacheSize();
         }
-        
+
         return 'N/A';
     }
-    
+
     /**
      * Get file cache size
      */
     protected function getFilesCacheSize(): string
     {
         $path = storage_path('framework/cache/data');
-        
+
         if (! File::exists($path)) {
             return '0 B';
         }
-        
+
         $size = 0;
         foreach (File::allFiles($path) as $file) {
             $size += $file->getSize();
         }
-        
+
         return $this->formatBytes($size);
     }
-    
+
     /**
      * Get Redis cache size
      */
@@ -143,157 +143,161 @@ class CacheService
             $redis = Redis::connection();
             $info = $redis->info('memory');
             $bytes = $info['used_memory'] ?? 0;
-            
+
             return $this->formatBytes((int) $bytes);
         } catch (\Exception $e) {
             return 'N/A';
         }
     }
-    
+
     /**
      * Get total number of cache keys
      */
     protected function getTotalKeys(): int
     {
         $driver = config('cache.default');
-        
+
         if ($driver === 'file') {
             $path = storage_path('framework/cache/data');
             if (! File::exists($path)) {
                 return 0;
             }
+
             return count(File::allFiles($path));
         }
-        
+
         if ($driver === 'redis') {
             try {
                 $redis = Redis::connection();
+
                 return (int) $redis->dbsize();
             } catch (\Exception $e) {
                 return 0;
             }
         }
-        
+
         return 0;
     }
-    
+
     /**
      * Get cache hit rate
      */
     protected function getHitRate(): ?string
     {
         $driver = config('cache.default');
-        
+
         if ($driver === 'redis') {
             try {
                 $redis = Redis::connection();
                 $info = $redis->info('stats');
-                
+
                 $hits = (int) ($info['keyspace_hits'] ?? 0);
                 $misses = (int) ($info['keyspace_misses'] ?? 0);
                 $total = $hits + $misses;
-                
+
                 if ($total === 0) {
                     return '0%';
                 }
-                
+
                 $rate = ($hits / $total) * 100;
-                return number_format($rate, 1) . '%';
+
+                return number_format($rate, 1).'%';
             } catch (\Exception $e) {
                 return null;
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Get cache miss rate
      */
     protected function getMissRate(): ?string
     {
         $driver = config('cache.default');
-        
+
         if ($driver === 'redis') {
             try {
                 $redis = Redis::connection();
                 $info = $redis->info('stats');
-                
+
                 $hits = (int) ($info['keyspace_hits'] ?? 0);
                 $misses = (int) ($info['keyspace_misses'] ?? 0);
                 $total = $hits + $misses;
-                
+
                 if ($total === 0) {
                     return '0%';
                 }
-                
+
                 $rate = ($misses / $total) * 100;
-                return number_format($rate, 1) . '%';
+
+                return number_format($rate, 1).'%';
             } catch (\Exception $e) {
                 return null;
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Get cache uptime
      */
     protected function getUptime(): ?string
     {
         $driver = config('cache.default');
-        
+
         if ($driver === 'redis') {
             try {
                 $redis = Redis::connection();
                 $info = $redis->info('server');
                 $seconds = (int) ($info['uptime_in_seconds'] ?? 0);
-                
+
                 return $this->formatUptime($seconds);
             } catch (\Exception $e) {
                 return null;
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Get memory usage
      */
     protected function getMemoryUsage(): ?string
     {
         $driver = config('cache.default');
-        
+
         if ($driver === 'redis') {
             try {
                 $redis = Redis::connection();
                 $info = $redis->info('memory');
-                
+
                 $used = (int) ($info['used_memory'] ?? 0);
                 $max = (int) ($info['maxmemory'] ?? 0);
-                
+
                 if ($max === 0) {
                     $max = (int) ($info['total_system_memory'] ?? 0);
                 }
-                
+
                 $percentage = $max > 0 ? ($used / $max) * 100 : 0;
-                
+
                 return sprintf(
                     '%s / %s (%s)',
                     $this->formatBytes($used),
                     $this->formatBytes($max),
-                    number_format($percentage, 1) . '%'
+                    number_format($percentage, 1).'%'
                 );
             } catch (\Exception $e) {
                 return null;
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Get cache types information
      */
@@ -322,7 +326,7 @@ class CacheService
             ],
         ];
     }
-    
+
     /**
      * Get config cache size
      */
@@ -332,9 +336,10 @@ class CacheService
         if (! File::exists($file)) {
             return '0 B';
         }
+
         return $this->formatBytes(File::size($file));
     }
-    
+
     /**
      * Get route cache size
      */
@@ -344,9 +349,10 @@ class CacheService
         if (! File::exists($file)) {
             return '0 B';
         }
+
         return $this->formatBytes(File::size($file));
     }
-    
+
     /**
      * Get view cache size
      */
@@ -356,15 +362,15 @@ class CacheService
         if (! File::exists($path)) {
             return '0 B';
         }
-        
+
         $size = 0;
         foreach (File::allFiles($path) as $file) {
             $size += $file->getSize();
         }
-        
+
         return $this->formatBytes($size);
     }
-    
+
     /**
      * Get view cache count
      */
@@ -374,9 +380,10 @@ class CacheService
         if (! File::exists($path)) {
             return 0;
         }
+
         return count(File::allFiles($path));
     }
-    
+
     /**
      * Get event cache size
      */
@@ -386,9 +393,10 @@ class CacheService
         if (! File::exists($file)) {
             return '0 B';
         }
+
         return $this->formatBytes(File::size($file));
     }
-    
+
     /**
      * Format bytes to human readable
      */
@@ -396,10 +404,10 @@ class CacheService
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
         $power = $bytes > 0 ? floor(log($bytes, 1024)) : 0;
-        
-        return number_format($bytes / pow(1024, $power), 2) . ' ' . $units[$power];
+
+        return number_format($bytes / pow(1024, $power), 2).' '.$units[$power];
     }
-    
+
     /**
      * Format uptime to human readable
      */
@@ -408,18 +416,18 @@ class CacheService
         $days = floor($seconds / 86400);
         $hours = floor(($seconds % 86400) / 3600);
         $minutes = floor(($seconds % 3600) / 60);
-        
+
         $parts = [];
         if ($days > 0) {
-            $parts[] = $days . ' day' . ($days !== 1 ? 's' : '');
+            $parts[] = $days.' day'.($days !== 1 ? 's' : '');
         }
         if ($hours > 0) {
-            $parts[] = $hours . ' hour' . ($hours !== 1 ? 's' : '');
+            $parts[] = $hours.' hour'.($hours !== 1 ? 's' : '');
         }
         if ($minutes > 0 && $days === 0) {
-            $parts[] = $minutes . ' minute' . ($minutes !== 1 ? 's' : '');
+            $parts[] = $minutes.' minute'.($minutes !== 1 ? 's' : '');
         }
-        
+
         return empty($parts) ? '0 minutes' : implode(' ', $parts);
     }
 }

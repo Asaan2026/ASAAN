@@ -3,12 +3,13 @@
 namespace Cartxis\Settings\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Cartxis\Core\Models\Extension;
+use Cartxis\Core\Models\PaymentMethod;
+use Cartxis\Settings\Http\Requests\SavePaymentMethodRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\Core\Models\PaymentMethod;
-use Cartxis\Settings\Http\Requests\SavePaymentMethodRequest;
 
 class PaymentMethodsController extends Controller
 {
@@ -27,9 +28,9 @@ class PaymentMethodsController extends Controller
             }
 
             // For extension-based payment methods, check if extension is active
-            $extensionCode = 'cartxis-' . $method->code;
-            $extension = \Cartxis\Core\Models\Extension::where('code', $extensionCode)->first();
-            
+            $extensionCode = 'cartxis-'.$method->code;
+            $extension = Extension::where('code', $extensionCode)->first();
+
             return $extension && $extension->active;
         });
 
@@ -48,7 +49,7 @@ class PaymentMethodsController extends Controller
             ->orWhere('type', $type)
             ->first();
 
-        if (!$method) {
+        if (! $method) {
             abort(404, 'Payment method not found');
         }
 
@@ -75,7 +76,7 @@ class PaymentMethodsController extends Controller
             return null;
         }
 
-        if (!Route::has('hesabpay.webhook')) {
+        if (! Route::has('hesabpay.webhook')) {
             return null;
         }
 
@@ -109,7 +110,7 @@ class PaymentMethodsController extends Controller
     public function toggle(PaymentMethod $paymentMethod)
     {
         $paymentMethod->update([
-            'is_active' => !$paymentMethod->is_active,
+            'is_active' => ! $paymentMethod->is_active,
         ]);
 
         return back()->with('success', 'Payment method status updated.');

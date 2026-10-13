@@ -24,7 +24,7 @@ use Tests\Unit\BaseTestCase;
 
 class PhonePeExceptionTest extends BaseTestCase
 {
-    public function testBasicExceptionCreation(): void
+    public function test_basic_exception_creation(): void
     {
         $message = TestDataProvider::TEST_ERROR_MESSAGE;
         $exception = new PhonePeException($message);
@@ -36,11 +36,11 @@ class PhonePeExceptionTest extends BaseTestCase
         $this->assertNull($exception->getData());
     }
 
-    public function testExceptionWithHttpStatusCode(): void
+    public function test_exception_with_http_status_code(): void
     {
         $message = TestDataProvider::TEST_ERROR_MESSAGE;
         $httpStatus = 400;
-        
+
         $exception = new PhonePeException($message, $httpStatus);
 
         $this->assertEquals($message, $exception->getMessage());
@@ -49,13 +49,13 @@ class PhonePeExceptionTest extends BaseTestCase
         $this->assertNull($exception->getData());
     }
 
-    public function testExceptionWithAllParameters(): void
+    public function test_exception_with_all_parameters(): void
     {
         $message = TestDataProvider::TEST_ERROR_MESSAGE;
         $httpStatus = 400;
         $code = TestDataProvider::TEST_ERROR_CODE;
         $data = ['context' => 'test_error_context', 'field' => 'amount'];
-        
+
         $exception = new PhonePeException($message, $httpStatus, $code, $data);
 
         $this->assertEquals($message, $exception->getMessage());
@@ -64,11 +64,11 @@ class PhonePeExceptionTest extends BaseTestCase
         $this->assertEquals($data, $exception->getData());
     }
 
-    public function testExceptionWithPreviousException(): void
+    public function test_exception_with_previous_exception(): void
     {
         $message = TestDataProvider::TEST_ERROR_MESSAGE;
         $previous = new \Exception('Previous exception');
-        
+
         $exception = new PhonePeException($message, 500, 'ERROR_500', null, $previous);
 
         $this->assertEquals($message, $exception->getMessage());
@@ -80,7 +80,7 @@ class PhonePeExceptionTest extends BaseTestCase
     /**
      * @dataProvider httpErrorStatusProvider
      */
-    public function testExceptionWithDifferentHttpStatuses(int $httpStatus, string $errorCode): void
+    public function test_exception_with_different_http_statuses(int $httpStatus, string $errorCode): void
     {
         $message = "HTTP Error: $httpStatus";
         $exception = new PhonePeException($message, $httpStatus, $errorCode);
@@ -95,20 +95,20 @@ class PhonePeExceptionTest extends BaseTestCase
         return TestDataProvider::httpErrorStatusProvider();
     }
 
-    public function testExceptionWithComplexData(): void
+    public function test_exception_with_complex_data(): void
     {
         $complexData = [
             'errors' => [
                 ['field' => 'amount', 'code' => 'INVALID_AMOUNT', 'message' => 'Amount must be positive'],
-                ['field' => 'merchantOrderId', 'code' => 'DUPLICATE_ORDER', 'message' => 'Order ID already exists']
+                ['field' => 'merchantOrderId', 'code' => 'DUPLICATE_ORDER', 'message' => 'Order ID already exists'],
             ],
             'timestamp' => time(),
             'requestId' => 'req_123456789',
             'validationDetails' => [
                 'minAmount' => 1,
                 'maxAmount' => 999999999,
-                'supportedCurrencies' => ['INR']
-            ]
+                'supportedCurrencies' => ['INR'],
+            ],
         ];
 
         $exception = new PhonePeException('Validation failed', 400, 'VALIDATION_ERROR', $complexData);
@@ -117,7 +117,7 @@ class PhonePeExceptionTest extends BaseTestCase
         $this->assertEquals(400, $exception->getHttpStatusCode());
         $this->assertEquals('VALIDATION_ERROR', $exception->getCode());
         $this->assertEquals($complexData, $exception->getData());
-        
+
         // Test specific data access
         $data = $exception->getData();
         $this->assertArrayHasKey('errors', $data);
@@ -125,7 +125,7 @@ class PhonePeExceptionTest extends BaseTestCase
         $this->assertEquals('INVALID_AMOUNT', $data['errors'][0]['code']);
     }
 
-    public function testExceptionInheritance(): void
+    public function test_exception_inheritance(): void
     {
         $exception = new PhonePeException('Test exception');
 
@@ -133,12 +133,12 @@ class PhonePeExceptionTest extends BaseTestCase
         $this->assertTrue(is_subclass_of($exception, \Exception::class));
     }
 
-    public function testExceptionStringRepresentation(): void
+    public function test_exception_string_representation(): void
     {
         $message = 'Payment processing failed';
         $httpStatus = 422;
         $code = 'PAYMENT_FAILED';
-        
+
         $exception = new PhonePeException($message, $httpStatus, $code);
         $stringRepresentation = (string) $exception;
 
@@ -146,7 +146,7 @@ class PhonePeExceptionTest extends BaseTestCase
         $this->assertStringContainsString(__FILE__, $stringRepresentation);
     }
 
-    public function testExceptionWithNullValues(): void
+    public function test_exception_with_null_values(): void
     {
         $exception = new PhonePeException(null, null, null, null);
 
@@ -156,7 +156,7 @@ class PhonePeExceptionTest extends BaseTestCase
         $this->assertNull($exception->getData());
     }
 
-    public function testExceptionWithEmptyStringMessage(): void
+    public function test_exception_with_empty_string_message(): void
     {
         $exception = new PhonePeException('');
 
@@ -164,7 +164,7 @@ class PhonePeExceptionTest extends BaseTestCase
         $this->assertEquals(0, $exception->getHttpStatusCode());
     }
 
-    public function testExceptionWithZeroHttpStatus(): void
+    public function test_exception_with_zero_http_status(): void
     {
         $exception = new PhonePeException('Test message', 0);
 
@@ -172,7 +172,7 @@ class PhonePeExceptionTest extends BaseTestCase
         $this->assertEquals(0, $exception->getHttpStatusCode());
     }
 
-    public function testExceptionWithNegativeHttpStatus(): void
+    public function test_exception_with_negative_http_status(): void
     {
         $exception = new PhonePeException('Test message', -1);
 
@@ -180,13 +180,13 @@ class PhonePeExceptionTest extends BaseTestCase
         $this->assertEquals(-1, $exception->getHttpStatusCode());
     }
 
-    public function testExceptionDataImmutability(): void
+    public function test_exception_data_immutability(): void
     {
         $originalData = ['key' => 'value', 'nested' => ['subkey' => 'subvalue']];
         $exception = new PhonePeException('Test', 400, 'ERROR', $originalData);
 
         $retrievedData = $exception->getData();
-        
+
         // Modify the retrieved data
         $retrievedData['key'] = 'modified';
         $retrievedData['nested']['subkey'] = 'modified_sub';
@@ -199,7 +199,7 @@ class PhonePeExceptionTest extends BaseTestCase
         $this->assertArrayNotHasKey('new_key', $freshData);
     }
 
-    public function testExceptionPropertiesArePublic(): void
+    public function test_exception_properties_are_public(): void
     {
         $exception = new PhonePeException('Test', 400, 'CODE', ['data' => 'test']);
 

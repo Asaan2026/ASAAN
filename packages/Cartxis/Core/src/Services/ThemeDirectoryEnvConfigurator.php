@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Cartxis\Core\Services;
 
+use Cartxis\Core\Support\ThemeDirectoryUrl;
+
 class ThemeDirectoryEnvConfigurator
 {
     public function __construct(
@@ -96,7 +98,7 @@ class ThemeDirectoryEnvConfigurator
 
     protected function writeDirectoryUrl(): void
     {
-        $directoryUrl = \Cartxis\Core\Support\ThemeDirectoryUrl::resolve();
+        $directoryUrl = ThemeDirectoryUrl::resolve();
 
         $this->writeEnvValue('CARTXIS_THEME_DIRECTORY_URL', $directoryUrl);
         config(['theme.directory.url' => $directoryUrl]);

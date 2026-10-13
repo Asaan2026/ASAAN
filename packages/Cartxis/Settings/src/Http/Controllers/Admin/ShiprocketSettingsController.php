@@ -75,7 +75,7 @@ class ShiprocketSettingsController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Shiprocket connection successful.',
-                'token_preview' => substr($token, 0, 12) . '...',
+                'token_preview' => substr($token, 0, 12).'...',
                 'pickup_locations' => $pickupLocations,
                 'channels' => $channels,
             ]);
@@ -90,7 +90,7 @@ class ShiprocketSettingsController extends Controller
     public function fetchMetadata(): JsonResponse
     {
         try {
-            if (!(bool) $this->settingService->get('shipping.shiprocket.enabled', false)) {
+            if (! (bool) $this->settingService->get('shipping.shiprocket.enabled', false)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Shiprocket is disabled.',

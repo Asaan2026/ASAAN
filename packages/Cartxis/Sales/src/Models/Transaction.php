@@ -2,10 +2,10 @@
 
 namespace Cartxis\Sales\Models;
 
+use Cartxis\Core\Models\Currency;
+use Cartxis\Shop\Models\Order;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Cartxis\Shop\Models\Order;
-use Cartxis\Core\Models\Currency;
 
 class Transaction extends Model
 {
@@ -174,9 +174,9 @@ class Transaction extends Model
      */
     public function canBeRefunded(): bool
     {
-        return $this->status === 'completed' && 
-               $this->type === 'payment' && 
-               !$this->hasRefund();
+        return $this->status === 'completed' &&
+               $this->type === 'payment' &&
+               ! $this->hasRefund();
     }
 
     /**
@@ -199,7 +199,7 @@ class Transaction extends Model
 
         return $currency
             ? $currency->format($this->amount)
-            : '$' . number_format($this->amount, 2);
+            : '$'.number_format($this->amount, 2);
     }
 
     /**
@@ -209,7 +209,7 @@ class Transaction extends Model
     {
         $date = now()->format('Ymd');
         $random = str_pad(mt_rand(1, 999999), 6, '0', STR_PAD_LEFT);
-        
+
         return "TXN-{$date}-{$random}";
     }
 }

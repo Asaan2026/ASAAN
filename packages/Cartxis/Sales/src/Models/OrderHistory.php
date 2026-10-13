@@ -2,10 +2,10 @@
 
 namespace Cartxis\Sales\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\User;
 use Cartxis\Shop\Models\Order;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OrderHistory extends Model
 {
@@ -15,14 +15,14 @@ class OrderHistory extends Model
      * @var string
      */
     protected $table = 'order_histories';
-    
+
     /**
      * Indicates if the model should be timestamped.
      *
      * @var bool
      */
     public $timestamps = false;
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -39,7 +39,7 @@ class OrderHistory extends Model
         'customer_notified',
         'visible_to_customer',
     ];
-    
+
     /**
      * The attributes that should be cast.
      *
@@ -50,7 +50,7 @@ class OrderHistory extends Model
         'visible_to_customer' => 'boolean',
         'created_at' => 'datetime',
     ];
-    
+
     /**
      * Get the order that owns the history.
      */
@@ -58,7 +58,7 @@ class OrderHistory extends Model
     {
         return $this->belongsTo(Order::class);
     }
-    
+
     /**
      * Get the admin user who made the change.
      */
@@ -66,30 +66,30 @@ class OrderHistory extends Model
     {
         return $this->belongsTo(User::class, 'admin_user_id');
     }
-    
+
     /**
      * Get formatted status change description.
      */
     public function getStatusChangeAttribute(): ?string
     {
         if ($this->status_from && $this->status_to) {
-            return ucfirst($this->status_from) . ' → ' . ucfirst($this->status_to);
+            return ucfirst($this->status_from).' → '.ucfirst($this->status_to);
         }
-        
+
         if ($this->payment_status_from && $this->payment_status_to) {
-            return 'Payment: ' . ucfirst($this->payment_status_from) . ' → ' . ucfirst($this->payment_status_to);
+            return 'Payment: '.ucfirst($this->payment_status_from).' → '.ucfirst($this->payment_status_to);
         }
-        
+
         return null;
     }
-    
+
     /**
      * Boot the model.
      */
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($history) {
             $history->created_at = now();
         });

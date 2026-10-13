@@ -37,7 +37,7 @@ class ServiceBookingController extends Controller
         }
 
         $bookings = $query
-            ->orderByRaw("CASE WHEN scheduled_date IS NULL THEN 1 ELSE 0 END")
+            ->orderByRaw('CASE WHEN scheduled_date IS NULL THEN 1 ELSE 0 END')
             ->orderBy('scheduled_date')
             ->orderBy('id')
             ->paginate($request->get('per_page', 15))
@@ -87,7 +87,7 @@ class ServiceBookingController extends Controller
             return back()->withErrors(['error' => $e->getMessage()]);
         }
 
-        return back()->with('success', 'Job assigned to ' . ($worker->name ?: 'the worker') . '.');
+        return back()->with('success', 'Job assigned to '.($worker->name ?: 'the worker').'.');
     }
 
     public function unassign(ServiceBooking $booking): RedirectResponse
@@ -194,7 +194,7 @@ class ServiceBookingController extends Controller
 
         return back()->with(
             'success',
-            $moved . ' job(s) cancelled.' . ($moved < count($validated['ids']) ? ' The rest were already finished.' : '')
+            $moved.' job(s) cancelled.'.($moved < count($validated['ids']) ? ' The rest were already finished.' : '')
         );
     }
 
@@ -210,7 +210,7 @@ class ServiceBookingController extends Controller
             $query->where('assigned_to', $request->get('assigned_to'));
         }
 
-        $filename = 'service-bookings-' . now()->format('Y-m-d-His') . '.csv';
+        $filename = 'service-bookings-'.now()->format('Y-m-d-His').'.csv';
 
         return response()->streamDownload(function () use ($query) {
             $handle = fopen('php://output', 'w');

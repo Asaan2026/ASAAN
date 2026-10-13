@@ -17,7 +17,13 @@ const props = withDefaults(
         seconds?: boolean;
         placeholder?: string;
     }>(),
-    { weekday: false, short: false, time: false, seconds: false, placeholder: '—' },
+    {
+        weekday: false,
+        short: false,
+        time: false,
+        seconds: false,
+        placeholder: '—',
+    },
 );
 
 const {
@@ -71,7 +77,10 @@ const clock = computed(() =>
         class="whitespace-nowrap"
         :dir="dateValue === null ? undefined : direction"
     >
-        <span v-if="dateValue === null" class="text-gray-400 dark:text-gray-500">
+        <span
+            v-if="dateValue === null"
+            class="text-gray-400 dark:text-gray-500"
+        >
             {{ placeholder }}
         </span>
 
@@ -100,7 +109,7 @@ const clock = computed(() =>
         -->
         <span
             v-if="clock"
-            class="tabular-nums text-gray-500 dark:text-gray-400"
+            class="text-gray-500 tabular-nums dark:text-gray-400"
             dir="ltr"
         >
             · {{ clock }}

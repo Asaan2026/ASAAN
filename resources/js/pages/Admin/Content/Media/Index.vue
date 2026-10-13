@@ -1,22 +1,50 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import AdminLayout from '@/layouts/AdminLayout.vue';
 import ConfirmDeleteModal from '@/components/Admin/ConfirmDeleteModal.vue';
 import FolderTreeItem from '@/components/Admin/Media/FolderTreeItem.vue';
 import UploadDropzone from '@/components/Admin/Media/UploadDropzone.vue';
 import DateDisplay from '@/components/Calendar/DateDisplay.vue';
-import * as mediaRoutes from '@/routes/admin/content/media/index';
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import * as folderRoutes from '@/routes/admin/content/folders/index';
-import type { MediaFile, MediaFolder, MediaStatistics, MediaFilters, PaginatedMedia, MediaViewMode } from '@/types/media';
+import * as mediaRoutes from '@/routes/admin/content/media/index';
 import { useI18nStore } from '@/Stores/i18n';
+import type {
+    MediaFile,
+    MediaFilters,
+    MediaFolder,
+    MediaStatistics,
+    MediaViewMode,
+    PaginatedMedia,
+} from '@/types/media';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import {
+    ArrowUpDown,
+    ChevronDown,
+    ChevronRight,
+    Copy,
+    ExternalLink,
+    File,
+    FileImage,
+    FileVideo,
+    Filter,
+    Folder,
+    FolderPlus,
+    Grid3x3,
+    Home,
+    Image,
+    Info,
+    List,
+    Search,
+    Upload,
+    X,
+} from 'lucide-vue-next';
+import { computed, ref, watch } from 'vue';
 
 const { t } = useI18nStore();
 
 // Simple debounce function
 const debounce = <T extends (...args: any[]) => any>(
     func: T,
-    wait: number
+    wait: number,
 ): ((...args: Parameters<T>) => void) => {
     let timeout: ReturnType<typeof setTimeout> | null = null;
     return (...args: Parameters<T>) => {
@@ -24,30 +52,6 @@ const debounce = <T extends (...args: any[]) => any>(
         timeout = setTimeout(() => func(...args), wait);
     };
 };
-import { 
-    Image, 
-    Grid3x3, 
-    List, 
-    Search, 
-    Upload, 
-    FolderPlus,
-    Filter,
-    FileImage,
-    FileVideo,
-    File,
-    X,
-    Folder,
-    FolderOpen,
-    ChevronRight,
-    ChevronDown,
-    Home,
-    Copy,
-    ExternalLink,
-    Eye,
-    Info,
-    Trash2,
-    ArrowUpDown,
-} from 'lucide-vue-next';
 
 interface Props {
     media: PaginatedMedia;
@@ -84,7 +88,11 @@ const showUploadModal = ref(false);
 const showDeleteModal = ref(false);
 const showFileDetailsModal = ref(false);
 const selectedFileDetails = ref<MediaFile | null>(null);
-const deleteTarget = ref<{ type: 'single' | 'bulk'; file?: MediaFile; count?: number } | null>(null);
+const deleteTarget = ref<{
+    type: 'single' | 'bulk';
+    file?: MediaFile;
+    count?: number;
+} | null>(null);
 const newFolderName = ref('');
 const newFolderParentId = ref<number | null>(null);
 const copyUrlFeedback = ref(false);
@@ -99,13 +107,19 @@ const deleteModalTitle = computed(() => {
 
 const deleteModalMessage = computed(() => {
     if (deleteTarget.value?.type === 'bulk') {
-        return t('Are you sure you want to delete {count} file(s)? This action cannot be undone.', {
-            count: deleteTarget.value.count ?? 0,
-        });
+        return t(
+            'Are you sure you want to delete {count} file(s)? This action cannot be undone.',
+            {
+                count: deleteTarget.value.count ?? 0,
+            },
+        );
     }
-    return t("Are you sure you want to delete '{filename}'? This action cannot be undone.", {
-        filename: deleteTarget.value?.file?.original_filename ?? '',
-    });
+    return t(
+        "Are you sure you want to delete '{filename}'? This action cannot be undone.",
+        {
+            filename: deleteTarget.value?.file?.original_filename ?? '',
+        },
+    );
 });
 
 // Toggle folder expansion
@@ -143,7 +157,7 @@ const createFolder = () => {
                 newFolderName.value = '';
                 newFolderParentId.value = null;
             },
-        }
+        },
     );
 };
 
@@ -154,12 +168,15 @@ const cancelCreateFolder = () => {
 };
 
 // Build folder tree recursively
-const buildFolderTree = (folders: MediaFolder[], parentId: number | null = null): MediaFolder[] => {
+const buildFolderTree = (
+    folders: MediaFolder[],
+    parentId: number | null = null,
+): MediaFolder[] => {
     return folders
-        .filter(folder => folder.parent_id === parentId)
-        .map(folder => ({
+        .filter((folder) => folder.parent_id === parentId)
+        .map((folder) => ({
             ...folder,
-            children: buildFolderTree(folders, folder.id)
+            children: buildFolderTree(folders, folder.id),
         }));
 };
 
@@ -168,7 +185,7 @@ const folderTree = computed(() => buildFolderTree(props.folders));
 // Watch for select all toggle
 watch(selectAll, (value) => {
     if (value) {
-        selectedFiles.value = props.media.data.map(file => file.id);
+        selectedFiles.value = props.media.data.map((file) => file.id);
     } else {
         selectedFiles.value = [];
     }
@@ -188,7 +205,7 @@ const applyFilters = debounce(() => {
         {
             preserveState: true,
             preserveScroll: true,
-        }
+        },
     );
 }, 500);
 
@@ -201,21 +218,21 @@ watch(() => form.value.folder_id, applyFilters);
 const formatSize = (bytes: number | string | null | undefined): string => {
     // If already a string (formatted), return it
     if (typeof bytes === 'string') return bytes;
-    
+
     // Convert to number if needed
     const numBytes = Number(bytes);
-    
+
     if (!numBytes || isNaN(numBytes) || numBytes === 0) return '0.00 B';
-    
+
     const units = ['B', 'KB', 'MB', 'GB'];
     let size = numBytes;
     let unitIndex = 0;
-    
+
     while (size > 1024 && unitIndex < units.length - 1) {
         size /= 1024;
         unitIndex++;
     }
-    
+
     return `${size.toFixed(2)} ${units[unitIndex]}`;
 };
 
@@ -253,7 +270,7 @@ const bulkDelete = () => {
 
 const confirmDelete = () => {
     if (!deleteTarget.value) return;
-    
+
     if (deleteTarget.value.type === 'bulk') {
         router.post(
             mediaRoutes.bulkAction().url,
@@ -268,9 +285,12 @@ const confirmDelete = () => {
                     showDeleteModal.value = false;
                     deleteTarget.value = null;
                 },
-            }
+            },
         );
-    } else if (deleteTarget.value.type === 'single' && deleteTarget.value.file) {
+    } else if (
+        deleteTarget.value.type === 'single' &&
+        deleteTarget.value.file
+    ) {
         router.delete(mediaRoutes.destroy(deleteTarget.value.file.id).url, {
             preserveScroll: true,
             onSuccess: () => {
@@ -334,26 +354,43 @@ const copyUrlToClipboard = async (url: string) => {
     <Head :title="$t('Media Library')" />
 
     <AdminLayout :title="$t('Media Library')">
-        <div class="p-6 space-y-6">
+        <div class="space-y-6 p-6">
             <!-- Header -->
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div
+                class="flex flex-col justify-between gap-4 md:flex-row md:items-center"
+            >
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">{{ $t('Media Library') }}</h1>
-                    <div class="flex items-center gap-2 mt-1 text-sm text-gray-500">
-                        <Link href="/admin/dashboard" class="hover:text-blue-600 transition-colors">{{ $t('Dashboard') }}</Link>
+                    <h1
+                        class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+                    >
+                        {{ $t('Media Library') }}
+                    </h1>
+                    <div
+                        class="mt-1 flex items-center gap-2 text-sm text-gray-500"
+                    >
+                        <Link
+                            href="/admin/dashboard"
+                            class="transition-colors hover:text-blue-600"
+                            >{{ $t('Dashboard') }}</Link
+                        >
                         <ChevronRight :size="14" />
-                        <span class="text-gray-900 dark:text-gray-300 font-medium">{{ $t('Media') }}</span>
+                        <span
+                            class="font-medium text-gray-900 dark:text-gray-300"
+                            >{{ $t('Media') }}</span
+                        >
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
-                    <div class="flex items-center gap-1 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 p-1 shadow-sm">
+                    <div
+                        class="flex items-center gap-1 rounded-lg border border-gray-100 bg-white p-1 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                    >
                         <button
                             @click="viewMode = 'grid'"
                             :class="[
-                                'p-2 rounded-md transition-all',
+                                'rounded-md p-2 transition-all',
                                 viewMode === 'grid'
-                                    ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 shadow-sm'
-                                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                                    ? 'bg-blue-50 text-blue-600 shadow-sm dark:bg-blue-900/20 dark:text-blue-400'
+                                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300',
                             ]"
                             :title="$t('Grid view')"
                         >
@@ -362,10 +399,10 @@ const copyUrlToClipboard = async (url: string) => {
                         <button
                             @click="viewMode = 'list'"
                             :class="[
-                                'p-2 rounded-md transition-all',
+                                'rounded-md p-2 transition-all',
                                 viewMode === 'list'
-                                    ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 shadow-sm'
-                                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                                    ? 'bg-blue-50 text-blue-600 shadow-sm dark:bg-blue-900/20 dark:text-blue-400'
+                                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300',
                             ]"
                             :title="$t('List view')"
                         >
@@ -375,7 +412,7 @@ const copyUrlToClipboard = async (url: string) => {
 
                     <button
                         @click="showUploadModal"
-                        class="flex items-center px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-100 transition-all shadow-sm"
+                        class="flex items-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-blue-700 focus:ring-4 focus:ring-blue-100"
                     >
                         <Upload :size="16" class="mr-2" />
                         {{ $t('Upload Files') }}
@@ -384,182 +421,318 @@ const copyUrlToClipboard = async (url: string) => {
             </div>
 
             <!-- Main Layout -->
-            <div class="flex flex-col lg:flex-row gap-6">
+            <div class="flex flex-col gap-6 lg:flex-row">
                 <!-- Sidebar -->
-                <div class="w-full lg:w-64 flex-shrink-0 space-y-6">
+                <div class="w-full flex-shrink-0 space-y-6 lg:w-64">
                     <!-- All Files -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+                    <div
+                        class="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                    >
                         <button
                             @click="navigateToFolder(null)"
-                        :class="[
-                            'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors',
-                            form.folder_id === null
-                                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                                : 'hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300'
-                        ]"
-                    >
-                        <Home :size="18" />
-                        <span class="font-medium">{{ $t('All Files') }}</span>
-                    </button>
-                </div>
+                            :class="[
+                                'flex w-full items-center gap-3 px-4 py-3 text-left transition-colors',
+                                form.folder_id === null
+                                    ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
+                                    : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50',
+                            ]"
+                        >
+                            <Home :size="18" />
+                            <span class="font-medium">{{
+                                $t('All Files')
+                            }}</span>
+                        </button>
+                    </div>
 
                     <!-- Folders -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
-                        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-700/20">
-                            <h3 class="font-medium text-gray-900 dark:text-white">{{ $t('Folders') }}</h3>
+                    <div
+                        class="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                    >
+                        <div
+                            class="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-4 py-3 dark:border-gray-700 dark:bg-gray-700/20"
+                        >
+                            <h3
+                                class="font-medium text-gray-900 dark:text-white"
+                            >
+                                {{ $t('Folders') }}
+                            </h3>
                             <button
                                 @click="showNewFolderModal = true"
-                                class="p-1.5 hover:bg-white dark:hover:bg-gray-600 rounded-lg transition-colors border border-transparent hover:border-gray-200 shadow-sm"
+                                class="rounded-lg border border-transparent p-1.5 shadow-sm transition-colors hover:border-gray-200 hover:bg-white dark:hover:bg-gray-600"
                                 :title="$t('Create Folder')"
                             >
-                                <FolderPlus :size="16" class="text-gray-600 dark:text-gray-400" />
+                                <FolderPlus
+                                    :size="16"
+                                    class="text-gray-600 dark:text-gray-400"
+                                />
                             </button>
                         </div>
 
-                    <div class="p-2">
-                        <!-- Folder tree component -->
-                        <div v-for="folder in folderTree" :key="folder.id">
-                            <FolderTreeItem
-                                :folder="folder"
-                                :current-folder-id="form.folder_id ?? null"
-                                :expanded-folders="expandedFolders"
-                                @toggle="toggleFolder"
-                                @navigate="navigateToFolder"
-                            />
-                        </div>
+                        <div class="p-2">
+                            <!-- Folder tree component -->
+                            <div v-for="folder in folderTree" :key="folder.id">
+                                <FolderTreeItem
+                                    :folder="folder"
+                                    :current-folder-id="form.folder_id ?? null"
+                                    :expanded-folders="expandedFolders"
+                                    @toggle="toggleFolder"
+                                    @navigate="navigateToFolder"
+                                />
+                            </div>
 
-                        <!-- Empty state -->
-                        <div v-if="folderTree.length === 0" class="py-8 text-center">
-                            <Folder :size="32" class="mx-auto text-gray-300 dark:text-gray-600 mb-2" />
-                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ $t('No folders yet') }}</p>
+                            <!-- Empty state -->
+                            <div
+                                v-if="folderTree.length === 0"
+                                class="py-8 text-center"
+                            >
+                                <Folder
+                                    :size="32"
+                                    class="mx-auto mb-2 text-gray-300 dark:text-gray-600"
+                                />
+                                <p
+                                    class="text-sm text-gray-500 dark:text-gray-400"
+                                >
+                                    {{ $t('No folders yet') }}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Main Content -->
-            <div class="flex-1 space-y-6">
-                <!-- Stats Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-5">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Total Files') }}</p>
-                                <p class="mt-2 text-2xl font-bold text-gray-900 dark:text-white">{{ statistics.total_files }}</p>
-                            </div>
-                            <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
-                                <File :size="24" class="text-blue-600 dark:text-blue-400" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-5">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Images') }}</p>
-                                <p class="mt-2 text-2xl font-bold text-gray-900 dark:text-white">{{ statistics.total_images }}</p>
-                            </div>
-                            <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-100 dark:border-green-800">
-                                <FileImage :size="24" class="text-green-600 dark:text-green-400" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-5">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Videos') }}</p>
-                                <p class="mt-2 text-2xl font-bold text-gray-900 dark:text-white">{{ statistics.total_videos }}</p>
-                                </div>
-                                <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800">
-                                    <FileVideo :size="24" class="text-purple-600 dark:text-purple-400" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-5">
+                <!-- Main Content -->
+                <div class="flex-1 space-y-6">
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+                        <div
+                            class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                        >
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Storage') }}</p>
-                                    <p class="mt-2 text-2xl font-bold text-gray-900 dark:text-white">{{ formatSize(statistics.total_size) }}</p>
+                                    <p
+                                        class="text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                    >
+                                        {{ $t('Total Files') }}
+                                    </p>
+                                    <p
+                                        class="mt-2 text-2xl font-bold text-gray-900 dark:text-white"
+                                    >
+                                        {{ statistics.total_files }}
+                                    </p>
                                 </div>
-                                <div class="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-100 dark:border-orange-800">
-                                    <Image :size="24" class="text-orange-600 dark:text-orange-400" />
+                                <div
+                                    class="rounded-lg border border-blue-100 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20"
+                                >
+                                    <File
+                                        :size="24"
+                                        class="text-blue-600 dark:text-blue-400"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                        >
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p
+                                        class="text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                    >
+                                        {{ $t('Images') }}
+                                    </p>
+                                    <p
+                                        class="mt-2 text-2xl font-bold text-gray-900 dark:text-white"
+                                    >
+                                        {{ statistics.total_images }}
+                                    </p>
+                                </div>
+                                <div
+                                    class="rounded-lg border border-green-100 bg-green-50 p-3 dark:border-green-800 dark:bg-green-900/20"
+                                >
+                                    <FileImage
+                                        :size="24"
+                                        class="text-green-600 dark:text-green-400"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                        >
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p
+                                        class="text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                    >
+                                        {{ $t('Videos') }}
+                                    </p>
+                                    <p
+                                        class="mt-2 text-2xl font-bold text-gray-900 dark:text-white"
+                                    >
+                                        {{ statistics.total_videos }}
+                                    </p>
+                                </div>
+                                <div
+                                    class="rounded-lg border border-purple-100 bg-purple-50 p-3 dark:border-purple-800 dark:bg-purple-900/20"
+                                >
+                                    <FileVideo
+                                        :size="24"
+                                        class="text-purple-600 dark:text-purple-400"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                        >
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p
+                                        class="text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                    >
+                                        {{ $t('Storage') }}
+                                    </p>
+                                    <p
+                                        class="mt-2 text-2xl font-bold text-gray-900 dark:text-white"
+                                    >
+                                        {{ formatSize(statistics.total_size) }}
+                                    </p>
+                                </div>
+                                <div
+                                    class="rounded-lg border border-orange-100 bg-orange-50 p-3 dark:border-orange-800 dark:bg-orange-900/20"
+                                >
+                                    <Image
+                                        :size="24"
+                                        class="text-orange-600 dark:text-orange-400"
+                                    />
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Filter Bar -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-5">
-                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div
+                        class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                    >
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-12">
                             <!-- Search -->
                             <div class="md:col-span-6">
-                                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">{{ $t('Search') }}</label>
+                                <label
+                                    class="mb-1.5 block text-xs font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                    >{{ $t('Search') }}</label
+                                >
                                 <div class="relative">
-                                    <Search :size="18" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                    <Search
+                                        :size="18"
+                                        class="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400"
+                                    />
                                     <input
                                         v-model="form.search"
                                         type="text"
                                         :placeholder="$t('Search files...')"
-                                        class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors"
+                                        class="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pr-4 pl-10 text-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-600 dark:bg-gray-700/50"
                                     />
                                 </div>
                             </div>
 
                             <!-- Type filter -->
                             <div class="md:col-span-3">
-                                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">{{ $t('File Type') }}</label>
+                                <label
+                                    class="mb-1.5 block text-xs font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                    >{{ $t('File Type') }}</label
+                                >
                                 <div class="relative">
-                                    <Filter :size="18" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                    <Filter
+                                        :size="18"
+                                        class="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400"
+                                    />
                                     <select
                                         v-model="form.type"
-                                        class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors appearance-none"
+                                        class="w-full appearance-none rounded-lg border border-gray-200 bg-gray-50 py-2.5 pr-4 pl-10 text-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-600 dark:bg-gray-700/50"
                                     >
-                                        <option value="all">{{ $t('All Files') }}</option>
-                                        <option value="images">{{ $t('Images') }}</option>
-                                        <option value="videos">{{ $t('Videos') }}</option>
-                                        <option value="documents">{{ $t('Documents') }}</option>
+                                        <option value="all">
+                                            {{ $t('All Files') }}
+                                        </option>
+                                        <option value="images">
+                                            {{ $t('Images') }}
+                                        </option>
+                                        <option value="videos">
+                                            {{ $t('Videos') }}
+                                        </option>
+                                        <option value="documents">
+                                            {{ $t('Documents') }}
+                                        </option>
                                     </select>
-                                    <ChevronDown :size="16" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                    <ChevronDown
+                                        :size="16"
+                                        class="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-400"
+                                    />
                                 </div>
                             </div>
 
                             <!-- Sort -->
                             <div class="md:col-span-3">
-                                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">{{ $t('Sort By') }}</label>
+                                <label
+                                    class="mb-1.5 block text-xs font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                    >{{ $t('Sort By') }}</label
+                                >
                                 <div class="relative">
-                                    <ArrowUpDown :size="18" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                    <ArrowUpDown
+                                        :size="18"
+                                        class="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400"
+                                    />
                                     <select
                                         v-model="form.sort_by"
                                         @change="applyFilters"
-                                        class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors appearance-none"
+                                        class="w-full appearance-none rounded-lg border border-gray-200 bg-gray-50 py-2.5 pr-4 pl-10 text-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-600 dark:bg-gray-700/50"
                                     >
-                                        <option value="created_at">{{ $t('Date Added') }}</option>
-                                        <option value="original_filename">{{ $t('Name') }}</option>
-                                        <option value="size">{{ $t('Size') }}</option>
+                                        <option value="created_at">
+                                            {{ $t('Date Added') }}
+                                        </option>
+                                        <option value="original_filename">
+                                            {{ $t('Name') }}
+                                        </option>
+                                        <option value="size">
+                                            {{ $t('Size') }}
+                                        </option>
                                     </select>
-                                    <ChevronDown :size="16" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                    <ChevronDown
+                                        :size="16"
+                                        class="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-400"
+                                    />
                                 </div>
                             </div>
                         </div>
 
                         <!-- Selection toolbar -->
-                        <div v-if="selectedFiles.length > 0" class="mt-4 flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
-                            <span class="text-sm font-medium text-blue-900 dark:text-blue-100 flex items-center gap-2">
-                                <div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-                                {{ $t('{count} file(s) selected', { count: selectedFiles.length }) }}
+                        <div
+                            v-if="selectedFiles.length > 0"
+                            class="mt-4 flex items-center justify-between rounded-lg border border-blue-100 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20"
+                        >
+                            <span
+                                class="flex items-center gap-2 text-sm font-medium text-blue-900 dark:text-blue-100"
+                            >
+                                <div
+                                    class="h-1.5 w-1.5 rounded-full bg-blue-500"
+                                ></div>
+                                {{
+                                    $t('{count} file(s) selected', {
+                                        count: selectedFiles.length,
+                                    })
+                                }}
                             </span>
                             <div class="flex items-center gap-2">
                                 <button
                                     @click="bulkDelete"
-                                    class="px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+                                    class="rounded-md px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
                                 >
                                     {{ $t('Delete Selected') }}
                                 </button>
                                 <button
                                     @click="clearSelection"
-                                    class="px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                                    class="rounded-md px-3 py-1.5 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
                                 >
                                     {{ $t('Clear') }}
                                 </button>
@@ -568,223 +741,340 @@ const copyUrlToClipboard = async (url: string) => {
                     </div>
 
                     <!-- Content Grid -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-6 min-h-[400px]">
-                <!-- Empty state -->
-                <div v-if="media.data.length === 0" class="text-center py-12">
-                    <Image :size="48" class="mx-auto text-gray-300 dark:text-gray-600 mb-4" />
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('No files found') }}</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                        {{ $t('Upload files to get started') }}
-                    </p>
-                </div>
-
-                <!-- Grid view -->
-                <div v-else-if="viewMode === 'grid'" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                     <div
-                        v-for="file in media.data"
-                        :key="file.id"
-                        :class="[
-                            'group relative aspect-square rounded-lg border-2 transition-all overflow-hidden',
-                            selectedFiles.includes(file.id)
-                                ? 'border-blue-500 ring-2 ring-blue-500 ring-offset-2'
-                                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                        ]"
+                        class="min-h-[400px] rounded-xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
                     >
-                        <!-- Checkbox -->
-                        <div class="absolute top-2 left-2 z-10">
-                            <input
-                                type="checkbox"
-                                :checked="selectedFiles.includes(file.id)"
-                                class="w-5 h-5 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                                @click.stop
-                                @change="toggleSelection(file.id)"
+                        <!-- Empty state -->
+                        <div
+                            v-if="media.data.length === 0"
+                            class="py-12 text-center"
+                        >
+                            <Image
+                                :size="48"
+                                class="mx-auto mb-4 text-gray-300 dark:text-gray-600"
                             />
-                        </div>
-
-                        <!-- View Details Button -->
-                        <button
-                            @click="viewFileDetails(file)"
-                            class="absolute top-2 right-2 z-10 p-1.5 bg-white dark:bg-gray-800 rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-100 dark:hover:bg-gray-700"
-                            :title="$t('View details')"
-                        >
-                            <Info :size="16" class="text-gray-600 dark:text-gray-400" />
-                        </button>
-
-                        <!-- Image preview -->
-                        <div 
-                            v-if="file.is_image" 
-                            class="w-full h-full cursor-pointer"
-                            @click="viewFileDetails(file)"
-                        >
-                            <img
-                                :src="file.thumbnail_url || file.url"
-                                :alt="file.alt_text || file.original_filename"
-                                class="w-full h-full object-cover"
-                            />
-                        </div>
-
-                        <!-- Non-image file icon -->
-                        <div 
-                            v-else 
-                            class="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-700 cursor-pointer"
-                            @click="viewFileDetails(file)"
-                        >
-                            <component :is="getFileIcon(file)" :size="48" class="text-gray-400" />
-                        </div>
-
-                        <!-- Overlay on hover -->
-                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
-                            <p class="text-white text-xs font-medium px-2 text-center truncate w-full">
-                                {{ file.original_filename }}
+                            <h3
+                                class="mb-2 text-lg font-medium text-gray-900 dark:text-white"
+                            >
+                                {{ $t('No files found') }}
+                            </h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                {{ $t('Upload files to get started') }}
                             </p>
                         </div>
-                    </div>
-                </div>
 
-                <!-- List view -->
-                <div v-else class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-700">
-                            <tr>
-                                <th class="px-6 py-3 text-left">
-                                    <input
-                                        v-model="selectAll"
-                                        type="checkbox"
-                                        class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                                    />
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                    {{ $t('Preview') }}
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                    {{ $t('Name') }}
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                    {{ $t('Size') }}
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                    {{ $t('Type') }}
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                    {{ $t('Uploaded') }}
-                                </th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                    {{ $t('Actions') }}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                            <tr
+                        <!-- Grid view -->
+                        <div
+                            v-else-if="viewMode === 'grid'"
+                            class="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6"
+                        >
+                            <div
                                 v-for="file in media.data"
                                 :key="file.id"
                                 :class="[
-                                    'hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors',
-                                    selectedFiles.includes(file.id) ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                                    'group relative aspect-square overflow-hidden rounded-lg border-2 transition-all',
+                                    selectedFiles.includes(file.id)
+                                        ? 'border-blue-500 ring-2 ring-blue-500 ring-offset-2'
+                                        : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600',
                                 ]"
                             >
-                                <td class="px-6 py-4">
+                                <!-- Checkbox -->
+                                <div class="absolute top-2 left-2 z-10">
                                     <input
                                         type="checkbox"
-                                        :checked="selectedFiles.includes(file.id)"
+                                        :checked="
+                                            selectedFiles.includes(file.id)
+                                        "
+                                        class="h-5 w-5 rounded border-gray-300 bg-white text-blue-600 focus:ring-blue-500"
+                                        @click.stop
                                         @change="toggleSelection(file.id)"
-                                        class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
                                     />
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="w-12 h-12 rounded overflow-hidden bg-gray-100 dark:bg-gray-700">
-                                        <img
-                                            v-if="file.is_image"
-                                            :src="file.thumbnail_url || file.url"
-                                            :alt="file.alt_text || file.original_filename"
-                                            class="w-full h-full object-cover"
-                                        />
-                                        <div v-else class="w-full h-full flex items-center justify-center">
-                                            <component :is="getFileIcon(file)" :size="24" class="text-gray-400" />
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                        {{ file.original_filename }}
-                                    </div>
-                                    <div v-if="file.title" class="text-xs text-gray-500 dark:text-gray-400">
-                                        {{ file.title }}
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                    {{ file.formatted_size }}
-                                </td>
-                                <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                    {{ file.extension?.toUpperCase() || $t('Unknown') }}
-                                </td>
-                                <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                    <DateDisplay :value="file.created_at" time />
-                                </td>
-                                <td class="px-6 py-4 text-right text-sm font-medium">
-                                    <div class="flex items-center justify-end gap-2">
-                                        <button
-                                            @click="viewFileDetails(file)"
-                                            class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
-                                        >
-                                            {{ $t('View') }}
-                                        </button>
-                                        <button
-                                            @click="deleteFile(file)"
-                                            class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                                        >
-                                            {{ $t('Delete') }}
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                                </div>
 
-                <!-- Pagination -->
-                <div v-if="media.last_page > 1" class="mt-6 flex items-center justify-between">
-                    <div class="text-sm text-gray-500 dark:text-gray-400">
-                        {{ $t('Showing {from} to {to} of {total} files', { from: media.from, to: media.to, total: media.total }) }}
-                    </div>
-                    <div class="flex gap-2">
-                        <button
-                            v-for="page in media.last_page"
-                            :key="page"
-                            @click="router.get(mediaRoutes.index().url + `?page=${page}`)"
-                            :class="[
-                                'px-3 py-1.5 text-sm font-medium rounded-lg transition-colors',
-                                page === media.current_page
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600'
-                            ]"
+                                <!-- View Details Button -->
+                                <button
+                                    @click="viewFileDetails(file)"
+                                    class="absolute top-2 right-2 z-10 rounded-lg bg-white p-1.5 opacity-0 shadow-md transition-opacity group-hover:opacity-100 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700"
+                                    :title="$t('View details')"
+                                >
+                                    <Info
+                                        :size="16"
+                                        class="text-gray-600 dark:text-gray-400"
+                                    />
+                                </button>
+
+                                <!-- Image preview -->
+                                <div
+                                    v-if="file.is_image"
+                                    class="h-full w-full cursor-pointer"
+                                    @click="viewFileDetails(file)"
+                                >
+                                    <img
+                                        :src="file.thumbnail_url || file.url"
+                                        :alt="
+                                            file.alt_text ||
+                                            file.original_filename
+                                        "
+                                        class="h-full w-full object-cover"
+                                    />
+                                </div>
+
+                                <!-- Non-image file icon -->
+                                <div
+                                    v-else
+                                    class="flex h-full w-full cursor-pointer items-center justify-center bg-gray-50 dark:bg-gray-700"
+                                    @click="viewFileDetails(file)"
+                                >
+                                    <component
+                                        :is="getFileIcon(file)"
+                                        :size="48"
+                                        class="text-gray-400"
+                                    />
+                                </div>
+
+                                <!-- Overlay on hover -->
+                                <div
+                                    class="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/50 group-hover:opacity-100"
+                                >
+                                    <p
+                                        class="w-full truncate px-2 text-center text-xs font-medium text-white"
+                                    >
+                                        {{ file.original_filename }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- List view -->
+                        <div v-else class="overflow-x-auto">
+                            <table
+                                class="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
+                            >
+                                <thead class="bg-gray-50 dark:bg-gray-700">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left">
+                                            <input
+                                                v-model="selectAll"
+                                                type="checkbox"
+                                                class="h-4 w-4 rounded border-gray-300 bg-white text-blue-600 focus:ring-blue-500"
+                                            />
+                                        </th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                        >
+                                            {{ $t('Preview') }}
+                                        </th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                        >
+                                            {{ $t('Name') }}
+                                        </th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                        >
+                                            {{ $t('Size') }}
+                                        </th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                        >
+                                            {{ $t('Type') }}
+                                        </th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                        >
+                                            {{ $t('Uploaded') }}
+                                        </th>
+                                        <th
+                                            class="px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                        >
+                                            {{ $t('Actions') }}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody
+                                    class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800"
+                                >
+                                    <tr
+                                        v-for="file in media.data"
+                                        :key="file.id"
+                                        :class="[
+                                            'transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50',
+                                            selectedFiles.includes(file.id)
+                                                ? 'bg-blue-50 dark:bg-blue-900/20'
+                                                : '',
+                                        ]"
+                                    >
+                                        <td class="px-6 py-4">
+                                            <input
+                                                type="checkbox"
+                                                :checked="
+                                                    selectedFiles.includes(
+                                                        file.id,
+                                                    )
+                                                "
+                                                @change="
+                                                    toggleSelection(file.id)
+                                                "
+                                                class="h-4 w-4 rounded border-gray-300 bg-white text-blue-600 focus:ring-blue-500"
+                                            />
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div
+                                                class="h-12 w-12 overflow-hidden rounded bg-gray-100 dark:bg-gray-700"
+                                            >
+                                                <img
+                                                    v-if="file.is_image"
+                                                    :src="
+                                                        file.thumbnail_url ||
+                                                        file.url
+                                                    "
+                                                    :alt="
+                                                        file.alt_text ||
+                                                        file.original_filename
+                                                    "
+                                                    class="h-full w-full object-cover"
+                                                />
+                                                <div
+                                                    v-else
+                                                    class="flex h-full w-full items-center justify-center"
+                                                >
+                                                    <component
+                                                        :is="getFileIcon(file)"
+                                                        :size="24"
+                                                        class="text-gray-400"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div
+                                                class="text-sm font-medium text-gray-900 dark:text-white"
+                                            >
+                                                {{ file.original_filename }}
+                                            </div>
+                                            <div
+                                                v-if="file.title"
+                                                class="text-xs text-gray-500 dark:text-gray-400"
+                                            >
+                                                {{ file.title }}
+                                            </div>
+                                        </td>
+                                        <td
+                                            class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{ file.formatted_size }}
+                                        </td>
+                                        <td
+                                            class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{
+                                                file.extension?.toUpperCase() ||
+                                                $t('Unknown')
+                                            }}
+                                        </td>
+                                        <td
+                                            class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400"
+                                        >
+                                            <DateDisplay
+                                                :value="file.created_at"
+                                                time
+                                            />
+                                        </td>
+                                        <td
+                                            class="px-6 py-4 text-right text-sm font-medium"
+                                        >
+                                            <div
+                                                class="flex items-center justify-end gap-2"
+                                            >
+                                                <button
+                                                    @click="
+                                                        viewFileDetails(file)
+                                                    "
+                                                    class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                                                >
+                                                    {{ $t('View') }}
+                                                </button>
+                                                <button
+                                                    @click="deleteFile(file)"
+                                                    class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                                                >
+                                                    {{ $t('Delete') }}
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div
+                            v-if="media.last_page > 1"
+                            class="mt-6 flex items-center justify-between"
                         >
-                            {{ page }}
-                        </button>
+                            <div
+                                class="text-sm text-gray-500 dark:text-gray-400"
+                            >
+                                {{
+                                    $t(
+                                        'Showing {from} to {to} of {total} files',
+                                        {
+                                            from: media.from,
+                                            to: media.to,
+                                            total: media.total,
+                                        },
+                                    )
+                                }}
+                            </div>
+                            <div class="flex gap-2">
+                                <button
+                                    v-for="page in media.last_page"
+                                    :key="page"
+                                    @click="
+                                        router.get(
+                                            mediaRoutes.index().url +
+                                                `?page=${page}`,
+                                        )
+                                    "
+                                    :class="[
+                                        'rounded-lg px-3 py-1.5 text-sm font-medium transition-colors',
+                                        page === media.current_page
+                                            ? 'bg-blue-600 text-white'
+                                            : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600',
+                                    ]"
+                                >
+                                    {{ page }}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
         <!-- End of flex container -->
-        
+
         <!-- Upload Modal -->
-        <div
-            v-if="showUploadModal"
-            class="fixed inset-0 z-50 overflow-y-auto"
-        >
-            <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <div v-if="showUploadModal" class="fixed inset-0 z-50 overflow-y-auto">
+            <div
+                class="flex min-h-screen items-center justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0"
+            >
                 <!-- Background overlay -->
                 <div
-                    class="fixed inset-0 transition-opacity bg-gray-500/75 dark:bg-gray-900/75"
+                    class="fixed inset-0 bg-gray-500/75 transition-opacity dark:bg-gray-900/75"
                     @click="showUploadModal = false"
                 ></div>
 
                 <!-- Modal panel -->
-                <div class="relative inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full z-10">
+                <div
+                    class="relative z-10 inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl sm:align-middle dark:bg-gray-800"
+                >
                     <!-- Header -->
-                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                    <div
+                        class="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700"
+                    >
+                        <h3
+                            class="text-lg font-medium text-gray-900 dark:text-white"
+                        >
                             {{ $t('Upload Files') }}
                         </h3>
                         <button
@@ -828,7 +1118,7 @@ const copyUrlToClipboard = async (url: string) => {
             >
                 <div
                     v-if="showFileDetailsModal && selectedFileDetails"
-                    class="fixed inset-0 z-50 flex items-center justify-center bg-gray-500/75 dark:bg-gray-900/75 p-4"
+                    class="fixed inset-0 z-50 flex items-center justify-center bg-gray-500/75 p-4 dark:bg-gray-900/75"
                     @click="showFileDetailsModal = false"
                 >
                     <Transition
@@ -841,192 +1131,320 @@ const copyUrlToClipboard = async (url: string) => {
                     >
                         <div
                             v-if="showFileDetailsModal && selectedFileDetails"
-                            class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+                            class="relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-lg bg-white shadow-xl dark:bg-gray-800"
                             @click.stop
                         >
-                    <!-- Header -->
-                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                            {{ $t('File Details') }}
-                        </h3>
-                        <button
-                            @click="showFileDetailsModal = false"
-                            type="button"
-                            class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
-                        >
-                            <X :size="20" />
-                        </button>
-                    </div>
+                            <!-- Header -->
+                            <div
+                                class="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700"
+                            >
+                                <h3
+                                    class="text-lg font-medium text-gray-900 dark:text-white"
+                                >
+                                    {{ $t('File Details') }}
+                                </h3>
+                                <button
+                                    @click="showFileDetailsModal = false"
+                                    type="button"
+                                    class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+                                >
+                                    <X :size="20" />
+                                </button>
+                            </div>
 
-                    <!-- Body -->
-                    <div class="px-6 py-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Preview -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    {{ $t('Preview') }}
-                                </label>
-                                <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-700">
-                                    <img
-                                        v-if="selectedFileDetails.is_image"
-                                        :src="selectedFileDetails.url"
-                                        :alt="selectedFileDetails.alt_text || selectedFileDetails.original_filename"
-                                        class="w-full h-auto"
-                                    />
-                                    <div v-else class="flex items-center justify-center h-64">
-                                        <component :is="getFileIcon(selectedFileDetails)" :size="64" class="text-gray-400" />
+                            <!-- Body -->
+                            <div class="px-6 py-4">
+                                <div
+                                    class="grid grid-cols-1 gap-6 md:grid-cols-2"
+                                >
+                                    <!-- Preview -->
+                                    <div>
+                                        <label
+                                            class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        >
+                                            {{ $t('Preview') }}
+                                        </label>
+                                        <div
+                                            class="overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-700"
+                                        >
+                                            <img
+                                                v-if="
+                                                    selectedFileDetails.is_image
+                                                "
+                                                :src="selectedFileDetails.url"
+                                                :alt="
+                                                    selectedFileDetails.alt_text ||
+                                                    selectedFileDetails.original_filename
+                                                "
+                                                class="h-auto w-full"
+                                            />
+                                            <div
+                                                v-else
+                                                class="flex h-64 items-center justify-center"
+                                            >
+                                                <component
+                                                    :is="
+                                                        getFileIcon(
+                                                            selectedFileDetails,
+                                                        )
+                                                    "
+                                                    :size="64"
+                                                    class="text-gray-400"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Details -->
+                                    <div class="space-y-4">
+                                        <!-- Filename -->
+                                        <div>
+                                            <label
+                                                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                            >
+                                                {{ $t('Filename') }}
+                                            </label>
+                                            <p
+                                                class="text-sm text-gray-900 dark:text-white"
+                                            >
+                                                {{
+                                                    selectedFileDetails.original_filename
+                                                }}
+                                            </p>
+                                        </div>
+
+                                        <!-- URL with Copy Button -->
+                                        <div>
+                                            <label
+                                                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                            >
+                                                {{ $t('File URL') }}
+                                            </label>
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
+                                                <input
+                                                    type="text"
+                                                    :value="
+                                                        selectedFileDetails.url
+                                                    "
+                                                    readonly
+                                                    class="flex-1 rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                                />
+                                                <button
+                                                    @click="
+                                                        copyUrlToClipboard(
+                                                            selectedFileDetails.url,
+                                                        )
+                                                    "
+                                                    class="flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                                                    :class="{
+                                                        'bg-green-600 hover:bg-green-700':
+                                                            copyUrlFeedback,
+                                                    }"
+                                                >
+                                                    <Copy :size="16" />
+                                                    {{
+                                                        copyUrlFeedback
+                                                            ? $t('Copied!')
+                                                            : $t('Copy')
+                                                    }}
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Thumbnail URL (if image) -->
+                                        <div
+                                            v-if="
+                                                selectedFileDetails.is_image &&
+                                                selectedFileDetails.thumbnail_url
+                                            "
+                                        >
+                                            <label
+                                                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                            >
+                                                {{ $t('Thumbnail URL') }}
+                                            </label>
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
+                                                <input
+                                                    type="text"
+                                                    :value="
+                                                        selectedFileDetails.thumbnail_url
+                                                    "
+                                                    readonly
+                                                    class="flex-1 rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                                />
+                                                <button
+                                                    @click="
+                                                        copyUrlToClipboard(
+                                                            selectedFileDetails.thumbnail_url!,
+                                                        )
+                                                    "
+                                                    class="flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                                                >
+                                                    <Copy :size="16" />
+                                                    {{ $t('Copy') }}
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- File Type -->
+                                        <div>
+                                            <label
+                                                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                            >
+                                                {{ $t('File Type') }}
+                                            </label>
+                                            <p
+                                                class="text-sm text-gray-900 dark:text-white"
+                                            >
+                                                {{
+                                                    selectedFileDetails.mime_type
+                                                }}
+                                                ({{
+                                                    selectedFileDetails.extension?.toUpperCase()
+                                                }})
+                                            </p>
+                                        </div>
+
+                                        <!-- File Size -->
+                                        <div>
+                                            <label
+                                                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                            >
+                                                {{ $t('File Size') }}
+                                            </label>
+                                            <p
+                                                class="text-sm text-gray-900 dark:text-white"
+                                            >
+                                                {{
+                                                    selectedFileDetails.formatted_size
+                                                }}
+                                            </p>
+                                        </div>
+
+                                        <!-- Dimensions (if image) -->
+                                        <div
+                                            v-if="
+                                                selectedFileDetails.width &&
+                                                selectedFileDetails.height
+                                            "
+                                        >
+                                            <label
+                                                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                            >
+                                                {{ $t('Dimensions') }}
+                                            </label>
+                                            <p
+                                                class="text-sm text-gray-900 dark:text-white"
+                                            >
+                                                {{
+                                                    selectedFileDetails.width
+                                                }}
+                                                ×
+                                                {{
+                                                    selectedFileDetails.height
+                                                }}
+                                                px
+                                            </p>
+                                        </div>
+
+                                        <!-- Alt Text -->
+                                        <div
+                                            v-if="selectedFileDetails.alt_text"
+                                        >
+                                            <label
+                                                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                            >
+                                                {{ $t('Alt Text') }}
+                                            </label>
+                                            <p
+                                                class="text-sm text-gray-900 dark:text-white"
+                                            >
+                                                {{
+                                                    selectedFileDetails.alt_text
+                                                }}
+                                            </p>
+                                        </div>
+
+                                        <!-- Title -->
+                                        <div v-if="selectedFileDetails.title">
+                                            <label
+                                                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                            >
+                                                {{ $t('Title') }}
+                                            </label>
+                                            <p
+                                                class="text-sm text-gray-900 dark:text-white"
+                                            >
+                                                {{ selectedFileDetails.title }}
+                                            </p>
+                                        </div>
+
+                                        <!-- Description -->
+                                        <div
+                                            v-if="
+                                                selectedFileDetails.description
+                                            "
+                                        >
+                                            <label
+                                                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                            >
+                                                {{ $t('Description') }}
+                                            </label>
+                                            <p
+                                                class="text-sm text-gray-900 dark:text-white"
+                                            >
+                                                {{
+                                                    selectedFileDetails.description
+                                                }}
+                                            </p>
+                                        </div>
+
+                                        <!-- Uploaded Date -->
+                                        <div>
+                                            <label
+                                                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                            >
+                                                {{ $t('Uploaded') }}
+                                            </label>
+                                            <p
+                                                class="text-sm text-gray-900 dark:text-white"
+                                            >
+                                                <DateDisplay
+                                                    :value="
+                                                        selectedFileDetails.created_at
+                                                    "
+                                                    time
+                                                />
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Details -->
-                            <div class="space-y-4">
-                                <!-- Filename -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        {{ $t('Filename') }}
-                                    </label>
-                                    <p class="text-sm text-gray-900 dark:text-white">
-                                        {{ selectedFileDetails.original_filename }}
-                                    </p>
-                                </div>
-
-                                <!-- URL with Copy Button -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        {{ $t('File URL') }}
-                                    </label>
-                                    <div class="flex items-center gap-2">
-                                        <input
-                                            type="text"
-                                            :value="selectedFileDetails.url"
-                                            readonly
-                                            class="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                                        />
-                                        <button
-                                            @click="copyUrlToClipboard(selectedFileDetails.url)"
-                                            class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-                                            :class="{ 'bg-green-600 hover:bg-green-700': copyUrlFeedback }"
-                                        >
-                                            <Copy :size="16" />
-                                            {{ copyUrlFeedback ? $t('Copied!') : $t('Copy') }}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Thumbnail URL (if image) -->
-                                <div v-if="selectedFileDetails.is_image && selectedFileDetails.thumbnail_url">
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        {{ $t('Thumbnail URL') }}
-                                    </label>
-                                    <div class="flex items-center gap-2">
-                                        <input
-                                            type="text"
-                                            :value="selectedFileDetails.thumbnail_url"
-                                            readonly
-                                            class="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                                        />
-                                        <button
-                                            @click="copyUrlToClipboard(selectedFileDetails.thumbnail_url!)"
-                                            class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-                                        >
-                                            <Copy :size="16" />
-                                            {{ $t('Copy') }}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- File Type -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        {{ $t('File Type') }}
-                                    </label>
-                                    <p class="text-sm text-gray-900 dark:text-white">
-                                        {{ selectedFileDetails.mime_type }} ({{ selectedFileDetails.extension?.toUpperCase() }})
-                                    </p>
-                                </div>
-
-                                <!-- File Size -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        {{ $t('File Size') }}
-                                    </label>
-                                    <p class="text-sm text-gray-900 dark:text-white">
-                                        {{ selectedFileDetails.formatted_size }}
-                                    </p>
-                                </div>
-
-                                <!-- Dimensions (if image) -->
-                                <div v-if="selectedFileDetails.width && selectedFileDetails.height">
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        {{ $t('Dimensions') }}
-                                    </label>
-                                    <p class="text-sm text-gray-900 dark:text-white">
-                                        {{ selectedFileDetails.width }} × {{ selectedFileDetails.height }} px
-                                    </p>
-                                </div>
-
-                                <!-- Alt Text -->
-                                <div v-if="selectedFileDetails.alt_text">
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        {{ $t('Alt Text') }}
-                                    </label>
-                                    <p class="text-sm text-gray-900 dark:text-white">
-                                        {{ selectedFileDetails.alt_text }}
-                                    </p>
-                                </div>
-
-                                <!-- Title -->
-                                <div v-if="selectedFileDetails.title">
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        {{ $t('Title') }}
-                                    </label>
-                                    <p class="text-sm text-gray-900 dark:text-white">
-                                        {{ selectedFileDetails.title }}
-                                    </p>
-                                </div>
-
-                                <!-- Description -->
-                                <div v-if="selectedFileDetails.description">
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        {{ $t('Description') }}
-                                    </label>
-                                    <p class="text-sm text-gray-900 dark:text-white">
-                                        {{ selectedFileDetails.description }}
-                                    </p>
-                                </div>
-
-                                <!-- Uploaded Date -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        {{ $t('Uploaded') }}
-                                    </label>
-                                    <p class="text-sm text-gray-900 dark:text-white">
-                                        <DateDisplay :value="selectedFileDetails.created_at" time />
-                                    </p>
-                                </div>
+                            <!-- Footer -->
+                            <div
+                                class="flex items-center justify-between bg-gray-50 px-6 py-4 dark:bg-gray-700/50"
+                            >
+                                <a
+                                    :href="selectedFileDetails.url"
+                                    target="_blank"
+                                    class="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600"
+                                >
+                                    <ExternalLink :size="16" />
+                                    {{ $t('Open in New Tab') }}
+                                </a>
+                                <button
+                                    @click="showFileDetailsModal = false"
+                                    type="button"
+                                    class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                                >
+                                    {{ $t('Close') }}
+                                </button>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Footer -->
-                    <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 flex items-center justify-between">
-                        <a
-                            :href="selectedFileDetails.url"
-                            target="_blank"
-                            class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
-                        >
-                            <ExternalLink :size="16" />
-                            {{ $t('Open in New Tab') }}
-                        </a>
-                        <button
-                            @click="showFileDetailsModal = false"
-                            type="button"
-                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-                        >
-                            {{ $t('Close') }}
-                        </button>
-                    </div>
                         </div>
                     </Transition>
                 </div>
@@ -1038,19 +1456,27 @@ const copyUrlToClipboard = async (url: string) => {
             v-if="showNewFolderModal"
             class="fixed inset-0 z-50 overflow-y-auto"
         >
-            <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div
+                class="flex min-h-screen items-center justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0"
+            >
                 <!-- Background overlay -->
                 <div
-                    class="fixed inset-0 transition-opacity bg-gray-500/75 dark:bg-gray-900/75"
+                    class="fixed inset-0 bg-gray-500/75 transition-opacity dark:bg-gray-900/75"
                     @click="cancelCreateFolder"
                 ></div>
 
                 <!-- Modal panel -->
-                <div class="relative inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full z-10">
+                <div
+                    class="relative z-10 inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md sm:align-middle dark:bg-gray-800"
+                >
                     <!-- Header -->
-                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <div
+                        class="border-b border-gray-200 px-6 py-4 dark:border-gray-700"
+                    >
                         <div class="flex items-center justify-between">
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                            <h3
+                                class="text-lg font-medium text-gray-900 dark:text-white"
+                            >
                                 {{ $t('Create New Folder') }}
                             </h3>
                             <button
@@ -1066,7 +1492,10 @@ const copyUrlToClipboard = async (url: string) => {
                     <!-- Body -->
                     <div class="px-6 py-4">
                         <div>
-                            <label for="folder-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <label
+                                for="folder-name"
+                                class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                            >
                                 {{ $t('Folder Name') }}
                             </label>
                             <input
@@ -1074,18 +1503,20 @@ const copyUrlToClipboard = async (url: string) => {
                                 v-model="newFolderName"
                                 type="text"
                                 :placeholder="$t('Enter folder name')"
-                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                                 @keyup.enter="createFolder"
                             />
                         </div>
                     </div>
 
                     <!-- Footer -->
-                    <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 flex items-center justify-end gap-3">
+                    <div
+                        class="flex items-center justify-end gap-3 bg-gray-50 px-6 py-4 dark:bg-gray-700/50"
+                    >
                         <button
                             @click="cancelCreateFolder"
                             type="button"
-                            class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                            class="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600"
                         >
                             {{ $t('Cancel') }}
                         </button>
@@ -1093,7 +1524,7 @@ const copyUrlToClipboard = async (url: string) => {
                             @click="createFolder"
                             type="button"
                             :disabled="!newFolderName.trim()"
-                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+                            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             {{ $t('Create Folder') }}
                         </button>

@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Cartxis\Razorpay\Http\Controllers\RazorpayController;
+use Illuminate\Support\Facades\Route;
 
 // Webhook route (public, no auth required)
 Route::post('webhooks/razorpay', [RazorpayController::class, 'webhook'])

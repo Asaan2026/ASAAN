@@ -5,13 +5,13 @@ namespace Cartxis\Admin\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Cartxis\Admin\Http\Requests\AdminLoginRequest;
 use Cartxis\Core\Services\SettingService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Http\RedirectResponse;
 
 class AdminLoginController extends Controller
 {
@@ -51,7 +51,7 @@ class AdminLoginController extends Controller
             $isAdmin = $roleIsAdmin || $permissionsIsAdmin;
 
             // Check if user has admin role
-            if (!$isAdmin) {
+            if (! $isAdmin) {
                 Auth::guard('admin')->logout();
                 $request->hitRateLimiter();
                 throw ValidationException::withMessages([
@@ -60,7 +60,7 @@ class AdminLoginController extends Controller
             }
 
             // Check if user is active
-            if (!$user->is_active) {
+            if (! $user->is_active) {
                 Auth::guard('admin')->logout();
                 $request->hitRateLimiter();
                 throw ValidationException::withMessages([
@@ -71,7 +71,7 @@ class AdminLoginController extends Controller
             $request->clearRateLimiter();
             $request->session()->regenerate();
 
-            return redirect()->intended(config('admin.path', 'admin') . '/dashboard');
+            return redirect()->intended(config('admin.path', 'admin').'/dashboard');
         }
 
         $request->hitRateLimiter();

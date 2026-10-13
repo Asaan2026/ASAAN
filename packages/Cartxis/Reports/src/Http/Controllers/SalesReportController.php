@@ -3,11 +3,10 @@
 namespace Cartxis\Reports\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Cartxis\Reports\Services\SalesReportService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\Reports\Services\SalesReportService;
-use Cartxis\Reports\Resources\SalesReportResource;
 
 class SalesReportController extends Controller
 {
@@ -21,9 +20,9 @@ class SalesReportController extends Controller
     public function index(Request $request): Response
     {
         $filters = $request->only(['start_date', 'end_date', 'status', 'payment_method', 'group_by']);
-        
+
         $reportData = $this->service->getReportData($filters);
-        
+
         return Inertia::render('Admin/Reports/Sales/Index', [
             'statistics' => $reportData['statistics'],
             'revenueChart' => $reportData['revenueChart'],

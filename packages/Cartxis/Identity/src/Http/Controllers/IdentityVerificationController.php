@@ -3,6 +3,7 @@
 namespace Cartxis\Identity\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Cartxis\Core\Services\ThemeViewResolver;
 use Cartxis\Identity\Http\Requests\SubmitIdentityVerificationRequest;
 use Cartxis\Identity\Models\IdentityVerification;
@@ -76,7 +77,7 @@ class IdentityVerificationController extends Controller
      * submission in the queue would only be able to queue another one, which is
      * exactly the flooding the limit exists to stop.
      */
-    protected function canSubmit(\App\Models\User $user): bool
+    protected function canSubmit(User $user): bool
     {
         if (! $this->settings->isEnabled() || $user->identity_verified_at) {
             return false;

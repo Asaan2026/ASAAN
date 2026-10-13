@@ -3,28 +3,29 @@
 namespace Cartxis\Razorpay\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Cartxis\Core\Support\GatewayCurrency;
-use Cartxis\Shop\Models\Order;
 use Cartxis\Core\Models\EmailTemplate;
 use Cartxis\Core\Services\PaymentGatewayManager;
+use Cartxis\Core\Support\GatewayCurrency;
 use Cartxis\Sales\Services\InvoiceService;
 use Cartxis\Sales\Services\TransactionService;
+use Cartxis\Shop\Models\Order;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
 class RazorpayController extends Controller
 {
     protected PaymentGatewayManager $gatewayManager;
+
     protected InvoiceService $invoiceService;
+
     protected TransactionService $transactionService;
 
     public function __construct(
         PaymentGatewayManager $gatewayManager,
         InvoiceService $invoiceService,
         TransactionService $transactionService
-    )
-    {
+    ) {
         $this->gatewayManager = $gatewayManager;
         $this->invoiceService = $invoiceService;
         $this->transactionService = $transactionService;
@@ -39,8 +40,8 @@ class RazorpayController extends Controller
 
         // Verify payment with Razorpay gateway
         $gateway = $this->gatewayManager->get('razorpay');
-        
-        if (!$gateway) {
+
+        if (! $gateway) {
             return redirect()->route('cart.index')
                 ->with('error', 'Payment gateway not found');
         }
@@ -51,9 +52,9 @@ class RazorpayController extends Controller
             'razorpay_signature' => $request->get('razorpay_signature'),
         ]);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return redirect()->route('cart.index')
-                ->with('error', 'Payment verification failed: ' . $result['message']);
+                ->with('error', 'Payment verification failed: '.$result['message']);
         }
 
         // Store payment ID
@@ -77,13 +78,13 @@ class RazorpayController extends Controller
         // Send order confirmation email
         try {
             $template = EmailTemplate::findByCode('order_placed');
-            
+
             if ($template) {
                 $shippingAddress = $order->shippingAddress;
                 $customerName = $shippingAddress
-                    ? trim($shippingAddress->first_name . ' ' . $shippingAddress->last_name)
+                    ? trim($shippingAddress->first_name.' '.$shippingAddress->last_name)
                     : ($order->customer_name ?? 'Customer');
-                
+
                 $template->send($order->customer_email, [
                     'customer_name' => $customerName,
                     'order_number' => $order->order_number,
@@ -96,7 +97,7 @@ class RazorpayController extends Controller
         } catch (\Exception $e) {
             Log::error('Order confirmation email failed after Razorpay payment', [
                 'order_id' => $order->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
 
@@ -140,16 +141,18 @@ class RazorpayController extends Controller
             'event' => $request->input('event', 'unknown'),
         ]);
 
-        if (!$signature) {
+        if (! $signature) {
             Log::error('RazorpayController: Webhook signature missing');
+
             return response()->json(['error' => 'Signature missing'], 400);
         }
 
         // Verify and handle webhook using gateway
         $gateway = $this->gatewayManager->get('razorpay');
-        
-        if (!$gateway) {
+
+        if (! $gateway) {
             Log::error('RazorpayController: Gateway not found');
+
             return response()->json(['error' => 'Gateway not found'], 500);
         }
 

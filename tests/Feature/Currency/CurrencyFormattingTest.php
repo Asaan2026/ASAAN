@@ -15,7 +15,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/CurrencyTestHelpers.php';
+require_once __DIR__.'/CurrencyTestHelpers.php';
 
 use Cartxis\Core\Models\Currency;
 use Cartxis\Core\Support\DisplayCurrency;

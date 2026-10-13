@@ -2,6 +2,7 @@
 
 namespace Cartxis\Core\Facades;
 
+use Cartxis\Core\Services\HookService;
 use Illuminate\Support\Facades\Facade;
 
 /**
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static array getActions()
  * @method static array getFilters()
  *
- * @see \Cartxis\Core\Services\HookService
+ * @see HookService
  */
 class Hook extends Facade
 {

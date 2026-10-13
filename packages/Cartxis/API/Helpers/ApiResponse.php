@@ -2,6 +2,8 @@
 
 namespace Cartxis\API\Helpers;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\JsonResponse;
 
 class ApiResponse
@@ -9,10 +11,7 @@ class ApiResponse
     /**
      * Return a success JSON response.
      *
-     * @param mixed $data
-     * @param string $message
-     * @param int $code
-     * @return JsonResponse
+     * @param  mixed  $data
      */
     public static function success($data = null, string $message = 'Success', int $code = 200): JsonResponse
     {
@@ -30,12 +29,8 @@ class ApiResponse
     /**
      * Return an error JSON response.
      *
-     * @param string $message
-     * @param mixed $errors
-     * @param int $code
-     * @param string|null $errorCode
-     * @param mixed $data
-     * @return JsonResponse
+     * @param  mixed  $errors
+     * @param  mixed  $data
      */
     public static function error(
         string $message,
@@ -71,9 +66,7 @@ class ApiResponse
     /**
      * Return a paginated success response.
      *
-     * @param \Illuminate\Contracts\Pagination\LengthAwarePaginator $paginator
-     * @param string $message
-     * @return JsonResponse
+     * @param  LengthAwarePaginator  $paginator
      */
     public static function paginated($paginator, string $message = 'Success'): JsonResponse
     {
@@ -103,8 +96,7 @@ class ApiResponse
     /**
      * Return a validation error response.
      *
-     * @param \Illuminate\Contracts\Validation\Validator $validator
-     * @return JsonResponse
+     * @param  Validator  $validator
      */
     public static function validationError($validator): JsonResponse
     {
@@ -118,9 +110,6 @@ class ApiResponse
 
     /**
      * Return an unauthorized response.
-     *
-     * @param string $message
-     * @return JsonResponse
      */
     public static function unauthorized(string $message = 'Unauthorized'): JsonResponse
     {
@@ -129,10 +118,6 @@ class ApiResponse
 
     /**
      * Return a not found response.
-     *
-     * @param string $message
-     * @param string|null $errorCode
-     * @return JsonResponse
      */
     public static function notFound(string $message = 'Resource not found', ?string $errorCode = null): JsonResponse
     {
@@ -142,9 +127,7 @@ class ApiResponse
     /**
      * Return a server error response.
      *
-     * @param string $message
-     * @param mixed $data
-     * @return JsonResponse
+     * @param  mixed  $data
      */
     public static function serverError(string $message = 'Internal server error', $data = null): JsonResponse
     {

@@ -2,11 +2,13 @@
 
 namespace Cartxis\Product\Models;
 
+use Cartxis\Core\Models\TaxClass;
+use Cartxis\Shop\Models\OrderItem;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Product extends Model
@@ -17,8 +19,11 @@ class Product extends Model
      * Product type constants
      */
     const TYPE_SIMPLE = 'simple';
+
     const TYPE_CONFIGURABLE = 'configurable';
+
     const TYPE_VIRTUAL = 'virtual';
+
     const TYPE_DOWNLOADABLE = 'downloadable';
 
     protected $fillable = [
@@ -96,7 +101,7 @@ class Product extends Model
                 $product->slug = Str::slug($product->name);
             }
             if (empty($product->sku)) {
-                $product->sku = 'PRD-' . strtoupper(Str::random(8));
+                $product->sku = 'PRD-'.strtoupper(Str::random(8));
             }
         });
     }
@@ -139,7 +144,7 @@ class Product extends Model
      */
     public function taxClass()
     {
-        return $this->belongsTo(\Cartxis\Core\Models\TaxClass::class);
+        return $this->belongsTo(TaxClass::class);
     }
 
     /**
@@ -150,16 +155,15 @@ class Product extends Model
         return $this->hasMany(ProductAttributeValue::class);
     }
 
-    
     /**
      * Get attribute options (for product variations like size, color)
      */
     public function attributeOptions(): BelongsToMany
     {
         return $this->belongsToMany(
-            AttributeOption::class, 
-            'product_attribute_values', 
-            'product_id', 
+            AttributeOption::class,
+            'product_attribute_values',
+            'product_id',
             'attribute_option_id'
         )->withTimestamps();
     }
@@ -187,7 +191,7 @@ class Product extends Model
      */
     public function orderItems()
     {
-        return $this->hasMany(\Cartxis\Shop\Models\OrderItem::class);
+        return $this->hasMany(OrderItem::class);
     }
 
     /**
@@ -195,7 +199,7 @@ class Product extends Model
      */
     public function isInStock(): bool
     {
-        if (!$this->manage_stock) {
+        if (! $this->manage_stock) {
             return true;
         }
 
@@ -217,7 +221,7 @@ class Product extends Model
     {
         $img = $this->mainImage ?? $this->images->first();
 
-        if (!$img || !$img->path) {
+        if (! $img || ! $img->path) {
             return null;
         }
 
@@ -225,7 +229,7 @@ class Product extends Model
             return $img->path;
         }
 
-        return asset('storage/' . $img->path);
+        return asset('storage/'.$img->path);
     }
 
     /**
@@ -261,7 +265,7 @@ class Product extends Model
      */
     public function hasSpecialPrice(): bool
     {
-        if (!$this->special_price) {
+        if (! $this->special_price) {
             return false;
         }
 

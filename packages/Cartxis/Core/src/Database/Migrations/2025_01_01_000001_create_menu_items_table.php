@@ -32,7 +32,7 @@ return new class extends Migration
             $table->json('meta')->nullable()->comment('Extra data: badge, tooltip, etc.');
             $table->string('extension_code')->nullable()->comment('Extension that owns this menu');
             $table->timestamps();
-            
+
             // Indexes for performance
             $table->index(['location', 'active', 'order']);
             $table->index('parent_id');

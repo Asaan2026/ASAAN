@@ -1,7 +1,5 @@
 <?php
 
-use App\Models\User;
-use Cartxis\Referral\Services\ReferralCheckoutService;
 use Cartxis\Shop\Models\Order;
 
 it('offers nothing to a customer with no credit', function () {
@@ -208,7 +206,7 @@ it('takes nothing for a guest who is not signed in', function () {
     $order = Order::create([
         'user_id' => null,
         'customer_email' => 'guest@example.test',
-        'order_number' => 'ORD-' . strtoupper(Str::random(10)),
+        'order_number' => 'ORD-'.strtoupper(Str::random(10)),
         'status' => 'pending',
         'subtotal' => 1000,
         'tax' => 0,

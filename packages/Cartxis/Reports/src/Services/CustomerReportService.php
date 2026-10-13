@@ -63,15 +63,15 @@ class CustomerReportService
                     'backgroundColor' => 'rgba(59, 130, 246, 0.1)',
                     'tension' => 0.4,
                     'fill' => true,
-                ]
-            ]
+                ],
+            ],
         ];
 
         // RFM segmentation chart (Doughnut)
         $segmentCounts = [];
         foreach ($rfmSegmentation as $customer) {
             $segment = $customer['segment'];
-            if (!isset($segmentCounts[$segment])) {
+            if (! isset($segmentCounts[$segment])) {
                 $segmentCounts[$segment] = 0;
             }
             $segmentCounts[$segment]++;
@@ -93,8 +93,8 @@ class CustomerReportService
                         'rgb(239, 68, 68)',
                         'rgb(156, 163, 175)',
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
 
         // Geographic distribution chart (Bar)
@@ -105,8 +105,8 @@ class CustomerReportService
                     'label' => 'Revenue',
                     'data' => array_column($geographicDistribution, 'total_revenue'),
                     'backgroundColor' => 'rgb(59, 130, 246)',
-                ]
-            ]
+                ],
+            ],
         ];
 
         // Lifetime value distribution chart (Bar)
@@ -117,8 +117,8 @@ class CustomerReportService
                     'label' => 'Number of Customers',
                     'data' => array_values($lifetimeValueDistribution),
                     'backgroundColor' => 'rgb(34, 197, 94)',
-                ]
-            ]
+                ],
+            ],
         ];
 
         return [

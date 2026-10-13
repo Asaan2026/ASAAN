@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Cartxis\Core\Console\Commands;
 
+use Cartxis\Core\Services\RemoteThemeDirectoryClient;
 use Cartxis\Core\Services\ThemeDirectoryEnvConfigurator;
 use Illuminate\Console\Command;
 
@@ -42,7 +43,7 @@ class ThemeDirectoryRegisterCommand extends Command
     {
         $this->components->info($message);
         $this->line('  Directory URL: '.config('theme.directory.url'));
-        $this->line('  Install enabled: '.(app(\Cartxis\Core\Services\RemoteThemeDirectoryClient::class)->canInstall() ? 'yes' : 'no'));
+        $this->line('  Install enabled: '.(app(RemoteThemeDirectoryClient::class)->canInstall() ? 'yes' : 'no'));
 
         return self::SUCCESS;
     }

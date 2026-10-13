@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Cartxis\Setup\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Cartxis\Setup\Http\Middleware\RedirectIfSetupComplete;
 use Cartxis\Setup\Http\Middleware\RedirectIfSetupIncomplete;
 use Cartxis\Setup\Services\DemoDataService;
+use Illuminate\Support\ServiceProvider;
 
 class SetupServiceProvider extends ServiceProvider
 {
@@ -26,7 +26,7 @@ class SetupServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load routes
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/setup.php');
+        $this->loadRoutesFrom(__DIR__.'/../Routes/setup.php');
 
         // Register middleware
         $router = $this->app['router'];

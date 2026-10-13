@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Route;
-use Cartxis\CMS\Http\Controllers\PageController;
 use Cartxis\CMS\Http\Controllers\MenuController;
+use Cartxis\CMS\Http\Controllers\PageController;
+use Illuminate\Support\Facades\Route;
 
 // Frontend CMS Routes
 Route::middleware('web')->group(function () {

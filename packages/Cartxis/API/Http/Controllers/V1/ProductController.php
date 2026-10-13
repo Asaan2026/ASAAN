@@ -3,10 +3,10 @@
 namespace Cartxis\API\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Cartxis\API\Helpers\ApiResponse;
 use Cartxis\API\Http\Resources\ProductResource;
 use Cartxis\Product\Models\Product;
+use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
@@ -16,7 +16,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $perPage = min($request->get('per_page', 20), config('cartxis-api.pagination.max_per_page'));
-        
+
         $query = Product::query()
             ->where('status', 'enabled')
             ->where('price', '>', 0)
@@ -25,10 +25,10 @@ class ProductController extends Controller
         // Search by name or SKU
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('sku', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -45,20 +45,20 @@ class ProductController extends Controller
         // Filter by on sale
         if ($request->has('on_sale') && filter_var($request->on_sale, FILTER_VALIDATE_BOOLEAN)) {
             $query->where('special_price', '>', 0)
-                  ->whereColumn('special_price', '<', 'price');
+                ->whereColumn('special_price', '<', 'price');
         }
 
         // Filtering by category
         if ($request->has('category_id')) {
-            $query->whereHas('categories', fn($q) => $q->where('categories.id', $request->category_id));
+            $query->whereHas('categories', fn ($q) => $q->where('categories.id', $request->category_id));
         }
 
         // Filter by multiple categories
         if ($request->has('category_ids')) {
-            $categoryIds = is_array($request->category_ids) 
-                ? $request->category_ids 
+            $categoryIds = is_array($request->category_ids)
+                ? $request->category_ids
                 : explode(',', $request->category_ids);
-            $query->whereHas('categories', fn($q) => $q->whereIn('categories.id', $categoryIds));
+            $query->whereHas('categories', fn ($q) => $q->whereIn('categories.id', $categoryIds));
         }
 
         // Price range filtering
@@ -77,15 +77,15 @@ class ProductController extends Controller
 
         // Multiple brands
         if ($request->has('brand_ids')) {
-            $brandIds = is_array($request->brand_ids) 
-                ? $request->brand_ids 
+            $brandIds = is_array($request->brand_ids)
+                ? $request->brand_ids
                 : explode(',', $request->brand_ids);
             $query->whereIn('brand_id', $brandIds);
         }
 
         // Rating filter
         if ($request->has('min_rating')) {
-            $query->whereHas('reviews', function($q) use ($request) {
+            $query->whereHas('reviews', function ($q) use ($request) {
                 $q->havingRaw('AVG(rating) >= ?', [$request->min_rating]);
             });
         }
@@ -98,7 +98,7 @@ class ProductController extends Controller
         // Sorting
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
-        if (!in_array(strtolower($sortOrder), ['asc', 'desc'])) {
+        if (! in_array(strtolower($sortOrder), ['asc', 'desc'])) {
             $sortOrder = 'desc';
         }
 
@@ -109,7 +109,7 @@ class ProductController extends Controller
             } elseif ($sortBy === 'rating') {
                 $query->withAvg('reviews', 'rating')->orderBy('reviews_avg_rating', $sortOrder);
             } elseif ($sortBy === 'discount') {
-                $query->orderByRaw('((price - special_price) / price * 100) ' . $sortOrder);
+                $query->orderByRaw('((price - special_price) / price * 100) '.$sortOrder);
             } else {
                 $query->orderBy($sortBy, $sortOrder);
             }
@@ -118,7 +118,7 @@ class ProductController extends Controller
         $products = $query->with(['images', 'brand', 'categories'])->paginate($perPage);
 
         return ApiResponse::paginated(
-            $products->through(fn($product) => new ProductResource($product)),
+            $products->through(fn ($product) => new ProductResource($product)),
             'Products retrieved successfully'
         );
     }
@@ -134,10 +134,10 @@ class ProductController extends Controller
             'categories',
             'variants',
             'attributes',
-            'reviews' => fn($q) => $q->latest()->limit(5),
+            'reviews' => fn ($q) => $q->latest()->limit(5),
         ])->find($id);
 
-        if (!$product) {
+        if (! $product) {
             return ApiResponse::notFound('Product not found', 'PRODUCT_NOT_FOUND');
         }
 
@@ -187,19 +187,19 @@ class ProductController extends Controller
             ->where('quantity', '>', 0)
             ->where('special_price', '>', 0)
             ->whereColumn('special_price', '<', 'price')
-            ->where(function($q) {
+            ->where(function ($q) {
                 $q->whereNull('special_price_from')
-                  ->orWhere('special_price_from', '<=', now());
+                    ->orWhere('special_price_from', '<=', now());
             })
-            ->where(function($q) {
+            ->where(function ($q) {
                 $q->whereNull('special_price_to')
-                  ->orWhere('special_price_to', '>=', now());
+                    ->orWhere('special_price_to', '>=', now());
             })
             ->with(['images', 'brand'])
             ->paginate($perPage);
 
         return ApiResponse::paginated(
-            $products->through(fn($product) => new ProductResource($product)),
+            $products->through(fn ($product) => new ProductResource($product)),
             'Sale products retrieved successfully'
         );
     }
@@ -215,9 +215,9 @@ class ProductController extends Controller
             ->where('status', 'enabled')
             ->where('price', '>', 0)
             ->where('quantity', '>', 0)
-            ->where(function($q) {
+            ->where(function ($q) {
                 $q->where('new', true)
-                  ->orWhere('created_at', '>=', now()->subDays(30));
+                    ->orWhere('created_at', '>=', now()->subDays(30));
             })
             ->with(['images', 'brand'])
             ->latest()
@@ -237,7 +237,7 @@ class ProductController extends Controller
     {
         $product = Product::find($id);
 
-        if (!$product) {
+        if (! $product) {
             return ApiResponse::notFound('Product not found', 'PRODUCT_NOT_FOUND');
         }
 
@@ -248,7 +248,7 @@ class ProductController extends Controller
             ->where('price', '>', 0)
             ->where('quantity', '>', 0)
             ->where('id', '!=', $id)
-            ->whereHas('categories', fn($q) => $q->whereIn('category_id', $categoryIds))
+            ->whereHas('categories', fn ($q) => $q->whereIn('category_id', $categoryIds))
             ->with(['images', 'brand'])
             ->inRandomOrder()
             ->limit(8)

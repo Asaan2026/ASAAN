@@ -3,8 +3,8 @@
 namespace Cartxis\Shop\Repositories;
 
 use Cartxis\Shop\Contracts\ShopRepositoryInterface;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 abstract class ShopRepository implements ShopRepositoryInterface
@@ -25,7 +25,7 @@ abstract class ShopRepository implements ShopRepositoryInterface
     /**
      * Get all records.
      *
-     * @param array $columns
+     * @param  array  $columns
      * @return Collection
      */
     public function all($columns = ['*'])
@@ -36,8 +36,8 @@ abstract class ShopRepository implements ShopRepositoryInterface
     /**
      * Find a record by id.
      *
-     * @param int $id
-     * @param array $columns
+     * @param  int  $id
+     * @param  array  $columns
      * @return Model|null
      */
     public function find($id, $columns = ['*'])
@@ -48,9 +48,9 @@ abstract class ShopRepository implements ShopRepositoryInterface
     /**
      * Find a record by field and value.
      *
-     * @param string $field
-     * @param mixed $value
-     * @param array $columns
+     * @param  string  $field
+     * @param  mixed  $value
+     * @param  array  $columns
      * @return Model|null
      */
     public function findByField($field, $value, $columns = ['*'])
@@ -61,9 +61,8 @@ abstract class ShopRepository implements ShopRepositoryInterface
     /**
      * Find records where field value is in given array.
      *
-     * @param string $field
-     * @param array $values
-     * @param array $columns
+     * @param  string  $field
+     * @param  array  $columns
      * @return Collection
      */
     public function findWhereIn($field, array $values, $columns = ['*'])
@@ -74,7 +73,6 @@ abstract class ShopRepository implements ShopRepositoryInterface
     /**
      * Create a new record.
      *
-     * @param array $data
      * @return Model
      */
     public function create(array $data)
@@ -85,16 +83,16 @@ abstract class ShopRepository implements ShopRepositoryInterface
     /**
      * Update a record.
      *
-     * @param array $data
-     * @param int $id
+     * @param  int  $id
      * @return Model
      */
     public function update(array $data, $id)
     {
         $record = $this->find($id);
-        
+
         if ($record) {
             $record->update($data);
+
             return $record->fresh();
         }
 
@@ -104,13 +102,13 @@ abstract class ShopRepository implements ShopRepositoryInterface
     /**
      * Delete a record.
      *
-     * @param int $id
+     * @param  int  $id
      * @return bool
      */
     public function delete($id)
     {
         $record = $this->find($id);
-        
+
         if ($record) {
             return $record->delete();
         }
@@ -121,8 +119,8 @@ abstract class ShopRepository implements ShopRepositoryInterface
     /**
      * Get paginated records.
      *
-     * @param int $perPage
-     * @param array $columns
+     * @param  int  $perPage
+     * @param  array  $columns
      * @return LengthAwarePaginator
      */
     public function paginate($perPage = 15, $columns = ['*'])
@@ -133,13 +131,12 @@ abstract class ShopRepository implements ShopRepositoryInterface
     /**
      * Apply query scopes.
      *
-     * @param \Closure $callback
      * @return $this
      */
     public function scopeQuery(\Closure $callback)
     {
         $this->model = $callback($this->model);
-        
+
         return $this;
     }
 
@@ -151,7 +148,7 @@ abstract class ShopRepository implements ShopRepositoryInterface
     public function resetModel()
     {
         $this->makeModel();
-        
+
         return $this;
     }
 
@@ -171,7 +168,7 @@ abstract class ShopRepository implements ShopRepositoryInterface
     {
         $model = app($this->model());
 
-        if (!$model instanceof Model) {
+        if (! $model instanceof Model) {
             throw new \Exception("Class {$this->model()} must be an instance of Illuminate\\Database\\Eloquent\\Model");
         }
 

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Cartxis\CMS\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\User;
 
 class Block extends Model
 {
@@ -102,23 +102,23 @@ class Block extends Model
     public function scopeScheduled($query)
     {
         $now = now();
-        
+
         return $query->where(function ($q) use ($now) {
             $q->where(function ($subQ) use ($now) {
                 // Has start date and it's started
                 $subQ->whereNotNull('start_date')
                     ->where('start_date', '<=', $now);
             })
-            ->orWhereNull('start_date');
+                ->orWhereNull('start_date');
         })
-        ->where(function ($q) use ($now) {
-            $q->where(function ($subQ) use ($now) {
-                // Has end date and it's not ended
-                $subQ->whereNotNull('end_date')
-                    ->where('end_date', '>=', $now);
-            })
-            ->orWhereNull('end_date');
-        });
+            ->where(function ($q) use ($now) {
+                $q->where(function ($subQ) use ($now) {
+                    // Has end date and it's not ended
+                    $subQ->whereNotNull('end_date')
+                        ->where('end_date', '>=', $now);
+                })
+                    ->orWhereNull('end_date');
+            });
     }
 
     /**
@@ -155,7 +155,7 @@ class Block extends Model
         }
 
         $decoded = json_decode($this->content, true);
-        
+
         return is_array($decoded) ? $decoded : null;
     }
 }

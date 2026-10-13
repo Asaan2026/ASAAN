@@ -7,9 +7,9 @@ namespace Cartxis\Service\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Cartxis\Service\Http\Requests\StoreServiceSettingsRequest;
 use Cartxis\Service\Services\ServiceSettings;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Http\RedirectResponse;
 
 class ServiceSettingController extends Controller
 {

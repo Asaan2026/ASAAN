@@ -18,16 +18,27 @@ class ServiceSettings
     public const GROUP = 'service';
 
     public const BOOKING_ENABLED = 'service.booking_enabled';
+
     public const LEAD_TIME_HOURS = 'service.lead_time_hours';
+
     public const BOOKING_WINDOW_HOURS = 'service.booking_window_hours';
+
     public const SAME_DAY_ALLOWED = 'service.same_day_allowed';
+
     public const TIME_SLOTS = 'service.time_slots';
+
     public const CAPACITY_PER_SLOT = 'service.capacity_per_slot';
+
     public const COVERAGE_NOTE = 'service.coverage_note';
+
     public const CONTACT_PHONE = 'service.contact_phone';
+
     public const CONTACT_WHATSAPP = 'service.contact_whatsapp';
+
     public const REQUIRE_LOGIN_TO_BOOK = 'service.require_login_to_book';
+
     public const AUTO_ASSIGN = 'service.auto_assign';
+
     public const REFERENCE_PREFIX = 'service.reference_prefix';
 
     /**
@@ -145,7 +156,7 @@ class ServiceSettings
             }
 
             $clean[] = [
-                'label' => (string) ($slot['label'] ?? $start . ' - ' . $end),
+                'label' => (string) ($slot['label'] ?? $start.' - '.$end),
                 'start' => $start,
                 'end' => $end,
             ];
@@ -218,7 +229,7 @@ class ServiceSettings
             }
 
             $slots[] = [
-                'label' => trim((string) ($slot['label'] ?? '')) ?: $start . ' - ' . $end,
+                'label' => trim((string) ($slot['label'] ?? '')) ?: $start.' - '.$end,
                 'start' => $start,
                 'end' => $end,
             ];

@@ -1,13 +1,13 @@
 <?php
 
-use App\Models\User;
+use Carbon\CarbonImmutable;
+use Cartxis\Referral\Models\ReferralCommission;
 use Cartxis\Service\Models\Service;
 use Cartxis\Service\Models\ServiceBooking;
-use Cartxis\Service\Services\ServiceBookingService;
-use Carbon\CarbonImmutable;
+use Cartxis\Service\Services\ServiceBookingStatusService;
 use Illuminate\Support\Facades\DB;
 
-require_once __DIR__ . '/helpers.php';
+require_once __DIR__.'/helpers.php';
 
 beforeEach(function () {
     configureServices();
@@ -16,7 +16,7 @@ beforeEach(function () {
 test('a visitor can book a service without an account', function () {
     $service = makeService(['price' => 2500]);
 
-    $this->post('/services/' . $service->slug . '/book', [
+    $this->post('/services/'.$service->slug.'/book', [
         'customer_name' => 'Ahmad Rahimi',
         'customer_phone' => '0700000123',
         'customer_email' => 'ahmad@example.test',
@@ -83,11 +83,11 @@ test('a service order never earns a referral commission', function () {
     // referral is still open and the *service* order is what crosses the line.
     referralOrder($referred, 400);
 
-    expect(Cartxis\Referral\Models\ReferralCommission::count())->toBe(0)
+    expect(ReferralCommission::count())->toBe(0)
         ->and($referral->fresh()->hasBeenRewarded())->toBeFalse();
 
     // The new spend, through the real service booking path.
-    $before = Cartxis\Referral\Models\ReferralCommission::count();
+    $before = ReferralCommission::count();
     $ledgerBefore = DB::table('referral_ledger')->count();
 
     $admin = serviceAdmin();
@@ -105,7 +105,7 @@ test('a service order never earns a referral commission', function () {
     expect($booking->fresh()->assigned_to)->toBe($worker->id);
 
     // The booking has moved on, so the next step works from the current state.
-    $statuses = app(Cartxis\Service\Services\ServiceBookingStatusService::class);
+    $statuses = app(ServiceBookingStatusService::class);
 
     $statuses->start($booking->fresh());
     $statuses->complete($booking->fresh(), 3000.0);
@@ -114,7 +114,7 @@ test('a service order never earns a referral commission', function () {
     // otherwise the store pays commission it never agreed to. The counts are
     // compared against the state before the service job, not against zero,
     // because the shopper is genuinely part-way to a reward.
-    expect(Cartxis\Referral\Models\ReferralCommission::count())->toBe($before)
+    expect(ReferralCommission::count())->toBe($before)
         ->and(DB::table('referral_ledger')->count())->toBe($ledgerBefore)
         ->and($referral->fresh()->hasBeenRewarded())->toBeFalse();
 
@@ -145,31 +145,31 @@ test('an ordinary order for the same shopper does pay commission', function () {
     linkReferral($referrer, $referred);
 
     referralOrder($referred, 400);
-    expect(Cartxis\Referral\Models\ReferralCommission::count())->toBe(0);
+    expect(ReferralCommission::count())->toBe(0);
 
     referralOrder($referred, 3000);
-    expect(Cartxis\Referral\Models\ReferralCommission::count())->toBe(1);
+    expect(ReferralCommission::count())->toBe(1);
 });
 
 test('a customer can look up a booking with the reference and phone number', function () {
     $booking = bookServiceJob(null, ['customer_phone' => '0700000456']);
 
-    $this->get('/services/booked/' . $booking->reference . '?phone=0700000456')
+    $this->get('/services/booked/'.$booking->reference.'?phone=0700000456')
         ->assertOk()
         ->assertSee($booking->reference);
 
     // The wrong phone number must not open someone else's booking.
-    $this->get('/services/booked/' . $booking->reference . '?phone=0799999999')
+    $this->get('/services/booked/'.$booking->reference.'?phone=0799999999')
         ->assertStatus(403);
 
-    $this->get('/services/booked/' . $booking->reference)
+    $this->get('/services/booked/'.$booking->reference)
         ->assertStatus(403);
 });
 
 test('a booking is refused when the chosen day is in the past', function () {
     $service = makeService();
 
-    $this->post('/services/' . $service->slug . '/book', bookingPayload([
+    $this->post('/services/'.$service->slug.'/book', bookingPayload([
         'scheduled_date' => CarbonImmutable::today()->subDay()->format('Y-m-d'),
     ]))->assertSessionHasErrors('scheduled_date');
 
@@ -180,7 +180,7 @@ test('a booking inside the lead time is refused', function () {
     $service = makeService();
 
     // The owner wants at least a day's notice.
-    $this->post('/services/' . $service->slug . '/book', bookingPayload([
+    $this->post('/services/'.$service->slug.'/book', bookingPayload([
         'scheduled_date' => CarbonImmutable::today()->format('Y-m-d'),
     ]))->assertSessionHasErrors('scheduled_date');
 
@@ -190,7 +190,7 @@ test('a booking inside the lead time is refused', function () {
 test('a booking beyond the booking window is refused', function () {
     $service = makeService();
 
-    $this->post('/services/' . $service->slug . '/book', bookingPayload([
+    $this->post('/services/'.$service->slug.'/book', bookingPayload([
         'scheduled_date' => CarbonImmutable::today()->addDays(40)->format('Y-m-d'),
     ]))->assertSessionHasErrors('scheduled_date');
 
@@ -201,11 +201,11 @@ test('a booking is refused when the service is switched off', function () {
     $service = makeService(['status' => 'disabled']);
 
     // A hidden service is not on the website at all.
-    $this->get('/services/' . $service->slug)->assertStatus(404);
+    $this->get('/services/'.$service->slug)->assertStatus(404);
 
     // Posting to the address anyway is refused, and says why, rather than
     // quietly making a job nobody will turn up for.
-    $this->post('/services/' . $service->slug . '/book', bookingPayload())
+    $this->post('/services/'.$service->slug.'/book', bookingPayload())
         ->assertRedirect()
         ->assertSessionHasErrors('form');
 
@@ -216,7 +216,7 @@ test('a booking is refused when online booking is switched off', function () {
     configureServices(['booking_enabled' => false]);
     $service = makeService();
 
-    $this->post('/services/' . $service->slug . '/book', bookingPayload())
+    $this->post('/services/'.$service->slug.'/book', bookingPayload())
         ->assertRedirect()
         ->assertSessionHasErrors('form');
 
@@ -226,7 +226,7 @@ test('a booking is refused when online booking is switched off', function () {
 test('a service that cannot be booked online is refused with a reason', function () {
     $service = makeService(['booking_enabled' => false]);
 
-    $this->post('/services/' . $service->slug . '/book', bookingPayload())
+    $this->post('/services/'.$service->slug.'/book', bookingPayload())
         ->assertRedirect()
         ->assertSessionHasErrors('form');
 
@@ -236,7 +236,7 @@ test('a service that cannot be booked online is refused with a reason', function
 test('an unknown time slot is refused', function () {
     $service = makeService();
 
-    $this->post('/services/' . $service->slug . '/book', bookingPayload([
+    $this->post('/services/'.$service->slug.'/book', bookingPayload([
         'scheduled_slot' => 'Middle of the Night',
     ]))->assertSessionHasErrors('scheduled_slot');
 
@@ -249,7 +249,7 @@ test('a slot that is already full is refused', function () {
 
     bookServiceJob($service);
 
-    $this->post('/services/' . $service->slug . '/book', bookingPayload([
+    $this->post('/services/'.$service->slug.'/book', bookingPayload([
         'customer_phone' => '0700000999',
     ]))->assertSessionHasErrors('scheduled_slot');
 
@@ -264,8 +264,8 @@ test('submitting the same booking twice only creates one job', function () {
     ]);
 
     // People double-tap submit, and a lost connection sends the form again.
-    $first = $this->post('/services/' . $service->slug . '/book', $payload);
-    $second = $this->post('/services/' . $service->slug . '/book', $payload);
+    $first = $this->post('/services/'.$service->slug.'/book', $payload);
+    $second = $this->post('/services/'.$service->slug.'/book', $payload);
 
     $this->assertDatabaseCount('service_bookings', 1);
     $this->assertDatabaseCount('orders', 1);
@@ -291,7 +291,7 @@ test('the same token cannot be used for a different job', function () {
     bookServiceJob($service, ['request_token' => 'shared-token']);
 
     // A token is only ever trusted for the form it came from.
-    $this->post('/services/' . $other->slug . '/book', bookingPayload([
+    $this->post('/services/'.$other->slug.'/book', bookingPayload([
         'request_token' => 'shared-token',
     ]))->assertSessionHasNoErrors();
 
@@ -301,7 +301,7 @@ test('the same token cannot be used for a different job', function () {
 test('a booking needs a name, a phone number and an address', function () {
     $service = makeService();
 
-    $this->post('/services/' . $service->slug . '/book', [
+    $this->post('/services/'.$service->slug.'/book', [
         'scheduled_date' => bookableDate(),
         'scheduled_slot' => 'Morning',
     ])->assertSessionHasErrors(['customer_name', 'customer_phone', 'address']);
@@ -338,7 +338,7 @@ test('the storefront shows what is included and how long the work takes', functi
         'service_area' => 'Kabul, Herat',
     ]);
 
-    $this->get('/services/' . $service->slug)
+    $this->get('/services/'.$service->slug)
         ->assertOk()
         ->assertSee('Full House Cleaning')
         ->assertSee('Windows cleaned')

@@ -2,8 +2,8 @@
 
 namespace Cartxis\Marketing\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Cartxis\Marketing\Models\Promotion;
+use Illuminate\Foundation\Http\FormRequest;
 
 class StorePromotionRequest extends FormRequest
 {
@@ -23,14 +23,14 @@ class StorePromotionRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:' . implode(',', [
+            'type' => 'required|in:'.implode(',', [
                 Promotion::TYPE_CATALOG_RULE,
                 Promotion::TYPE_CART_RULE,
                 Promotion::TYPE_BUNDLE,
                 Promotion::TYPE_FLASH_SALE,
                 Promotion::TYPE_TIERED_PRICING,
             ]),
-            'discount_type' => 'required|in:' . implode(',', [
+            'discount_type' => 'required|in:'.implode(',', [
                 Promotion::DISCOUNT_PERCENTAGE,
                 Promotion::DISCOUNT_FIXED_AMOUNT,
             ]),
@@ -45,7 +45,7 @@ class StorePromotionRequest extends FormRequest
             'badge_text' => 'nullable|string|max:50',
             'badge_color' => 'nullable|string|size:7|regex:/^#[0-9A-Fa-f]{6}$/',
             'badge_bg_color' => 'nullable|string|size:7|regex:/^#[0-9A-Fa-f]{6}$/',
-            'badge_position' => 'nullable|in:' . implode(',', [
+            'badge_position' => 'nullable|in:'.implode(',', [
                 Promotion::BADGE_TOP_LEFT,
                 Promotion::BADGE_TOP_RIGHT,
                 Promotion::BADGE_BOTTOM_LEFT,

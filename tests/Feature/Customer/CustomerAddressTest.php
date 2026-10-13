@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Customer;
 
-use Tests\TestCase;
+use App\Models\User;
+use Cartxis\Core\Support\StoreCountry;
 use Cartxis\Customer\Models\Customer;
 use Cartxis\Customer\Models\CustomerAddress;
 use Cartxis\Customer\Models\CustomerGroup;
-use Cartxis\Core\Support\StoreCountry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class CustomerAddressTest extends TestCase
 {
@@ -20,7 +21,7 @@ class CustomerAddressTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create a customer group
         $group = CustomerGroup::create([
             'name' => 'Test Group',
@@ -62,10 +63,9 @@ class CustomerAddressTest extends TestCase
             ->get(route('admin.customers.addresses.index', $this->customer));
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Admin/Customer/Addresses/Index')
-                ->has('customer')
-                ->has('addresses.data', 1)
+        $response->assertInertia(fn ($page) => $page->component('Admin/Customer/Addresses/Index')
+            ->has('customer')
+            ->has('addresses.data', 1)
         );
     }
 
@@ -289,7 +289,7 @@ class CustomerAddressTest extends TestCase
 
     protected function getAdminUser()
     {
-        return \App\Models\User::factory()->create([
+        return User::factory()->create([
             'email' => 'admin@test.com',
             'role' => 'admin',
             'is_active' => true,

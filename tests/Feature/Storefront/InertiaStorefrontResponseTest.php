@@ -23,6 +23,7 @@
 */
 
 use App\Http\Middleware\HandleInertiaRequests;
+use Cartxis\Settings\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 
@@ -213,7 +214,7 @@ it('keeps a page size the shop does offer', function () {
     $limits = (array) config('shop.listing.available_limits');
     $wanted = (int) $limits[1];
 
-    $response = $this->get('/products?per_page=' . $wanted, inertiaHeaders());
+    $response = $this->get('/products?per_page='.$wanted, inertiaHeaders());
 
     $response->assertSuccessful();
 
@@ -232,7 +233,7 @@ it('keeps a page size the shop does offer', function () {
 */
 
 it('answers an Inertia request in maintenance mode with an Inertia response', function () {
-    \Cartxis\Settings\Models\Setting::set('system.maintenance_enabled', true);
+    Setting::set('system.maintenance_enabled', true);
 
     $response = $this->get('/products', inertiaHeaders());
 
@@ -245,7 +246,7 @@ it('answers an Inertia request in maintenance mode with an Inertia response', fu
 });
 
 it('answers a plain browser visit in maintenance mode with a readable page', function () {
-    \Cartxis\Settings\Models\Setting::set('system.maintenance_enabled', true);
+    Setting::set('system.maintenance_enabled', true);
 
     $response = $this->get('/products');
 

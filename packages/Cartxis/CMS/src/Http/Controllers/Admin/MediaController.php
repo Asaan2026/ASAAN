@@ -3,15 +3,15 @@
 namespace Cartxis\CMS\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Cartxis\CMS\Http\Resources\MediaFileResource;
+use Cartxis\CMS\Models\MediaFile;
+use Cartxis\CMS\Repositories\MediaRepository;
+use Cartxis\CMS\Services\MediaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\CMS\Http\Resources\MediaFileResource;
-use Cartxis\CMS\Models\MediaFile;
-use Cartxis\CMS\Repositories\MediaRepository;
-use Cartxis\CMS\Services\MediaService;
 
 class MediaController extends Controller
 {
@@ -59,7 +59,7 @@ class MediaController extends Controller
     {
         $request->validate([
             'files' => 'required|array',
-            'files.*' => 'required|file|max:' . config('cms.media.max_file_size', 10240),
+            'files.*' => 'required|file|max:'.config('cms.media.max_file_size', 10240),
             'folder_id' => 'nullable|exists:media_folders,id',
             'alt_text' => 'nullable|string|max:255',
             'title' => 'nullable|string|max:255',
@@ -79,11 +79,11 @@ class MediaController extends Controller
                 $mediaFile = $this->mediaService->upload($file, $folderId, $metadata);
                 $uploaded[] = new MediaFileResource($mediaFile);
             } catch (\Exception $e) {
-                \Log::error('File upload failed: ' . $e->getMessage());
+                \Log::error('File upload failed: '.$e->getMessage());
             }
         }
 
-        return redirect()->back()->with('success', count($uploaded) . ' file(s) uploaded successfully');
+        return redirect()->back()->with('success', count($uploaded).' file(s) uploaded successfully');
     }
 
     /**
@@ -92,7 +92,7 @@ class MediaController extends Controller
     public function show(MediaFile $media): JsonResponse
     {
         $media->load(['folder', 'creator', 'updater', 'usages.usable']);
-        
+
         return response()->json([
             'file' => new MediaFileResource($media),
         ]);
@@ -149,7 +149,7 @@ class MediaController extends Controller
             'move' => $this->mediaService->moveToFolder($ids, $request->input('folder_id')),
         };
 
-        return redirect()->back()->with('success', ucfirst($action) . ' completed successfully');
+        return redirect()->back()->with('success', ucfirst($action).' completed successfully');
     }
 
     /**
@@ -158,7 +158,7 @@ class MediaController extends Controller
     public function uploadJson(Request $request): JsonResponse
     {
         $request->validate([
-            'file'      => 'required|file|max:' . config('cms.media.max_file_size', 10240),
+            'file' => 'required|file|max:'.config('cms.media.max_file_size', 10240),
             'folder_id' => 'nullable|exists:media_folders,id',
         ]);
 
@@ -171,7 +171,7 @@ class MediaController extends Controller
 
             return response()->json([
                 'success' => true,
-                'file'    => new MediaFileResource($mediaFile),
+                'file' => new MediaFileResource($mediaFile),
             ]);
         } catch (\Exception $e) {
             return response()->json([

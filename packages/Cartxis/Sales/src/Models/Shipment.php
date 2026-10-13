@@ -2,10 +2,11 @@
 
 namespace Cartxis\Sales\Models;
 
+use Cartxis\Shop\Models\Order;
+use Cartxis\Shop\Models\OrderItem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Cartxis\Shop\Models\Order;
 
 class Shipment extends Model
 {
@@ -65,15 +66,15 @@ class Shipment extends Model
     {
         $date = now()->format('Ymd');
         $random = str_pad(mt_rand(1, 999999), 6, '0', STR_PAD_LEFT);
-        
+
         $shipmentNumber = "SHIP-{$date}-{$random}";
-        
+
         // Ensure uniqueness
         while (static::where('shipment_number', $shipmentNumber)->exists()) {
             $random = str_pad(mt_rand(1, 999999), 6, '0', STR_PAD_LEFT);
             $shipmentNumber = "SHIP-{$date}-{$random}";
         }
-        
+
         return $shipmentNumber;
     }
 
@@ -121,7 +122,7 @@ class Shipment extends Model
     public function items()
     {
         return $this->hasManyThrough(
-            \Cartxis\Shop\Models\OrderItem::class,
+            OrderItem::class,
             ShipmentItem::class,
             'shipment_id',
             'id',
@@ -215,7 +216,7 @@ class Shipment extends Model
      */
     public function canCancel(): bool
     {
-        return !in_array($this->status, ['delivered', 'cancelled']);
+        return ! in_array($this->status, ['delivered', 'cancelled']);
     }
 
     /**
@@ -223,7 +224,7 @@ class Shipment extends Model
      */
     public function getStatusBadgeAttribute(): array
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => ['label' => 'Pending', 'class' => 'bg-yellow-100 text-yellow-800 border border-yellow-200'],
             'shipped' => ['label' => 'Shipped', 'class' => 'bg-blue-100 text-blue-800 border border-blue-200'],
             'in_transit' => ['label' => 'In Transit', 'class' => 'bg-indigo-100 text-indigo-800 border border-indigo-200'],
@@ -239,11 +240,17 @@ class Shipment extends Model
      * Status constants
      */
     const STATUS_PENDING = 'pending';
+
     const STATUS_SHIPPED = 'shipped';
+
     const STATUS_IN_TRANSIT = 'in_transit';
+
     const STATUS_OUT_FOR_DELIVERY = 'out_for_delivery';
+
     const STATUS_DELIVERED = 'delivered';
+
     const STATUS_FAILED = 'failed';
+
     const STATUS_CANCELLED = 'cancelled';
 
     /**

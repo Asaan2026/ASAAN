@@ -3,17 +3,30 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Concerns\ReferralAwareUserBuilder;
+use Cartxis\Core\Traits\HasPermissions;
+use Cartxis\Customer\Models\Customer;
+use Cartxis\Customer\Models\CustomerAddress;
+use Cartxis\Customer\Models\Wishlist;
+use Cartxis\Referral\Exceptions\ReferralBalanceOutstanding;
+use Cartxis\Referral\Models\Referral;
+use Cartxis\Referral\Models\ReferralCode;
+use Cartxis\Referral\Models\ReferralLedgerEntry;
+use Cartxis\Referral\Services\ReferralCreditService;
+use Cartxis\Referral\Services\ReferralSettings;
+use Cartxis\Sales\Models\Delivery;
+use Cartxis\Shop\Models\Order;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
-use Cartxis\Core\Traits\HasPermissions;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, TwoFactorAuthenticatable, HasPermissions;
+    /** @use HasFactory<UserFactory> */
+    use HasApiTokens, HasFactory, HasPermissions, Notifiable, TwoFactorAuthenticatable;
 
     /**
      * Escape hatch for a deliberate erasure of an account that still holds
@@ -29,7 +42,7 @@ class User extends Authenticatable
      */
     public function newEloquentBuilder($query)
     {
-        return new \App\Models\Concerns\ReferralAwareUserBuilder($query);
+        return new ReferralAwareUserBuilder($query);
     }
 
     /**
@@ -87,7 +100,7 @@ class User extends Authenticatable
      */
     public function orders()
     {
-        return $this->hasMany(\Cartxis\Shop\Models\Order::class);
+        return $this->hasMany(Order::class);
     }
 
     /**
@@ -95,7 +108,7 @@ class User extends Authenticatable
      */
     public function assignedDeliveries()
     {
-        return $this->hasMany(\Cartxis\Sales\Models\Delivery::class, 'assigned_to');
+        return $this->hasMany(Delivery::class, 'assigned_to');
     }
 
     /**
@@ -103,7 +116,7 @@ class User extends Authenticatable
      */
     public function customer()
     {
-        return $this->hasOne(\Cartxis\Customer\Models\Customer::class);
+        return $this->hasOne(Customer::class);
     }
 
     /**
@@ -111,7 +124,7 @@ class User extends Authenticatable
      */
     public function addresses()
     {
-        return $this->hasMany(\Cartxis\Customer\Models\CustomerAddress::class, 'customer_id');
+        return $this->hasMany(CustomerAddress::class, 'customer_id');
     }
 
     /**
@@ -120,8 +133,8 @@ class User extends Authenticatable
     public function wishlist()
     {
         return $this->hasManyThrough(
-            \Cartxis\Customer\Models\Wishlist::class,
-            \Cartxis\Customer\Models\Customer::class,
+            Wishlist::class,
+            Customer::class,
             'user_id', // Foreign key on customers table
             'customer_id', // Foreign key on wishlists table
             'id', // Local key on users table
@@ -134,7 +147,7 @@ class User extends Authenticatable
      */
     public function referralCode()
     {
-        return $this->hasOne(\Cartxis\Referral\Models\ReferralCode::class, 'user_id');
+        return $this->hasOne(ReferralCode::class, 'user_id');
     }
 
     /**
@@ -142,7 +155,7 @@ class User extends Authenticatable
      */
     public function referralsMade()
     {
-        return $this->hasMany(\Cartxis\Referral\Models\Referral::class, 'referrer_user_id');
+        return $this->hasMany(Referral::class, 'referrer_user_id');
     }
 
     /**
@@ -150,7 +163,7 @@ class User extends Authenticatable
      */
     public function referredBy()
     {
-        return $this->hasOne(\Cartxis\Referral\Models\Referral::class, 'referred_user_id');
+        return $this->hasOne(Referral::class, 'referred_user_id');
     }
 
     /**
@@ -158,7 +171,7 @@ class User extends Authenticatable
      */
     public function referralLedger()
     {
-        return $this->hasMany(\Cartxis\Referral\Models\ReferralLedgerEntry::class, 'user_id');
+        return $this->hasMany(ReferralLedgerEntry::class, 'user_id');
     }
 
     /**
@@ -179,13 +192,13 @@ class User extends Authenticatable
                 return;
             }
 
-            $settings = app(\Cartxis\Referral\Services\ReferralSettings::class);
+            $settings = app(ReferralSettings::class);
 
             if (! $settings->blocksAccountDeletion()) {
                 return;
             }
 
-            $credit = app(\Cartxis\Referral\Services\ReferralCreditService::class);
+            $credit = app(ReferralCreditService::class);
             $available = $credit->availableBalance($user->id);
             $locked = $credit->lockedBalance($user->id);
 
@@ -193,7 +206,7 @@ class User extends Authenticatable
                 return;
             }
 
-            throw new \Cartxis\Referral\Exceptions\ReferralBalanceOutstanding(
+            throw new ReferralBalanceOutstanding(
                 $user->id,
                 round($available, 2),
                 round($locked, 2)

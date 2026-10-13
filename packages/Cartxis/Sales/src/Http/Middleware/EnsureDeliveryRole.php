@@ -29,12 +29,12 @@ class EnsureDeliveryRole
                 && (property_exists($driver, 'is_active') || isset($driver->is_active))
                 && (bool) $driver->is_active;
 
-            if (!$isDelivery || !$isActive) {
+            if (! $isDelivery || ! $isActive) {
                 auth()->guard('delivery')->logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
 
-                $message = !$isDelivery
+                $message = ! $isDelivery
                     ? 'You do not have permission to access the delivery portal.'
                     : 'Your delivery account has been deactivated.';
 

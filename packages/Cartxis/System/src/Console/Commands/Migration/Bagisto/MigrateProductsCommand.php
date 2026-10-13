@@ -4,43 +4,45 @@ declare(strict_types=1);
 
 namespace Cartxis\System\Console\Commands\Migration\Bagisto;
 
+use Cartxis\Product\Models\Product;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Cartxis\Product\Models\Product;
+use Illuminate\Support\Str;
 
 class MigrateProductsCommand extends Command
 {
     protected $signature = 'bagisto:migrate:products {--dry-run : Preview migration without making changes} {--batch=500 : Number of records per batch}';
-    
+
     protected $description = 'Migrate Bagisto products to Cartxis';
-    
+
     private array $errors = [];
-    
+
     public function handle(): int
     {
         $config = config('bagisto-migration');
         $locale = $config['defaults']['locale_code'];
-        
+
         // Get products from Bagisto with flat table
         $products = DB::connection($config['connection'])
             ->table('product_flat')
             ->where('locale', $locale)
             ->select('id', 'sku', 'type', 'name', 'short_description', 'description',
-                    'price', 'special_price', 'status', 'created_at')
+                'price', 'special_price', 'status', 'created_at')
             ->get();
-        
+
         if ($products->isEmpty()) {
             $this->warn('No products found to migrate.');
+
             return self::SUCCESS;
         }
-        
+
         $this->info("Found {$products->count()} products to migrate.");
-        
+
         if ($this->option('dry-run')) {
             $preview = $products->take(10);
             $this->table(
                 ['ID', 'SKU', 'Name', 'Type', 'Price', 'Status'],
-                $preview->map(fn($p) => [
+                $preview->map(fn ($p) => [
                     $p->id,
                     $p->sku,
                     $p->name,
@@ -50,13 +52,14 @@ class MigrateProductsCommand extends Command
                 ])->toArray()
             );
             $this->info("Showing 10 of {$products->count()} products...");
+
             return self::SUCCESS;
         }
-        
+
         $this->newLine();
         $bar = $this->output->createProgressBar($products->count());
         $bar->start();
-        
+
         foreach ($products as $bagistoProduct) {
             try {
                 // Get inventory
@@ -64,16 +67,16 @@ class MigrateProductsCommand extends Command
                     ->table('product_inventories')
                     ->where('product_id', $bagistoProduct->id)
                     ->first();
-                
+
                 // Map product type
                 $typeMapping = $config['mappings']['product_type'];
                 $type = $typeMapping[$bagistoProduct->type] ?? 'simple';
-                
+
                 Product::updateOrCreate(
                     ['sku' => $bagistoProduct->sku],
                     [
                         'name' => $bagistoProduct->name,
-                        'slug' => \Illuminate\Support\Str::slug($bagistoProduct->name),
+                        'slug' => Str::slug($bagistoProduct->name),
                         'description' => $bagistoProduct->description,
                         'short_description' => $bagistoProduct->short_description,
                         'status' => $bagistoProduct->status ? 'enabled' : 'disabled',
@@ -93,25 +96,25 @@ class MigrateProductsCommand extends Command
             } catch (\Exception $e) {
                 $this->errors[] = "Product '{$bagistoProduct->name}': {$e->getMessage()}";
             }
-            
+
             $bar->advance();
         }
-        
+
         $bar->finish();
         $this->newLine(2);
-        
+
         if (empty($this->errors)) {
             $this->info("✓ Successfully migrated {$products->count()} products.");
         } else {
-            $this->warn("Migrated with " . count($this->errors) . " errors:");
+            $this->warn('Migrated with '.count($this->errors).' errors:');
             foreach (array_slice($this->errors, 0, 10) as $error) {
                 $this->error("  - {$error}");
             }
             if (count($this->errors) > 10) {
-                $this->warn("  ... and " . (count($this->errors) - 10) . " more errors.");
+                $this->warn('  ... and '.(count($this->errors) - 10).' more errors.');
             }
         }
-        
+
         return self::SUCCESS;
     }
 }

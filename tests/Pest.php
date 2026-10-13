@@ -1,5 +1,22 @@
 <?php
 
+use App\Models\User;
+use Cartxis\Identity\Models\IdentityVerification;
+use Cartxis\Identity\Services\IdentityCrypto;
+use Cartxis\Referral\Models\Referral;
+use Cartxis\Referral\Models\ReferralCode;
+use Cartxis\Referral\Services\ReferralCheckoutService;
+use Cartxis\Referral\Services\ReferralCodeService;
+use Cartxis\Referral\Services\ReferralCreditService;
+use Cartxis\Referral\Services\ReferralLinkService;
+use Cartxis\Referral\Services\ReferralSettings;
+use Cartxis\Shop\Models\Order;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
+use Tests\TestCase;
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
@@ -11,8 +28,8 @@
 |
 */
 
-pest()->extend(Tests\TestCase::class)
-    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+pest()->extend(TestCase::class)
+    ->use(RefreshDatabase::class)
     ->in('Feature');
 
 /*
@@ -57,16 +74,6 @@ function something()
 |
 */
 
-use App\Models\User;
-use Cartxis\Referral\Models\Referral;
-use Cartxis\Referral\Models\ReferralCode;
-use Cartxis\Referral\Services\ReferralLinkService;
-use Cartxis\Referral\Services\ReferralSettings;
-use Cartxis\Shop\Models\Order;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Str;
-
 /**
  * A customer account, with a referral code already minted the way signup mints it.
  */
@@ -74,13 +81,13 @@ function referralUser(string $name = 'Test Customer', array $attributes = []): U
 {
     $user = User::create(array_merge([
         'name' => $name,
-        'email' => Str::lower(Str::random(8)) . '@example.test',
+        'email' => Str::lower(Str::random(8)).'@example.test',
         'password' => 'password',
         'role' => 'customer',
         'is_active' => true,
     ], $attributes));
 
-    app(\Cartxis\Referral\Services\ReferralCodeService::class)->forUser($user);
+    app(ReferralCodeService::class)->forUser($user);
 
     verifyReferralFixture($user);
 
@@ -101,19 +108,19 @@ function verifyReferralFixture(User $user): void
         return;
     }
 
-    $crypto = app(\Cartxis\Identity\Services\IdentityCrypto::class);
+    $crypto = app(IdentityCrypto::class);
 
-    $verification = \Cartxis\Identity\Models\IdentityVerification::create([
+    $verification = IdentityVerification::create([
         'user_id' => $user->id,
-        'national_id_encrypted' => $crypto->encrypt('TEST-' . $user->id),
-        'national_id_fingerprint' => $crypto->fingerprint('TEST-' . $user->id),
+        'national_id_encrypted' => $crypto->encrypt('TEST-'.$user->id),
+        'national_id_fingerprint' => $crypto->fingerprint('TEST-'.$user->id),
         'full_name_encrypted' => $crypto->encrypt($user->name),
-        'document_type' => \Cartxis\Identity\Models\IdentityVerification::DOCUMENT_TAZKIRA,
+        'document_type' => IdentityVerification::DOCUMENT_TAZKIRA,
         // No image: the referral tests never open a document, and writing real
         // files for a fixture would slow every one of them down.
         'image_disk' => 'identity_private',
         'image_path' => 'fixtures/no-document.jpg',
-        'status' => \Cartxis\Identity\Models\IdentityVerification::STATUS_APPROVED,
+        'status' => IdentityVerification::STATUS_APPROVED,
         'reviewed_at' => now(),
     ]);
 
@@ -150,7 +157,7 @@ function referralOrder(
     $order = Order::create(array_merge([
         'user_id' => $user->id,
         'customer_email' => $user->email,
-        'order_number' => 'ORD-' . strtoupper(Str::random(10)),
+        'order_number' => 'ORD-'.strtoupper(Str::random(10)),
         'status' => 'processing',
         'subtotal' => $total,
         'tax' => 0,
@@ -208,17 +215,17 @@ function configureReferral(array $overrides = []): void
  * The one place a credit balance changes. Tests use it directly rather than
  * going through a reward, so they can set up a balance without an order.
  */
-function credit(): \Cartxis\Referral\Services\ReferralCreditService
+function credit(): ReferralCreditService
 {
-    return app(\Cartxis\Referral\Services\ReferralCreditService::class);
+    return app(ReferralCreditService::class);
 }
 
 /**
  * The checkout side of the programme.
  */
-function referralCheckout(): \Cartxis\Referral\Services\ReferralCheckoutService
+function referralCheckout(): ReferralCheckoutService
 {
-    return app(\Cartxis\Referral\Services\ReferralCheckoutService::class);
+    return app(ReferralCheckoutService::class);
 }
 
 /**
@@ -234,7 +241,7 @@ function checkoutOrder(User $user, array $lines = []): Order
     return Order::create(array_merge([
         'user_id' => $user->id,
         'customer_email' => $user->email,
-        'order_number' => 'ORD-' . strtoupper(Str::random(10)),
+        'order_number' => 'ORD-'.strtoupper(Str::random(10)),
         'status' => 'pending',
         'payment_method' => 'cod',
         'payment_status' => 'pending',

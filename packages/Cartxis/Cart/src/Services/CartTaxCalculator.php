@@ -2,14 +2,14 @@
 
 namespace Cartxis\Cart\Services;
 
-use Cartxis\Product\Models\Product;
-use Cartxis\Core\Models\TaxClass;
-use Cartxis\Core\Models\TaxRate;
+use Cartxis\Core\Facades\Hook;
 use Cartxis\Core\Models\TaxRule;
+use Cartxis\Product\Models\Product;
+use Illuminate\Support\Collection;
 
 /**
  * Cart Tax Calculator Service
- * 
+ *
  * Calculates taxes for cart items based on tax classes and tax rules.
  * Provides hooks for theme customization.
  */
@@ -17,16 +17,16 @@ class CartTaxCalculator
 {
     /**
      * Calculate taxes for all cart items
-     * 
-     * @param array $cartItems Cart items array
-     * @param array $customerAddress Customer address (for tax zone calculation)
+     *
+     * @param  array  $cartItems  Cart items array
+     * @param  array  $customerAddress  Customer address (for tax zone calculation)
      * @return array Tax breakdown
      */
     public function calculate(array $cartItems, array $customerAddress = []): array
     {
         // Fire hook before calculation
-        if (function_exists('Hook') && class_exists(\Cartxis\Core\Facades\Hook::class)) {
-            \Cartxis\Core\Facades\Hook::doAction('cart.tax.calculating', $cartItems, $customerAddress);
+        if (function_exists('Hook') && class_exists(Hook::class)) {
+            Hook::doAction('cart.tax.calculating', $cartItems, $customerAddress);
         }
 
         $taxBreakdown = [];
@@ -40,7 +40,7 @@ class CartTaxCalculator
             // Get product with tax class
             $product = Product::with('taxClass')->find($productId);
 
-            if (!$product || !$product->taxClass) {
+            if (! $product || ! $product->taxClass) {
                 // No tax class assigned, skip
                 continue;
             }
@@ -54,7 +54,7 @@ class CartTaxCalculator
                 $lineTotal = $price * $quantity;
                 $taxAmount = $lineTotal * ($taxRate->percentage / 100);
 
-                $taxKey = $taxClass->name . ' (' . number_format($taxRate->percentage, 2) . '%)';
+                $taxKey = $taxClass->name.' ('.number_format($taxRate->percentage, 2).'%)';
 
                 if (isset($taxBreakdown[$taxKey])) {
                     $taxBreakdown[$taxKey]['amount'] += $taxAmount;
@@ -79,13 +79,13 @@ class CartTaxCalculator
         ];
 
         // Apply filter hook for customization
-        if (function_exists('Hook') && class_exists(\Cartxis\Core\Facades\Hook::class)) {
-            $result = \Cartxis\Core\Facades\Hook::applyFilter('cart.taxes', $result, $cartItems, $customerAddress);
+        if (function_exists('Hook') && class_exists(Hook::class)) {
+            $result = Hook::applyFilter('cart.taxes', $result, $cartItems, $customerAddress);
         }
 
         // Fire hook after calculation
-        if (function_exists('Hook') && class_exists(\Cartxis\Core\Facades\Hook::class)) {
-            \Cartxis\Core\Facades\Hook::doAction('cart.tax.calculated', $result, $cartItems);
+        if (function_exists('Hook') && class_exists(Hook::class)) {
+            Hook::doAction('cart.tax.calculated', $result, $cartItems);
         }
 
         return $result;
@@ -93,10 +93,10 @@ class CartTaxCalculator
 
     /**
      * Get applicable tax rates for a tax class
-     * 
-     * @param int $taxClassId Tax class ID
-     * @param array $customerAddress Customer address
-     * @return \Illuminate\Support\Collection
+     *
+     * @param  int  $taxClassId  Tax class ID
+     * @param  array  $customerAddress  Customer address
+     * @return Collection
      */
     private function getApplicableTaxRates(int $taxClassId, array $customerAddress)
     {
@@ -123,22 +123,23 @@ class CartTaxCalculator
 
     /**
      * Calculate tax for a single item
-     * 
-     * @param array $item Cart item
-     * @param array $customerAddress Customer address
+     *
+     * @param  array  $item  Cart item
+     * @param  array  $customerAddress  Customer address
      * @return float Tax amount
      */
     public function calculateForItem(array $item, array $customerAddress = []): float
     {
         $result = $this->calculate([$item], $customerAddress);
+
         return $result['total'];
     }
 
     /**
      * Get tax breakdown as formatted string
-     * 
-     * @param array $cartItems Cart items
-     * @param array $customerAddress Customer address
+     *
+     * @param  array  $cartItems  Cart items
+     * @param  array  $customerAddress  Customer address
      * @return string Formatted tax breakdown
      */
     public function getFormattedBreakdown(array $cartItems, array $customerAddress = []): string
@@ -151,7 +152,7 @@ class CartTaxCalculator
 
         $lines = [];
         foreach ($result['breakdown'] as $tax) {
-            $lines[] = $tax['label'] . ': $' . number_format($tax['amount'], 2);
+            $lines[] = $tax['label'].': $'.number_format($tax['amount'], 2);
         }
 
         return implode("\n", $lines);

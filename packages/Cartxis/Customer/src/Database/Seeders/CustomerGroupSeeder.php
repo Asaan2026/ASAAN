@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Cartxis\Customer\Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use Cartxis\Customer\Models\CustomerGroup;
+use Illuminate\Database\Seeder;
 
 class CustomerGroupSeeder extends Seeder
 {

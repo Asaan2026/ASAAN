@@ -44,7 +44,7 @@ class DeliveryReportController extends Controller
 
         $rows = $this->service->exportRows($filters);
 
-        $filename = 'delivery_report_' . now()->format('Y-m-d_His') . '.csv';
+        $filename = 'delivery_report_'.now()->format('Y-m-d_His').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv',

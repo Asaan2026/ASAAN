@@ -27,7 +27,7 @@ final class SolarHijriDate implements JsonSerializable, Stringable
      * @param  int  $month  1 (Farvardin) to 12 (Esfand).
      * @param  int  $day  1 to 29, 30 or 31 depending on the month and year.
      *
-     * @throws \InvalidArgumentException if the date does not exist, which is
+     * @throws InvalidArgumentException if the date does not exist, which is
      *                                  the only realistic way to get this wrong:
      *                                  30 Esfand in a non-leap year.
      */
@@ -42,13 +42,13 @@ final class SolarHijriDate implements JsonSerializable, Stringable
     /**
      * A date from a 'YYYY-MM-DD' Solar Hijri string.
      *
-     * @throws \InvalidArgumentException if the string is malformed or the date
+     * @throws InvalidArgumentException if the string is malformed or the date
      *                                  does not exist.
      */
     public static function fromIso(string $solarIso): self
     {
         if (! preg_match('/^\s*(-?\d{1,6})-(\d{1,2})-(\d{1,2})\s*$/', $solarIso, $matches)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 "Expected a Solar Hijri date as YYYY-MM-DD, got [{$solarIso}]."
             );
         }

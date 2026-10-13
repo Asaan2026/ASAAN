@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Cartxis\Service\Http\Controllers\Delivery;
 
 use App\Http\Controllers\Controller;
+use Carbon\CarbonImmutable;
 use Cartxis\Service\Models\ServiceBooking;
 use Cartxis\Service\Services\ServiceBookingStatusService;
 use Illuminate\Http\RedirectResponse;
@@ -55,7 +56,7 @@ class ServiceJobController extends Controller
                 'date' => $date,
                 'label' => $date === 'No date'
                     ? 'No date set'
-                    : \Carbon\CarbonImmutable::parse($date)->format('l, j M Y'),
+                    : CarbonImmutable::parse($date)->format('l, j M Y'),
                 'jobs' => $group->values(),
             ])->values(),
             'counts' => [

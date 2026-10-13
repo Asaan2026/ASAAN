@@ -2,18 +2,18 @@
 
 namespace Cartxis\Shop\Http\Controllers\Account;
 
+use Cartxis\Cart\Models\Cart;
+use Cartxis\Core\Services\SettingService;
+use Cartxis\Core\Services\ThemeViewResolver;
+use Cartxis\Customer\Models\Customer;
+use Cartxis\Referral\Services\ReferralCreditService;
+use Cartxis\Referral\Services\ReferralSettings;
+use Cartxis\Referral\Support\Money;
+use Cartxis\Shop\Http\Controllers\Controller;
+use Cartxis\Shop\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
-use Cartxis\Shop\Http\Controllers\Controller;
-use Cartxis\Core\Services\ThemeViewResolver;
-use Cartxis\Core\Services\SettingService;
-use Cartxis\Cart\Models\Cart;
-use Cartxis\Shop\Models\Order;
-use Cartxis\Customer\Models\Customer;
-use Cartxis\Referral\Services\ReferralCreditService;
-use Cartxis\Referral\Support\Money;
-use Cartxis\Referral\Services\ReferralSettings;
 
 class ProfileController extends Controller
 {
@@ -54,7 +54,7 @@ class ProfileController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . auth()->id()],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.auth()->id()],
         ]);
 
         $user = auth()->user();
@@ -70,7 +70,7 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return back()->with('success', 'Profile updated successfully.' . 
+        return back()->with('success', 'Profile updated successfully.'.
             ($emailChanged ? ' Please verify your new email address.' : ''));
     }
 
@@ -124,9 +124,9 @@ class ProfileController extends Controller
             ?: 'dev@wontonee.com';
 
         return $this->themeResolver->inertia('Account/DeletionInfo', [
-            'appName'      => config('app.name'),
+            'appName' => config('app.name'),
             'supportEmail' => $supportEmail,
-            'appUrl'       => $appUrl,
+            'appUrl' => $appUrl,
         ]);
     }
 
@@ -163,7 +163,7 @@ class ProfileController extends Controller
         // 1. Anonymize orders — keep for accounting/legal records but remove PII
         //    Note: customer_id is auto-nullified by FK nullOnDelete when customer is deleted
         Order::where('user_id', $userId)->update([
-            'user_id'        => null,
+            'user_id' => null,
             'customer_email' => null,
             'customer_phone' => null,
         ]);
@@ -207,16 +207,16 @@ class ProfileController extends Controller
 
         if ($balances['locked'] > 0 && $balances['available'] <= 0) {
             return "You still have {$locked} of referral credit waiting to unlock. "
-                . 'Please use it or contact support before deleting your account.';
+                .'Please use it or contact support before deleting your account.';
         }
 
         if ($balances['locked'] > 0) {
             return "You still have {$available} of referral credit to spend and "
-                . "{$locked} still waiting to unlock. "
-                . 'Please use it or contact support before deleting your account.';
+                ."{$locked} still waiting to unlock. "
+                .'Please use it or contact support before deleting your account.';
         }
 
         return "You still have {$available} of referral credit to spend. "
-            . 'Please use it or contact support before deleting your account.';
+            .'Please use it or contact support before deleting your account.';
     }
 }

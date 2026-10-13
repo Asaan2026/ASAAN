@@ -3,15 +3,15 @@
 namespace Cartxis\API\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Cartxis\API\Helpers\ApiResponse;
-use Cartxis\API\Http\Resources\UserResource;
 use Cartxis\API\Http\Resources\AddressResource;
+use Cartxis\API\Http\Resources\UserResource;
 use Cartxis\Core\Support\StoreCountry;
 use Cartxis\Customer\Models\Customer;
 use Cartxis\Customer\Models\CustomerAddress;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class CustomerController extends Controller
 {
@@ -57,7 +57,7 @@ class CustomerController extends Controller
         }
 
         $user = $request->user();
-        
+
         // Update only the fields that are present in the request
         $updateData = [];
         if ($request->has('name')) {
@@ -84,7 +84,7 @@ class CustomerController extends Controller
             $path = $request->file('avatar')->store('avatars', 'public');
             $updateData['avatar'] = $path;
         }
-        
+
         $user->update($updateData);
         $user->refresh();
 
@@ -101,8 +101,8 @@ class CustomerController extends Controller
     {
         // Get customer for this user
         $customer = Customer::where('user_id', $request->user()->id)->first();
-        
-        if (!$customer) {
+
+        if (! $customer) {
             return ApiResponse::success(
                 [],
                 'No addresses found'
@@ -168,7 +168,7 @@ class CustomerController extends Controller
                 CustomerAddress::where('customer_id', $customer->id)
                     ->update(['is_default_shipping' => false]);
             }
-            
+
             if ($isDefaultBilling) {
                 CustomerAddress::where('customer_id', $customer->id)
                     ->update(['is_default_billing' => false]);
@@ -206,8 +206,8 @@ class CustomerController extends Controller
     {
         // Get customer for this user
         $customer = Customer::where('user_id', $request->user()->id)->first();
-        
-        if (!$customer) {
+
+        if (! $customer) {
             return ApiResponse::notFound('Customer not found', 'CUSTOMER_NOT_FOUND');
         }
 
@@ -215,7 +215,7 @@ class CustomerController extends Controller
             ->where('id', $id)
             ->first();
 
-        if (!$address) {
+        if (! $address) {
             return ApiResponse::notFound('Address not found', 'ADDRESS_NOT_FOUND');
         }
 
@@ -274,8 +274,8 @@ class CustomerController extends Controller
     {
         // Get customer for this user
         $customer = Customer::where('user_id', $request->user()->id)->first();
-        
-        if (!$customer) {
+
+        if (! $customer) {
             return ApiResponse::notFound('Customer not found', 'CUSTOMER_NOT_FOUND');
         }
 
@@ -283,7 +283,7 @@ class CustomerController extends Controller
             ->where('id', $id)
             ->first();
 
-        if (!$address) {
+        if (! $address) {
             return ApiResponse::notFound('Address not found', 'ADDRESS_NOT_FOUND');
         }
 

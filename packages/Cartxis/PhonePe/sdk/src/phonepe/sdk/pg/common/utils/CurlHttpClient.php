@@ -16,84 +16,85 @@
 *  limitations under the License.
 */
 
-
 namespace PhonePe\common\utils;
 
 use PhonePe\common\exceptions\PhonePeException;
 
 class CurlHttpClient
 {
-	/**
-	 * @desc Helper function to send a post request
-	 * @param string $url
-	 * @param string $body
-	 * @param $headers
-	 * @return mixed
-	 * @throws PhonePeException
-	 */
-	public static function postRequest($url, $body, $headers)
-	{
-		$headers_array = [];
-		foreach ($headers as $key => $value) {
-			$headers_array[] = $key . ":" . $value;
-		}
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-		curl_setopt($ch, CURLOPT_HTTPHEADER , $headers_array);
+    /**
+     * @desc Helper function to send a post request
+     *
+     * @param  string  $url
+     * @param  string  $body
+     * @return mixed
+     *
+     * @throws PhonePeException
+     */
+    public static function postRequest($url, $body, $headers)
+    {
+        $headers_array = [];
+        foreach ($headers as $key => $value) {
+            $headers_array[] = $key.':'.$value;
+        }
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_array);
 
-		$response = curl_exec($ch);
-		$responseHeaders = curl_getinfo($ch);
-		$httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		curl_close($ch);
+        $response = curl_exec($ch);
+        $responseHeaders = curl_getinfo($ch);
+        $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
 
-		if ($httpStatus == 200)
-			return new HttpResponse($httpStatus, $responseHeaders, $response);
-		else {
-			$responseArray = json_decode($response, true);
-			$data = $responseArray['data'] ?? $responseArray['context'];
-			$code = $responseArray['code'] ?? $responseArray['errorCode'];
-			throw new PhonePeException($responseArray['message'], $httpStatus, $code, $data);
-		}
-	}
+        if ($httpStatus == 200) {
+            return new HttpResponse($httpStatus, $responseHeaders, $response);
+        } else {
+            $responseArray = json_decode($response, true);
+            $data = $responseArray['data'] ?? $responseArray['context'];
+            $code = $responseArray['code'] ?? $responseArray['errorCode'];
+            throw new PhonePeException($responseArray['message'], $httpStatus, $code, $data);
+        }
+    }
 
-	/**
-	 * @desc Helper function to send a get request
-	 * @param string $url
-	 * @param string $headers
-	 * @return mixed
-	 * @throws PhonePeException
-	 */
-	public static function getRequest($url, $headers)
-	{
-		$headers_array = [];
-		foreach ($headers as $key => $value) {
-			$headers_array[] = $key . ":" . $value;
-		}
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_array);
+    /**
+     * @desc Helper function to send a get request
+     *
+     * @param  string  $url
+     * @param  string  $headers
+     * @return mixed
+     *
+     * @throws PhonePeException
+     */
+    public static function getRequest($url, $headers)
+    {
+        $headers_array = [];
+        foreach ($headers as $key => $value) {
+            $headers_array[] = $key.':'.$value;
+        }
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_array);
 
-		$response = curl_exec($ch);
-		$responseHeaders = curl_getinfo($ch);
-		$httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		curl_close($ch);
+        $response = curl_exec($ch);
+        $responseHeaders = curl_getinfo($ch);
+        $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
 
-		if ($httpStatus == 200)
-			return new HttpResponse($httpStatus, $responseHeaders, $response);
-		else {
-			$responseArray = json_decode($response, true);
-			$data = $responseArray['data'] ?? $responseArray['context'];
-			$code = $responseArray['code'] ?? $responseArray['errorCode'];
-			throw new PhonePeException($responseArray['message'], $httpStatus, $code, $data);
-		}
-	}
-
+        if ($httpStatus == 200) {
+            return new HttpResponse($httpStatus, $responseHeaders, $response);
+        } else {
+            $responseArray = json_decode($response, true);
+            $data = $responseArray['data'] ?? $responseArray['context'];
+            $code = $responseArray['code'] ?? $responseArray['errorCode'];
+            throw new PhonePeException($responseArray['message'], $httpStatus, $code, $data);
+        }
+    }
 }

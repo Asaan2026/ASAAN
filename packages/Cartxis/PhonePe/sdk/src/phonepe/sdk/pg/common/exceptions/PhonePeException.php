@@ -16,7 +16,6 @@
 *  limitations under the License.
 */
 
-
 namespace PhonePe\common\exceptions;
 
 use Exception;
@@ -27,39 +26,36 @@ use Throwable;
  */
 class PhonePeException extends Exception
 {
-	public $httpStatusCode;
-	public $code;
-	public $message;
-	public $data;
+    public $httpStatusCode;
 
-	/**
-	 * @param $message
-	 * @param mixed $httpStatusCode optional
-	 * @param mixed $code optional
-	 * @param mixed $data optional
-	 * @param Throwable|null $previous optional
-	 */
-	public function __construct( $message = '', $httpStatusCode = 0 , $code = 0,$data = null, ?Throwable $previous = null)
-	{
-		parent::__construct($message, $httpStatusCode, $previous);
-		$this->httpStatusCode = $httpStatusCode;
-		$this->message = $message;
-		$this->code = $code;
-		$this->data = $data;
-	}
+    public $code;
 
-	public function getHttpStatusCode(): mixed
-	{
-		return $this->httpStatusCode;
-	}
+    public $message;
 
-	/**
-	 * @return mixed
-	 */
+    public $data;
 
-	public function getData(): mixed
-	{
-		return $this->data;
-	}
+    /**
+     * @param  mixed  $httpStatusCode  optional
+     * @param  mixed  $code  optional
+     * @param  mixed  $data  optional
+     * @param  Throwable|null  $previous  optional
+     */
+    public function __construct($message = '', $httpStatusCode = 0, $code = 0, $data = null, ?Throwable $previous = null)
+    {
+        parent::__construct($message, $httpStatusCode, $previous);
+        $this->httpStatusCode = $httpStatusCode;
+        $this->message = $message;
+        $this->code = $code;
+        $this->data = $data;
+    }
 
+    public function getHttpStatusCode(): mixed
+    {
+        return $this->httpStatusCode;
+    }
+
+    public function getData(): mixed
+    {
+        return $this->data;
+    }
 }

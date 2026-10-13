@@ -12,12 +12,12 @@ class MaintenanceLog extends Model
      * The table associated with the model.
      */
     protected $table = 'maintenance_logs';
-    
+
     /**
      * Indicates if the model should be timestamped.
      */
     public $timestamps = false;
-    
+
     /**
      * The attributes that are mass assignable.
      */
@@ -32,7 +32,7 @@ class MaintenanceLog extends Model
         'admin_name',
         'ip_address',
     ];
-    
+
     /**
      * The attributes that should be cast.
      */

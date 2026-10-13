@@ -23,64 +23,64 @@ use Tests\Unit\BaseTestCase;
 
 class RequestGeneratorTest extends BaseTestCase
 {
-    public function testHttpResponseCreation(): void
+    public function test_http_response_creation(): void
     {
         $statusCode = 200;
         $headers = ['Content-Type' => 'application/json'];
         $responseBody = '{"test": "value"}';
-        
+
         $httpResponse = new HttpResponse($statusCode, $headers, $responseBody);
-        
+
         $this->assertInstanceOf(HttpResponse::class, $httpResponse);
         $this->assertEquals($statusCode, $httpResponse->getStatusCode());
         $this->assertEquals($responseBody, $httpResponse->getResponse());
     }
-    
-    public function testHttpResponseWithDifferentStatusCodes(): void
+
+    public function test_http_response_with_different_status_codes(): void
     {
         $testCases = [
             [200, 'Success'],
-            [400, 'Bad Request'], 
+            [400, 'Bad Request'],
             [401, 'Unauthorized'],
             [404, 'Not Found'],
-            [500, 'Internal Server Error']
+            [500, 'Internal Server Error'],
         ];
-        
+
         foreach ($testCases as [$statusCode, $message]) {
             $response = new HttpResponse($statusCode, [], json_encode(['message' => $message]));
-            
+
             $this->assertEquals($statusCode, $response->getStatusCode());
             $this->assertStringContainsString($message, $response->getResponse());
         }
     }
-    
-    public function testHttpResponseWithHeaders(): void
+
+    public function test_http_response_with_headers(): void
     {
         $headers = [
             'Content-Type' => 'application/json',
             'Authorization' => 'Bearer token123',
-            'X-Request-ID' => 'req-456'
+            'X-Request-ID' => 'req-456',
         ];
-        
+
         $response = new HttpResponse(200, $headers, '{}');
-        
+
         $this->assertInstanceOf(HttpResponse::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
     }
-    
-    public function testHttpResponseWithEmptyBody(): void
+
+    public function test_http_response_with_empty_body(): void
     {
         $response = new HttpResponse(204, [], '');
-        
+
         $this->assertEquals(204, $response->getStatusCode());
         $this->assertEquals('', $response->getResponse());
     }
-    
-    public function testHttpResponseWithLargeBody(): void
+
+    public function test_http_response_with_large_body(): void
     {
         $largeBody = str_repeat('a', 10000);
         $response = new HttpResponse(200, [], $largeBody);
-        
+
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals($largeBody, $response->getResponse());
         $this->assertEquals(10000, strlen($response->getResponse()));

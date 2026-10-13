@@ -27,6 +27,7 @@ class TaxRate extends Model
     public function calculate(float $amount, float $previousTaxes = 0): float
     {
         $base = $this->is_compound ? ($amount + $previousTaxes) : $amount;
+
         return $base * ($this->percentage / 100);
     }
 

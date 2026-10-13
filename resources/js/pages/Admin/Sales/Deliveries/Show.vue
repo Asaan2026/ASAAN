@@ -1,65 +1,74 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { Head, router, Link, useForm } from '@inertiajs/vue3';
-import AdminLayout from '@/layouts/AdminLayout.vue';
-import DatePicker from '@/components/Calendar/DatePicker.vue';
 import DateDisplay from '@/components/Calendar/DateDisplay.vue';
-import { ArrowLeft, MapPin, Phone, User, Calendar, Package, Banknote, Trash2, RefreshCw } from 'lucide-vue-next';
+import DatePicker from '@/components/Calendar/DatePicker.vue';
+import AdminLayout from '@/layouts/AdminLayout.vue';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import {
+    ArrowLeft,
+    Banknote,
+    Calendar,
+    MapPin,
+    Phone,
+    RefreshCw,
+    Trash2,
+    User,
+} from 'lucide-vue-next';
+import { ref } from 'vue';
 
 interface Driver {
-  id: number;
-  name: string;
-  email: string;
-  phone: string | null;
+    id: number;
+    name: string;
+    email: string;
+    phone: string | null;
 }
 
 interface EventRow {
-  id: number;
-  from_status: string | null;
-  to_status: string | null;
-  status_change: string | null;
-  note: string | null;
-  created_at: string;
-  actor: { id: number; name: string } | null;
+    id: number;
+    from_status: string | null;
+    to_status: string | null;
+    status_change: string | null;
+    note: string | null;
+    created_at: string;
+    actor: { id: number; name: string } | null;
 }
 
 interface DeliveryDetail {
-  id: number;
-  shipment_number: string;
-  status: string;
-  status_badge: { label: string; class: string };
-  priority: string;
-  scheduled_date: string | null;
-  customer_phone: string | null;
-  cod_amount: string | null;
-  cod_received: string;
-  recipient_name: string | null;
-  failure_reason: string | null;
-  failure_note: string | null;
-  delivered_photo_path: string | null;
-  last_latitude: string | null;
-  last_longitude: string | null;
-  notes: string | null;
-  created_at: string;
-  order: {
     id: number;
-    order_number: string;
-    customer_email: string;
-    shipping_address: {
-      id: number;
-      full_name: string;
-      full_address: string;
-      phone: string | null;
+    shipment_number: string;
+    status: string;
+    status_badge: { label: string; class: string };
+    priority: string;
+    scheduled_date: string | null;
+    customer_phone: string | null;
+    cod_amount: string | null;
+    cod_received: string;
+    recipient_name: string | null;
+    failure_reason: string | null;
+    failure_note: string | null;
+    delivered_photo_path: string | null;
+    last_latitude: string | null;
+    last_longitude: string | null;
+    notes: string | null;
+    created_at: string;
+    order: {
+        id: number;
+        order_number: string;
+        customer_email: string;
+        shipping_address: {
+            id: number;
+            full_name: string;
+            full_address: string;
+            phone: string | null;
+        } | null;
     } | null;
-  } | null;
-  assigned_to: { id: number; name: string } | null;
-  events: EventRow[];
+    assigned_to: { id: number; name: string } | null;
+    events: EventRow[];
 }
 
 interface Props {
-  delivery: DeliveryDetail;
-  drivers: Driver[];
-  statuses: Array<{ value: string; label: string }>;
+    delivery: DeliveryDetail;
+    drivers: Driver[];
+    statuses: Array<{ value: string; label: string }>;
 }
 
 const props = defineProps<Props>();
@@ -68,165 +77,342 @@ const terminalStatuses = ['delivered', 'undelivered', 'cancelled'];
 const isTerminal = (s: string) => terminalStatuses.includes(s);
 
 const editForm = useForm({
-  assigned_to: props.delivery.assigned_to?.id ?? '' as unknown as number,
-  scheduled_date: props.delivery.scheduled_date ? props.delivery.scheduled_date.slice(0, 10) : '',
+    assigned_to: props.delivery.assigned_to?.id ?? ('' as unknown as number),
+    scheduled_date: props.delivery.scheduled_date
+        ? props.delivery.scheduled_date.slice(0, 10)
+        : '',
 });
 
 const saving = ref(false);
 
 const saveChanges = () => {
-  editForm.put(`/admin/sales/deliveries/${props.delivery.id}`, {
-    preserveScroll: true,
-    onSuccess: () => {
-      saving.value = false;
-    },
-  });
+    editForm.put(`/admin/sales/deliveries/${props.delivery.id}`, {
+        preserveScroll: true,
+        onSuccess: () => {
+            saving.value = false;
+        },
+    });
 };
 
 const cancelDelivery = () => {
-  if (!window.confirm('Cancel this delivery?')) return;
-  router.post(`/admin/sales/deliveries/${props.delivery.id}/cancel`);
+    if (!window.confirm('Cancel this delivery?')) return;
+    router.post(`/admin/sales/deliveries/${props.delivery.id}/cancel`);
 };
 </script>
 
 <template>
-  <Head :title="$t('Delivery {order}', { order: props.delivery.order?.order_number || '' })" />
+    <Head
+        :title="
+            $t('Delivery {order}', {
+                order: props.delivery.order?.order_number || '',
+            })
+        "
+    />
 
-  <AdminLayout :title="$t('Delivery {order}', { order: props.delivery.order?.order_number || '' })">
-    <div class="space-y-6">
-      <div class="flex items-center justify-between">
-        <Link href="/admin/sales/deliveries" class="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
-          <ArrowLeft class="h-4 w-4" /> {{ $t('Back to deliveries') }}
-        </Link>
-        <span v-if="props.delivery.status_badge" :class="props.delivery.status_badge.class" class="inline-flex rounded-full px-3 py-1 text-xs font-medium">
-          {{ props.delivery.status_badge.label }}
-        </span>
-      </div>
-
-      <div class="grid gap-6 lg:grid-cols-3">
-        <div class="space-y-6 lg:col-span-2">
-          <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
-            <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-gray-100">{{ $t('Package') }}</h3>
-            <div class="space-y-3 text-sm">
-              <div class="flex justify-between">
-                <span class="text-gray-500 dark:text-gray-400">{{ $t('Shipment') }}</span>
-                <span class="font-medium text-gray-900 dark:text-gray-100">{{ props.delivery.shipment_number }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-500 dark:text-gray-400">{{ $t('Order') }}</span>
-                <span class="font-medium text-gray-900 dark:text-gray-100">{{ props.delivery.order?.order_number }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-500 dark:text-gray-400">{{ $t('Customer') }}</span>
-                <span class="font-medium text-gray-900 dark:text-gray-100">{{ props.delivery.order?.customer_email }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-500 dark:text-gray-400">{{ $t('Priority') }}</span>
-                <span class="font-medium capitalize text-gray-900 dark:text-gray-100">{{ props.delivery.priority }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-500 dark:text-gray-400">{{ $t('COD') }}</span>
-                <span class="font-medium text-gray-900 dark:text-gray-100">{{ props.delivery.cod_amount ? `$${props.delivery.cod_amount}` : '—' }}</span>
-              </div>
-            </div>
-
-            <div v-if="props.delivery.order?.shipping_address" class="mt-4 rounded-lg bg-gray-50 dark:bg-gray-900 p-4">
-              <p class="flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">
-                <MapPin class="h-4 w-4 text-gray-400" /> {{ props.delivery.order.shipping_address.full_name }}
-              </p>
-              <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ props.delivery.order.shipping_address.full_address }}</p>
-              <p v-if="props.delivery.order.shipping_address.phone" class="mt-2 inline-flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400">
-                <Phone class="h-3.5 w-3.5 text-gray-400" />
-                <a :href="`tel:${props.delivery.customer_phone || props.delivery.order.shipping_address.phone}`" class="text-blue-600 hover:underline">
-                  {{ props.delivery.customer_phone || props.delivery.order.shipping_address.phone }}
-                </a>
-              </p>
-            </div>
-          </div>
-
-          <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
-            <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-gray-100">{{ $t('Timeline') }}</h3>
-            <ol v-if="props.delivery.events.length" class="space-y-4">
-              <li v-for="e in props.delivery.events" :key="e.id" class="relative flex gap-3">
-                <div class="mt-1 flex h-2.5 w-2.5 flex-none rounded-full bg-blue-500" />
-                <div>
-                  <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {{ $t(e.status_change || 'Assigned') }}
-                    <span v-if="e.actor" class="font-normal text-gray-500 dark:text-gray-400">· {{ e.actor.name }}</span>
-                  </p>
-                  <p v-if="e.note" class="text-sm text-gray-600 dark:text-gray-400">{{ e.note }}</p>
-                  <p class="text-xs text-gray-400"><DateDisplay :value="e.created_at" time /></p>
-                </div>
-              </li>
-            </ol>
-            <p v-else class="text-sm text-gray-500 dark:text-gray-400">{{ $t('No events recorded yet.') }}</p>
-          </div>
-        </div>
-
+    <AdminLayout
+        :title="
+            $t('Delivery {order}', {
+                order: props.delivery.order?.order_number || '',
+            })
+        "
+    >
         <div class="space-y-6">
-          <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
-            <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-gray-100">{{ $t('Assignment') }}</h3>
-            <form v-if="!isTerminal(props.delivery.status)" class="space-y-4" @submit.prevent="saveChanges">
-              <div>
-                <label class="mb-1 flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-                  <User class="h-3.5 w-3.5 text-gray-400" /> {{ $t('Delivery Person') }}
-                </label>
-                <select
-                  v-model="editForm.assigned_to"
-                  class="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-gray-100"
+            <div class="flex items-center justify-between">
+                <Link
+                    href="/admin/sales/deliveries"
+                    class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
                 >
-                  <option v-for="d in props.drivers" :key="d.id" :value="d.id">{{ d.name }}</option>
-                </select>
-              </div>
-              <div>
-                <label class="mb-1 flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-                  <Calendar class="h-3.5 w-3.5 text-gray-400" /> {{ $t('Scheduled Date') }}
-                </label>
-                <DatePicker
-                  v-model="editForm.scheduled_date"
-                  class="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
-              </div>
-              <button
-                type="submit"
-                :disabled="editForm.processing"
-                class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
-              >
-                <RefreshCw class="h-4 w-4" /> {{ $t('Save') }}
-              </button>
-            </form>
-            <div v-else class="flex items-center gap-3">
-              <User class="h-4 w-4 text-gray-400" />
-              <span class="text-sm text-gray-700 dark:text-gray-300">{{ props.delivery.assigned_to?.name }}</span>
+                    <ArrowLeft class="h-4 w-4" /> {{ $t('Back to deliveries') }}
+                </Link>
+                <span
+                    v-if="props.delivery.status_badge"
+                    :class="props.delivery.status_badge.class"
+                    class="inline-flex rounded-full px-3 py-1 text-xs font-medium"
+                >
+                    {{ props.delivery.status_badge.label }}
+                </span>
             </div>
 
-            <button
-              v-if="!isTerminal(props.delivery.status)"
-              type="button"
-              class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
-              @click="cancelDelivery"
-            >
-              <Trash2 class="h-4 w-4" /> {{ $t('Cancel Delivery') }}
-            </button>
-          </div>
+            <div class="grid gap-6 lg:grid-cols-3">
+                <div class="space-y-6 lg:col-span-2">
+                    <div
+                        class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800"
+                    >
+                        <h3
+                            class="mb-4 text-base font-semibold text-gray-900 dark:text-gray-100"
+                        >
+                            {{ $t('Package') }}
+                        </h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between">
+                                <span
+                                    class="text-gray-500 dark:text-gray-400"
+                                    >{{ $t('Shipment') }}</span
+                                >
+                                <span
+                                    class="font-medium text-gray-900 dark:text-gray-100"
+                                    >{{ props.delivery.shipment_number }}</span
+                                >
+                            </div>
+                            <div class="flex justify-between">
+                                <span
+                                    class="text-gray-500 dark:text-gray-400"
+                                    >{{ $t('Order') }}</span
+                                >
+                                <span
+                                    class="font-medium text-gray-900 dark:text-gray-100"
+                                    >{{
+                                        props.delivery.order?.order_number
+                                    }}</span
+                                >
+                            </div>
+                            <div class="flex justify-between">
+                                <span
+                                    class="text-gray-500 dark:text-gray-400"
+                                    >{{ $t('Customer') }}</span
+                                >
+                                <span
+                                    class="font-medium text-gray-900 dark:text-gray-100"
+                                    >{{
+                                        props.delivery.order?.customer_email
+                                    }}</span
+                                >
+                            </div>
+                            <div class="flex justify-between">
+                                <span
+                                    class="text-gray-500 dark:text-gray-400"
+                                    >{{ $t('Priority') }}</span
+                                >
+                                <span
+                                    class="font-medium text-gray-900 capitalize dark:text-gray-100"
+                                    >{{ props.delivery.priority }}</span
+                                >
+                            </div>
+                            <div class="flex justify-between">
+                                <span
+                                    class="text-gray-500 dark:text-gray-400"
+                                    >{{ $t('COD') }}</span
+                                >
+                                <span
+                                    class="font-medium text-gray-900 dark:text-gray-100"
+                                    >{{
+                                        props.delivery.cod_amount
+                                            ? `$${props.delivery.cod_amount}`
+                                            : '—'
+                                    }}</span
+                                >
+                            </div>
+                        </div>
 
-          <div v-if="props.delivery.cod_amount" class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
-            <h3 class="mb-3 flex items-center gap-1.5 text-base font-semibold text-gray-900 dark:text-gray-100">
-              <Banknote class="h-4 w-4 text-gray-400" /> {{ $t('Cash on Delivery') }}
-            </h3>
-            <div class="space-y-2 text-sm">
-              <div class="flex justify-between">
-                <span class="text-gray-500 dark:text-gray-400">{{ $t('Expected') }}</span>
-                <span class="font-medium text-gray-900 dark:text-gray-100">${{ props.delivery.cod_amount }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-500 dark:text-gray-400">{{ $t('Collected') }}</span>
-                <span class="font-medium text-gray-900 dark:text-gray-100">${{ props.delivery.cod_received || '0.00' }}</span>
-              </div>
+                        <div
+                            v-if="props.delivery.order?.shipping_address"
+                            class="mt-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-900"
+                        >
+                            <p
+                                class="flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-300"
+                            >
+                                <MapPin class="h-4 w-4 text-gray-400" />
+                                {{
+                                    props.delivery.order.shipping_address
+                                        .full_name
+                                }}
+                            </p>
+                            <p
+                                class="mt-1 text-sm text-gray-600 dark:text-gray-400"
+                            >
+                                {{
+                                    props.delivery.order.shipping_address
+                                        .full_address
+                                }}
+                            </p>
+                            <p
+                                v-if="
+                                    props.delivery.order.shipping_address.phone
+                                "
+                                class="mt-2 inline-flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400"
+                            >
+                                <Phone class="h-3.5 w-3.5 text-gray-400" />
+                                <a
+                                    :href="`tel:${props.delivery.customer_phone || props.delivery.order.shipping_address.phone}`"
+                                    class="text-blue-600 hover:underline"
+                                >
+                                    {{
+                                        props.delivery.customer_phone ||
+                                        props.delivery.order.shipping_address
+                                            .phone
+                                    }}
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800"
+                    >
+                        <h3
+                            class="mb-4 text-base font-semibold text-gray-900 dark:text-gray-100"
+                        >
+                            {{ $t('Timeline') }}
+                        </h3>
+                        <ol
+                            v-if="props.delivery.events.length"
+                            class="space-y-4"
+                        >
+                            <li
+                                v-for="e in props.delivery.events"
+                                :key="e.id"
+                                class="relative flex gap-3"
+                            >
+                                <div
+                                    class="mt-1 flex h-2.5 w-2.5 flex-none rounded-full bg-blue-500"
+                                />
+                                <div>
+                                    <p
+                                        class="text-sm font-medium text-gray-900 dark:text-gray-100"
+                                    >
+                                        {{ $t(e.status_change || 'Assigned') }}
+                                        <span
+                                            v-if="e.actor"
+                                            class="font-normal text-gray-500 dark:text-gray-400"
+                                            >· {{ e.actor.name }}</span
+                                        >
+                                    </p>
+                                    <p
+                                        v-if="e.note"
+                                        class="text-sm text-gray-600 dark:text-gray-400"
+                                    >
+                                        {{ e.note }}
+                                    </p>
+                                    <p class="text-xs text-gray-400">
+                                        <DateDisplay
+                                            :value="e.created_at"
+                                            time
+                                        />
+                                    </p>
+                                </div>
+                            </li>
+                        </ol>
+                        <p
+                            v-else
+                            class="text-sm text-gray-500 dark:text-gray-400"
+                        >
+                            {{ $t('No events recorded yet.') }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div
+                        class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800"
+                    >
+                        <h3
+                            class="mb-4 text-base font-semibold text-gray-900 dark:text-gray-100"
+                        >
+                            {{ $t('Assignment') }}
+                        </h3>
+                        <form
+                            v-if="!isTerminal(props.delivery.status)"
+                            class="space-y-4"
+                            @submit.prevent="saveChanges"
+                        >
+                            <div>
+                                <label
+                                    class="mb-1 flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    <User class="h-3.5 w-3.5 text-gray-400" />
+                                    {{ $t('Delivery Person') }}
+                                </label>
+                                <select
+                                    v-model="editForm.assigned_to"
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
+                                >
+                                    <option
+                                        v-for="d in props.drivers"
+                                        :key="d.id"
+                                        :value="d.id"
+                                    >
+                                        {{ d.name }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div>
+                                <label
+                                    class="mb-1 flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    <Calendar
+                                        class="h-3.5 w-3.5 text-gray-400"
+                                    />
+                                    {{ $t('Scheduled Date') }}
+                                </label>
+                                <DatePicker
+                                    v-model="editForm.scheduled_date"
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600"
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                :disabled="editForm.processing"
+                                class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+                            >
+                                <RefreshCw class="h-4 w-4" /> {{ $t('Save') }}
+                            </button>
+                        </form>
+                        <div v-else class="flex items-center gap-3">
+                            <User class="h-4 w-4 text-gray-400" />
+                            <span
+                                class="text-sm text-gray-700 dark:text-gray-300"
+                                >{{ props.delivery.assigned_to?.name }}</span
+                            >
+                        </div>
+
+                        <button
+                            v-if="!isTerminal(props.delivery.status)"
+                            type="button"
+                            class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+                            @click="cancelDelivery"
+                        >
+                            <Trash2 class="h-4 w-4" />
+                            {{ $t('Cancel Delivery') }}
+                        </button>
+                    </div>
+
+                    <div
+                        v-if="props.delivery.cod_amount"
+                        class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800"
+                    >
+                        <h3
+                            class="mb-3 flex items-center gap-1.5 text-base font-semibold text-gray-900 dark:text-gray-100"
+                        >
+                            <Banknote class="h-4 w-4 text-gray-400" />
+                            {{ $t('Cash on Delivery') }}
+                        </h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span
+                                    class="text-gray-500 dark:text-gray-400"
+                                    >{{ $t('Expected') }}</span
+                                >
+                                <span
+                                    class="font-medium text-gray-900 dark:text-gray-100"
+                                    >${{ props.delivery.cod_amount }}</span
+                                >
+                            </div>
+                            <div class="flex justify-between">
+                                <span
+                                    class="text-gray-500 dark:text-gray-400"
+                                    >{{ $t('Collected') }}</span
+                                >
+                                <span
+                                    class="font-medium text-gray-900 dark:text-gray-100"
+                                    >${{
+                                        props.delivery.cod_received || '0.00'
+                                    }}</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-    </div>
-  </AdminLayout>
+    </AdminLayout>
 </template>

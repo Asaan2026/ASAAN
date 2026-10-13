@@ -32,7 +32,7 @@ class EnableMaintenanceRequest extends FormRequest
             'secret' => 'nullable|string|min:16|max:64',
         ];
     }
-    
+
     /**
      * Get custom messages for validator errors.
      */

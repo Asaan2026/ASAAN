@@ -1,12 +1,12 @@
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import axios from 'axios';
+import { onMounted, ref } from 'vue';
 
 export interface GridCategory {
-    id: number
-    name: string
-    slug: string
-    image_url: string | null
-    products_count: number
+    id: number;
+    name: string;
+    slug: string;
+    image_url: string | null;
+    products_count: number;
 }
 
 /**
@@ -15,25 +15,25 @@ export interface GridCategory {
  * Only the presentation (template) differs per theme.
  */
 export function useCategoriesGrid(settings: Record<string, unknown>) {
-    const categories = ref<GridCategory[]>([])
-    const loading    = ref(false)
-    const error      = ref<string | null>(null)
+    const categories = ref<GridCategory[]>([]);
+    const loading = ref(false);
+    const error = ref<string | null>(null);
 
     onMounted(async () => {
-        loading.value = true
+        loading.value = true;
         try {
             const res = await axios.get('/api/shop/categories', {
                 params: { limit: settings.limit ?? 8 },
-            })
-            categories.value = res.data.data ?? []
+            });
+            categories.value = res.data.data ?? [];
         } catch (e) {
-            categories.value = []
-            error.value = 'Failed to load categories'
-            if (import.meta.env.DEV) console.error('[useCategoriesGrid]', e)
+            categories.value = [];
+            error.value = 'Failed to load categories';
+            if (import.meta.env.DEV) console.error('[useCategoriesGrid]', e);
         } finally {
-            loading.value = false
+            loading.value = false;
         }
-    })
+    });
 
     /**
      * Column classes for the chosen column count.
@@ -51,12 +51,12 @@ export function useCategoriesGrid(settings: Record<string, unknown>) {
         4: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4',
         5: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5',
         6: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6',
-    }
+    };
 
     const colsClass = (cols: unknown) => {
-        const n = Math.min(Math.max(Number(cols) || 4, 1), 6)
-        return COLS[n]
-    }
+        const n = Math.min(Math.max(Number(cols) || 4, 1), 6);
+        return COLS[n];
+    };
 
-    return { categories, loading, error, colsClass }
+    return { categories, loading, error, colsClass };
 }

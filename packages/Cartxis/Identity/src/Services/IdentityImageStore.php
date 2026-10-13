@@ -5,8 +5,8 @@ namespace Cartxis\Identity\Services;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 use RuntimeException;
 
 /**
@@ -30,7 +30,7 @@ class IdentityImageStore
 
     public function __construct()
     {
-        $this->images = new ImageManager(new Driver());
+        $this->images = new ImageManager(new Driver);
     }
 
     /**

@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Cartxis\Shop\Http\Controllers\Account;
 
 use App\Http\Controllers\Controller;
+use Cartxis\Core\Services\ThemeViewResolver;
+use Cartxis\Customer\Models\Customer;
+use Cartxis\Customer\Models\CustomerGroup;
+use Cartxis\Customer\Models\Wishlist;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Inertia\Response;
-use Cartxis\Customer\Models\Customer;
-use Cartxis\Customer\Models\CustomerGroup;
-use Cartxis\Customer\Models\Wishlist;
-use Cartxis\Core\Services\ThemeViewResolver;
 
 class WishlistController extends Controller
 {
@@ -37,8 +37,8 @@ class WishlistController extends Controller
     public function get(): JsonResponse
     {
         $user = auth()->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json(['items' => [], 'count' => 0]);
         }
 
@@ -50,7 +50,7 @@ class WishlistController extends Controller
             ->get();
 
         return response()->json([
-            'items' => $wishlistItems->map(fn($item) => [
+            'items' => $wishlistItems->map(fn ($item) => [
                 'id' => $item->id,
                 'product' => [
                     'id' => $item->product->id,
@@ -73,8 +73,8 @@ class WishlistController extends Controller
     public function add(Request $request): JsonResponse
     {
         $user = auth()->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
@@ -124,15 +124,15 @@ class WishlistController extends Controller
     public function remove(Request $request, int $id): JsonResponse
     {
         $user = auth()->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
         // Get customer record
         $customer = Customer::where('user_id', $user->id)->first();
-        
-        if (!$customer) {
+
+        if (! $customer) {
             return response()->json(['message' => 'Not found'], 404);
         }
 
@@ -140,7 +140,7 @@ class WishlistController extends Controller
             ->where('id', $id)
             ->first();
 
-        if (!$wishlistItem) {
+        if (! $wishlistItem) {
             return response()->json(['message' => 'Not found'], 404);
         }
 
@@ -155,8 +155,8 @@ class WishlistController extends Controller
     public function moveToCart(Request $request, int $id): JsonResponse
     {
         $user = auth()->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
@@ -167,20 +167,20 @@ class WishlistController extends Controller
             ->with('product.mainImage')
             ->first();
 
-        if (!$wishlistItem) {
+        if (! $wishlistItem) {
             return response()->json(['message' => 'Not found'], 404);
         }
 
         $product = $wishlistItem->product;
 
         // Check if product is in stock
-        if (!($product->in_stock ?? ($product->stock_status === 'in_stock'))) {
+        if (! ($product->in_stock ?? ($product->stock_status === 'in_stock'))) {
             return response()->json(['message' => 'Product is out of stock'], 400);
         }
 
         // Get existing cart from session
         $cart = Session::get('cart', []);
-        
+
         // Check if product already in cart
         $found = false;
         foreach ($cart as &$item) {
@@ -190,9 +190,9 @@ class WishlistController extends Controller
                 break;
             }
         }
-        
+
         // Add new item if not found
-        if (!$found) {
+        if (! $found) {
             $cart[] = [
                 'id' => uniqid('cart_'),
                 'product_id' => $product->id,
@@ -206,7 +206,7 @@ class WishlistController extends Controller
                 'weight' => $product->weight,
             ];
         }
-        
+
         // Save cart to session
         Session::put('cart', $cart);
 

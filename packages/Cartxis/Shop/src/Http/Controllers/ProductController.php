@@ -2,12 +2,15 @@
 
 namespace Cartxis\Shop\Http\Controllers;
 
-use Cartxis\Shop\Services\ProductService;
-use Cartxis\Shop\Services\CategoryService;
 use Cartxis\Core\Services\ThemeViewResolver;
 use Cartxis\Product\Models\Brand;
+use Cartxis\Product\Models\Category;
+use Cartxis\Shop\Services\CategoryService;
+use Cartxis\Shop\Services\ProductService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class ProductController extends Controller
 {
@@ -20,7 +23,7 @@ class ProductController extends Controller
      * @var CategoryService
      */
     protected $categoryService;
-    
+
     /**
      * @var ThemeViewResolver
      */
@@ -28,13 +31,9 @@ class ProductController extends Controller
 
     /**
      * Create a new controller instance.
-     *
-     * @param ProductService $productService
-     * @param CategoryService $categoryService
-     * @param ThemeViewResolver $themeResolver
      */
     public function __construct(
-        ProductService $productService, 
+        ProductService $productService,
         CategoryService $categoryService,
         ThemeViewResolver $themeResolver
     ) {
@@ -46,8 +45,7 @@ class ProductController extends Controller
     /**
      * Display product listing.
      *
-     * @param Request $request
-     * @return \Inertia\Response
+     * @return Response
      */
     public function index(Request $request)
     {
@@ -68,11 +66,11 @@ class ProductController extends Controller
 
         // Get products with filters applied
         $products = $this->productService->getAllProducts($perPage, $sort, $filters);
-        
+
         // Get all categories with actual product count from database
-            $categories = \Cartxis\Product\Models\Category::withCount(['products' => function($query) {
-                $query->where('status', 'enabled');
-            }])
+        $categories = Category::withCount(['products' => function ($query) {
+            $query->where('status', 'enabled');
+        }])
             ->where('status', 'enabled')
             ->orderBy('name')
             ->get()
@@ -84,11 +82,11 @@ class ProductController extends Controller
                     'products_count' => $category->products_count,
                 ];
             });
-        
+
         // Get all brands with product count
-        $brands = Brand::withCount(['products' => function($query) {
-                $query->where('status', 'enabled');
-            }])
+        $brands = Brand::withCount(['products' => function ($query) {
+            $query->where('status', 'enabled');
+        }])
             ->where('status', true)
             ->orderBy('name')
             ->get()
@@ -107,7 +105,7 @@ class ProductController extends Controller
                 ];
             })
             ->values();
-        
+
         return Inertia::render($this->themeResolver->resolve('Products/Index'), [
             'products' => $products,
             'filters' => [
@@ -198,14 +196,14 @@ class ProductController extends Controller
     /**
      * Display product detail page.
      *
-     * @param string $slug
-     * @return \Inertia\Response
+     * @param  string  $slug
+     * @return Response
      */
     public function show($slug)
     {
         $product = $this->productService->getProductBySlug($slug);
 
-        if (!$product) {
+        if (! $product) {
             abort(404, 'Product not found');
         }
 
@@ -213,7 +211,7 @@ class ProductController extends Controller
 
         // Get configurable attributes if product has them
         $configurableAttributes = [];
-        
+
         if ($product->has_configurable_attributes) {
             // Get unique attributes from attributeValues
             $attributes = $product->attributeValues()
@@ -223,7 +221,7 @@ class ProductController extends Controller
                 ->map(function ($values) {
                     $firstValue = $values->first();
                     $attribute = $firstValue->attribute;
-                    
+
                     return [
                         'id' => $attribute->id,
                         'label' => $attribute->name,
@@ -242,7 +240,7 @@ class ProductController extends Controller
                 })
                 ->values()
                 ->toArray();
-            
+
             $configurableAttributes = $attributes;
         }
 
@@ -275,26 +273,26 @@ class ProductController extends Controller
             ],
         ]);
     }
-    
+
     /**
      * Get product data for quick view modal.
      *
-     * @param string $slug
-     * @return \Illuminate\Http\JsonResponse
+     * @param  string  $slug
+     * @return JsonResponse
      */
     public function quickView($slug)
     {
         $product = $this->productService->getProductBySlug($slug);
 
-        if (!$product) {
+        if (! $product) {
             return response()->json([
-                'error' => 'Product not found'
+                'error' => 'Product not found',
             ], 404);
         }
 
         // Get configurable attributes if product has them
         $configurableAttributes = [];
-        
+
         if ($product->has_configurable_attributes) {
             // Get unique attributes from attributeValues
             $attributes = $product->attributeValues()
@@ -304,7 +302,7 @@ class ProductController extends Controller
                 ->map(function ($values) {
                     $firstValue = $values->first();
                     $attribute = $firstValue->attribute;
-                    
+
                     return [
                         'id' => $attribute->id,
                         'name' => $attribute->name,
@@ -320,7 +318,7 @@ class ProductController extends Controller
                 })
                 ->values()
                 ->toArray();
-            
+
             $configurableAttributes = $attributes;
         }
 

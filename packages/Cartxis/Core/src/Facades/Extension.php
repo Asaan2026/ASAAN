@@ -2,9 +2,10 @@
 
 namespace Cartxis\Core\Facades;
 
-use Illuminate\Support\Facades\Facade;
-use Illuminate\Support\Collection;
 use Cartxis\Core\Models\Extension as ExtensionModel;
+use Cartxis\Core\Services\ExtensionService;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Facade;
 
 /**
  * @method static Collection discover()
@@ -16,7 +17,7 @@ use Cartxis\Core\Models\Extension as ExtensionModel;
  * @method static Collection getActive()
  * @method static ExtensionModel updateConfig(string $code, array $config)
  *
- * @see \Cartxis\Core\Services\ExtensionService
+ * @see ExtensionService
  */
 class Extension extends Facade
 {

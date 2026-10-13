@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Cartxis\System\Services;
 
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Str;
 use Cartxis\Settings\Models\Setting;
 use Cartxis\System\Jobs\DisableScheduledMaintenance;
 use Cartxis\System\Jobs\EnableScheduledMaintenance;
 use Cartxis\System\Models\MaintenanceLog;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
 
 class MaintenanceService
 {
@@ -19,7 +19,7 @@ class MaintenanceService
     public function enable(array $data): array
     {
         $secret = $data['secret'] ?? Str::random(32);
-        
+
         // Save settings
         Setting::setMany([
             'system.maintenance_enabled' => true,
@@ -34,7 +34,7 @@ class MaintenanceService
         // Ensure app is not in Laravel global maintenance mode.
         // Frontend-only maintenance is handled by middleware + settings.
         Artisan::call('up');
-        
+
         // Log the action
         MaintenanceLog::create([
             'action' => 'enabled',
@@ -44,32 +44,32 @@ class MaintenanceService
             'admin_name' => auth('admin')->user()?->name ?? 'System',
             'ip_address' => request()->ip(),
         ]);
-        
+
         return [
             'secret' => $secret,
             'bypass_url' => url($secret),
         ];
     }
-    
+
     /**
      * Disable maintenance mode
      */
     public function disable(): void
     {
         Setting::set('system.maintenance_enabled', false);
-        
+
         Artisan::call('up');
-        
+
         // Update log
         $log = MaintenanceLog::where('action', 'enabled')
             ->whereNull('actual_end')
             ->latest()
             ->first();
-            
+
         if ($log) {
             $log->update(['actual_end' => now()]);
         }
-        
+
         // Log the disable action
         MaintenanceLog::create([
             'action' => 'disabled',
@@ -80,7 +80,7 @@ class MaintenanceService
             'ip_address' => request()->ip(),
         ]);
     }
-    
+
     /**
      * Schedule maintenance
      */
@@ -91,7 +91,7 @@ class MaintenanceService
             'system.maintenance_start_time' => $data['start_time'],
             'system.maintenance_end_time' => $data['end_time'],
         ]);
-        
+
         // Log the schedule
         MaintenanceLog::create([
             'action' => 'scheduled',
@@ -102,19 +102,19 @@ class MaintenanceService
             'admin_name' => auth('admin')->user()?->name ?? 'System',
             'ip_address' => request()->ip(),
         ]);
-        
+
         // Schedule jobs
         if (isset($data['start_time'])) {
             EnableScheduledMaintenance::dispatch($data)
                 ->delay($data['start_time']);
         }
-            
+
         if (isset($data['end_time'])) {
             DisableScheduledMaintenance::dispatch()
                 ->delay($data['end_time']);
         }
     }
-    
+
     /**
      * Get current maintenance status
      */
@@ -134,47 +134,47 @@ class MaintenanceService
             'end_time' => Setting::get('system.maintenance_end_time', ''),
         ];
     }
-    
+
     /**
      * Update maintenance settings
      */
     public function updateSettings(array $data): void
     {
         $settings = [];
-        
+
         if (isset($data['title'])) {
             $settings['system.maintenance_title'] = $data['title'];
         }
-        
+
         if (isset($data['message'])) {
             $settings['system.maintenance_message'] = $data['message'];
         }
-        
+
         if (isset($data['retry_after'])) {
             $settings['system.maintenance_retry_after'] = $data['retry_after'];
         }
-        
+
         if (isset($data['allowed_ips'])) {
             $settings['system.maintenance_allowed_ips'] = json_encode($data['allowed_ips']);
         }
-        
+
         if (isset($data['bypass_admin'])) {
             $settings['system.maintenance_bypass_admin'] = $data['bypass_admin'];
         }
-        
+
         if (isset($data['contact_email'])) {
             $settings['system.maintenance_contact_email'] = $data['contact_email'];
         }
-        
+
         if (isset($data['show_eta'])) {
             $settings['system.maintenance_show_eta'] = $data['show_eta'];
         }
-        
+
         if (! empty($settings)) {
             Setting::setMany($settings);
         }
     }
-    
+
     /**
      * Regenerate secret token
      */
@@ -182,10 +182,10 @@ class MaintenanceService
     {
         $secret = Str::random(32);
         Setting::set('system.maintenance_secret', $secret);
-        
+
         return $secret;
     }
-    
+
     /**
      * Get maintenance history
      */
@@ -210,7 +210,7 @@ class MaintenanceService
             })
             ->toArray();
     }
-    
+
     /**
      * Calculate duration between start and end
      */
@@ -219,21 +219,21 @@ class MaintenanceService
         if (! $log->actual_start) {
             return null;
         }
-        
+
         $end = $log->actual_end ?? now();
         $diff = $log->actual_start->diff($end);
-        
+
         $parts = [];
         if ($diff->d > 0) {
-            $parts[] = $diff->d . ' day' . ($diff->d !== 1 ? 's' : '');
+            $parts[] = $diff->d.' day'.($diff->d !== 1 ? 's' : '');
         }
         if ($diff->h > 0) {
-            $parts[] = $diff->h . ' hour' . ($diff->h !== 1 ? 's' : '');
+            $parts[] = $diff->h.' hour'.($diff->h !== 1 ? 's' : '');
         }
         if ($diff->i > 0 && $diff->d === 0) {
-            $parts[] = $diff->i . ' minute' . ($diff->i !== 1 ? 's' : '');
+            $parts[] = $diff->i.' minute'.($diff->i !== 1 ? 's' : '');
         }
-        
+
         return empty($parts) ? '< 1 minute' : implode(' ', $parts);
     }
 }

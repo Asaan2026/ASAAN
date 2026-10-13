@@ -2,12 +2,13 @@
 
 namespace Cartxis\Settings\Http\Controllers\Admin;
 
+use Cartxis\Core\Models\EmailConfiguration;
+use Cartxis\Core\Models\EmailTemplate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\Core\Models\EmailConfiguration;
-use Cartxis\Core\Models\EmailTemplate;
 
 class EmailController
 {
@@ -35,25 +36,25 @@ class EmailController
                 'mail_from_name' => $configuration->mail_from_name,
                 'reply_to_email' => $configuration->reply_to_email,
                 'bcc_email' => $configuration->bcc_email,
-                
+
                 // SMTP
                 'smtp_host' => $configuration->smtp_host,
                 'smtp_port' => $configuration->smtp_port,
                 'smtp_username' => $configuration->smtp_username,
                 'smtp_password_masked' => $configuration->getMaskedPassword(),
                 'smtp_encryption' => $configuration->smtp_encryption,
-                
+
                 // SES
                 'ses_key_masked' => $configuration->getMaskedSesKey(),
                 'ses_secret_masked' => $configuration->getMaskedSesSecret(),
                 'ses_region' => $configuration->ses_region,
-                
+
                 // Postmark
                 'postmark_token_masked' => $configuration->getMaskedPostmarkToken(),
-                
+
                 // Sendmail
                 'sendmail_path' => $configuration->sendmail_path,
-                
+
                 // Testing
                 'last_test_at' => $configuration->last_test_at,
                 'last_test_status' => $configuration->last_test_status,
@@ -85,40 +86,40 @@ class EmailController
         $sesKeyMasked = str_contains($request->ses_key ?? '', '•');
         $sesSecretMasked = str_contains($request->ses_secret ?? '', '•');
         $postmarkTokenMasked = str_contains($request->postmark_token ?? '', '•');
-        
+
         // Check if config already exists to allow switching drivers without re-entering credentials
         $existingConfig = EmailConfiguration::first();
         $hasExistingSesCredentials = $existingConfig && $existingConfig->ses_key && $existingConfig->ses_secret;
         $hasExistingPostmarkToken = $existingConfig && $existingConfig->postmark_token;
-        
+
         $validated = $request->validate([
             'mail_driver' => 'required|in:smtp,ses,postmark,sendmail,log',
             'mail_from_address' => 'required|email',
             'mail_from_name' => 'required|string|max:255',
             'reply_to_email' => 'nullable|email',
             'bcc_email' => 'nullable|email',
-            
+
             // SMTP fields
             'smtp_host' => 'required_if:mail_driver,smtp|nullable|string',
             'smtp_port' => 'required_if:mail_driver,smtp|nullable|integer|between:1,65535',
             'smtp_username' => 'nullable|string',
             'smtp_password' => 'nullable|string',
             'smtp_encryption' => 'nullable|in:tls,ssl,none',
-            
+
             // SES fields - if masked and existing credentials, make nullable; otherwise require for ses driver
-            'ses_key' => ($sesKeyMasked && $hasExistingSesCredentials) 
-                ? 'nullable|string' 
+            'ses_key' => ($sesKeyMasked && $hasExistingSesCredentials)
+                ? 'nullable|string'
                 : 'required_if:mail_driver,ses|nullable|string|min:16',
-            'ses_secret' => ($sesSecretMasked && $hasExistingSesCredentials) 
-                ? 'nullable|string' 
+            'ses_secret' => ($sesSecretMasked && $hasExistingSesCredentials)
+                ? 'nullable|string'
                 : 'required_if:mail_driver,ses|nullable|string|min:20',
             'ses_region' => 'required_if:mail_driver,ses|nullable|string|regex:/^[a-z]{2}-[a-z\-]+-\d{1}$/',
-            
+
             // Postmark fields
-            'postmark_token' => ($postmarkTokenMasked && $hasExistingPostmarkToken) 
-                ? 'nullable|string' 
+            'postmark_token' => ($postmarkTokenMasked && $hasExistingPostmarkToken)
+                ? 'nullable|string'
                 : 'required_if:mail_driver,postmark|nullable|string|min:32',
-            
+
             // Sendmail fields
             'sendmail_path' => 'nullable|string',
         ], [
@@ -148,28 +149,28 @@ class EmailController
             }
         }
 
-        $config = EmailConfiguration::first() ?? new EmailConfiguration();
-        
+        $config = EmailConfiguration::first() ?? new EmailConfiguration;
+
         // Only update password if provided (not masked value)
         if ($request->filled('smtp_password') && $request->smtp_password !== '••••••••') {
             $validated['smtp_password'] = $request->smtp_password;
         } else {
             unset($validated['smtp_password']);
         }
-        
+
         // Only update SES credentials if provided
-        if ($request->filled('ses_key') && !str_contains($request->ses_key, '•')) {
+        if ($request->filled('ses_key') && ! str_contains($request->ses_key, '•')) {
             $validated['ses_key'] = $request->ses_key;
         } else {
             unset($validated['ses_key']);
         }
-        
+
         if ($request->filled('ses_secret') && $request->ses_secret !== '••••••••') {
             $validated['ses_secret'] = $request->ses_secret;
         } else {
             unset($validated['ses_secret']);
         }
-        
+
         // Only update Postmark token if provided
         if ($request->filled('postmark_token') && $request->postmark_token !== '••••••••') {
             $validated['postmark_token'] = $request->postmark_token;
@@ -191,7 +192,7 @@ class EmailController
     {
         $config = EmailConfiguration::first();
 
-        if (!$config) {
+        if (! $config) {
             return Redirect::back()->with('error', 'Please save email configuration first');
         }
 
@@ -199,7 +200,7 @@ class EmailController
             return Redirect::back()->with('success', 'Connection test successful! Email settings are working correctly.');
         }
 
-        return Redirect::back()->with('error', 'Connection test failed: ' . $config->last_test_message);
+        return Redirect::back()->with('error', 'Connection test failed: '.$config->last_test_message);
     }
 
     public function sendTestEmail(Request $request)
@@ -210,20 +211,20 @@ class EmailController
 
         $config = EmailConfiguration::first();
 
-        if (!$config || !$config->is_active) {
+        if (! $config || ! $config->is_active) {
             return Redirect::back()->with('error', 'Email configuration not found or inactive');
         }
 
         try {
-            \Illuminate\Support\Facades\Mail::raw('This is a test email from your Cartxis store.', function ($message) use ($request, $config) {
+            Mail::raw('This is a test email from your Cartxis store.', function ($message) use ($request, $config) {
                 $message->to($request->email)
-                    ->subject('Test Email from ' . $config->mail_from_name)
+                    ->subject('Test Email from '.$config->mail_from_name)
                     ->from($config->mail_from_address, $config->mail_from_name);
             });
 
-            return Redirect::back()->with('success', 'Test email sent successfully to ' . $request->email);
+            return Redirect::back()->with('success', 'Test email sent successfully to '.$request->email);
         } catch (\Exception $e) {
-            return Redirect::back()->with('error', 'Failed to send test email: ' . $e->getMessage());
+            return Redirect::back()->with('error', 'Failed to send test email: '.$e->getMessage());
         }
     }
 
@@ -249,12 +250,13 @@ class EmailController
     public function toggleTemplate(int $id)
     {
         $template = EmailTemplate::findOrFail($id);
-        
+
         $template->update([
-            'is_active' => !$template->is_active,
+            'is_active' => ! $template->is_active,
         ]);
 
         $status = $template->is_active ? 'enabled' : 'disabled';
+
         return Redirect::back()->with('success', "Email template {$status} successfully");
     }
 
@@ -276,7 +278,7 @@ class EmailController
         $sampleData = $template->preview()['html']; // Use preview data
 
         if ($template->send($request->email)) {
-            return Redirect::back()->with('success', 'Test email sent successfully to ' . $request->email);
+            return Redirect::back()->with('success', 'Test email sent successfully to '.$request->email);
         }
 
         return Redirect::back()->with('error', 'Failed to send test email');

@@ -3,7 +3,8 @@
 namespace Cartxis\Shop\Services;
 
 use Cartxis\Shop\Contracts\CategoryRepositoryInterface;
-use Cartxis\Shop\Services\ShopService;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class CategoryService extends ShopService
 {
@@ -14,8 +15,6 @@ class CategoryService extends ShopService
 
     /**
      * Create a new service instance.
-     *
-     * @param CategoryRepositoryInterface $categoryRepository
      */
     public function __construct(CategoryRepositoryInterface $categoryRepository)
     {
@@ -25,8 +24,8 @@ class CategoryService extends ShopService
     /**
      * Get category by slug.
      *
-     * @param string $slug
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @param  string  $slug
+     * @return Model|null
      */
     public function getCategoryBySlug($slug)
     {
@@ -48,8 +47,8 @@ class CategoryService extends ShopService
     /**
      * Get category with products.
      *
-     * @param int $id
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @param  int  $id
+     * @return Model|null
      */
     public function getCategoryWithProducts($id)
     {
@@ -63,7 +62,7 @@ class CategoryService extends ShopService
     /**
      * Get root categories for navigation.
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
     public function getNavigationCategories()
     {
@@ -88,8 +87,8 @@ class CategoryService extends ShopService
     /**
      * Get category children.
      *
-     * @param int $parentId
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @param  int  $parentId
+     * @return Collection
      */
     public function getCategoryChildren($parentId)
     {
@@ -114,7 +113,7 @@ class CategoryService extends ShopService
     /**
      * Get all active categories.
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
     public function getAllCategories()
     {
@@ -139,7 +138,7 @@ class CategoryService extends ShopService
     /**
      * Clear category cache.
      *
-     * @param string|null $slug
+     * @param  string|null  $slug
      * @return void
      */
     public function clearCache($slug = null)

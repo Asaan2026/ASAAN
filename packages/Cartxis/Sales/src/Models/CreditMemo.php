@@ -2,11 +2,11 @@
 
 namespace Cartxis\Sales\Models;
 
+use App\Models\User;
+use Cartxis\Shop\Models\Order;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Cartxis\Shop\Models\Order;
-use App\Models\User;
 
 class CreditMemo extends Model
 {
@@ -170,7 +170,7 @@ class CreditMemo extends Model
      */
     public function canBeDeleted(): bool
     {
-        return $this->isPending() && !$this->isRefunded();
+        return $this->isPending() && ! $this->isRefunded();
     }
 
     /**

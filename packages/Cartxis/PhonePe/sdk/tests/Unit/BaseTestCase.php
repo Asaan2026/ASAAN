@@ -20,12 +20,12 @@ namespace Tests\Unit;
 
 use Mockery;
 use Mockery\MockInterface;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 use PhonePe\common\configs\MerchantConfig;
 use PhonePe\common\tokenHandler\OAuthToken;
 use PhonePe\common\tokenHandler\TokenService;
 use PhonePe\common\utils\HttpResponse;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Tests\Fixtures\TestDataProvider;
 
 /**
@@ -53,7 +53,7 @@ abstract class BaseTestCase extends TestCase
         $config->method('getClientId')->willReturn(TestDataProvider::TEST_CLIENT_ID);
         $config->method('getClientVersion')->willReturn(TestDataProvider::TEST_CLIENT_VERSION);
         $config->method('getClientSecret')->willReturn(TestDataProvider::TEST_CLIENT_SECRET);
-        
+
         return $config;
     }
 
@@ -64,8 +64,8 @@ abstract class BaseTestCase extends TestCase
     {
         $tokenService = $this->createMock(TokenService::class);
         $tokenService->method('getAuthHeaders')
-                    ->willReturn('O-Bearer ' . TestDataProvider::TEST_ACCESS_TOKEN);
-        
+            ->willReturn('O-Bearer '.TestDataProvider::TEST_ACCESS_TOKEN);
+
         return $tokenService;
     }
 
@@ -75,7 +75,7 @@ abstract class BaseTestCase extends TestCase
     protected function createMockOAuthToken(): OAuthToken
     {
         $tokenData = TestDataProvider::getOAuthTokenData();
-        
+
         return new OAuthToken(
             $tokenData['access_token'],
             $tokenData['encrypted_access_token'],
@@ -103,10 +103,10 @@ abstract class BaseTestCase extends TestCase
     {
         $errorData = [
             'message' => $message,
-            'code' => $code ?? 'ERROR_' . $statusCode,
-            'data' => ['context' => 'test_error']
+            'code' => $code ?? 'ERROR_'.$statusCode,
+            'data' => ['context' => 'test_error'],
         ];
-        
+
         return new HttpResponse($statusCode, ['Content-Type' => 'application/json'], json_encode($errorData));
     }
 
@@ -117,7 +117,7 @@ abstract class BaseTestCase extends TestCase
     {
         foreach ($expected as $key => $value) {
             $this->assertArrayHasKey($key, $actual, "Key '$key' not found in actual array");
-            
+
             if (is_array($value)) {
                 $this->assertIsArray($actual[$key], "Key '$key' should be an array");
                 $this->assertArrayStructure($value, $actual[$key]);
@@ -132,7 +132,7 @@ abstract class BaseTestCase extends TestCase
     {
         $decoded = json_decode($json, true);
         $this->assertIsArray($decoded, 'JSON should decode to an array');
-        
+
         foreach ($expected as $key => $value) {
             $this->assertArrayHasKey($key, $decoded);
             $this->assertEquals($value, $decoded[$key]);
@@ -145,13 +145,13 @@ abstract class BaseTestCase extends TestCase
     protected function assertObjectProperties(array $expectedProperties, object $object): void
     {
         foreach ($expectedProperties as $property => $expectedValue) {
-            $getter = 'get' . ucfirst($property);
-            
+            $getter = 'get'.ucfirst($property);
+
             $this->assertTrue(
                 method_exists($object, $getter),
                 "Object should have getter method '$getter'"
             );
-            
+
             $actualValue = $object->$getter();
             $this->assertEquals(
                 $expectedValue,
@@ -166,7 +166,7 @@ abstract class BaseTestCase extends TestCase
      */
     protected function createStaticMock(string $className): MockInterface
     {
-        return Mockery::mock('alias:' . $className);
+        return Mockery::mock('alias:'.$className);
     }
 
     /**
@@ -177,7 +177,7 @@ abstract class BaseTestCase extends TestCase
         $reflection = new \ReflectionClass($object);
         $property = $reflection->getProperty($propertyName);
         $property->setAccessible(true);
-        
+
         return $property->getValue($object);
     }
 
@@ -200,7 +200,7 @@ abstract class BaseTestCase extends TestCase
         $reflection = new \ReflectionClass($object);
         $method = $reflection->getMethod($methodName);
         $method->setAccessible(true);
-        
+
         return $method->invokeArgs($object, $args);
     }
 }

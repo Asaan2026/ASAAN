@@ -4,10 +4,10 @@ namespace Cartxis\Product\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Category extends Model
@@ -51,16 +51,16 @@ class Category extends Model
         if (empty($this->attributes['image'])) {
             return null;
         }
-        
+
         $image = $this->attributes['image'];
-        
+
         // If it's already a full URL, return as is
         if (filter_var($image, FILTER_VALIDATE_URL)) {
             return $image;
         }
-        
+
         // Otherwise, convert storage path to public URL
-        return asset('storage/' . $image);
+        return asset('storage/'.$image);
     }
 
     /**

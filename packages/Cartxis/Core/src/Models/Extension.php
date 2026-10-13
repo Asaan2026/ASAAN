@@ -61,7 +61,7 @@ class Extension extends Model
      */
     public function canActivate(): bool
     {
-        return $this->installed && !$this->active;
+        return $this->installed && ! $this->active;
     }
 
     /**

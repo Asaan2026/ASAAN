@@ -4,13 +4,12 @@ namespace Cartxis\API\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Cartxis\API\Helpers\ApiResponse;
+use Cartxis\API\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
-use Cartxis\API\Helpers\ApiResponse;
-use Cartxis\API\Http\Resources\UserResource;
 
 class AuthController extends Controller
 {
@@ -68,7 +67,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             return ApiResponse::error(
                 'Invalid credentials',
                 null,
@@ -150,7 +149,7 @@ class AuthController extends Controller
 
         $user = $request->user();
 
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->current_password, $user->password)) {
             return ApiResponse::error(
                 'Current password is incorrect',
                 null,
@@ -175,7 +174,7 @@ class AuthController extends Controller
     public function uploadAvatar(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'avatar' => 'required|image|max:' . config('cartxis-api.uploads.avatar.max_size'),
+            'avatar' => 'required|image|max:'.config('cartxis-api.uploads.avatar.max_size'),
         ]);
 
         if ($validator->fails()) {
@@ -214,7 +213,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
+        if (! $user) {
             return ApiResponse::error(
                 'No account found with this email',
                 null,
@@ -280,10 +279,10 @@ class AuthController extends Controller
     public function refreshToken(Request $request)
     {
         $user = $request->user();
-        
+
         // Revoke current token
         $request->user()->currentAccessToken()->delete();
-        
+
         // Create new token
         $token = $user->createToken(
             $request->device_name ?? config('cartxis-api.token.name')
@@ -314,7 +313,7 @@ class AuthController extends Controller
 
         $user = $request->user();
 
-        if (!Hash::check($request->password, $user->password)) {
+        if (! Hash::check($request->password, $user->password)) {
             return ApiResponse::error(
                 'Password is incorrect',
                 null,

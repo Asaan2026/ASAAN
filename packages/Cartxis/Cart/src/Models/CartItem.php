@@ -2,9 +2,9 @@
 
 namespace Cartxis\Cart\Models;
 
+use Cartxis\Product\Models\Product;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Cartxis\Product\Models\Product;
 
 class CartItem extends Model
 {

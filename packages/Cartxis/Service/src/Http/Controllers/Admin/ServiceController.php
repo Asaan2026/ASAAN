@@ -92,7 +92,7 @@ class ServiceController extends Controller
 
         return redirect()
             ->route('admin.services.index')
-            ->with('success', 'Service "' . $service->name . '" created successfully.');
+            ->with('success', 'Service "'.$service->name.'" created successfully.');
     }
 
     public function edit(Service $service): Response
@@ -127,7 +127,7 @@ class ServiceController extends Controller
 
         return redirect()
             ->route('admin.services.index')
-            ->with('success', 'Service "' . $service->name . '" updated successfully.');
+            ->with('success', 'Service "'.$service->name.'" updated successfully.');
     }
 
     public function destroy(Service $service): RedirectResponse
@@ -142,7 +142,7 @@ class ServiceController extends Controller
                 ->route('admin.services.index')
                 ->with(
                     'success',
-                    'Service "' . $service->name . '" has bookings against it, so it was hidden rather than deleted.'
+                    'Service "'.$service->name.'" has bookings against it, so it was hidden rather than deleted.'
                 );
         }
 
@@ -165,7 +165,7 @@ class ServiceController extends Controller
 
         return back()->with(
             'success',
-            count($validated['ids']) . ' service(s) updated successfully.'
+            count($validated['ids']).' service(s) updated successfully.'
         );
     }
 

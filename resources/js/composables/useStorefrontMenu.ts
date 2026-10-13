@@ -1,6 +1,6 @@
-import { ref, onMounted, computed } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
+import { computed, onMounted, ref } from 'vue';
 
 export interface MenuItem {
     id: number;
@@ -25,10 +25,14 @@ const emptyMenus = (): MenuData => ({
 
 export function useStorefrontMenu() {
     const page = usePage();
-    const sharedMenus = computed(() => (page.props as { storefrontMenus?: MenuData }).storefrontMenus);
+    const sharedMenus = computed(
+        () => (page.props as { storefrontMenus?: MenuData }).storefrontMenus,
+    );
 
     const fetchedMenus = ref<MenuData>(emptyMenus());
-    const menus = computed<MenuData>(() => sharedMenus.value ?? fetchedMenus.value);
+    const menus = computed<MenuData>(
+        () => sharedMenus.value ?? fetchedMenus.value,
+    );
     const loading = ref(!sharedMenus.value);
     const error = ref<string | null>(null);
 

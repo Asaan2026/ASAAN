@@ -2,25 +2,26 @@
 
 namespace Cartxis\Sales\Services;
 
+use Cartxis\Core\Models\EmailTemplate;
 use Cartxis\Sales\Models\Shipment;
 use Cartxis\Sales\Models\ShipmentItem;
 use Cartxis\Shop\Models\Order;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Collection;
 use Exception;
-
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class ShipmentService
 {
     /**
      * Get paginated shipments with filters
      */
-    public function getShipments(array $filters = []): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function getShipments(array $filters = []): LengthAwarePaginator
     {
         $query = Shipment::with(['order', 'order.user', 'shipmentItems.orderItem.product']);
 
         // Search filter
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('shipment_number', 'like', "%{$search}%")
@@ -31,18 +32,18 @@ class ShipmentService
                     })
                     ->orWhereHas('order.user', function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%")
-                          ->orWhere('email', 'like', "%{$search}%");
+                            ->orWhere('email', 'like', "%{$search}%");
                     });
             });
         }
 
         // Status filter
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->withStatus($filters['status']);
         }
 
         // Date range filter
-        if (!empty($filters['date_from']) || !empty($filters['date_to'])) {
+        if (! empty($filters['date_from']) || ! empty($filters['date_to'])) {
             $dateFrom = $filters['date_from'] ?? null;
             $dateTo = $filters['date_to'] ?? null;
             $query->dateRange($dateFrom, $dateTo);
@@ -65,12 +66,12 @@ class ShipmentService
 
         try {
             // Validate order can be shipped
-            if (!$order->canBeShipped()) {
+            if (! $order->canBeShipped()) {
                 throw new Exception('This order cannot be shipped');
             }
 
             // Validate items
-            if (empty($data['items']) || !is_array($data['items'])) {
+            if (empty($data['items']) || ! is_array($data['items'])) {
                 throw new Exception('At least one item is required for shipment');
             }
 
@@ -123,30 +124,30 @@ class ShipmentService
         try {
             $shipment = Shipment::findOrFail($shipmentId);
 
-            if (!$shipment->canEdit()) {
+            if (! $shipment->canEdit()) {
                 throw new Exception('This shipment cannot be edited');
             }
 
             // Update basic info
             $updateData = [];
-            
+
             if (isset($data['carrier'])) {
                 $updateData['carrier'] = $data['carrier'];
             }
-            
+
             if (isset($data['tracking_number'])) {
                 $updateData['tracking_number'] = $data['tracking_number'];
             }
-            
+
             if (isset($data['tracking_url'])) {
                 $updateData['tracking_url'] = $data['tracking_url'];
             }
-            
+
             if (isset($data['notes'])) {
                 $updateData['notes'] = $data['notes'];
             }
 
-            if (!empty($updateData)) {
+            if (! empty($updateData)) {
                 $shipment->update($updateData);
             }
 
@@ -163,12 +164,12 @@ class ShipmentService
                     // Validate quantity (excluding current shipment)
                     $order = $shipment->order;
                     $remainingQty = $order->getRemainingQuantityToShip($orderItemId);
-                    
+
                     // Add back the current shipment's quantity for this item
                     $currentShipmentItem = $shipment->shipmentItems()
                         ->where('order_item_id', $orderItemId)
                         ->first();
-                    
+
                     if ($currentShipmentItem) {
                         $remainingQty += $currentShipmentItem->quantity;
                     }
@@ -201,7 +202,7 @@ class ShipmentService
     {
         $shipment = Shipment::findOrFail($shipmentId);
 
-        if (!$shipment->canEdit()) {
+        if (! $shipment->canEdit()) {
             throw new Exception('This shipment cannot be edited');
         }
 
@@ -222,7 +223,7 @@ class ShipmentService
         try {
             $shipment = Shipment::with(['order', 'shipmentItems.orderItem.product'])->findOrFail($shipmentId);
 
-            if (!$shipment->isPending()) {
+            if (! $shipment->isPending()) {
                 throw new Exception('Only pending shipments can be marked as shipped');
             }
 
@@ -256,7 +257,7 @@ class ShipmentService
 
             // Validate status transition
             $validStatuses = array_keys(Shipment::getStatuses());
-            if (!in_array($status, $validStatuses)) {
+            if (! in_array($status, $validStatuses)) {
                 throw new Exception('Invalid shipment status');
             }
 
@@ -273,7 +274,7 @@ class ShipmentService
             $updateData = ['status' => $status];
 
             // Set shipped_at when marking as shipped
-            if ($status === Shipment::STATUS_SHIPPED && !$shipment->shipped_at) {
+            if ($status === Shipment::STATUS_SHIPPED && ! $shipment->shipped_at) {
                 $updateData['shipped_at'] = now();
             }
 
@@ -303,14 +304,14 @@ class ShipmentService
     /**
      * Cancel shipment
      */
-    public function cancel(int $shipmentId, string $reason = null): bool
+    public function cancel(int $shipmentId, ?string $reason = null): bool
     {
         DB::beginTransaction();
 
         try {
             $shipment = Shipment::findOrFail($shipmentId);
 
-            if (!$shipment->canCancel()) {
+            if (! $shipment->canCancel()) {
                 throw new Exception('This shipment cannot be cancelled');
             }
 
@@ -319,9 +320,9 @@ class ShipmentService
             ];
 
             if ($reason) {
-                $updateData['notes'] = $shipment->notes 
-                    ? $shipment->notes . "\n\nCancellation reason: " . $reason
-                    : "Cancellation reason: " . $reason;
+                $updateData['notes'] = $shipment->notes
+                    ? $shipment->notes."\n\nCancellation reason: ".$reason
+                    : 'Cancellation reason: '.$reason;
             }
 
             $shipment->update($updateData);
@@ -368,12 +369,12 @@ class ShipmentService
      */
     protected function sendShipmentShippedEmail(Shipment $shipment): void
     {
-        if (!$shipment->order->customer_email) {
+        if (! $shipment->order->customer_email) {
             return;
         }
 
-        $template = \Cartxis\Core\Models\EmailTemplate::findByCode('shipment_shipped');
-        if (!$template || !$template->is_active) {
+        $template = EmailTemplate::findByCode('shipment_shipped');
+        if (! $template || ! $template->is_active) {
             return;
         }
 
@@ -394,12 +395,12 @@ class ShipmentService
      */
     protected function sendShipmentDeliveredEmail(Shipment $shipment): void
     {
-        if (!$shipment->order->customer_email) {
+        if (! $shipment->order->customer_email) {
             return;
         }
 
-        $template = \Cartxis\Core\Models\EmailTemplate::findByCode('shipment_delivered');
-        if (!$template || !$template->is_active) {
+        $template = EmailTemplate::findByCode('shipment_delivered');
+        if (! $template || ! $template->is_active) {
             return;
         }
 

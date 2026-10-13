@@ -30,7 +30,7 @@ return new class extends Migration
 
     public function up(): void
     {
-        if (!Schema::hasTable('payment_methods') || !Schema::hasColumn('payment_methods', 'type')) {
+        if (! Schema::hasTable('payment_methods') || ! Schema::hasColumn('payment_methods', 'type')) {
             return;
         }
 
@@ -54,7 +54,7 @@ return new class extends Migration
             // with the widened value list.
             DB::statement('ALTER TABLE payment_methods DROP CONSTRAINT IF EXISTS payment_methods_type_check');
 
-            $values = "'" . implode("','", self::VALUES) . "'";
+            $values = "'".implode("','", self::VALUES)."'";
 
             DB::statement(
                 "ALTER TABLE payment_methods ADD CONSTRAINT payment_methods_type_check CHECK (type IN ({$values}))"
@@ -74,7 +74,7 @@ return new class extends Migration
         if ($driver === 'mysql') {
             DB::statement(
                 'ALTER TABLE payment_methods MODIFY COLUMN type ENUM('
-                . "'" . implode("','", self::VALUES) . "') DEFAULT 'cod'"
+                ."'".implode("','", self::VALUES)."') DEFAULT 'cod'"
             );
 
             return;

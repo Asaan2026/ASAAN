@@ -1,22 +1,21 @@
 <?php
 
+use Cartxis\Core\Support\StoreCountry;
+
 /**
  * Global hook helper functions
  *
  * WordPress-style action/filter wrappers that delegate to the HookService singleton.
  * These are auto-loaded via composer.json so they're available everywhere,
  * including theme hooks.php files.
- *
- * @package Cartxis\Core\Helpers
  */
-
-if (!function_exists('add_action')) {
+if (! function_exists('add_action')) {
     /**
      * Register an action hook.
      *
-     * @param string   $hook     The hook name
-     * @param callable $callback The callback to execute
-     * @param int      $priority Execution priority (lower = earlier)
+     * @param  string  $hook  The hook name
+     * @param  callable  $callback  The callback to execute
+     * @param  int  $priority  Execution priority (lower = earlier)
      */
     function add_action(string $hook, callable $callback, int $priority = 10): void
     {
@@ -24,12 +23,12 @@ if (!function_exists('add_action')) {
     }
 }
 
-if (!function_exists('do_action')) {
+if (! function_exists('do_action')) {
     /**
      * Execute all callbacks registered for an action hook.
      *
-     * @param string $hook The hook name
-     * @param mixed  ...$args Arguments passed to callbacks
+     * @param  string  $hook  The hook name
+     * @param  mixed  ...$args  Arguments passed to callbacks
      */
     function do_action(string $hook, ...$args): void
     {
@@ -37,13 +36,13 @@ if (!function_exists('do_action')) {
     }
 }
 
-if (!function_exists('add_filter')) {
+if (! function_exists('add_filter')) {
     /**
      * Register a filter hook.
      *
-     * @param string   $hook     The hook name
-     * @param callable $callback The callback to execute
-     * @param int      $priority Execution priority (lower = earlier)
+     * @param  string  $hook  The hook name
+     * @param  callable  $callback  The callback to execute
+     * @param  int  $priority  Execution priority (lower = earlier)
      */
     function add_filter(string $hook, callable $callback, int $priority = 10): void
     {
@@ -51,13 +50,13 @@ if (!function_exists('add_filter')) {
     }
 }
 
-if (!function_exists('apply_filters')) {
+if (! function_exists('apply_filters')) {
     /**
      * Apply all callbacks registered for a filter hook.
      *
-     * @param string $hook  The hook name
-     * @param mixed  $value The value to filter
-     * @param mixed  ...$args Additional arguments passed to callbacks
+     * @param  string  $hook  The hook name
+     * @param  mixed  $value  The value to filter
+     * @param  mixed  ...$args  Additional arguments passed to callbacks
      * @return mixed The filtered value
      */
     function apply_filters(string $hook, mixed $value, ...$args): mixed
@@ -66,12 +65,11 @@ if (!function_exists('apply_filters')) {
     }
 }
 
-if (!function_exists('has_action')) {
+if (! function_exists('has_action')) {
     /**
      * Check if an action hook has any registered callbacks.
      *
-     * @param string $hook The hook name
-     * @return bool
+     * @param  string  $hook  The hook name
      */
     function has_action(string $hook): bool
     {
@@ -79,12 +77,11 @@ if (!function_exists('has_action')) {
     }
 }
 
-if (!function_exists('has_filter')) {
+if (! function_exists('has_filter')) {
     /**
      * Check if a filter hook has any registered callbacks.
      *
-     * @param string $hook The hook name
-     * @return bool
+     * @param  string  $hook  The hook name
      */
     function has_filter(string $hook): bool
     {
@@ -92,19 +89,18 @@ if (!function_exists('has_filter')) {
     }
 }
 
-if (!function_exists('theme_setting')) {
+if (! function_exists('theme_setting')) {
     /**
      * Get a setting value for the active theme.
      *
-     * @param string $key     Dot-notation setting key (e.g., 'layout.products_per_row')
-     * @param mixed  $default Default value if setting not found
-     * @return mixed
+     * @param  string  $key  Dot-notation setting key (e.g., 'layout.products_per_row')
+     * @param  mixed  $default  Default value if setting not found
      */
     function theme_setting(string $key, mixed $default = null): mixed
     {
         $theme = app('cartxis.theme')->active();
 
-        if (!$theme) {
+        if (! $theme) {
             return $default;
         }
 
@@ -116,7 +112,7 @@ if (!function_exists('theme_setting')) {
     }
 }
 
-if (!function_exists('store_country_code')) {
+if (! function_exists('store_country_code')) {
     /**
      * Get the store country code (ISO 3166-1 alpha-2).
      *
@@ -124,21 +120,21 @@ if (!function_exists('store_country_code')) {
      */
     function store_country_code(): string
     {
-        return \Cartxis\Core\Support\StoreCountry::code();
+        return StoreCountry::code();
     }
 }
 
-if (!function_exists('store_country_name')) {
+if (! function_exists('store_country_name')) {
     /**
      * Get the store country name.
      */
     function store_country_name(): string
     {
-        return \Cartxis\Core\Support\StoreCountry::name();
+        return StoreCountry::name();
     }
 }
 
-if (!function_exists('store_country')) {
+if (! function_exists('store_country')) {
     /**
      * Get the store country (alias for the country name).
      */

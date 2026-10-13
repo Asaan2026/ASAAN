@@ -2,9 +2,10 @@
 
 namespace Cartxis\Core\Facades;
 
-use Illuminate\Support\Facades\Facade;
-use Illuminate\Support\Collection;
 use Cartxis\Core\Models\MenuItem;
+use Cartxis\Core\Services\MenuService;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Facade;
 
 /**
  * @method static Collection buildTree(string $location = 'admin')
@@ -17,7 +18,7 @@ use Cartxis\Core\Models\MenuItem;
  * @method static void reorder(array $items)
  * @method static Collection getFlatList(string $location = 'admin')
  *
- * @see \Cartxis\Core\Services\MenuService
+ * @see MenuService
  */
 class Menu extends Facade
 {

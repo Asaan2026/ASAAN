@@ -1,37 +1,32 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { router, Head } from '@inertiajs/vue3';
-import AdminLayout from '@/layouts/AdminLayout.vue';
 import DatePicker from '@/components/Calendar/DatePicker.vue';
 import { useCurrency } from '@/composables/useCurrency';
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import { useI18nStore } from '@/Stores/i18n';
-import { 
-    Calendar, 
-    Filter, 
-    Download, 
-    RefreshCw, 
-    AlertTriangle, 
-    Package, 
-    BarChart2, 
-    ShoppingCart,
-    DollarSign,
-    Box,
-    ChevronDown 
-} from 'lucide-vue-next';
-import { Bar, Doughnut, Line } from 'vue-chartjs';
+import { Head, router } from '@inertiajs/vue3';
 import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
+    ArcElement,
     BarElement,
+    CategoryScale,
+    Chart as ChartJS,
+    Filler,
+    Legend,
+    LinearScale,
+    LineElement,
+    PointElement,
     Title,
     Tooltip,
-    Legend,
-    ArcElement,
-    Filler
 } from 'chart.js';
+import {
+    AlertTriangle,
+    BarChart2,
+    Box,
+    DollarSign,
+    Download,
+    RefreshCw,
+} from 'lucide-vue-next';
+import { ref } from 'vue';
+import { Bar, Doughnut, Line } from 'vue-chartjs';
 
 // Register Chart.js components
 ChartJS.register(
@@ -44,7 +39,7 @@ ChartJS.register(
     Tooltip,
     Legend,
     ArcElement,
-    Filler
+    Filler,
 );
 
 interface Statistics {
@@ -116,15 +111,19 @@ const lowStockThreshold = ref(props.filters.low_stock_threshold);
 
 // Apply filters
 const applyFilters = () => {
-    router.get('/admin/reports/products', {
-        start_date: startDate.value,
-        end_date: endDate.value,
-        category_id: categoryFilter.value || undefined,
-        low_stock_threshold: lowStockThreshold.value,
-    }, {
-        preserveState: true,
-        preserveScroll: true,
-    });
+    router.get(
+        '/admin/reports/products',
+        {
+            start_date: startDate.value,
+            end_date: endDate.value,
+            category_id: categoryFilter.value || undefined,
+            low_stock_threshold: lowStockThreshold.value,
+        },
+        {
+            preserveState: true,
+            preserveScroll: true,
+        },
+    );
 };
 
 // Clear filters
@@ -148,8 +147,8 @@ const barChartOptions = {
             callbacks: {
                 label: (context: any) =>
                     t('Sold: {count} units', { count: context.parsed.y }),
-            }
-        }
+            },
+        },
     },
     scales: {
         x: {
@@ -183,9 +182,9 @@ const doughnutChartOptions = {
                         label,
                         value: formatPrice(value),
                     });
-                }
-            }
-        }
+                },
+            },
+        },
     },
 };
 
@@ -231,21 +230,33 @@ const formatNumber = (num: number): string => {
     <AdminLayout :title="$t('Product Reports')">
         <div class="space-y-6">
             <!-- Header -->
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div
+                class="flex flex-col justify-between gap-4 md:flex-row md:items-center"
+            >
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">{{ $t('Product Reports') }}</h1>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        {{ $t('Track product performance, inventory, and sales trends') }}
+                    <h1
+                        class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+                    >
+                        {{ $t('Product Reports') }}
+                    </h1>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        {{
+                            $t(
+                                'Track product performance, inventory, and sales trends',
+                            )
+                        }}
                     </p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <button class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
+                    <button
+                        class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                    >
                         <Download :size="16" />
                         {{ $t('Export Report') }}
                     </button>
-                    <button 
+                    <button
                         @click="router.reload()"
-                        class="p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm"
+                        class="rounded-lg border border-gray-200 bg-white p-2 text-gray-500 shadow-sm transition-colors hover:bg-gray-50 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-gray-300"
                         :title="$t('Refresh')"
                     >
                         <RefreshCw :size="18" />
@@ -254,36 +265,50 @@ const formatNumber = (num: number): string => {
             </div>
 
             <!-- Filters Bar -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-5">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div
+                class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+            >
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
                     <!-- Start Date -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">{{ $t('Start Date') }}</label>
+                        <label
+                            class="mb-1.5 block text-xs font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                            >{{ $t('Start Date') }}</label
+                        >
                         <DatePicker
                             v-model="startDate"
-                            class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors"
+                            class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-600 dark:bg-gray-700/50"
                         />
                     </div>
 
                     <!-- End Date -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">{{ $t('End Date') }}</label>
+                        <label
+                            class="mb-1.5 block text-xs font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                            >{{ $t('End Date') }}</label
+                        >
                         <DatePicker
                             v-model="endDate"
-                            class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors"
+                            class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-600 dark:bg-gray-700/50"
                         />
                     </div>
 
                     <!-- Low Stock Threshold -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">{{ $t('Low Stock Limit') }}</label>
+                        <label
+                            class="mb-1.5 block text-xs font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                            >{{ $t('Low Stock Limit') }}</label
+                        >
                         <div class="relative">
-                            <AlertTriangle :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                            <AlertTriangle
+                                :size="16"
+                                class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-gray-400"
+                            />
                             <input
                                 v-model.number="lowStockThreshold"
                                 type="number"
                                 min="1"
-                                class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors"
+                                class="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pr-4 pl-10 text-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-600 dark:bg-gray-700/50"
                             />
                         </div>
                     </div>
@@ -292,14 +317,14 @@ const formatNumber = (num: number): string => {
                     <div class="flex items-end gap-2">
                         <button
                             @click="applyFilters"
-                            class="flex-1 px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-500/20 transition-all shadow-sm shadow-blue-600/20"
+                            class="flex-1 rounded-lg bg-blue-600 px-4 py-2.5 font-medium text-white shadow-sm shadow-blue-600/20 transition-all hover:bg-blue-700 focus:ring-4 focus:ring-blue-500/20"
                         >
                             {{ $t('Apply Filters') }}
                         </button>
                         <button
                             v-if="startDate || endDate || categoryFilter"
                             @click="clearFilters"
-                            class="px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                            class="rounded-lg px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
                         >
                             {{ $t('Clear') }}
                         </button>
@@ -307,192 +332,343 @@ const formatNumber = (num: number): string => {
                 </div>
             </div>
 
-        <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Products Sold -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-5 transition-all hover:shadow-md">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">{{ $t('Quantity Sold') }}</p>
-                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
-                            {{ formatNumber(statistics.total_quantity_sold) }}
-                        </h3>
-                        <p class="text-xs text-gray-400 mt-2.5">{{ $t('Units sold in period') }}</p>
+            <!-- Statistics Cards -->
+            <div
+                class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4"
+            >
+                <!-- Total Products Sold -->
+                <div
+                    class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800"
+                >
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p
+                                class="mb-1 text-xs font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                            >
+                                {{ $t('Quantity Sold') }}
+                            </p>
+                            <h3
+                                class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+                            >
+                                {{
+                                    formatNumber(statistics.total_quantity_sold)
+                                }}
+                            </h3>
+                            <p class="mt-2.5 text-xs text-gray-400">
+                                {{ $t('Units sold in period') }}
+                            </p>
+                        </div>
+                        <div
+                            class="rounded-xl bg-blue-50 p-3 dark:bg-blue-900/20"
+                        >
+                            <Box
+                                :size="22"
+                                class="text-blue-600 dark:text-blue-400"
+                            />
+                        </div>
                     </div>
-                    <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-                        <Box :size="22" class="text-blue-600 dark:text-blue-400" />
+                </div>
+
+                <!-- Total Revenue -->
+                <div
+                    class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800"
+                >
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p
+                                class="mb-1 text-xs font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                            >
+                                {{ $t('Total Revenue') }}
+                            </p>
+                            <h3
+                                class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+                            >
+                                {{ formatCurrency(statistics.total_revenue) }}
+                            </h3>
+                            <p class="mt-2.5 text-xs text-gray-400">
+                                {{ $t('Revenue generated') }}
+                            </p>
+                        </div>
+                        <div
+                            class="rounded-xl bg-green-50 p-3 dark:bg-green-900/20"
+                        >
+                            <DollarSign
+                                :size="22"
+                                class="text-green-600 dark:text-green-400"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Low Stock Alert -->
+                <div
+                    class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800"
+                >
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p
+                                class="mb-1 text-xs font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                            >
+                                {{ $t('Low Stock') }}
+                            </p>
+                            <h3
+                                class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+                            >
+                                {{ statistics.low_stock_count }}
+                            </h3>
+                            <p class="mt-2.5 text-xs text-gray-400">
+                                {{ $t('Products running low') }}
+                            </p>
+                        </div>
+                        <div
+                            class="rounded-xl bg-yellow-50 p-3 dark:bg-yellow-900/20"
+                        >
+                            <AlertTriangle
+                                :size="22"
+                                class="text-yellow-600 dark:text-yellow-400"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Out of Stock -->
+                <div
+                    class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800"
+                >
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p
+                                class="mb-1 text-xs font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                            >
+                                {{ $t('Out of Stock') }}
+                            </p>
+                            <h3
+                                class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+                            >
+                                {{ statistics.out_of_stock_count }}
+                            </h3>
+                            <p class="mt-2.5 text-xs text-gray-400">
+                                {{ $t('Products unavailable') }}
+                            </p>
+                        </div>
+                        <div
+                            class="rounded-xl bg-red-50 p-3 dark:bg-red-900/20"
+                        >
+                            <BarChart2
+                                :size="22"
+                                class="text-red-600 dark:text-red-400"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Total Revenue -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-5 transition-all hover:shadow-md">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">{{ $t('Total Revenue') }}</p>
-                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
-                            {{ formatCurrency(statistics.total_revenue) }}
-                        </h3>
-                        <p class="text-xs text-gray-400 mt-2.5">{{ $t('Revenue generated') }}</p>
-                    </div>
-                    <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-xl">
-                        <DollarSign :size="22" class="text-green-600 dark:text-green-400" />
-                    </div>
-                </div>
-            </div>
-
-            <!-- Low Stock Alert -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-5 transition-all hover:shadow-md">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">{{ $t('Low Stock') }}</p>
-                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
-                            {{ statistics.low_stock_count }}
-                        </h3>
-                        <p class="text-xs text-gray-400 mt-2.5">{{ $t('Products running low') }}</p>
-                    </div>
-                    <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl">
-                        <AlertTriangle :size="22" class="text-yellow-600 dark:text-yellow-400" />
+            <!-- Charts Row -->
+            <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <!-- Best Sellers Chart -->
+                <div
+                    class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                >
+                    <h2
+                        class="mb-6 text-base font-semibold text-gray-900 dark:text-white"
+                    >
+                        {{ $t('Top 10 Best Sellers') }}
+                    </h2>
+                    <div class="relative h-80 w-full">
+                        <Bar
+                            :data="bestSellersChart"
+                            :options="barChartOptions"
+                        />
                     </div>
                 </div>
-            </div>
 
-            <!-- Out of Stock -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-5 transition-all hover:shadow-md">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">{{ $t('Out of Stock') }}</p>
-                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
-                            {{ statistics.out_of_stock_count }}
-                        </h3>
-                        <p class="text-xs text-gray-400 mt-2.5">{{ $t('Products unavailable') }}</p>
-                    </div>
-                    <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-xl">
-                        <BarChart2 :size="22" class="text-red-600 dark:text-red-400" />
+                <!-- Category Performance -->
+                <div
+                    class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                >
+                    <h2
+                        class="mb-6 text-base font-semibold text-gray-900 dark:text-white"
+                    >
+                        {{ $t('Revenue by Category') }}
+                    </h2>
+                    <div class="relative flex h-80 w-full justify-center">
+                        <Doughnut
+                            :data="categoryChart"
+                            :options="doughnutChartOptions"
+                        />
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Charts Row -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <!-- Best Sellers Chart -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-5">
-                <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-6">{{ $t('Top 10 Best Sellers') }}</h2>
-                <div class="relative w-full h-80">
-                    <Bar :data="bestSellersChart" :options="barChartOptions" />
+            <!-- Sales Trend Chart -->
+            <div
+                class="mb-6 rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+            >
+                <h2
+                    class="mb-6 text-base font-semibold text-gray-900 dark:text-white"
+                >
+                    {{ $t('Sales Trend') }}
+                </h2>
+                <div class="relative h-80 w-full">
+                    <Line :data="salesTrendChart" :options="lineChartOptions" />
                 </div>
             </div>
 
-            <!-- Category Performance -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-5">
-                <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-6">{{ $t('Revenue by Category') }}</h2>
-                <div class="relative w-full h-80 flex justify-center">
-                    <Doughnut :data="categoryChart" :options="doughnutChartOptions" />
+            <!-- Tables Row -->
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <!-- Low Stock Products -->
+                <div
+                    class="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                >
+                    <div
+                        class="border-b border-gray-100 bg-gray-50/50 px-5 py-4 dark:border-gray-700 dark:bg-gray-700/20"
+                    >
+                        <h2
+                            class="text-base font-semibold text-gray-900 dark:text-white"
+                        >
+                            {{ $t('Low Stock Products') }}
+                        </h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table
+                            class="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
+                        >
+                            <thead class="bg-gray-50 dark:bg-gray-800">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                    >
+                                        {{ $t('Product') }}
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                    >
+                                        {{ $t('SKU') }}
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                    >
+                                        {{ $t('Quantity') }}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody
+                                class="divide-y divide-gray-100 dark:divide-gray-700"
+                            >
+                                <tr
+                                    v-for="product in lowStock"
+                                    :key="product.id"
+                                    class="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                                >
+                                    <td
+                                        class="px-6 py-3.5 text-sm font-medium whitespace-nowrap text-gray-900 dark:text-white"
+                                    >
+                                        {{ product.name }}
+                                    </td>
+                                    <td
+                                        class="px-6 py-3.5 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400"
+                                    >
+                                        {{ product.sku }}
+                                    </td>
+                                    <td class="px-6 py-3.5 whitespace-nowrap">
+                                        <span
+                                            class="inline-flex rounded-full border border-yellow-200 bg-yellow-100 px-2.5 py-0.5 text-xs font-semibold text-yellow-800 dark:border-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300"
+                                        >
+                                            {{ product.quantity }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr v-if="lowStock.length === 0">
+                                    <td
+                                        colspan="3"
+                                        class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400"
+                                    >
+                                        {{ $t('No low stock products') }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Sales Trend Chart -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-5 mb-6">
-            <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-6">{{ $t('Sales Trend') }}</h2>
-            <div class="relative w-full h-80">
-                <Line :data="salesTrendChart" :options="lineChartOptions" />
-            </div>
-        </div>
-
-        <!-- Tables Row -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Low Stock Products -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
-                <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-700/20">
-                    <h2 class="text-base font-semibold text-gray-900 dark:text-white">{{ $t('Low Stock Products') }}</h2>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-800">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                    {{ $t('Product') }}
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                    {{ $t('SKU') }}
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                    {{ $t('Quantity') }}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                            <tr v-for="product in lowStock" :key="product.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                                <td class="px-6 py-3.5 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                    {{ product.name }}
-                                </td>
-                                <td class="px-6 py-3.5 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    {{ product.sku }}
-                                </td>
-                                <td class="px-6 py-3.5 whitespace-nowrap">
-                                    <span class="px-2.5 py-0.5 inline-flex text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800">
-                                        {{ product.quantity }}
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr v-if="lowStock.length === 0">
-                                <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                                    {{ $t('No low stock products') }}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Slow Moving Products -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
-                <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-700/20">
-                    <h2 class="text-base font-semibold text-gray-900 dark:text-white">{{ $t('Slow Moving Products') }}</h2>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-800">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                    {{ $t('Product') }}
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                    {{ $t('SKU') }}
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                    {{ $t('Sold') }}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                            <tr v-for="product in slowMoving" :key="product.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                                <td class="px-6 py-3.5 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                    {{ product.name }}
-                                </td>
-                                <td class="px-6 py-3.5 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    {{ product.sku }}
-                                </td>
-                                <td class="px-6 py-3.5 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    {{
-                                        $t('{count} units', {
-                                            count: product.sold_quantity || 0,
-                                        })
-                                    }}
-                                </td>
-                            </tr>
-                            <tr v-if="slowMoving.length === 0">
-                                <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                                    {{ $t('No slow moving products') }}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- Slow Moving Products -->
+                <div
+                    class="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                >
+                    <div
+                        class="border-b border-gray-100 bg-gray-50/50 px-5 py-4 dark:border-gray-700 dark:bg-gray-700/20"
+                    >
+                        <h2
+                            class="text-base font-semibold text-gray-900 dark:text-white"
+                        >
+                            {{ $t('Slow Moving Products') }}
+                        </h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table
+                            class="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
+                        >
+                            <thead class="bg-gray-50 dark:bg-gray-800">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                    >
+                                        {{ $t('Product') }}
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                    >
+                                        {{ $t('SKU') }}
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                    >
+                                        {{ $t('Sold') }}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody
+                                class="divide-y divide-gray-100 dark:divide-gray-700"
+                            >
+                                <tr
+                                    v-for="product in slowMoving"
+                                    :key="product.id"
+                                    class="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                                >
+                                    <td
+                                        class="px-6 py-3.5 text-sm font-medium whitespace-nowrap text-gray-900 dark:text-white"
+                                    >
+                                        {{ product.name }}
+                                    </td>
+                                    <td
+                                        class="px-6 py-3.5 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400"
+                                    >
+                                        {{ product.sku }}
+                                    </td>
+                                    <td
+                                        class="px-6 py-3.5 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400"
+                                    >
+                                        {{
+                                            $t('{count} units', {
+                                                count:
+                                                    product.sold_quantity || 0,
+                                            })
+                                        }}
+                                    </td>
+                                </tr>
+                                <tr v-if="slowMoving.length === 0">
+                                    <td
+                                        colspan="3"
+                                        class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400"
+                                    >
+                                        {{ $t('No slow moving products') }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
         </div>
     </AdminLayout>
 </template>

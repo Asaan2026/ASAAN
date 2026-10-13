@@ -2,9 +2,9 @@
 
 namespace Cartxis\Product\Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class AttributeSeeder extends Seeder
 {
@@ -214,7 +214,7 @@ class AttributeSeeder extends Seeder
             ]);
 
             // Insert options if any
-            if (!empty($options)) {
+            if (! empty($options)) {
                 $optionsToInsert = array_map(function ($option) use ($attributeId, $now) {
                     return [
                         'attribute_id' => $attributeId,
@@ -231,6 +231,6 @@ class AttributeSeeder extends Seeder
             }
         }
 
-        $this->command->info('✓ Created ' . count($attributes) . ' attributes with their options');
+        $this->command->info('✓ Created '.count($attributes).' attributes with their options');
     }
 }

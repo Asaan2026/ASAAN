@@ -147,7 +147,7 @@ final class SolarHijriDocument
      * and the rest another.
      *
      * @param  array<string, DateTimeInterface|string|int|null>  $dates  label => date
-     * @return array<string, string>                            label => printed date
+     * @return array<string, string> label => printed date
      */
     public static function dates(array $dates, ?string $locale = null): array
     {

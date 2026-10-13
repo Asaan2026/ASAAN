@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Cartxis\CMS\Services;
 
-use Illuminate\Support\Str;
 use Cartxis\CMS\Models\Block;
+use Illuminate\Support\Str;
 
 class BlockService
 {
@@ -28,7 +28,7 @@ class BlockService
     public function update(Block $block, array $data): Block
     {
         $block->update($data);
-        
+
         return $block->fresh();
     }
 
@@ -42,7 +42,7 @@ class BlockService
         // Remove any leading or trailing hyphens
         $identifier = trim($identifier, '-');
 
-        if (!$this->identifierExists($identifier, $excludeId)) {
+        if (! $this->identifierExists($identifier, $excludeId)) {
             return $identifier;
         }
 
@@ -51,7 +51,7 @@ class BlockService
         $newIdentifier = $identifier;
 
         while ($this->identifierExists($newIdentifier, $excludeId)) {
-            $newIdentifier = $identifier . '-' . $counter;
+            $newIdentifier = $identifier.'-'.$counter;
             $counter++;
         }
 
@@ -93,7 +93,7 @@ class BlockService
      */
     public function renderBlock(Block $block): string
     {
-        if (!$block->isVisible()) {
+        if (! $block->isVisible()) {
             return '';
         }
 
@@ -112,7 +112,7 @@ class BlockService
      */
     protected function renderTextBlock(Block $block): string
     {
-        return '<div class="text-block">' . e($block->content) . '</div>';
+        return '<div class="text-block">'.e($block->content).'</div>';
     }
 
     /**
@@ -120,7 +120,7 @@ class BlockService
      */
     protected function renderHtmlBlock(Block $block): string
     {
-        return '<div class="html-block">' . $block->content . '</div>';
+        return '<div class="html-block">'.$block->content.'</div>';
     }
 
     /**
@@ -129,31 +129,31 @@ class BlockService
     protected function renderBannerBlock(Block $block): string
     {
         $data = $block->content_array;
-        
-        if (!$data) {
+
+        if (! $data) {
             return '';
         }
 
         $html = '<div class="banner-block">';
-        
-        if (!empty($data['image'])) {
-            $html .= '<img src="' . e($data['image']) . '" alt="' . e($data['alt'] ?? $block->title) . '">';
+
+        if (! empty($data['image'])) {
+            $html .= '<img src="'.e($data['image']).'" alt="'.e($data['alt'] ?? $block->title).'">';
         }
-        
-        if (!empty($data['title'])) {
-            $html .= '<h2>' . e($data['title']) . '</h2>';
+
+        if (! empty($data['title'])) {
+            $html .= '<h2>'.e($data['title']).'</h2>';
         }
-        
-        if (!empty($data['description'])) {
-            $html .= '<p>' . e($data['description']) . '</p>';
+
+        if (! empty($data['description'])) {
+            $html .= '<p>'.e($data['description']).'</p>';
         }
-        
-        if (!empty($data['cta_text']) && !empty($data['cta_url'])) {
-            $html .= '<a href="' . e($data['cta_url']) . '" class="btn">' . e($data['cta_text']) . '</a>';
+
+        if (! empty($data['cta_text']) && ! empty($data['cta_url'])) {
+            $html .= '<a href="'.e($data['cta_url']).'" class="btn">'.e($data['cta_text']).'</a>';
         }
-        
+
         $html .= '</div>';
-        
+
         return $html;
     }
 
@@ -163,31 +163,31 @@ class BlockService
     protected function renderPromotionBlock(Block $block): string
     {
         $data = $block->content_array;
-        
-        if (!$data) {
+
+        if (! $data) {
             return '';
         }
 
         $html = '<div class="promotion-block">';
-        
-        if (!empty($data['heading'])) {
-            $html .= '<h3>' . e($data['heading']) . '</h3>';
+
+        if (! empty($data['heading'])) {
+            $html .= '<h3>'.e($data['heading']).'</h3>';
         }
-        
-        if (!empty($data['discount'])) {
-            $html .= '<div class="discount">' . e($data['discount']) . '</div>';
+
+        if (! empty($data['discount'])) {
+            $html .= '<div class="discount">'.e($data['discount']).'</div>';
         }
-        
-        if (!empty($data['description'])) {
-            $html .= '<p>' . e($data['description']) . '</p>';
+
+        if (! empty($data['description'])) {
+            $html .= '<p>'.e($data['description']).'</p>';
         }
-        
-        if (!empty($data['code'])) {
-            $html .= '<div class="promo-code">Code: <strong>' . e($data['code']) . '</strong></div>';
+
+        if (! empty($data['code'])) {
+            $html .= '<div class="promo-code">Code: <strong>'.e($data['code']).'</strong></div>';
         }
-        
+
         $html .= '</div>';
-        
+
         return $html;
     }
 
@@ -197,28 +197,28 @@ class BlockService
     protected function renderNewsletterBlock(Block $block): string
     {
         $data = $block->content_array;
-        
-        if (!$data) {
+
+        if (! $data) {
             return '';
         }
 
         $html = '<div class="newsletter-block">';
-        
-        if (!empty($data['heading'])) {
-            $html .= '<h3>' . e($data['heading']) . '</h3>';
+
+        if (! empty($data['heading'])) {
+            $html .= '<h3>'.e($data['heading']).'</h3>';
         }
-        
-        if (!empty($data['description'])) {
-            $html .= '<p>' . e($data['description']) . '</p>';
+
+        if (! empty($data['description'])) {
+            $html .= '<p>'.e($data['description']).'</p>';
         }
-        
-        $html .= '<form action="' . e($data['action'] ?? '/newsletter/subscribe') . '" method="POST">';
+
+        $html .= '<form action="'.e($data['action'] ?? '/newsletter/subscribe').'" method="POST">';
         $html .= csrf_field();
-        $html .= '<input type="email" name="email" placeholder="' . e($data['placeholder'] ?? 'Enter your email') . '" required>';
-        $html .= '<button type="submit">' . e($data['button_text'] ?? 'Subscribe') . '</button>';
+        $html .= '<input type="email" name="email" placeholder="'.e($data['placeholder'] ?? 'Enter your email').'" required>';
+        $html .= '<button type="submit">'.e($data['button_text'] ?? 'Subscribe').'</button>';
         $html .= '</form>';
         $html .= '</div>';
-        
+
         return $html;
     }
 }

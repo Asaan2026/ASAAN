@@ -2,9 +2,9 @@
 
 namespace Cartxis\Core\Console\Commands;
 
-use Illuminate\Console\Command;
 use Cartxis\Core\Models\Extension;
 use Cartxis\Core\Services\ExtensionService;
+use Illuminate\Console\Command;
 
 class ExtensionsListCommand extends Command
 {
@@ -45,6 +45,7 @@ class ExtensionsListCommand extends Command
 
         if ($rows->isEmpty()) {
             $this->info('No extensions discovered.');
+
             return self::SUCCESS;
         }
 

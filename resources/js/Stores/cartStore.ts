@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
 export interface CartItem {
     id: string;
@@ -33,7 +32,10 @@ export const useCartStore = defineStore('cart', () => {
     });
 
     const subtotal = computed(() => {
-        return items.value.reduce((total, item) => total + (item.price * item.quantity), 0);
+        return items.value.reduce(
+            (total, item) => total + item.price * item.quantity,
+            0,
+        );
     });
 
     const isEmpty = computed(() => items.value.length === 0);
@@ -56,7 +58,7 @@ export const useCartStore = defineStore('cart', () => {
         try {
             const response = await fetch('/api/cart', {
                 headers: {
-                    'Accept': 'application/json',
+                    Accept: 'application/json',
                 },
             });
 
@@ -79,7 +81,7 @@ export const useCartStore = defineStore('cart', () => {
     const addToCart = async (
         productId: number,
         quantity: number = 1,
-        attributes?: Record<number, number>
+        attributes?: Record<number, number>,
     ) => {
         loading.value = true;
         error.value = null;
@@ -89,8 +91,11 @@ export const useCartStore = defineStore('cart', () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN':
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute('content') || '',
                 },
                 body: JSON.stringify({
                     product_id: productId,
@@ -107,7 +112,10 @@ export const useCartStore = defineStore('cart', () => {
             const data = await response.json();
             items.value = normalizeItems(data.items || []);
 
-            return { success: true, message: data.message || 'Added to cart successfully' };
+            return {
+                success: true,
+                message: data.message || 'Added to cart successfully',
+            };
         } catch (e) {
             error.value = e instanceof Error ? e.message : 'Unknown error';
             console.error('Add to cart error:', e);
@@ -120,13 +128,16 @@ export const useCartStore = defineStore('cart', () => {
     // Alias for addToCart to support different naming conventions
     const addItem = addToCart;
 
-    const updateQuantity = async (itemId: string | number, quantity: number) => {
+    const updateQuantity = async (
+        itemId: string | number,
+        quantity: number,
+    ) => {
         if (quantity < 1) {
             return removeItem(itemId);
         }
 
         // Optimistic update - update UI immediately
-        const itemIndex = items.value.findIndex(item => item.id === itemId);
+        const itemIndex = items.value.findIndex((item) => item.id === itemId);
         if (itemIndex === -1) {
             return { success: false, message: 'Item not found' };
         }
@@ -141,8 +152,11 @@ export const useCartStore = defineStore('cart', () => {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN':
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute('content') || '',
                 },
                 body: JSON.stringify({ quantity }),
             });
@@ -166,7 +180,7 @@ export const useCartStore = defineStore('cart', () => {
 
     const removeItem = async (itemId: string | number) => {
         // Optimistic update - remove from UI immediately
-        const itemIndex = items.value.findIndex(item => item.id === itemId);
+        const itemIndex = items.value.findIndex((item) => item.id === itemId);
         if (itemIndex === -1) {
             return { success: false, message: 'Item not found' };
         }
@@ -180,8 +194,11 @@ export const useCartStore = defineStore('cart', () => {
             const response = await fetch(`/api/cart/remove/${itemId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN':
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute('content') || '',
                 },
             });
 
@@ -210,8 +227,11 @@ export const useCartStore = defineStore('cart', () => {
             const response = await fetch('/api/cart/clear', {
                 method: 'DELETE',
                 headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN':
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute('content') || '',
                 },
             });
 
@@ -240,8 +260,11 @@ export const useCartStore = defineStore('cart', () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN':
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute('content') || '',
                 },
                 body: JSON.stringify({ coupon_code: code }),
             });
@@ -249,7 +272,10 @@ export const useCartStore = defineStore('cart', () => {
             const data = await response.json();
 
             if (!response.ok) {
-                return { success: false, message: data.message || 'Invalid coupon' };
+                return {
+                    success: false,
+                    message: data.message || 'Invalid coupon',
+                };
             }
 
             couponCode.value = data.coupon?.code ?? code;
@@ -267,8 +293,11 @@ export const useCartStore = defineStore('cart', () => {
             await fetch('/api/cart/remove-coupon', {
                 method: 'DELETE',
                 headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN':
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute('content') || '',
                 },
             });
             couponCode.value = null;

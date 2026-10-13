@@ -11,7 +11,7 @@ class ReportCacheService
      */
     public function remember(string $reportType, array $filters, callable $callback): mixed
     {
-        if (!config('reports.cache.enabled')) {
+        if (! config('reports.cache.enabled')) {
             return $callback();
         }
 
@@ -27,16 +27,17 @@ class ReportCacheService
     public function forget(string $reportType, array $filters = []): bool
     {
         $cacheKey = $this->getCacheKey($reportType, $filters);
+
         return Cache::forget($cacheKey);
     }
 
     /**
      * Clear all report caches.
      */
-    public function flush(string $reportType = null): void
+    public function flush(?string $reportType = null): void
     {
         $prefix = config('reports.cache.prefix');
-        
+
         if ($reportType) {
             Cache::tags(["{$prefix}{$reportType}"])->flush();
         } else {
@@ -51,7 +52,7 @@ class ReportCacheService
     {
         $prefix = config('reports.cache.prefix');
         $hash = hash('sha256', json_encode($filters));
-        
+
         return "{$prefix}{$reportType}_{$hash}";
     }
 }

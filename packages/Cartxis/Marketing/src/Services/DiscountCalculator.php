@@ -8,7 +8,7 @@ use Illuminate\Support\Collection;
 
 /**
  * DiscountCalculator
- * 
+ *
  * Handles all discount calculations for coupons and promotions.
  */
 class DiscountCalculator
@@ -18,7 +18,7 @@ class DiscountCalculator
      */
     public function calculateCouponDiscount(Coupon $coupon, float $subtotal, Collection $items): float
     {
-        return match($coupon->type) {
+        return match ($coupon->type) {
             Coupon::TYPE_PERCENTAGE => $this->calculatePercentageDiscount($coupon, $subtotal, $items),
             Coupon::TYPE_FIXED_AMOUNT => $this->calculateFixedAmountDiscount($coupon, $subtotal),
             Coupon::TYPE_FREE_SHIPPING => 0, // Handled separately in shipping calculation
@@ -35,7 +35,7 @@ class DiscountCalculator
     {
         // Get eligible amount (respecting product/category restrictions)
         $eligibleAmount = $this->getEligibleAmount($coupon, $items);
-        
+
         if ($eligibleAmount <= 0) {
             return 0;
         }
@@ -168,7 +168,7 @@ class DiscountCalculator
 
         // Check excluded categories
         if ($coupon->excluded_categories && $item->categories) {
-            $itemCategoryIds = is_array($item->categories) 
+            $itemCategoryIds = is_array($item->categories)
                 ? collect($item->categories)->pluck('id')->toArray()
                 : [$item->category_id ?? null];
 
@@ -179,18 +179,18 @@ class DiscountCalculator
 
         // If applicable products specified, item must be in list
         if ($coupon->applicable_products) {
-            if (!in_array($item->product_id, $coupon->applicable_products)) {
+            if (! in_array($item->product_id, $coupon->applicable_products)) {
                 return false;
             }
         }
 
         // If applicable categories specified, item must be in one
         if ($coupon->applicable_categories) {
-            $itemCategoryIds = is_array($item->categories) 
+            $itemCategoryIds = is_array($item->categories)
                 ? collect($item->categories)->pluck('id')->toArray()
                 : [$item->category_id ?? null];
 
-            if (!array_intersect($coupon->applicable_categories, $itemCategoryIds)) {
+            if (! array_intersect($coupon->applicable_categories, $itemCategoryIds)) {
                 return false;
             }
         }
@@ -224,11 +224,13 @@ class DiscountCalculator
     {
         if ($promotion->discount_type === Promotion::DISCOUNT_PERCENTAGE) {
             $discount = ($originalPrice * $promotion->discount_value) / 100;
+
             return round($originalPrice - $discount, 2);
         }
 
         // Fixed amount
         $newPrice = $originalPrice - $promotion->discount_value;
+
         return round(max(0, $newPrice), 2);
     }
 
@@ -237,7 +239,7 @@ class DiscountCalculator
      */
     public function calculateTieredPriceDiscount(Promotion $promotion, float $basePrice, int $quantity): float
     {
-        if (!$promotion->price_tiers) {
+        if (! $promotion->price_tiers) {
             return 0;
         }
 
@@ -253,7 +255,7 @@ class DiscountCalculator
             }
         }
 
-        if (!$applicableTier) {
+        if (! $applicableTier) {
             return 0;
         }
 
@@ -269,7 +271,7 @@ class DiscountCalculator
      */
     public function applyStackingRules(array $discounts, bool $allowStacking = true): float
     {
-        if (!$allowStacking && !empty($discounts)) {
+        if (! $allowStacking && ! empty($discounts)) {
             // Return highest discount only
             return max($discounts);
         }

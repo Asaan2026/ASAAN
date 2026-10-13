@@ -3,9 +3,10 @@
 namespace Cartxis\Shop\Models;
 
 use Cartxis\Core\Support\StoreCountry;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Address extends Model
 {
@@ -72,12 +73,11 @@ class Address extends Model
      * Address type constants
      */
     const TYPE_BILLING = 'billing';
+
     const TYPE_SHIPPING = 'shipping';
 
     /**
      * Get all available address types.
-     *
-     * @return array
      */
     public static function getTypes(): array
     {
@@ -89,8 +89,6 @@ class Address extends Model
 
     /**
      * Get the parent addressable model (order or user).
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
     public function addressable(): MorphTo
     {
@@ -99,18 +97,14 @@ class Address extends Model
 
     /**
      * Get the full name.
-     *
-     * @return string
      */
     public function getFullNameAttribute(): string
     {
-        return trim($this->first_name . ' ' . $this->last_name);
+        return trim($this->first_name.' '.$this->last_name);
     }
 
     /**
      * Get the full address (single line).
-     *
-     * @return string
      */
     public function getFullAddressAttribute(): string
     {
@@ -128,8 +122,6 @@ class Address extends Model
 
     /**
      * Get the formatted address (multi-line).
-     *
-     * @return array
      */
     public function getFormattedAddressAttribute(): array
     {
@@ -161,8 +153,8 @@ class Address extends Model
         if ($this->postal_code) {
             $cityStateZip[] = $this->postal_code;
         }
-        
-        if (!empty($cityStateZip)) {
+
+        if (! empty($cityStateZip)) {
             $lines[] = implode(', ', $cityStateZip);
         }
 
@@ -171,7 +163,7 @@ class Address extends Model
         }
 
         if ($this->phone) {
-            $lines[] = 'Phone: ' . $this->phone;
+            $lines[] = 'Phone: '.$this->phone;
         }
 
         return $lines;
@@ -179,8 +171,6 @@ class Address extends Model
 
     /**
      * Check if this is a billing address.
-     *
-     * @return bool
      */
     public function isBilling(): bool
     {
@@ -189,8 +179,6 @@ class Address extends Model
 
     /**
      * Check if this is a shipping address.
-     *
-     * @return bool
      */
     public function isShipping(): bool
     {
@@ -199,8 +187,6 @@ class Address extends Model
 
     /**
      * Check if this is the default address.
-     *
-     * @return bool
      */
     public function isDefault(): bool
     {
@@ -209,8 +195,6 @@ class Address extends Model
 
     /**
      * Set this address as the default.
-     *
-     * @return void
      */
     public function setAsDefault(): void
     {
@@ -227,8 +211,8 @@ class Address extends Model
     /**
      * Scope a query to only include billing addresses.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeBilling($query)
     {
@@ -238,8 +222,8 @@ class Address extends Model
     /**
      * Scope a query to only include shipping addresses.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeShipping($query)
     {
@@ -249,8 +233,8 @@ class Address extends Model
     /**
      * Scope a query to only include default addresses.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeDefault($query)
     {
@@ -260,21 +244,17 @@ class Address extends Model
     /**
      * Scope a query to only include addresses for a specific addressable.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  string  $type
-     * @param  int  $id
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeForAddressable($query, string $type, int $id)
     {
         return $query->where('addressable_type', $type)
-                     ->where('addressable_id', $id);
+            ->where('addressable_id', $id);
     }
 
     /**
      * Validate the address is complete.
-     *
-     * @return bool
      */
     public function isComplete(): bool
     {

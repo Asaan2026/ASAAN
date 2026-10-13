@@ -29,7 +29,7 @@ class ScheduleMaintenanceRequest extends FormRequest
             'notify_users' => 'nullable|boolean',
         ];
     }
-    
+
     /**
      * Get custom messages for validator errors.
      */

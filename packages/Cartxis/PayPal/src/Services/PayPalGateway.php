@@ -8,6 +8,7 @@ use Cartxis\Core\Support\GatewayCurrency;
 use Cartxis\Core\Support\StoreCountry;
 use Cartxis\Shop\Models\Order;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -21,7 +22,9 @@ use Illuminate\Support\Facades\Log;
 class PayPalGateway implements PaymentGatewayInterface
 {
     protected ?PaymentMethod $paymentMethod = null;
+
     protected ?Client $httpClient = null;
+
     protected ?string $accessToken = null;
 
     /**
@@ -37,7 +40,7 @@ class PayPalGateway implements PaymentGatewayInterface
      */
     protected function getPaymentMethod(): ?PaymentMethod
     {
-        if (!$this->paymentMethod) {
+        if (! $this->paymentMethod) {
             $this->paymentMethod = PaymentMethod::where('code', 'paypal')
                 ->where('is_active', true)
                 ->first();
@@ -54,14 +57,14 @@ class PayPalGateway implements PaymentGatewayInterface
     protected function getConfig(string $key, mixed $default = null): mixed
     {
         $method = $this->getPaymentMethod();
-        if (!$method) {
+        if (! $method) {
             return $default;
         }
 
         if (in_array($key, ['client_id', 'client_secret', 'webhook_id'])) {
             $mode = $method->getConfigValue('mode', 'sandbox');
             if ($mode === 'sandbox') {
-                $sandboxVal = $method->getConfigValue('sandbox_' . $key);
+                $sandboxVal = $method->getConfigValue('sandbox_'.$key);
                 if ($sandboxVal) {
                     return $sandboxVal;
                 }
@@ -77,6 +80,7 @@ class PayPalGateway implements PaymentGatewayInterface
     protected function getApiUrl(): string
     {
         $mode = $this->getConfig('mode', 'sandbox');
+
         return $mode === 'live'
             ? 'https://api-m.paypal.com'
             : 'https://api-m.sandbox.paypal.com';
@@ -87,7 +91,7 @@ class PayPalGateway implements PaymentGatewayInterface
      */
     protected function getHttpClient(): Client
     {
-        if (!$this->httpClient) {
+        if (! $this->httpClient) {
             $this->httpClient = new Client([
                 'base_uri' => $this->getApiUrl(),
                 'timeout' => 30,
@@ -113,7 +117,7 @@ class PayPalGateway implements PaymentGatewayInterface
         $clientId = $this->getConfig('client_id');
         $clientSecret = $this->getConfig('client_secret');
 
-        if (!$clientId || !$clientSecret) {
+        if (! $clientId || ! $clientSecret) {
             throw new \Exception('PayPal API credentials not configured');
         }
 
@@ -135,7 +139,7 @@ class PayPalGateway implements PaymentGatewayInterface
                 'error' => $e->getMessage(),
             ]);
 
-            throw new \Exception('Failed to authenticate with PayPal: ' . $e->getMessage());
+            throw new \Exception('Failed to authenticate with PayPal: '.$e->getMessage());
         }
     }
 
@@ -150,20 +154,21 @@ class PayPalGateway implements PaymentGatewayInterface
 
             $options = [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $token,
+                    'Authorization' => 'Bearer '.$token,
                 ],
             ];
 
-            if (!empty($data)) {
+            if (! empty($data)) {
                 $options['json'] = $data;
             }
 
             $response = $client->request($method, $endpoint, $options);
+
             return json_decode($response->getBody()->getContents(), true);
         } catch (\Exception $e) {
             $responseBody = null;
 
-            if ($e instanceof \GuzzleHttp\Exception\RequestException && $e->hasResponse()) {
+            if ($e instanceof RequestException && $e->hasResponse()) {
                 $responseBody = (string) $e->getResponse()->getBody();
             }
 
@@ -228,6 +233,7 @@ class PayPalGateway implements PaymentGatewayInterface
                 }
 
                 $normalized = preg_replace('/[^0-9.\-]/', '', (string) $value);
+
                 return is_numeric($normalized) ? (float) $normalized : 0.0;
             };
 
@@ -263,7 +269,7 @@ class PayPalGateway implements PaymentGatewayInterface
                 'purchase_units' => [
                     [
                         'reference_id' => $order->order_number,
-                        'description' => 'Order #' . $order->order_number,
+                        'description' => 'Order #'.$order->order_number,
                         'amount' => [
                             'currency_code' => $currency,
                             'value' => $formatAmount($grandTotal),
@@ -285,7 +291,7 @@ class PayPalGateway implements PaymentGatewayInterface
                 if ($countryCode) {
                     $orderData['purchase_units'][0]['shipping'] = [
                         'name' => [
-                            'full_name' => trim($shippingAddress->first_name . ' ' . $shippingAddress->last_name),
+                            'full_name' => trim($shippingAddress->first_name.' '.$shippingAddress->last_name),
                         ],
                         'address' => [
                             'address_line_1' => $shippingAddress->address_line_1,
@@ -311,7 +317,7 @@ class PayPalGateway implements PaymentGatewayInterface
                 }
             }
 
-            if (!$approveUrl) {
+            if (! $approveUrl) {
                 throw new \Exception('PayPal approval URL not found');
             }
 
@@ -340,7 +346,7 @@ class PayPalGateway implements PaymentGatewayInterface
                 'error' => $e->getMessage(),
             ]);
 
-            throw new \Exception('PayPal payment processing failed: ' . $e->getMessage());
+            throw new \Exception('PayPal payment processing failed: '.$e->getMessage());
         }
     }
 
@@ -353,12 +359,12 @@ class PayPalGateway implements PaymentGatewayInterface
             $paypalOrderId = $data['token'] ?? null;
             $orderId = $data['order_id'] ?? null;
 
-            if (!$paypalOrderId || !$orderId) {
+            if (! $paypalOrderId || ! $orderId) {
                 throw new \Exception('Missing PayPal order ID or order ID');
             }
 
             $order = Order::find($orderId);
-            if (!$order) {
+            if (! $order) {
                 throw new \Exception('Order not found');
             }
 
@@ -383,7 +389,7 @@ class PayPalGateway implements PaymentGatewayInterface
                 ];
             }
 
-            throw new \Exception('Payment not completed. Status: ' . $response['status']);
+            throw new \Exception('Payment not completed. Status: '.$response['status']);
         } catch (\Exception $e) {
             Log::error('PayPalGateway: Callback handling failed', [
                 'error' => $e->getMessage(),
@@ -392,7 +398,7 @@ class PayPalGateway implements PaymentGatewayInterface
 
             return [
                 'success' => false,
-                'message' => 'Payment verification failed: ' . $e->getMessage(),
+                'message' => 'Payment verification failed: '.$e->getMessage(),
             ];
         }
     }
@@ -415,9 +421,8 @@ class PayPalGateway implements PaymentGatewayInterface
      * COMPLETED status.  Idempotent: if the order is already COMPLETED (e.g.
      * a webhook arrived first) we simply return true.
      *
-     * @param Order $order
-     * @param array $data  Optional ['paypal_order_id' => '...'] to override the
-     *                     value stored in payment_gateway_data.
+     * @param  array  $data  Optional ['paypal_order_id' => '...'] to override the
+     *                       value stored in payment_gateway_data.
      */
     public function verifyPayment(Order $order, array $data = []): bool
     {
@@ -425,21 +430,22 @@ class PayPalGateway implements PaymentGatewayInterface
             $paypalOrderId = $data['paypal_order_id']
                 ?? ($order->payment_gateway_data['paypal_order_id'] ?? null);
 
-            if (!$paypalOrderId) {
+            if (! $paypalOrderId) {
                 Log::warning('PayPalGateway: verifyPayment called with no paypal_order_id', [
                     'order_id' => $order->id,
                 ]);
+
                 return false;
             }
 
             // Fetch current PayPal order status
             $response = $this->apiRequest('GET', "/v2/checkout/orders/{$paypalOrderId}", []);
-            $status   = $response['status'] ?? '';
+            $status = $response['status'] ?? '';
 
             Log::info('PayPalGateway: verifyPayment status check', [
-                'order_id'        => $order->id,
+                'order_id' => $order->id,
                 'paypal_order_id' => $paypalOrderId,
-                'status'          => $status,
+                'status' => $status,
             ]);
 
             if ($status === 'COMPLETED') {
@@ -458,13 +464,13 @@ class PayPalGateway implements PaymentGatewayInterface
                 $captureStatus = $captureResponse['status'] ?? '';
 
                 Log::info('PayPalGateway: capture result', [
-                    'order_id'        => $order->id,
+                    'order_id' => $order->id,
                     'paypal_order_id' => $paypalOrderId,
-                    'capture_status'  => $captureStatus,
+                    'capture_status' => $captureStatus,
                 ]);
 
                 if ($captureStatus === 'COMPLETED') {
-                    $capture  = $captureResponse['purchase_units'][0]['payments']['captures'][0] ?? null;
+                    $capture = $captureResponse['purchase_units'][0]['payments']['captures'][0] ?? null;
                     $existing = is_array($order->payment_gateway_data)
                         ? $order->payment_gateway_data
                         : [];
@@ -473,9 +479,9 @@ class PayPalGateway implements PaymentGatewayInterface
                         'payment_gateway_transaction_id' => $capture['id'] ?? $paypalOrderId,
                         'payment_gateway_data' => array_merge($existing, [
                             'paypal_order_id' => $paypalOrderId,
-                            'capture_id'      => $capture['id'] ?? null,
-                            'payer_email'     => $captureResponse['payer']['email_address'] ?? null,
-                            'captured_at'     => now()->toISOString(),
+                            'capture_id' => $capture['id'] ?? null,
+                            'payer_email' => $captureResponse['payer']['email_address'] ?? null,
+                            'captured_at' => now()->toISOString(),
                         ]),
                     ]);
 
@@ -483,17 +489,19 @@ class PayPalGateway implements PaymentGatewayInterface
                 }
 
                 Log::warning('PayPalGateway: capture did not return COMPLETED', [
-                    'order_id'       => $order->id,
+                    'order_id' => $order->id,
                     'capture_status' => $captureStatus,
                 ]);
+
                 return false;
             }
 
             // CREATED / SAVED / VOIDED etc — not in a capturable state
             Log::warning('PayPalGateway: order not in capturable state', [
                 'order_id' => $order->id,
-                'status'   => $status,
+                'status' => $status,
             ]);
+
             return false;
 
         } catch (\Exception $e) {
@@ -520,7 +528,7 @@ class PayPalGateway implements PaymentGatewayInterface
             // Get capture ID from order metadata
             $captureId = $order->payment_gateway_data['capture_id'] ?? null;
 
-            if (!$captureId) {
+            if (! $captureId) {
                 throw new \Exception('PayPal capture ID not found');
             }
 
@@ -536,7 +544,7 @@ class PayPalGateway implements PaymentGatewayInterface
                     'currency_code' => $this->getSettlementCurrency(),
                     'value' => number_format($refundAmount, 2, '.', ''),
                 ],
-                'note_to_payer' => $reason ?? 'Refund for order #' . $order->order_number,
+                'note_to_payer' => $reason ?? 'Refund for order #'.$order->order_number,
             ];
 
             $response = $this->apiRequest('POST', "/v2/payments/captures/{$captureId}/refund", $refundData);
@@ -561,7 +569,7 @@ class PayPalGateway implements PaymentGatewayInterface
 
             return [
                 'success' => false,
-                'message' => 'Refund failed: ' . $e->getMessage(),
+                'message' => 'Refund failed: '.$e->getMessage(),
             ];
         }
     }
@@ -611,7 +619,7 @@ class PayPalGateway implements PaymentGatewayInterface
     {
         $method = $this->getPaymentMethod();
 
-        if (!$method) {
+        if (! $method) {
             return false;
         }
 
@@ -620,6 +628,6 @@ class PayPalGateway implements PaymentGatewayInterface
         $clientId = $this->getConfig('client_id');
         $clientSecret = $this->getConfig('client_secret');
 
-        return !empty($clientId) && !empty($clientSecret);
+        return ! empty($clientId) && ! empty($clientSecret);
     }
 }

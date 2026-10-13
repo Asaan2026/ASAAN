@@ -3,12 +3,12 @@
 namespace Cartxis\Marketing\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Cartxis\Customer\Models\Customer;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Cartxis\Customer\Models\Customer;
 
 class NewsletterController extends Controller
 {
@@ -25,8 +25,8 @@ class NewsletterController extends Controller
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('email', 'like', "%{$search}%")
-                  ->orWhere('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%");
+                    ->orWhere('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%");
             });
         }
 
@@ -40,7 +40,7 @@ class NewsletterController extends Controller
         }
 
         // Sort
-        $sortBy    = $request->get('sort_by', 'updated_at');
+        $sortBy = $request->get('sort_by', 'updated_at');
         $sortOrder = $request->get('sort_order', 'desc');
         $allowedSorts = ['first_name', 'last_name', 'email', 'created_at', 'updated_at'];
         if (in_array($sortBy, $allowedSorts, true)) {
@@ -53,9 +53,9 @@ class NewsletterController extends Controller
             'subscribers' => $subscribers,
             'filters' => $request->only(['search', 'type', 'sort_by', 'sort_order']),
             'stats' => [
-                'total'      => Customer::where('newsletter_subscribed', true)->count(),
+                'total' => Customer::where('newsletter_subscribed', true)->count(),
                 'registered' => Customer::where('newsletter_subscribed', true)->where('is_guest', false)->count(),
-                'guest'      => Customer::where('newsletter_subscribed', true)->where('is_guest', true)->count(),
+                'guest' => Customer::where('newsletter_subscribed', true)->where('is_guest', true)->count(),
             ],
         ]);
     }
@@ -76,7 +76,7 @@ class NewsletterController extends Controller
     public function bulkUnsubscribe(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'ids'   => 'required|array',
+            'ids' => 'required|array',
             'ids.*' => 'integer|exists:customers,id',
         ]);
 
@@ -85,7 +85,7 @@ class NewsletterController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => count($validated['ids']) . ' subscriber(s) removed.',
+            'message' => count($validated['ids']).' subscriber(s) removed.',
         ]);
     }
 
@@ -102,8 +102,8 @@ class NewsletterController extends Controller
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('email', 'like', "%{$search}%")
-                  ->orWhere('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%");
+                    ->orWhere('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%");
             });
         }
 
@@ -115,7 +115,7 @@ class NewsletterController extends Controller
             }
         }
 
-        $filename  = 'newsletter-subscribers-' . now()->format('Y-m-d') . '.csv';
+        $filename = 'newsletter-subscribers-'.now()->format('Y-m-d').'.csv';
 
         return response()->streamDownload(function () use ($query) {
             $handle = fopen('php://output', 'w');

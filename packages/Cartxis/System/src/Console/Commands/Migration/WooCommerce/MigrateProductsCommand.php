@@ -4,44 +4,45 @@ declare(strict_types=1);
 
 namespace Cartxis\System\Console\Commands\Migration\WooCommerce;
 
+use Cartxis\Product\Models\Product;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Cartxis\Product\Models\Product;
 
 class MigrateProductsCommand extends Command
 {
     protected $signature = 'wc:migrate:products {--dry-run : Preview migration without making changes} {--batch=500 : Number of records per batch}';
-    
+
     protected $description = 'Migrate WooCommerce products to Cartxis';
-    
+
     private array $errors = [];
-    
+
     public function handle(): int
     {
         $config = config('woocommerce-migration');
         $prefix = $config['database']['prefix'];
         $batchSize = (int) $this->option('batch');
-        
+
         // Get products from WooCommerce
         $products = DB::connection($config['connection'])
-            ->table($prefix . 'posts')
+            ->table($prefix.'posts')
             ->where('post_type', 'product')
             ->whereIn('post_status', ['publish', 'draft', 'private'])
             ->select('ID', 'post_title', 'post_name', 'post_content', 'post_excerpt', 'post_status', 'post_date')
             ->get();
-        
+
         if ($products->isEmpty()) {
             $this->warn('No products found to migrate.');
+
             return self::SUCCESS;
         }
-        
+
         $this->info("Found {$products->count()} products to migrate.");
-        
+
         if ($this->option('dry-run')) {
             $preview = $products->take(10);
             $this->table(
                 ['ID', 'Name', 'Slug', 'Status', 'Created'],
-                $preview->map(fn($p) => [
+                $preview->map(fn ($p) => [
                     $p->ID,
                     $p->post_title,
                     $p->post_name,
@@ -50,21 +51,22 @@ class MigrateProductsCommand extends Command
                 ])->toArray()
             );
             $this->info("Showing 10 of {$products->count()} products...");
+
             return self::SUCCESS;
         }
-        
+
         $this->newLine();
         $bar = $this->output->createProgressBar($products->count());
         $bar->start();
-        
+
         foreach ($products as $wcProduct) {
             try {
                 // Get product meta
                 $meta = $this->getProductMeta($config, $prefix, $wcProduct->ID);
-                
+
                 // Map status
                 $status = $config['mappings']['product_status'][$wcProduct->post_status] ?? 'draft';
-                
+
                 Product::updateOrCreate(
                     ['sku' => $meta['sku'] ?? "WC-{$wcProduct->ID}"],
                     [
@@ -94,32 +96,32 @@ class MigrateProductsCommand extends Command
             } catch (\Exception $e) {
                 $this->errors[] = "Product '{$wcProduct->post_title}': {$e->getMessage()}";
             }
-            
+
             $bar->advance();
         }
-        
+
         $bar->finish();
         $this->newLine(2);
-        
+
         if (empty($this->errors)) {
             $this->info("✓ Successfully migrated {$products->count()} products.");
         } else {
-            $this->warn("Migrated with " . count($this->errors) . " errors:");
+            $this->warn('Migrated with '.count($this->errors).' errors:');
             foreach (array_slice($this->errors, 0, 10) as $error) {
                 $this->error("  - {$error}");
             }
             if (count($this->errors) > 10) {
-                $this->warn("  ... and " . (count($this->errors) - 10) . " more errors.");
+                $this->warn('  ... and '.(count($this->errors) - 10).' more errors.');
             }
         }
-        
+
         return self::SUCCESS;
     }
-    
+
     private function getProductMeta(array $config, string $prefix, int $productId): array
     {
         $metaRows = DB::connection($config['connection'])
-            ->table($prefix . 'postmeta')
+            ->table($prefix.'postmeta')
             ->where('post_id', $productId)
             ->whereIn('meta_key', [
                 '_sku', '_price', '_regular_price', '_sale_price',
@@ -128,13 +130,13 @@ class MigrateProductsCommand extends Command
                 '_product_type',
             ])
             ->get();
-        
+
         $meta = [];
         foreach ($metaRows as $row) {
             $key = ltrim($row->meta_key, '_');
             $meta[$key] = $row->meta_value;
         }
-        
+
         return $meta;
     }
 }

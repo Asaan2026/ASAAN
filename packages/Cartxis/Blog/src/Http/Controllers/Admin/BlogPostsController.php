@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Cartxis\Blog\Http\Controllers\Admin;
 
+use Cartxis\Blog\Http\Requests\StoreBlogPostRequest;
+use Cartxis\Blog\Http\Requests\UpdateBlogPostRequest;
 use Cartxis\Blog\Models\BlogCategory;
 use Cartxis\Blog\Models\BlogPost;
 use Cartxis\Blog\Services\BlogService;
-use Cartxis\Blog\Http\Requests\StoreBlogPostRequest;
-use Cartxis\Blog\Http\Requests\UpdateBlogPostRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -31,7 +31,7 @@ class BlogPostsController
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('slug', 'like', "%{$search}%");
+                    ->orWhere('slug', 'like', "%{$search}%");
             });
         }
 
@@ -46,9 +46,9 @@ class BlogPostsController
         $posts = $query->paginate(15)->withQueryString();
 
         $statistics = [
-            'total'     => BlogPost::count(),
+            'total' => BlogPost::count(),
             'published' => BlogPost::where('status', 'published')->count(),
-            'draft'     => BlogPost::where('status', 'draft')->count(),
+            'draft' => BlogPost::where('status', 'draft')->count(),
             'scheduled' => BlogPost::where('status', 'scheduled')->count(),
         ];
 
@@ -57,10 +57,10 @@ class BlogPostsController
             ->get(['id', 'name', 'slug']);
 
         return Inertia::render('Admin/Blog/Index', [
-            'posts'      => $posts,
+            'posts' => $posts,
             'statistics' => $statistics,
             'categories' => $categories,
-            'filters'    => $request->only(['search', 'status', 'category_id', 'sort_by', 'sort_order']),
+            'filters' => $request->only(['search', 'status', 'category_id', 'sort_by', 'sort_order']),
         ]);
     }
 
@@ -79,7 +79,7 @@ class BlogPostsController
     {
         $data = $request->validated();
         $data['created_by'] = auth()->id();
-        $data['author_id']  = auth()->id();
+        $data['author_id'] = auth()->id();
 
         $post = $this->blogService->create($data);
 
@@ -95,7 +95,7 @@ class BlogPostsController
             ->get(['id', 'name', 'slug']);
 
         return Inertia::render('Admin/Blog/Edit', [
-            'post'       => $post->load(['category', 'creator']),
+            'post' => $post->load(['category', 'creator']),
             'categories' => $categories,
         ]);
     }
@@ -114,11 +114,12 @@ class BlogPostsController
     {
         try {
             $this->blogService->delete($post);
+
             return redirect()
                 ->route('admin.blog.index')
                 ->with('success', 'Blog post deleted successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to delete post: ' . $e->getMessage());
+            return back()->with('error', 'Failed to delete post: '.$e->getMessage());
         }
     }
 
@@ -126,27 +127,28 @@ class BlogPostsController
     {
         $validated = $request->validate([
             'action' => 'required|in:publish,draft,delete',
-            'ids'    => 'required|array|min:1',
-            'ids.*'  => 'exists:blog_posts,id',
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'exists:blog_posts,id',
         ]);
 
         try {
             $count = match ($validated['action']) {
                 'publish' => $this->blogService->bulkUpdateStatus($validated['ids'], 'published'),
-                'draft'   => $this->blogService->bulkUpdateStatus($validated['ids'], 'draft'),
-                'delete'  => $this->blogService->bulkDelete($validated['ids']),
+                'draft' => $this->blogService->bulkUpdateStatus($validated['ids'], 'draft'),
+                'delete' => $this->blogService->bulkDelete($validated['ids']),
             };
 
             $action = ucfirst($validated['action']);
+
             return back()->with('success', "{$action} completed on {$count} post(s).");
         } catch (\Exception $e) {
-            return back()->with('error', 'Bulk action failed: ' . $e->getMessage());
+            return back()->with('error', 'Bulk action failed: '.$e->getMessage());
         }
     }
 
     public function checkSlug(Request $request)
     {
-        $slug      = $request->input('slug');
+        $slug = $request->input('slug');
         $excludeId = $request->input('exclude_id');
 
         if (empty($slug)) {
@@ -155,7 +157,7 @@ class BlogPostsController
 
         return response()->json([
             'available' => ! $this->blogService->slugExists($slug, $excludeId),
-            'slug'      => $slug,
+            'slug' => $slug,
         ]);
     }
 }

@@ -5,7 +5,7 @@ use Cartxis\Service\Models\ServiceBooking;
 use Cartxis\Service\Services\ServiceBookingStatusService;
 use Illuminate\Support\Facades\DB;
 
-require_once __DIR__ . '/helpers.php';
+require_once __DIR__.'/helpers.php';
 
 beforeEach(function () {
     configureServices();
@@ -35,7 +35,7 @@ test('a worker cannot open a job that is not theirs', function () {
     $this->statuses->assign($booking, serviceWorker()->id);
 
     $this->actingAs($other, 'delivery')
-        ->get('/delivery/jobs/' . $booking->reference)
+        ->get('/delivery/jobs/'.$booking->reference)
         ->assertStatus(403);
 });
 
@@ -46,7 +46,7 @@ test('a worker cannot start or finish somebody elses job', function () {
     $this->statuses->assign($booking, serviceWorker()->id);
 
     $this->actingAs($intruder, 'delivery')
-        ->post('/delivery/jobs/' . $booking->reference . '/start')
+        ->post('/delivery/jobs/'.$booking->reference.'/start')
         ->assertStatus(403);
 
     $this->assertSame(ServiceBooking::STATUS_ASSIGNED, $booking->fresh()->status);
@@ -197,11 +197,11 @@ test('every step is written down with who did it', function () {
         ->assertStatus(302);
 
     $this->actingAs($worker, 'delivery')
-        ->post('/delivery/jobs/' . $booking->reference . '/start')
+        ->post('/delivery/jobs/'.$booking->reference.'/start')
         ->assertStatus(302);
 
     $this->actingAs($worker, 'delivery')
-        ->post('/delivery/jobs/' . $booking->reference . '/complete', ['amount_collected' => 3000])
+        ->post('/delivery/jobs/'.$booking->reference.'/complete', ['amount_collected' => 3000])
         ->assertStatus(302);
 
     $events = DB::table('service_booking_events')
@@ -226,11 +226,11 @@ test('the worker can finish a job and the money lands on the order', function ()
     $this->statuses->assign($booking, $worker->id);
 
     $this->actingAs($worker, 'delivery')
-        ->post('/delivery/jobs/' . $booking->reference . '/start')
+        ->post('/delivery/jobs/'.$booking->reference.'/start')
         ->assertStatus(302);
 
     $this->actingAs($worker, 'delivery')
-        ->post('/delivery/jobs/' . $booking->reference . '/complete', ['amount_collected' => 3000])
+        ->post('/delivery/jobs/'.$booking->reference.'/complete', ['amount_collected' => 3000])
         ->assertStatus(302);
 
     expect($booking->fresh()->status)->toBe('completed');
@@ -240,10 +240,10 @@ test('a worker cannot claim a negative or empty amount', function () {
     $booking = bookServiceJob();
     $worker = serviceWorker();
     $this->statuses->assign($booking, $worker->id);
-    $this->actingAs($worker, 'delivery')->post('/delivery/jobs/' . $booking->reference . '/start');
+    $this->actingAs($worker, 'delivery')->post('/delivery/jobs/'.$booking->reference.'/start');
 
     $this->actingAs($worker, 'delivery')
-        ->post('/delivery/jobs/' . $booking->reference . '/complete', ['amount_collected' => -50])
+        ->post('/delivery/jobs/'.$booking->reference.'/complete', ['amount_collected' => -50])
         ->assertSessionHasErrors('amount_collected');
 
     expect($booking->fresh()->status)->toBe('in_progress');

@@ -2,8 +2,8 @@
 
 namespace Cartxis\Core\Console\Commands;
 
-use Illuminate\Console\Command;
 use Cartxis\Core\Services\ThemeService;
+use Illuminate\Console\Command;
 
 class ThemeDiscoverCommand extends Command
 {
@@ -18,7 +18,8 @@ class ThemeDiscoverCommand extends Command
         $discovered = $themeService->discover();
 
         if (empty($discovered)) {
-            $this->components->warn('No themes found in ' . config('theme.catalog_path', 'templates/storefront'));
+            $this->components->warn('No themes found in '.config('theme.catalog_path', 'templates/storefront'));
+
             return self::SUCCESS;
         }
 
@@ -30,7 +31,7 @@ class ThemeDiscoverCommand extends Command
         }
 
         $this->newLine();
-        $this->components->info(count($discovered) . ' theme(s) discovered.');
+        $this->components->info(count($discovered).' theme(s) discovered.');
 
         return self::SUCCESS;
     }

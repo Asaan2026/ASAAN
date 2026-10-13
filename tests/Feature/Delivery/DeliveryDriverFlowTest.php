@@ -22,7 +22,7 @@ function fixtureDriver(DeliveryStatusService $service): array
     ]);
 
     $order = Order::create([
-        'order_number' => 'ORD-' . Str::upper(Str::random(8)),
+        'order_number' => 'ORD-'.Str::upper(Str::random(8)),
         'status' => 'processing',
         'payment_status' => 'pending',
         'customer_email' => 'buyer@example.com',
@@ -59,7 +59,7 @@ function fixtureDriver(DeliveryStatusService $service): array
 }
 
 test('a driver sees only deliveries assigned to them', function () {
-    [$driverA, , , ] = fixtureDriver(app(DeliveryStatusService::class));
+    [$driverA] = fixtureDriver(app(DeliveryStatusService::class));
     [, , , $otherOrder] = fixtureDriver(app(DeliveryStatusService::class));
 
     $this->actingAs($driverA, 'delivery')->get('/delivery/deliveries')
@@ -72,19 +72,19 @@ test('a guest is redirected to the delivery login', function () {
 });
 
 test('a driver cannot open another driver delivery', function () {
-    [$driverA, , , ] = fixtureDriver(app(DeliveryStatusService::class));
-    [, $otherDelivery, , ] = fixtureDriver(app(DeliveryStatusService::class));
+    [$driverA] = fixtureDriver(app(DeliveryStatusService::class));
+    [, $otherDelivery] = fixtureDriver(app(DeliveryStatusService::class));
 
     $this->actingAs($driverA, 'delivery')
-        ->get('/delivery/deliveries/' . $otherDelivery->id)
+        ->get('/delivery/deliveries/'.$otherDelivery->id)
         ->assertStatus(403);
 });
 
 test('a driver can start an assigned delivery', function () {
-    [$driver, $delivery, , ] = fixtureDriver(app(DeliveryStatusService::class));
+    [$driver, $delivery] = fixtureDriver(app(DeliveryStatusService::class));
 
     $this->actingAs($driver, 'delivery')->post(
-        '/delivery/deliveries/' . $delivery->id . '/start'
+        '/delivery/deliveries/'.$delivery->id.'/start'
     )->assertRedirect();
 
     $this->assertDatabaseHas('deliveries', [
@@ -94,22 +94,22 @@ test('a driver can start an assigned delivery', function () {
 });
 
 test('arriving is blocked until the delivery starts', function () {
-    [$driver, $delivery, , ] = fixtureDriver(app(DeliveryStatusService::class));
+    [$driver, $delivery] = fixtureDriver(app(DeliveryStatusService::class));
 
     $this->actingAs($driver, 'delivery')->post(
-        '/delivery/deliveries/' . $delivery->id . '/arriving'
+        '/delivery/deliveries/'.$delivery->id.'/arriving'
     )->assertSessionHas('error');
 });
 
 test('a driver can share live location during out-for-delivery', function () {
-    [$driver, $delivery, , ] = fixtureDriver(app(DeliveryStatusService::class));
+    [$driver, $delivery] = fixtureDriver(app(DeliveryStatusService::class));
 
     app(DeliveryStatusService::class)->transition(
         $delivery->fresh(), Delivery::STATUS_OUT_FOR_DELIVERY
     );
 
     $this->actingAs($driver, 'delivery')->post(
-        '/delivery/deliveries/' . $delivery->id . '/location', [
+        '/delivery/deliveries/'.$delivery->id.'/location', [
             'latitude' => 33.6363,
             'longitude' => 73.0999,
             'accuracy' => 12,
@@ -125,14 +125,14 @@ test('a driver can share live location during out-for-delivery', function () {
 });
 
 test('a driver can mark a delivery as arriving once started', function () {
-    [$driver, $delivery, , ] = fixtureDriver(app(DeliveryStatusService::class));
+    [$driver, $delivery] = fixtureDriver(app(DeliveryStatusService::class));
 
     app(DeliveryStatusService::class)->transition(
         $delivery->fresh(), Delivery::STATUS_OUT_FOR_DELIVERY
     );
 
     $this->actingAs($driver, 'delivery')->post(
-        '/delivery/deliveries/' . $delivery->id . '/arriving'
+        '/delivery/deliveries/'.$delivery->id.'/arriving'
     )->assertRedirect();
 
     $this->assertDatabaseHas('deliveries', [
@@ -149,7 +149,7 @@ test('a driver can deliver a parcel and the order completes', function () {
     );
 
     $this->actingAs($driver, 'delivery')->post(
-        '/delivery/deliveries/' . $delivery->id . '/deliver', [
+        '/delivery/deliveries/'.$delivery->id.'/deliver', [
             'recipient_name' => 'Sara Raza',
             'cod_received' => 1100.50,
         ]
@@ -178,7 +178,7 @@ test('a driver can mark a delivery undelivered', function () {
     );
 
     $this->actingAs($driver, 'delivery')->post(
-        '/delivery/deliveries/' . $delivery->id . '/undelivered', [
+        '/delivery/deliveries/'.$delivery->id.'/undelivered', [
             'failure_reason' => 'customer_unavailable',
             'failure_note' => 'No one at the address',
         ]
@@ -199,7 +199,7 @@ test('a driver can mark a delivery undelivered', function () {
 });
 
 test('a finished delivery cannot be delivered twice', function () {
-    [$driver, $delivery, , ] = fixtureDriver(app(DeliveryStatusService::class));
+    [$driver, $delivery] = fixtureDriver(app(DeliveryStatusService::class));
 
     app(DeliveryStatusService::class)->transition(
         $delivery->fresh(), Delivery::STATUS_OUT_FOR_DELIVERY
@@ -209,9 +209,8 @@ test('a finished delivery cannot be delivered twice', function () {
     );
 
     $this->actingAs($driver, 'delivery')->post(
-        '/delivery/deliveries/' . $delivery->id . '/deliver', [
+        '/delivery/deliveries/'.$delivery->id.'/deliver', [
             'recipient_name' => 'Anyone',
         ]
     )->assertRedirect();
 });
-

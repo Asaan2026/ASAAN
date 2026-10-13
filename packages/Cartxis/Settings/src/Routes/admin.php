@@ -1,19 +1,17 @@
 <?php
 
-use Cartxis\Settings\Http\Controllers\Admin\GeneralSettingsController;
-use Cartxis\Settings\Http\Controllers\Admin\StoreConfigurationController;
-use Cartxis\Settings\Http\Controllers\Admin\LocalesController;
-use Cartxis\Settings\Http\Controllers\Admin\PaymentMethodsController;
-use Cartxis\Settings\Http\Controllers\Admin\TaxClassesController;
-use Cartxis\Settings\Http\Controllers\Admin\TaxRatesController;
-use Cartxis\Settings\Http\Controllers\Admin\TaxZonesController;
-use Cartxis\Settings\Http\Controllers\Admin\TaxRulesController;
-use Cartxis\Settings\Http\Controllers\Admin\EmailController;
 use Cartxis\Settings\Http\Controllers\Admin\AiSettingsController;
 use Cartxis\Settings\Http\Controllers\Admin\CountryController;
+use Cartxis\Settings\Http\Controllers\Admin\EmailController;
+use Cartxis\Settings\Http\Controllers\Admin\GeneralSettingsController;
+use Cartxis\Settings\Http\Controllers\Admin\LocalesController;
+use Cartxis\Settings\Http\Controllers\Admin\PaymentMethodsController;
 use Cartxis\Settings\Http\Controllers\Admin\ShippingMethodsController;
-use Cartxis\Settings\Http\Controllers\Admin\DeliverySettingsController;
-use Cartxis\Settings\Http\Controllers\Admin\ShiprocketSettingsController;
+use Cartxis\Settings\Http\Controllers\Admin\StoreConfigurationController;
+use Cartxis\Settings\Http\Controllers\Admin\TaxClassesController;
+use Cartxis\Settings\Http\Controllers\Admin\TaxRatesController;
+use Cartxis\Settings\Http\Controllers\Admin\TaxRulesController;
+use Cartxis\Settings\Http\Controllers\Admin\TaxZonesController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web', 'auth:admin'])
@@ -26,24 +24,24 @@ Route::middleware(['web', 'auth:admin'])
         // General Settings
         Route::get('general', [GeneralSettingsController::class, 'index'])->name('general.index');
         Route::post('general', [GeneralSettingsController::class, 'save'])->name('general.save');
-        
+
         // Store Configuration
         Route::get('store', [StoreConfigurationController::class, 'index'])->name('store.index');
         Route::post('store', [StoreConfigurationController::class, 'save'])->name('store.save');
-        
+
         // Locales & Currencies
         Route::get('locales', [LocalesController::class, 'index'])->name('locales.index');
-        
+
         // Locale routes
         Route::post('locales/locale', [LocalesController::class, 'storeLocale'])->name('locales.locale.store');
         Route::put('locales/locale/{locale}', [LocalesController::class, 'updateLocale'])->name('locales.locale.update');
         Route::delete('locales/locale/{locale}', [LocalesController::class, 'destroyLocale'])->name('locales.locale.destroy');
-        
+
         // Currency routes
         Route::post('locales/currency', [LocalesController::class, 'storeCurrency'])->name('locales.currency.store');
         Route::put('locales/currency/{id}', [LocalesController::class, 'updateCurrency'])->name('locales.currency.update');
         Route::delete('locales/currency/{id}', [LocalesController::class, 'destroyCurrency'])->name('locales.currency.destroy');
-        
+
         // Payment Methods
         Route::prefix('payment-methods')->name('payment-methods.')->group(function () {
             Route::get('/', [PaymentMethodsController::class, 'index'])->name('index');
@@ -130,4 +128,3 @@ Route::middleware(['web', 'auth:admin'])
             Route::delete('{country}', [CountryController::class, 'destroy'])->name('destroy');
         });
     });
-

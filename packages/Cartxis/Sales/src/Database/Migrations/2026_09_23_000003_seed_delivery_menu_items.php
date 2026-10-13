@@ -12,7 +12,7 @@ return new class extends Migration
     {
         $salesId = DB::table('menu_items')->where('key', 'sales')->value('id');
 
-        if (!$salesId) {
+        if (! $salesId) {
             return;
         }
 

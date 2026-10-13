@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Cartxis\PayPal\Http\Controllers\PayPalController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------

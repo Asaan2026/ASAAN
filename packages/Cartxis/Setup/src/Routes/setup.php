@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Cartxis\Setup\Http\Controllers\SetupController;
+use Illuminate\Support\Facades\Route;
 
 // Setup wizard routes - accessible only when setup is NOT complete
 Route::middleware(['web', 'setup.complete'])->prefix('setup')->name('setup.')->group(function () {

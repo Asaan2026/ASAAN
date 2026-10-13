@@ -51,6 +51,7 @@ class ShippingMethod extends Model
         if ($status) {
             return $query->where('status', $status);
         }
+
         return $query;
     }
 
@@ -87,6 +88,7 @@ class ShippingMethod extends Model
     {
         $this->status = $this->status === 'active' ? 'inactive' : 'active';
         $this->save();
+
         return $this;
     }
 
@@ -113,7 +115,7 @@ class ShippingMethod extends Model
 
         $rate = $query->first();
 
-        if (!$rate) {
+        if (! $rate) {
             return null; // No matching rate
         }
 

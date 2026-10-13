@@ -4,6 +4,7 @@ namespace Cartxis\Core\Services;
 
 use Cartxis\Core\Models\Theme;
 use Illuminate\Support\Facades\File;
+use Inertia\Inertia;
 
 class ThemeViewResolver
 {
@@ -15,8 +16,7 @@ class ThemeViewResolver
 
     public function __construct(
         protected ThemePathResolver $paths,
-    ) {
-    }
+    ) {}
 
     protected function getActiveThemeSlug(): string
     {
@@ -62,7 +62,7 @@ class ThemeViewResolver
 
     public function inertia(string $view, array $props = [])
     {
-        return \Inertia\Inertia::render($this->resolve($view), $props);
+        return Inertia::render($this->resolve($view), $props);
     }
 
     public function getActiveTheme(): string

@@ -2,12 +2,12 @@
 
 namespace Cartxis\Shop\Database\Seeders;
 
+use Cartxis\CMS\Services\StorefrontMenuSyncService;
+use Cartxis\Core\Models\Theme;
+use Cartxis\UIEditor\Database\Seeders\UIEditorPageSeeder;
+use Cartxis\UIEditor\Models\PageLayout;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Artisan;
-use Cartxis\Core\Models\Theme;
-use Cartxis\CMS\Services\StorefrontMenuSyncService;
-use Cartxis\UIEditor\Models\PageLayout;
-use Cartxis\UIEditor\Database\Seeders\UIEditorPageSeeder;
 
 class ThemeSeeder extends Seeder
 {
@@ -19,22 +19,22 @@ class ThemeSeeder extends Seeder
         $themePath = base_path('templates/storefront/general/cartxis-default');
 
         // ── 1. Theme record ────────────────────────────────────────────────
-        $themeConfig = json_decode(file_get_contents($themePath . '/theme.json'), true);
+        $themeConfig = json_decode(file_get_contents($themePath.'/theme.json'), true);
 
         Theme::updateOrCreate(
             ['slug' => 'cartxis-default'],
             [
-                'name'        => $themeConfig['name'],
+                'name' => $themeConfig['name'],
                 'description' => $themeConfig['description'],
-                'version'     => $themeConfig['version'],
-                'author'      => $themeConfig['author'],
-                'screenshot'  => $themeConfig['screenshot'] ?? null,
-                'is_active'   => true,
-                'is_default'  => true,
+                'version' => $themeConfig['version'],
+                'author' => $themeConfig['author'],
+                'screenshot' => $themeConfig['screenshot'] ?? null,
+                'is_active' => true,
+                'is_default' => true,
                 'catalog_slug' => 'cartxis-default',
-                'source'      => 'bundled',
-                'category'    => 'general',
-                'settings'    => $themeConfig['settings'] ?? [],
+                'source' => 'bundled',
+                'category' => 'general',
+                'settings' => $themeConfig['settings'] ?? [],
             ]
         );
 
@@ -52,12 +52,12 @@ class ThemeSeeder extends Seeder
         if ($existingPublished) {
             $this->command->info('  ↳ Homepage layout already published — skipping homepage seed.');
         } else {
-            $themeDataPath = $themePath . '/data/theme-data.json';
+            $themeDataPath = $themePath.'/data/theme-data.json';
 
             if (! file_exists($themeDataPath)) {
                 $this->command->warn('  ↳ theme-data.json not found — homepage layout not seeded.');
             } else {
-                $themeData    = json_decode(file_get_contents($themeDataPath), true);
+                $themeData = json_decode(file_get_contents($themeDataPath), true);
                 $homepageData = $themeData['homepage'] ?? null;
 
                 if (! $homepageData) {
@@ -67,14 +67,14 @@ class ThemeSeeder extends Seeder
                     PageLayout::homepage()->delete();
 
                     PageLayout::create([
-                        'page_type'    => PageLayout::TYPE_HOMEPAGE,
-                        'page_id'      => null,
-                        'layout_data'  => $homepageData,
-                        'status'       => PageLayout::STATUS_PUBLISHED,
+                        'page_type' => PageLayout::TYPE_HOMEPAGE,
+                        'page_id' => null,
+                        'layout_data' => $homepageData,
+                        'status' => PageLayout::STATUS_PUBLISHED,
                         'published_at' => now(),
                     ]);
 
-                    $this->command->info('  ↳ Homepage layout seeded and published (' . count($homepageData['sections'] ?? []) . ' sections).');
+                    $this->command->info('  ↳ Homepage layout seeded and published ('.count($homepageData['sections'] ?? []).' sections).');
                 }
             }
         }

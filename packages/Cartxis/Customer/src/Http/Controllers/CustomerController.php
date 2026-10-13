@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Cartxis\Customer\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
 use Cartxis\Customer\Http\Requests\StoreCustomerRequest;
 use Cartxis\Customer\Http\Requests\UpdateCustomerRequest;
 use Cartxis\Customer\Http\Resources\CustomerCollection;
 use Cartxis\Customer\Http\Resources\CustomerResource;
 use Cartxis\Customer\Models\Customer;
 use Cartxis\Customer\Models\CustomerGroup;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class CustomerController extends Controller
 {
@@ -217,7 +217,7 @@ class CustomerController extends Controller
 
         $customers = $query->get();
 
-        $filename = 'customers_' . now()->format('Y-m-d_His') . '.csv';
+        $filename = 'customers_'.now()->format('Y-m-d_His').'.csv';
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",

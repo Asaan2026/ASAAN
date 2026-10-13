@@ -20,36 +20,36 @@ return new class extends Migration
             $table->string('phone', 20)->nullable();
             $table->date('date_of_birth')->nullable();
             $table->enum('gender', ['male', 'female', 'other'])->nullable();
-            
+
             // Password for customer portal (optional)
             $table->string('password')->nullable();
-            
+
             // Customer Group
             $table->foreignId('customer_group_id')
                 ->nullable()
                 ->constrained('customer_groups')
                 ->onDelete('restrict');
-            
+
             // Company Information (optional for B2B)
             $table->string('company_name', 200)->nullable();
             $table->string('tax_id', 50)->nullable();
-            
+
             // Status and Flags
             $table->boolean('is_active')->default(true);
             $table->boolean('is_guest')->default(false)
                 ->comment('Whether this is a guest customer (checkout without registration)');
             $table->boolean('is_verified')->default(false);
             $table->boolean('newsletter_subscribed')->default(false);
-            
+
             // Statistics
             $table->integer('total_orders')->default(0);
             $table->decimal('total_spent', 12, 2)->default(0.00);
             $table->decimal('average_order_value', 10, 2)->default(0.00);
             $table->timestamp('last_order_date')->nullable();
-            
+
             // Notes
             $table->text('notes')->nullable();
-            
+
             // Timestamps
             $table->softDeletes();
             $table->timestamps();
@@ -64,12 +64,12 @@ return new class extends Migration
             $table->index(['first_name', 'last_name']);
             $table->unique(['email', 'is_guest'], 'customers_email_is_guest_unique');
         });
-        
+
         // Add fulltext index only for MySQL/MariaDB (not supported in SQLite, PostgreSQL or TiDB)
         $driver = Schema::getConnection()->getDriverName();
         $isTiDB = in_array($driver, ['mysql', 'mariadb'])
             && str_contains(Schema::getConnection()->selectOne('select version() as v')?->v ?? '', 'TiDB');
-        if (in_array($driver, ['mysql', 'mariadb']) && !$isTiDB) {
+        if (in_array($driver, ['mysql', 'mariadb']) && ! $isTiDB) {
             Schema::table('customers', function (Blueprint $table) {
                 $table->fullText(['first_name', 'last_name', 'email']);
             });

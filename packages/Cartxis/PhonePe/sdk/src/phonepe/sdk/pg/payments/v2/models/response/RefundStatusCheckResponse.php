@@ -16,65 +16,61 @@
 *  limitations under the License.
 */
 
-
 namespace PhonePe\payments\v2\models\response;
 
 use JsonMapper;
 
 class RefundStatusCheckResponse implements \JsonSerializable
 {
-	public string $originalMerchantOrderId;
-	public $amount;
-	public string $state;
-	public $paymentDetails;
+    public string $originalMerchantOrderId;
 
-	/**
-	 * @param $httpResponse
-	 * @return RefundStatusCheckResponse
-	 * @throws \JsonMapper_Exception
-	 */
-	public static function getInstance($httpResponse): RefundStatusCheckResponse
-	{
-		$mapper = new JsonMapper();
+    public $amount;
+
+    public string $state;
+
+    public $paymentDetails;
+
+    /**
+     * @throws \JsonMapper_Exception
+     */
+    public static function getInstance($httpResponse): RefundStatusCheckResponse
+    {
+        $mapper = new JsonMapper;
         $mapper->bEnforceMapType = false;
-		$refundStatusCheckResponse = $mapper->map($httpResponse, new RefundStatusCheckResponse());
-		return $refundStatusCheckResponse;
+        $refundStatusCheckResponse = $mapper->map($httpResponse, new RefundStatusCheckResponse);
 
-	}
-	public function getOriginalMerchantOrderId(): string
-	{
-		return $this->originalMerchantOrderId;
-	}
+        return $refundStatusCheckResponse;
 
-	/**
-	 * @return mixed
-	 */
-	public function getAmount()
-	{
-		return $this->amount;
-	}
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getState(): string
-	{
-		return $this->state;
-	}
+    public function getOriginalMerchantOrderId(): string
+    {
+        return $this->originalMerchantOrderId;
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getPaymentDetails()
-	{
-		return $this->paymentDetails;
-	}
+    /**
+     * @return mixed
+     */
+    public function getAmount()
+    {
+        return $this->amount;
+    }
 
-	/**
-	 * @return array
-	 */
-	public function jsonSerialize(): array
-	{
-		return get_object_vars($this);
-	}
+    public function getState(): string
+    {
+        return $this->state;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPaymentDetails()
+    {
+        return $this->paymentDetails;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return get_object_vars($this);
+    }
 }

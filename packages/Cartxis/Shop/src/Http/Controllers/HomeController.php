@@ -2,12 +2,13 @@
 
 namespace Cartxis\Shop\Http\Controllers;
 
-use Cartxis\Shop\Services\HomeService;
-use Cartxis\Core\Services\ThemeViewResolver;
-use Cartxis\Core\Services\SettingService;
 use Cartxis\Core\Models\Theme;
+use Cartxis\Core\Services\SettingService;
+use Cartxis\Core\Services\ThemeViewResolver;
+use Cartxis\Shop\Services\HomeService;
 use Cartxis\UIEditor\Services\LayoutService;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class HomeController extends Controller
 {
@@ -15,7 +16,7 @@ class HomeController extends Controller
      * @var HomeService
      */
     protected $homeService;
-    
+
     /**
      * @var ThemeViewResolver
      */
@@ -33,9 +34,6 @@ class HomeController extends Controller
 
     /**
      * Create a new controller instance.
-     *
-     * @param HomeService $homeService
-     * @param ThemeViewResolver $themeResolver
      */
     public function __construct(HomeService $homeService, ThemeViewResolver $themeResolver, SettingService $settingService, LayoutService $layoutService)
     {
@@ -48,7 +46,7 @@ class HomeController extends Controller
     /**
      * Display the homepage.
      *
-     * @return \Inertia\Response
+     * @return Response
      */
     public function index()
     {
@@ -56,7 +54,7 @@ class HomeController extends Controller
         $homepageLayout = $this->usesNativeHomepage()
             ? null
             : $this->layoutService->getPublishedHomepage();
-        
+
         // Use ThemeViewResolver to get correct view path
         return Inertia::render($this->themeResolver->resolve('Home/Index'), [
             // 'theme' prop is shared via HandleInertiaRequests middleware (flattened settings)
@@ -77,7 +75,7 @@ class HomeController extends Controller
                 'favicon' => $this->settingService->get('site_favicon') ?? config('branding.favicon'),
             ],
             'seo' => [
-                'title' => config('app.name') . ' - ' . trans('shop::shop.homepage.title'),
+                'title' => config('app.name').' - '.trans('shop::shop.homepage.title'),
                 'description' => 'Welcome to our online store',
                 'keywords' => 'ecommerce, shop, products',
             ],

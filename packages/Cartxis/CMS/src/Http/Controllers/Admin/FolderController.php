@@ -3,10 +3,10 @@
 namespace Cartxis\CMS\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Cartxis\CMS\Models\MediaFolder;
 use Cartxis\CMS\Services\MediaService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class FolderController extends Controller
 {

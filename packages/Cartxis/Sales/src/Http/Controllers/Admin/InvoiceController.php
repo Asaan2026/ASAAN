@@ -3,20 +3,23 @@
 namespace Cartxis\Sales\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Cartxis\Core\Models\Currency;
+use Cartxis\Core\Models\EmailTemplate;
 use Cartxis\Sales\Models\Invoice;
 use Cartxis\Sales\Repositories\InvoiceRepository;
-use Cartxis\Sales\Services\InvoiceService;
 use Cartxis\Sales\Services\InvoicePdfService;
+use Cartxis\Sales\Services\InvoiceService;
+use Cartxis\Shop\Models\Order;
 use Illuminate\Http\Request;
-use Cartxis\Core\Models\Currency;
 use Inertia\Inertia;
 use Inertia\Response;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class InvoiceController extends Controller
 {
     protected InvoiceRepository $invoiceRepository;
+
     protected InvoiceService $invoiceService;
+
     protected InvoicePdfService $pdfService;
 
     public function __construct(
@@ -67,7 +70,7 @@ class InvoiceController extends Controller
     {
         $invoice = $this->invoiceRepository->find($id);
 
-        if (!$invoice) {
+        if (! $invoice) {
             abort(404, 'Invoice not found');
         }
 
@@ -96,8 +99,8 @@ class InvoiceController extends Controller
         ]);
 
         try {
-            $order = \Cartxis\Shop\Models\Order::findOrFail($orderId);
-            
+            $order = Order::findOrFail($orderId);
+
             $invoice = $this->invoiceService->createFromOrder($order, [
                 'due_date' => $request->input('due_date'),
                 'notes' => $request->input('notes'),
@@ -195,16 +198,16 @@ class InvoiceController extends Controller
     {
         try {
             $invoice = $this->invoiceRepository->find($id);
-            
-            if (!$invoice) {
+
+            if (! $invoice) {
                 return back()->with('error', 'Invoice not found');
             }
-            
+
             $this->pdfService->download($invoice, false);
-            
+
             return response()->noContent();
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to generate PDF: ' . $e->getMessage());
+            return back()->with('error', 'Failed to generate PDF: '.$e->getMessage());
         }
     }
 
@@ -215,24 +218,24 @@ class InvoiceController extends Controller
     {
         try {
             $invoice = $this->invoiceRepository->find($id);
-            
-            if (!$invoice) {
+
+            if (! $invoice) {
                 return back()->with('error', 'Invoice not found');
             }
-            
-            if (!$invoice->order->customer_email) {
+
+            if (! $invoice->order->customer_email) {
                 return back()->with('error', 'No customer email found');
             }
-            
+
             // Get email template
-            $template = \Cartxis\Core\Models\EmailTemplate::findByCode('invoice_sent');
-            if (!$template || !$template->is_active) {
+            $template = EmailTemplate::findByCode('invoice_sent');
+            if (! $template || ! $template->is_active) {
                 return back()->with('error', 'Invoice email template not found or inactive');
             }
-            
+
             // Generate PDF
             $pdfPath = $this->pdfService->generate($invoice);
-            
+
             // Prepare email data
             $order = $invoice->order;
             $data = [
@@ -247,29 +250,29 @@ class InvoiceController extends Controller
                 'store_url' => config('app.url'),
                 'year' => date('Y'),
             ];
-            
+
             // Send email with PDF attachment
             $template->send($invoice->order->customer_email, $data, [
                 [
                     'path' => $pdfPath,
-                    'name' => $invoice->invoice_number . '.pdf',
+                    'name' => $invoice->invoice_number.'.pdf',
                     'mime' => 'application/pdf',
-                ]
+                ],
             ]);
-            
+
             // Mark as sent if it was pending
             if ($invoice->status === 'pending') {
                 $this->invoiceService->markAsSent($id);
             }
-            
+
             // Clean up PDF file
             if (file_exists($pdfPath)) {
                 unlink($pdfPath);
             }
-            
-            return back()->with('success', 'Invoice emailed successfully to ' . $invoice->order->customer_email);
+
+            return back()->with('success', 'Invoice emailed successfully to '.$invoice->order->customer_email);
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to send email: ' . $e->getMessage());
+            return back()->with('error', 'Failed to send email: '.$e->getMessage());
         }
     }
 
@@ -279,6 +282,6 @@ class InvoiceController extends Controller
 
         return $currency
             ? $currency->format($amount)
-            : '$' . number_format($amount, 2);
+            : '$'.number_format($amount, 2);
     }
 }

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->boolean('is_public')->default(false)->comment('Can be accessed by frontend');
             $table->string('extension_code')->nullable()->comment('Extension that owns this setting');
             $table->timestamps();
-            
+
             $table->index('group');
             $table->index('is_public');
             $table->index('extension_code');

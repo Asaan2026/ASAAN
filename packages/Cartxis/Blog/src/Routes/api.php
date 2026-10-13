@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
+use Cartxis\Blog\Models\BlogCategory;
+use Cartxis\Blog\Models\BlogPost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Cartxis\Blog\Models\BlogPost;
-use Cartxis\Blog\Models\BlogCategory;
 
 Route::group([
     'prefix' => 'api/blog',
@@ -15,7 +15,7 @@ Route::group([
 
     // Public: list published posts (used by BlogPostsGridBlock)
     Route::get('/posts', function (Request $request) {
-        $limit      = min((int) $request->get('limit', 6), 50);
+        $limit = min((int) $request->get('limit', 6), 50);
         $categoryId = $request->get('category_id');
 
         $posts = BlogPost::published()

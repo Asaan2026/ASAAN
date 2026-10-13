@@ -13,12 +13,12 @@
 */
 
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Cartxis\Service\Models\Service;
 use Cartxis\Service\Models\ServiceBooking;
 use Cartxis\Service\Models\ServiceCategory;
 use Cartxis\Service\Services\ServiceBookingService;
 use Cartxis\Service\Services\ServiceSettings;
-use Carbon\CarbonImmutable;
 
 if (! function_exists('serviceAdmin')) {
     function serviceAdmin(): User

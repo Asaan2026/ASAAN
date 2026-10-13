@@ -1,349 +1,728 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
-import AdminLayout from '@/layouts/AdminLayout.vue';
 import DateDisplay from '@/components/Calendar/DateDisplay.vue';
+import { useCurrency } from '@/composables/useCurrency';
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import * as categoryRoutes from '@/routes/admin/catalog/categories';
 import * as productRoutes from '@/routes/admin/catalog/products';
-import { useCurrency } from '@/composables/useCurrency';
+import { Head, Link } from '@inertiajs/vue3';
 
 const { formatPrice } = useCurrency();
 
 interface Product {
-  id: number;
-  name: string;
-  sku: string;
-  price: string;
-  status: string;
+    id: number;
+    name: string;
+    sku: string;
+    price: string;
+    status: string;
 }
 
 interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  description?: string;
-  image?: string;
-  status: boolean;
-  show_in_menu: boolean;
-  sort_order: number;
-  parent_id?: number;
-  parent?: {
     id: number;
     name: string;
-  };
-  children?: Category[];
-  products?: Product[];
-  meta_title?: string;
-  meta_description?: string;
-  meta_keywords?: string;
-  created_at: string;
-  updated_at: string;
+    slug: string;
+    description?: string;
+    image?: string;
+    status: boolean;
+    show_in_menu: boolean;
+    sort_order: number;
+    parent_id?: number;
+    parent?: {
+        id: number;
+        name: string;
+    };
+    children?: Category[];
+    products?: Product[];
+    meta_title?: string;
+    meta_description?: string;
+    meta_keywords?: string;
+    created_at: string;
+    updated_at: string;
 }
 
 interface Props {
-  category: Category;
+    category: Category;
 }
 
 const props = defineProps<Props>();
 </script>
 
 <template>
-  <AdminLayout :title="$t('Category Details')">
-    <Head :title="category.name" />
+    <AdminLayout :title="$t('Category Details')">
+        <Head :title="category.name" />
 
-    <div class="py-6">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ category.name }}</h1>
-              <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ $t('Category details and relationships') }}</p>
+        <div class="py-6">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <!-- Header -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1
+                                class="text-2xl font-semibold text-gray-900 dark:text-gray-100"
+                            >
+                                {{ category.name }}
+                            </h1>
+                            <p
+                                class="mt-1 text-sm text-gray-600 dark:text-gray-400"
+                            >
+                                {{ $t('Category details and relationships') }}
+                            </p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <Link
+                                :href="categoryRoutes.edit(category.id).url"
+                                class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+                            >
+                                <svg
+                                    class="mr-2 h-5 w-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                    />
+                                </svg>
+                                {{ $t('Edit Category') }}
+                            </Link>
+                            <Link
+                                :href="categoryRoutes.index().url"
+                                class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                            >
+                                <svg
+                                    class="mr-2 h-5 w-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                                    />
+                                </svg>
+                                {{ $t('Back to Categories') }}
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                    <!-- Main Info -->
+                    <div class="space-y-6 lg:col-span-2">
+                        <!-- General Information -->
+                        <div
+                            class="overflow-hidden rounded-lg bg-white shadow dark:bg-gray-800"
+                        >
+                            <div
+                                class="border-b border-gray-200 px-6 py-4 dark:border-gray-700"
+                            >
+                                <h2
+                                    class="text-lg font-medium text-gray-900 dark:text-gray-100"
+                                >
+                                    {{ $t('General Information') }}
+                                </h2>
+                            </div>
+                            <div class="px-6 py-4">
+                                <dl
+                                    class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2"
+                                >
+                                    <div>
+                                        <dt
+                                            class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{ $t('Name') }}
+                                        </dt>
+                                        <dd
+                                            class="mt-1 text-sm text-gray-900 dark:text-gray-100"
+                                        >
+                                            {{ category.name }}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt
+                                            class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{ $t('Slug') }}
+                                        </dt>
+                                        <dd
+                                            class="mt-1 font-mono text-sm text-gray-900 dark:text-gray-100"
+                                        >
+                                            {{ category.slug }}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt
+                                            class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{ $t('Status') }}
+                                        </dt>
+                                        <dd class="mt-1">
+                                            <span
+                                                :class="[
+                                                    'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                                                    category.status
+                                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300'
+                                                        : 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+                                                ]"
+                                            >
+                                                {{
+                                                    $t(
+                                                        category.status
+                                                            ? 'Active'
+                                                            : 'Inactive',
+                                                    )
+                                                }}
+                                            </span>
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt
+                                            class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{ $t('Show in Menu') }}
+                                        </dt>
+                                        <dd class="mt-1">
+                                            <span
+                                                :class="[
+                                                    'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                                                    category.show_in_menu
+                                                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300'
+                                                        : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+                                                ]"
+                                            >
+                                                {{
+                                                    $t(
+                                                        category.show_in_menu
+                                                            ? 'Yes'
+                                                            : 'No',
+                                                    )
+                                                }}
+                                            </span>
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt
+                                            class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{ $t('Sort Order') }}
+                                        </dt>
+                                        <dd
+                                            class="mt-1 text-sm text-gray-900 dark:text-gray-100"
+                                        >
+                                            {{ category.sort_order }}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt
+                                            class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{ $t('Parent Category') }}
+                                        </dt>
+                                        <dd
+                                            class="mt-1 text-sm text-gray-900 dark:text-gray-100"
+                                        >
+                                            <Link
+                                                v-if="category.parent"
+                                                :href="
+                                                    categoryRoutes.show(
+                                                        category.parent.id,
+                                                    ).url
+                                                "
+                                                class="text-blue-600 hover:text-blue-800"
+                                            >
+                                                {{ category.parent.name }}
+                                            </Link>
+                                            <span
+                                                v-else
+                                                class="text-gray-400"
+                                                >{{
+                                                    $t('None (Root Category)')
+                                                }}</span
+                                            >
+                                        </dd>
+                                    </div>
+                                    <div
+                                        class="sm:col-span-2"
+                                        v-if="category.description"
+                                    >
+                                        <dt
+                                            class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{ $t('Description') }}
+                                        </dt>
+                                        <dd
+                                            class="mt-1 text-sm text-gray-900 dark:text-gray-100"
+                                        >
+                                            {{ category.description }}
+                                        </dd>
+                                    </div>
+                                    <div
+                                        class="sm:col-span-2"
+                                        v-if="category.image_url"
+                                    >
+                                        <dt
+                                            class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{ $t('Image') }}
+                                        </dt>
+                                        <dd>
+                                            <img
+                                                :src="category.image_url"
+                                                :alt="category.name"
+                                                class="h-48 w-48 rounded-lg object-cover"
+                                            />
+                                        </dd>
+                                    </div>
+                                </dl>
+                            </div>
+                        </div>
+
+                        <!-- SEO Information -->
+                        <div
+                            class="overflow-hidden rounded-lg bg-white shadow dark:bg-gray-800"
+                        >
+                            <div
+                                class="border-b border-gray-200 px-6 py-4 dark:border-gray-700"
+                            >
+                                <h2
+                                    class="text-lg font-medium text-gray-900 dark:text-gray-100"
+                                >
+                                    {{ $t('SEO Settings') }}
+                                </h2>
+                            </div>
+                            <div class="px-6 py-4">
+                                <dl class="space-y-4">
+                                    <div>
+                                        <dt
+                                            class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{ $t('Meta Title') }}
+                                        </dt>
+                                        <dd
+                                            class="mt-1 text-sm text-gray-900 dark:text-gray-100"
+                                        >
+                                            {{ category.meta_title || '-' }}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt
+                                            class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{ $t('Meta Description') }}
+                                        </dt>
+                                        <dd
+                                            class="mt-1 text-sm text-gray-900 dark:text-gray-100"
+                                        >
+                                            {{
+                                                category.meta_description || '-'
+                                            }}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt
+                                            class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{ $t('Meta Keywords') }}
+                                        </dt>
+                                        <dd
+                                            class="mt-1 text-sm text-gray-900 dark:text-gray-100"
+                                        >
+                                            {{ category.meta_keywords || '-' }}
+                                        </dd>
+                                    </div>
+                                </dl>
+                            </div>
+                        </div>
+
+                        <!-- Subcategories -->
+                        <div
+                            v-if="
+                                category.children &&
+                                category.children.length > 0
+                            "
+                            class="overflow-hidden rounded-lg bg-white shadow dark:bg-gray-800"
+                        >
+                            <div
+                                class="border-b border-gray-200 px-6 py-4 dark:border-gray-700"
+                            >
+                                <h2
+                                    class="text-lg font-medium text-gray-900 dark:text-gray-100"
+                                >
+                                    {{
+                                        $t('Subcategories ({count})', {
+                                            count: category.children.length,
+                                        })
+                                    }}
+                                </h2>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table
+                                    class="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
+                                >
+                                    <thead
+                                        class="bg-gray-50 dark:bg-gray-700/50"
+                                    >
+                                        <tr>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                            >
+                                                {{ $t('Name') }}
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                            >
+                                                {{ $t('Status') }}
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                            >
+                                                {{ $t('Sort Order') }}
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                            >
+                                                {{ $t('Actions') }}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody
+                                        class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800"
+                                    >
+                                        <tr
+                                            v-for="child in category.children"
+                                            :key="child.id"
+                                        >
+                                            <td
+                                                class="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900 dark:text-gray-100"
+                                            >
+                                                {{ child.name }}
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap"
+                                            >
+                                                <span
+                                                    :class="[
+                                                        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                                                        child.status
+                                                            ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300'
+                                                            : 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+                                                    ]"
+                                                >
+                                                    {{
+                                                        $t(
+                                                            child.status
+                                                                ? 'Active'
+                                                                : 'Inactive',
+                                                        )
+                                                    }}
+                                                </span>
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400"
+                                            >
+                                                {{ child.sort_order }}
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 text-right text-sm font-medium whitespace-nowrap"
+                                            >
+                                                <Link
+                                                    :href="
+                                                        categoryRoutes.show(
+                                                            child.id,
+                                                        ).url
+                                                    "
+                                                    class="mr-4 text-blue-600 hover:text-blue-900"
+                                                >
+                                                    {{ $t('View') }}
+                                                </Link>
+                                                <Link
+                                                    :href="
+                                                        categoryRoutes.edit(
+                                                            child.id,
+                                                        ).url
+                                                    "
+                                                    class="text-indigo-600 hover:text-indigo-900"
+                                                >
+                                                    {{ $t('Edit') }}
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Products -->
+                        <div
+                            v-if="
+                                category.products &&
+                                category.products.length > 0
+                            "
+                            class="overflow-hidden rounded-lg bg-white shadow dark:bg-gray-800"
+                        >
+                            <div
+                                class="border-b border-gray-200 px-6 py-4 dark:border-gray-700"
+                            >
+                                <h2
+                                    class="text-lg font-medium text-gray-900 dark:text-gray-100"
+                                >
+                                    {{
+                                        $t(
+                                            'Products in this Category ({count})',
+                                            { count: category.products.length },
+                                        )
+                                    }}
+                                </h2>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table
+                                    class="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
+                                >
+                                    <thead
+                                        class="bg-gray-50 dark:bg-gray-700/50"
+                                    >
+                                        <tr>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                            >
+                                                {{ $t('Name') }}
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                            >
+                                                {{ $t('SKU') }}
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                            >
+                                                {{ $t('Price') }}
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                            >
+                                                {{ $t('Status') }}
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                            >
+                                                {{ $t('Actions') }}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody
+                                        class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800"
+                                    >
+                                        <tr
+                                            v-for="product in category.products"
+                                            :key="product.id"
+                                        >
+                                            <td
+                                                class="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900 dark:text-gray-100"
+                                            >
+                                                {{ product.name }}
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400"
+                                            >
+                                                {{ product.sku }}
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 text-sm whitespace-nowrap text-gray-900 dark:text-gray-100"
+                                            >
+                                                {{ formatPrice(product.price) }}
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap"
+                                            >
+                                                <span
+                                                    :class="[
+                                                        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                                                        product.status ===
+                                                        'enabled'
+                                                            ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300'
+                                                            : 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+                                                    ]"
+                                                >
+                                                    {{
+                                                        $t(
+                                                            product.status
+                                                                .charAt(0)
+                                                                .toUpperCase() +
+                                                                product.status.slice(
+                                                                    1,
+                                                                ),
+                                                        )
+                                                    }}
+                                                </span>
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 text-right text-sm font-medium whitespace-nowrap"
+                                            >
+                                                <Link
+                                                    :href="
+                                                        productRoutes.edit(
+                                                            product.id,
+                                                        ).url
+                                                    "
+                                                    class="text-indigo-600 hover:text-indigo-900"
+                                                >
+                                                    {{ $t('Edit') }}
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="space-y-6">
+                        <!-- Metadata -->
+                        <div
+                            class="overflow-hidden rounded-lg bg-white shadow dark:bg-gray-800"
+                        >
+                            <div
+                                class="border-b border-gray-200 px-6 py-4 dark:border-gray-700"
+                            >
+                                <h2
+                                    class="text-lg font-medium text-gray-900 dark:text-gray-100"
+                                >
+                                    {{ $t('Metadata') }}
+                                </h2>
+                            </div>
+                            <div class="px-6 py-4">
+                                <dl class="space-y-4">
+                                    <div>
+                                        <dt
+                                            class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{ $t('ID') }}
+                                        </dt>
+                                        <dd
+                                            class="mt-1 text-sm text-gray-900 dark:text-gray-100"
+                                        >
+                                            #{{ category.id }}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt
+                                            class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{ $t('Created') }}
+                                        </dt>
+                                        <dd
+                                            class="mt-1 text-sm text-gray-900 dark:text-gray-100"
+                                        >
+                                            <DateDisplay
+                                                :value="category.created_at"
+                                            />
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt
+                                            class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{ $t('Last Updated') }}
+                                        </dt>
+                                        <dd
+                                            class="mt-1 text-sm text-gray-900 dark:text-gray-100"
+                                        >
+                                            <DateDisplay
+                                                :value="category.updated_at"
+                                            />
+                                        </dd>
+                                    </div>
+                                </dl>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats -->
+                        <div
+                            class="overflow-hidden rounded-lg bg-white shadow dark:bg-gray-800"
+                        >
+                            <div
+                                class="border-b border-gray-200 px-6 py-4 dark:border-gray-700"
+                            >
+                                <h2
+                                    class="text-lg font-medium text-gray-900 dark:text-gray-100"
+                                >
+                                    {{ $t('Quick Stats') }}
+                                </h2>
+                            </div>
+                            <div class="px-6 py-4">
+                                <dl class="space-y-4">
+                                    <div>
+                                        <dt
+                                            class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{ $t('Subcategories') }}
+                                        </dt>
+                                        <dd
+                                            class="mt-1 text-2xl font-semibold text-gray-900 dark:text-gray-100"
+                                        >
+                                            {{ category.children?.length || 0 }}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt
+                                            class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{ $t('Products') }}
+                                        </dt>
+                                        <dd
+                                            class="mt-1 text-2xl font-semibold text-gray-900 dark:text-gray-100"
+                                        >
+                                            {{ category.products?.length || 0 }}
+                                        </dd>
+                                    </div>
+                                </dl>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div
+                            class="overflow-hidden rounded-lg bg-white shadow dark:bg-gray-800"
+                        >
+                            <div
+                                class="border-b border-gray-200 px-6 py-4 dark:border-gray-700"
+                            >
+                                <h2
+                                    class="text-lg font-medium text-gray-900 dark:text-gray-100"
+                                >
+                                    {{ $t('Quick Actions') }}
+                                </h2>
+                            </div>
+                            <div class="space-y-3 px-6 py-4">
+                                <Link
+                                    :href="
+                                        categoryRoutes.create({
+                                            query: { parent_id: category.id },
+                                        }).url
+                                    "
+                                    class="block w-full rounded-md border border-transparent bg-blue-600 px-4 py-2 text-center text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+                                >
+                                    {{ $t('Add Subcategory') }}
+                                </Link>
+                                <Link
+                                    :href="
+                                        productRoutes.create({
+                                            query: { category_id: category.id },
+                                        }).url
+                                    "
+                                    class="block w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-center text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                                >
+                                    {{ $t('Add Product') }}
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="flex items-center space-x-3">
-              <Link
-                :href="categoryRoutes.edit(category.id).url"
-                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                {{ $t('Edit Category') }}
-              </Link>
-              <Link
-                :href="categoryRoutes.index().url"
-                class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                {{ $t('Back to Categories') }}
-              </Link>
-            </div>
-          </div>
         </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- Main Info -->
-          <div class="lg:col-span-2 space-y-6">
-            <!-- General Information -->
-            <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-              <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $t('General Information') }}</h2>
-              </div>
-              <div class="px-6 py-4">
-                <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('Name') }}</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ category.name }}</dd>
-                  </div>
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('Slug') }}</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100 font-mono">{{ category.slug }}</dd>
-                  </div>
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('Status') }}</dt>
-                    <dd class="mt-1">
-                      <span :class="[
-                        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                        category.status ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300'
-                      ]">
-                        {{ $t(category.status ? 'Active' : 'Inactive') }}
-                      </span>
-                    </dd>
-                  </div>
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('Show in Menu') }}</dt>
-                    <dd class="mt-1">
-                      <span :class="[
-                        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                        category.show_in_menu ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
-                      ]">
-                        {{ $t(category.show_in_menu ? 'Yes' : 'No') }}
-                      </span>
-                    </dd>
-                  </div>
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('Sort Order') }}</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ category.sort_order }}</dd>
-                  </div>
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('Parent Category') }}</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
-                      <Link
-                        v-if="category.parent"
-                        :href="categoryRoutes.show(category.parent.id).url"
-                        class="text-blue-600 hover:text-blue-800"
-                      >
-                        {{ category.parent.name }}
-                      </Link>
-                      <span v-else class="text-gray-400">{{ $t('None (Root Category)') }}</span>
-                    </dd>
-                  </div>
-                  <div class="sm:col-span-2" v-if="category.description">
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('Description') }}</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ category.description }}</dd>
-                  </div>
-                  <div class="sm:col-span-2" v-if="category.image_url">
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{{ $t('Image') }}</dt>
-                    <dd>
-                      <img :src="category.image_url" :alt="category.name" class="h-48 w-48 object-cover rounded-lg" />
-                    </dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
-
-            <!-- SEO Information -->
-            <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-              <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $t('SEO Settings') }}</h2>
-              </div>
-              <div class="px-6 py-4">
-                <dl class="space-y-4">
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('Meta Title') }}</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ category.meta_title || '-' }}</dd>
-                  </div>
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('Meta Description') }}</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ category.meta_description || '-' }}</dd>
-                  </div>
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('Meta Keywords') }}</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ category.meta_keywords || '-' }}</dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
-
-            <!-- Subcategories -->
-            <div v-if="category.children && category.children.length > 0" class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-              <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $t('Subcategories ({count})', { count: category.children.length }) }}</h2>
-              </div>
-              <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead class="bg-gray-50 dark:bg-gray-700/50">
-                    <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Name') }}</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Status') }}</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Sort Order') }}</th>
-                      <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Actions') }}</th>
-                    </tr>
-                  </thead>
-                  <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    <tr v-for="child in category.children" :key="child.id">
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {{ child.name }}
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <span :class="[
-                          'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                          child.status ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300'
-                        ]">
-                          {{ $t(child.status ? 'Active' : 'Inactive') }}
-                        </span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                        {{ child.sort_order }}
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <Link
-                          :href="categoryRoutes.show(child.id).url"
-                          class="text-blue-600 hover:text-blue-900 mr-4"
-                        >
-                          {{ $t('View') }}
-                        </Link>
-                        <Link
-                          :href="categoryRoutes.edit(child.id).url"
-                          class="text-indigo-600 hover:text-indigo-900"
-                        >
-                          {{ $t('Edit') }}
-                        </Link>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Products -->
-            <div v-if="category.products && category.products.length > 0" class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-              <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $t('Products in this Category ({count})', { count: category.products.length }) }}</h2>
-              </div>
-              <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead class="bg-gray-50 dark:bg-gray-700/50">
-                    <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Name') }}</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('SKU') }}</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Price') }}</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Status') }}</th>
-                      <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Actions') }}</th>
-                    </tr>
-                  </thead>
-                  <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    <tr v-for="product in category.products" :key="product.id">
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {{ product.name }}
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                        {{ product.sku }}
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                        {{ formatPrice(product.price) }}
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <span :class="[
-                          'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                          product.status === 'enabled' ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300'
-                        ]">
-                          {{ $t(product.status.charAt(0).toUpperCase() + product.status.slice(1)) }}
-                        </span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <Link
-                          :href="productRoutes.edit(product.id).url"
-                          class="text-indigo-600 hover:text-indigo-900"
-                        >
-                          {{ $t('Edit') }}
-                        </Link>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <!-- Sidebar -->
-          <div class="space-y-6">
-            <!-- Metadata -->
-            <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-              <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $t('Metadata') }}</h2>
-              </div>
-              <div class="px-6 py-4">
-                <dl class="space-y-4">
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('ID') }}</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">#{{ category.id }}</dd>
-                  </div>
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('Created') }}</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100"><DateDisplay :value="category.created_at" /></dd>
-                  </div>
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('Last Updated') }}</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100"><DateDisplay :value="category.updated_at" /></dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
-
-            <!-- Quick Stats -->
-            <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-              <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $t('Quick Stats') }}</h2>
-              </div>
-              <div class="px-6 py-4">
-                <dl class="space-y-4">
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('Subcategories') }}</dt>
-                    <dd class="mt-1 text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ category.children?.length || 0 }}</dd>
-                  </div>
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('Products') }}</dt>
-                    <dd class="mt-1 text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ category.products?.length || 0 }}</dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-              <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $t('Quick Actions') }}</h2>
-              </div>
-              <div class="px-6 py-4 space-y-3">
-                <Link
-                  :href="categoryRoutes.create({ query: { parent_id: category.id } }).url"
-                  class="block w-full text-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  {{ $t('Add Subcategory') }}
-                </Link>
-                <Link
-                  :href="productRoutes.create({ query: { category_id: category.id } }).url"
-                  class="block w-full text-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  {{ $t('Add Product') }}
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </AdminLayout>
+    </AdminLayout>
 </template>

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Cartxis\API\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Cartxis\Core\Services\SettingService;
 use Carbon\Carbon;
+use Cartxis\Core\Services\SettingService;
+use Illuminate\Http\Request;
 
 class ApiSyncController extends Controller
 {
@@ -61,7 +61,7 @@ class ApiSyncController extends Controller
         $connectedSetting = (bool) $this->settingService->get('system.api_sync_connected', false);
         $connected = $connectedSetting;
 
-        if (!empty($lastCheckedAt)) {
+        if (! empty($lastCheckedAt)) {
             try {
                 $connected = Carbon::parse($lastCheckedAt)->diffInSeconds(now()) <= 120;
             } catch (\Throwable $e) {

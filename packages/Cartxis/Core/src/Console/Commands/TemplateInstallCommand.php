@@ -2,9 +2,9 @@
 
 namespace Cartxis\Core\Console\Commands;
 
+use Cartxis\Core\Services\TemplateInstallService;
 use Exception;
 use Illuminate\Console\Command;
-use Cartxis\Core\Services\TemplateInstallService;
 
 class TemplateInstallCommand extends Command
 {

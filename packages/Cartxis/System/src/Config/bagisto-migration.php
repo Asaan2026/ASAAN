@@ -2,7 +2,7 @@
 
 return [
     'connection' => env('BAGISTO_DB_CONNECTION', 'bagisto'),
-    
+
     'database' => [
         'host' => env('BAGISTO_DB_HOST', '127.0.0.1'),
         'port' => env('BAGISTO_DB_PORT', '3306'),
@@ -10,7 +10,7 @@ return [
         'username' => env('BAGISTO_DB_USERNAME', 'root'),
         'password' => env('BAGISTO_DB_PASSWORD', ''),
     ],
-    
+
     'mappings' => [
         'customer_group' => [
             'Guest' => 'guest',
@@ -35,17 +35,17 @@ return [
             'pending_payment' => 'pending',
         ],
     ],
-    
+
     'defaults' => [
         'locale_code' => 'en',
         'currency_code' => 'USD',
         'inventory_source_id' => 1,
     ],
-    
+
     'media' => [
         'base_path' => env('BAGISTO_MEDIA_PATH', '/storage'),
         'copy_files' => env('BAGISTO_COPY_MEDIA', true),
     ],
-    
+
     'batch_size' => 500,
 ];

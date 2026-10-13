@@ -35,12 +35,12 @@ class PreventUserAdminAccess
                 && (property_exists($admin, 'is_active') || isset($admin->is_active))
                 && (bool) $admin->is_active;
 
-            if (!$isAdmin || !$isActive) {
+            if (! $isAdmin || ! $isActive) {
                 auth()->guard('admin')->logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
 
-                $message = !$isAdmin
+                $message = ! $isAdmin
                     ? 'You do not have permission to access the admin panel.'
                     : 'Your account has been deactivated.';
 

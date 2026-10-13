@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 class AiProductDescriptionService
 {
     private const PRODUCT_DESCRIPTION_AGENT_KEY = 'ai.product_description_agent';
+
     private const PRICE_COMPARISON_AGENT_KEY = 'ai.price_comparison_agent';
 
     public function __construct(
@@ -143,7 +144,7 @@ class AiProductDescriptionService
         float $defaultTemperature,
         int $defaultMaxTokens
     ): array {
-        if (!$this->settings->get('ai.enabled', false)) {
+        if (! $this->settings->get('ai.enabled', false)) {
             throw new \RuntimeException('AI is disabled.');
         }
 
@@ -164,12 +165,12 @@ class AiProductDescriptionService
 
         $providerName = $this->resolveProviderName($agent, $payload, $defaultProviderName, $providers);
         $provider = $this->findByName($providers, $providerName);
-        if (!$provider) {
+        if (! $provider) {
             throw new \RuntimeException('AI provider not configured.');
         }
 
         $modelName = $this->resolveModelName($agent, $payload, $models, $providerName);
-        if (!$modelName) {
+        if (! $modelName) {
             throw new \RuntimeException('AI model not configured.');
         }
 
@@ -257,7 +258,7 @@ class AiProductDescriptionService
             'schema' => $schema,
         ];
 
-        return "Generate product description JSON.\n" . json_encode($payload, JSON_PRETTY_PRINT);
+        return "Generate product description JSON.\n".json_encode($payload, JSON_PRETTY_PRINT);
     }
 
     protected function defaultSystemPrompt(): string
@@ -288,7 +289,7 @@ class AiProductDescriptionService
             ],
         ];
 
-        return "Generate price comparison JSON.\n" . json_encode($payload, JSON_PRETTY_PRINT);
+        return "Generate price comparison JSON.\n".json_encode($payload, JSON_PRETTY_PRINT);
     }
 
     protected function normalizePriceOptions(array $options, float $currentPrice, string $currency, array $marketplaces = []): array
@@ -299,7 +300,7 @@ class AiProductDescriptionService
         $normalized = [];
 
         foreach ($options as $index => $option) {
-            if (!is_array($option)) {
+            if (! is_array($option)) {
                 continue;
             }
 
@@ -323,7 +324,7 @@ class AiProductDescriptionService
                 ?? $option['source']
                 ?? $option['marketplace']
                 ?? $option['platform']
-                ?? ($marketplaces[$index] ?? ('Market Option ' . ($index + 1)))
+                ?? ($marketplaces[$index] ?? ('Market Option '.($index + 1)))
             ));
 
             $details = trim((string) (
@@ -344,7 +345,7 @@ class AiProductDescriptionService
 
             $normalized[] = [
                 'variation' => $variation !== '' ? $variation : ($variations[$index] ?? 'competitive'),
-                'source_label' => $sourceLabel !== '' ? $sourceLabel : ($marketplaces[$index] ?? ('Market Option ' . ($index + 1))),
+                'source_label' => $sourceLabel !== '' ? $sourceLabel : ($marketplaces[$index] ?? ('Market Option '.($index + 1))),
                 'price' => round($price, 2),
                 'currency' => $optionCurrency !== '' ? $optionCurrency : $currency,
                 'details' => $details,
@@ -375,11 +376,11 @@ class AiProductDescriptionService
 
         $normalized = [];
         foreach ($options as $key => $value) {
-            if (!is_array($value)) {
+            if (! is_array($value)) {
                 continue;
             }
 
-            if (!isset($value['variation']) && is_string($key)) {
+            if (! isset($value['variation']) && is_string($key)) {
                 $value['variation'] = $key;
             }
 
@@ -426,7 +427,7 @@ class AiProductDescriptionService
                             if ($clean !== '') {
                                 if (str_contains($clean, ',') && str_contains($clean, '.')) {
                                     $clean = str_replace(',', '', $clean);
-                                } elseif (str_contains($clean, ',') && !str_contains($clean, '.')) {
+                                } elseif (str_contains($clean, ',') && ! str_contains($clean, '.')) {
                                     $clean = str_replace(',', '.', $clean);
                                 }
 
@@ -447,10 +448,11 @@ class AiProductDescriptionService
                 if ($value > 0) {
                     return $value;
                 }
+
                 continue;
             }
 
-            if (!is_string($candidate)) {
+            if (! is_string($candidate)) {
                 continue;
             }
 
@@ -466,7 +468,7 @@ class AiProductDescriptionService
 
             if (str_contains($clean, ',') && str_contains($clean, '.')) {
                 $clean = str_replace(',', '', $clean);
-            } elseif (str_contains($clean, ',') && !str_contains($clean, '.')) {
+            } elseif (str_contains($clean, ',') && ! str_contains($clean, '.')) {
                 $clean = str_replace(',', '.', $clean);
             }
 
@@ -672,10 +674,10 @@ class AiProductDescriptionService
         $baseUrl = rtrim((string) ($provider['base_url'] ?? 'https://api.openai.com/v1'), '/');
         $url = Str::contains($baseUrl, '/chat/completions')
             ? $baseUrl
-            : $baseUrl . '/chat/completions';
+            : $baseUrl.'/chat/completions';
 
         $headers = array_merge([
-            'Authorization' => 'Bearer ' . ($provider['api_key'] ?? ''),
+            'Authorization' => 'Bearer '.($provider['api_key'] ?? ''),
             'Content-Type' => 'application/json',
         ], $provider['headers'] ?? []);
 
@@ -689,8 +691,8 @@ class AiProductDescriptionService
             'max_tokens' => $maxTokens,
         ]);
 
-        if (!$response->successful()) {
-            throw new \RuntimeException('AI provider request failed: ' . $response->body());
+        if (! $response->successful()) {
+            throw new \RuntimeException('AI provider request failed: '.$response->body());
         }
 
         return Arr::get($response->json(), 'choices.0.message.content', '');
@@ -708,8 +710,8 @@ class AiProductDescriptionService
                 : $baseUrl;
         } else {
             $url = Str::endsWith($baseUrl, '/models')
-                ? $baseUrl . '/' . $modelName . ':generateContent'
-                : $baseUrl . '/models/' . $modelName . ':generateContent';
+                ? $baseUrl.'/'.$modelName.':generateContent'
+                : $baseUrl.'/models/'.$modelName.':generateContent';
         }
 
         $headers = array_merge([
@@ -717,7 +719,7 @@ class AiProductDescriptionService
         ], $provider['headers'] ?? []);
 
         $response = Http::withHeaders($headers)
-            ->post($url . '?key=' . $apiKey, [
+            ->post($url.'?key='.$apiKey, [
                 'system_instruction' => [
                     'parts' => [
                         ['text' => $systemPrompt],
@@ -737,13 +739,13 @@ class AiProductDescriptionService
                 ],
             ]);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             Log::error('Gemini request failed', [
                 'status' => $response->status(),
                 'body' => $response->body(),
                 'url' => $url,
             ]);
-            throw new \RuntimeException('AI provider request failed: ' . $response->body());
+            throw new \RuntimeException('AI provider request failed: '.$response->body());
         }
 
         return Arr::get($response->json(), 'candidates.0.content.parts.0.text', '');
@@ -772,7 +774,7 @@ class AiProductDescriptionService
 
     protected function findByName(array $items, ?string $name): ?array
     {
-        if (!$name) {
+        if (! $name) {
             return null;
         }
 
@@ -798,7 +800,7 @@ class AiProductDescriptionService
         }));
 
         foreach ($providerModels as $model) {
-            if (!empty($model['is_default'])) {
+            if (! empty($model['is_default'])) {
                 return $model['name'] ?? null;
             }
         }

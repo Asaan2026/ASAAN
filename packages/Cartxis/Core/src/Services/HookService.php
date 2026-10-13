@@ -19,11 +19,11 @@ class HookService
      */
     public function addAction(string $hook, callable $callback, int $priority = 10): void
     {
-        if (!isset($this->actions[$hook])) {
+        if (! isset($this->actions[$hook])) {
             $this->actions[$hook] = [];
         }
 
-        if (!isset($this->actions[$hook][$priority])) {
+        if (! isset($this->actions[$hook][$priority])) {
             $this->actions[$hook][$priority] = [];
         }
 
@@ -35,7 +35,7 @@ class HookService
      */
     public function doAction(string $hook, ...$args): void
     {
-        if (!isset($this->actions[$hook])) {
+        if (! isset($this->actions[$hook])) {
             return;
         }
 
@@ -53,11 +53,11 @@ class HookService
      */
     public function addFilter(string $hook, callable $callback, int $priority = 10): void
     {
-        if (!isset($this->filters[$hook])) {
+        if (! isset($this->filters[$hook])) {
             $this->filters[$hook] = [];
         }
 
-        if (!isset($this->filters[$hook][$priority])) {
+        if (! isset($this->filters[$hook][$priority])) {
             $this->filters[$hook][$priority] = [];
         }
 
@@ -69,7 +69,7 @@ class HookService
      */
     public function applyFilter(string $hook, $value, ...$args)
     {
-        if (!isset($this->filters[$hook])) {
+        if (! isset($this->filters[$hook])) {
             return $value;
         }
 
@@ -89,12 +89,12 @@ class HookService
      */
     public function removeAction(string $hook, callable $callback, int $priority = 10): bool
     {
-        if (!isset($this->actions[$hook][$priority])) {
+        if (! isset($this->actions[$hook][$priority])) {
             return false;
         }
 
         $key = array_search($callback, $this->actions[$hook][$priority], true);
-        
+
         if ($key === false) {
             return false;
         }
@@ -109,12 +109,12 @@ class HookService
      */
     public function removeFilter(string $hook, callable $callback, int $priority = 10): bool
     {
-        if (!isset($this->filters[$hook][$priority])) {
+        if (! isset($this->filters[$hook][$priority])) {
             return false;
         }
 
         $key = array_search($callback, $this->filters[$hook][$priority], true);
-        
+
         if ($key === false) {
             return false;
         }
@@ -129,7 +129,7 @@ class HookService
      */
     public function hasAction(string $hook): bool
     {
-        return isset($this->actions[$hook]) && !empty($this->actions[$hook]);
+        return isset($this->actions[$hook]) && ! empty($this->actions[$hook]);
     }
 
     /**
@@ -137,7 +137,7 @@ class HookService
      */
     public function hasFilter(string $hook): bool
     {
-        return isset($this->filters[$hook]) && !empty($this->filters[$hook]);
+        return isset($this->filters[$hook]) && ! empty($this->filters[$hook]);
     }
 
     /**

@@ -3,10 +3,12 @@
 namespace Cartxis\API\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Cartxis\API\Helpers\ApiResponse;
 use Cartxis\API\Http\Resources\CategoryResource;
+use Cartxis\API\Http\Resources\ProductResource;
 use Cartxis\Product\Models\Category;
+use Cartxis\Product\Models\Product;
+use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
@@ -22,17 +24,17 @@ class CategoryController extends Controller
         // Search by name or slug
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('slug', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('slug', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
         // Filter by parent
         if ($request->has('parent_id')) {
             $query->where('parent_id', $request->parent_id);
-        } elseif (!$request->has('search')) {
+        } elseif (! $request->has('search')) {
             // Root categories by default (unless searching)
             $query->whereNull('parent_id');
         }
@@ -58,9 +60,9 @@ class CategoryController extends Controller
         $categories = Category::query()
             ->where('status', 'enabled')
             ->whereNull('parent_id')
-            ->with(['children' => function($q) {
+            ->with(['children' => function ($q) {
                 $q->where('status', 'enabled')
-                  ->orderBy('sort_order');
+                    ->orderBy('sort_order');
             }])
             ->orderBy('sort_order')
             ->get();
@@ -76,10 +78,10 @@ class CategoryController extends Controller
      */
     public function show($id)
     {
-        $category = Category::with(['parent', 'children' => fn($q) => $q->where('status', 'enabled')])
+        $category = Category::with(['parent', 'children' => fn ($q) => $q->where('status', 'enabled')])
             ->find($id);
 
-        if (!$category) {
+        if (! $category) {
             return ApiResponse::notFound('Category not found', 'CATEGORY_NOT_FOUND');
         }
 
@@ -100,7 +102,7 @@ class CategoryController extends Controller
     {
         $category = Category::find($id);
 
-        if (!$category) {
+        if (! $category) {
             return ApiResponse::notFound('Category not found', 'CATEGORY_NOT_FOUND');
         }
 
@@ -109,8 +111,8 @@ class CategoryController extends Controller
         // Get all subcategory IDs recursively
         $categoryIds = $this->getAllCategoryIds($category);
 
-            $products = \Cartxis\Product\Models\Product::query()
-            ->whereHas('categories', function($query) use ($categoryIds) {
+        $products = Product::query()
+            ->whereHas('categories', function ($query) use ($categoryIds) {
                 $query->whereIn('categories.id', $categoryIds);
             })
             ->where('status', 'enabled')
@@ -118,7 +120,7 @@ class CategoryController extends Controller
             ->paginate($perPage);
 
         return ApiResponse::paginated(
-                $products->through(fn($product) => new \Cartxis\API\Http\Resources\ProductResource($product)),
+            $products->through(fn ($product) => new ProductResource($product)),
             "Products in '{$category->name}' retrieved successfully"
         );
     }
@@ -129,13 +131,13 @@ class CategoryController extends Controller
     private function getAllCategoryIds($category)
     {
         $ids = [$category->id];
-        
+
         $subcategories = Category::where('parent_id', $category->id)->get();
-        
+
         foreach ($subcategories as $subcategory) {
             $ids = array_merge($ids, $this->getAllCategoryIds($subcategory));
         }
-        
+
         return $ids;
     }
 }

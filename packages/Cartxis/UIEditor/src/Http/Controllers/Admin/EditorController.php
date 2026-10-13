@@ -5,17 +5,16 @@ declare(strict_types=1);
 namespace Cartxis\UIEditor\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Cartxis\CMS\Models\Page;
+use Cartxis\CMS\Services\PageService;
+use Cartxis\UIEditor\Models\PageLayout;
+use Cartxis\UIEditor\Services\BlockRegistry;
+use Cartxis\UIEditor\Services\LayoutService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\CMS\Models\Page;
-use Cartxis\CMS\Http\Resources\PageResource;
-use Cartxis\CMS\Services\PageService;
-use Cartxis\UIEditor\Models\PageLayout;
-use Cartxis\UIEditor\Services\BlockRegistry;
-use Cartxis\UIEditor\Services\LayoutService;
 
 class EditorController extends Controller
 {
@@ -41,32 +40,32 @@ class EditorController extends Controller
 
         // For the homepage we reuse the dedicated save/publish routes (no page {id} required).
         // For regular pages we use the per-page routes.
-        $saveUrl      = $isHomepage ? route('admin.uieditor.homepage.save')      : route('admin.uieditor.pages.save',    $page);
-        $publishUrl   = $isHomepage ? route('admin.uieditor.homepage.publish')   : route('admin.uieditor.pages.publish',  $page);
+        $saveUrl = $isHomepage ? route('admin.uieditor.homepage.save') : route('admin.uieditor.pages.save', $page);
+        $publishUrl = $isHomepage ? route('admin.uieditor.homepage.publish') : route('admin.uieditor.pages.publish', $page);
         $unpublishUrl = $isHomepage ? route('admin.uieditor.homepage.unpublish') : route('admin.uieditor.pages.unpublish', $page);
-        $previewUrl   = $isHomepage ? route('admin.uieditor.homepage.preview')   : route('admin.uieditor.pages.preview',  $page);
+        $previewUrl = $isHomepage ? route('admin.uieditor.homepage.preview') : route('admin.uieditor.pages.preview', $page);
 
         return Inertia::render('Admin/UIEditor/Editor', [
-            'page'         => [
-                'id'            => $page->id,
-                'title'         => $page->title,
-                'url'           => $page->url_key,
-                'url_key'       => $page->url_key,
-                'status'        => $page->status,
-                'is_homepage'   => $isHomepage,
-                'meta_title'    => $page->meta_title,
+            'page' => [
+                'id' => $page->id,
+                'title' => $page->title,
+                'url' => $page->url_key,
+                'url_key' => $page->url_key,
+                'status' => $page->status,
+                'is_homepage' => $isHomepage,
+                'meta_title' => $page->meta_title,
                 'meta_description' => $page->meta_description,
                 'meta_keywords' => $page->meta_keywords,
             ],
-            'pageType'     => $pageType,
-            'layoutData'   => $layout?->layout_data ?? $this->layoutService->emptyLayout(),
+            'pageType' => $pageType,
+            'layoutData' => $layout?->layout_data ?? $this->layoutService->emptyLayout(),
             'layoutStatus' => $layout?->status,
-            'publishedAt'  => $layout?->published_at?->toIso8601String(),
-            'blockTypes'   => array_values($this->blockRegistry->all()),
-            'saveUrl'      => $saveUrl,
-            'publishUrl'   => $publishUrl,
+            'publishedAt' => $layout?->published_at?->toIso8601String(),
+            'blockTypes' => array_values($this->blockRegistry->all()),
+            'saveUrl' => $saveUrl,
+            'publishUrl' => $publishUrl,
             'unpublishUrl' => $unpublishUrl,
-            'previewUrl'   => $previewUrl,
+            'previewUrl' => $previewUrl,
         ]);
     }
 
@@ -76,8 +75,8 @@ class EditorController extends Controller
     public function save(Request $request, Page $page): JsonResponse
     {
         $validated = $request->validate([
-            'layout_data'          => 'required|array',
-            'layout_data.version'  => 'required|string',
+            'layout_data' => 'required|array',
+            'layout_data.version' => 'required|string',
             'layout_data.sections' => 'present|array',
         ]);
 
@@ -88,7 +87,7 @@ class EditorController extends Controller
         );
 
         return response()->json([
-            'status'  => $layout->status,
+            'status' => $layout->status,
             'savedAt' => now()->toIso8601String(),
             'message' => 'Draft saved successfully.',
         ]);
@@ -108,9 +107,9 @@ class EditorController extends Controller
         $layout = $this->layoutService->publish($layout);
 
         return response()->json([
-            'status'      => $layout->status,
+            'status' => $layout->status,
             'publishedAt' => $layout->published_at->toIso8601String(),
-            'message'     => 'Layout published successfully.',
+            'message' => 'Layout published successfully.',
         ]);
     }
 
@@ -128,7 +127,7 @@ class EditorController extends Controller
         $layout = $this->layoutService->unpublish($layout);
 
         return response()->json([
-            'status'  => $layout->status,
+            'status' => $layout->status,
             'message' => 'Layout unpublished. The page will now render its raw HTML content.',
         ]);
     }
@@ -140,12 +139,12 @@ class EditorController extends Controller
     public function updatePageSettings(Request $request, Page $page): JsonResponse
     {
         $validated = $request->validate([
-            'title'            => 'required|string|max:255',
-            'url_key'          => ['required', 'string', 'max:255', 'regex:/^[a-z0-9-]+$/', Rule::unique('pages', 'url_key')->ignore($page->id)],
-            'status'           => 'required|in:draft,published,disabled',
-            'meta_title'       => 'nullable|string|max:255',
+            'title' => 'required|string|max:255',
+            'url_key' => ['required', 'string', 'max:255', 'regex:/^[a-z0-9-]+$/', Rule::unique('pages', 'url_key')->ignore($page->id)],
+            'status' => 'required|in:draft,published,disabled',
+            'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
-            'meta_keywords'    => 'nullable|string|max:500',
+            'meta_keywords' => 'nullable|string|max:500',
         ]);
 
         // Homepage status is always published — prevent override
@@ -160,16 +159,16 @@ class EditorController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Page settings saved.',
-            'page'    => [
-                'id'               => $page->id,
-                'title'            => $page->title,
-                'url'              => $page->url_key,
-                'url_key'          => $page->url_key,
-                'status'           => $page->status,
-                'is_homepage'      => (bool) $page->is_homepage,
-                'meta_title'       => $page->meta_title,
+            'page' => [
+                'id' => $page->id,
+                'title' => $page->title,
+                'url' => $page->url_key,
+                'url_key' => $page->url_key,
+                'status' => $page->status,
+                'is_homepage' => (bool) $page->is_homepage,
+                'meta_title' => $page->meta_title,
                 'meta_description' => $page->meta_description,
-                'meta_keywords'    => $page->meta_keywords,
+                'meta_keywords' => $page->meta_keywords,
             ],
         ]);
     }
@@ -182,7 +181,7 @@ class EditorController extends Controller
         $layout = $this->layoutService->getForPage($page);
 
         return Inertia::render('Admin/UIEditor/Preview', [
-            'page'       => ['id' => $page->id, 'title' => $page->title],
+            'page' => ['id' => $page->id, 'title' => $page->title],
             'layoutData' => $layout?->layout_data ?? $this->layoutService->emptyLayout(),
         ]);
     }

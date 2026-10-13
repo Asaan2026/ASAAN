@@ -1,42 +1,42 @@
 <script setup lang="ts">
-import { Head, router, Link } from '@inertiajs/vue3';
-import AdminLayout from '@/layouts/AdminLayout.vue';
-import Pagination from '@/components/Admin/Pagination.vue';
 import ConfirmDeleteModal from '@/components/Admin/ConfirmDeleteModal.vue';
+import Pagination from '@/components/Admin/Pagination.vue';
+import AdminLayout from '@/layouts/AdminLayout.vue';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 interface Address {
-  id: number;
-  type: string;
-  first_name: string;
-  last_name: string;
-  full_name: string;
-  company?: string;
-  address_line_1: string;
-  address_line_2?: string;
-  city: string;
-  state: string;
-  postal_code: string;
-  country: string;
-  phone?: string;
-  is_default_shipping: boolean;
-  is_default_billing: boolean;
-  formatted_address: string;
+    id: number;
+    type: string;
+    first_name: string;
+    last_name: string;
+    full_name: string;
+    company?: string;
+    address_line_1: string;
+    address_line_2?: string;
+    city: string;
+    state: string;
+    postal_code: string;
+    country: string;
+    phone?: string;
+    is_default_shipping: boolean;
+    is_default_billing: boolean;
+    formatted_address: string;
 }
 
 interface Props {
-  customer: any;
-  addresses: {
-    data: Address[];
-    links: any;
-    meta: any;
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-    from: number;
-    to: number;
-  };
+    customer: any;
+    addresses: {
+        data: Address[];
+        links: any;
+        meta: any;
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+        from: number;
+        to: number;
+    };
 }
 
 const props = defineProps<Props>();
@@ -45,181 +45,376 @@ const showDeleteModal = ref(false);
 const deleteAddressId = ref<number | null>(null);
 
 function confirmDelete(id: number) {
-  deleteAddressId.value = id;
-  showDeleteModal.value = true;
+    deleteAddressId.value = id;
+    showDeleteModal.value = true;
 }
 
 function deleteAddress() {
-  if (deleteAddressId.value) {
-    router.delete(`/admin/customers/${props.customer.id}/addresses/${deleteAddressId.value}`, {
-      onSuccess: () => {
-        showDeleteModal.value = false;
-        deleteAddressId.value = null;
-      }
-    });
-  }
+    if (deleteAddressId.value) {
+        router.delete(
+            `/admin/customers/${props.customer.id}/addresses/${deleteAddressId.value}`,
+            {
+                onSuccess: () => {
+                    showDeleteModal.value = false;
+                    deleteAddressId.value = null;
+                },
+            },
+        );
+    }
 }
 
 function setDefaultShipping(id: number) {
-  router.post(`/admin/customers/${props.customer.id}/addresses/${id}/set-default-shipping`, {}, { preserveScroll: true });
+    router.post(
+        `/admin/customers/${props.customer.id}/addresses/${id}/set-default-shipping`,
+        {},
+        { preserveScroll: true },
+    );
 }
 
 function setDefaultBilling(id: number) {
-  router.post(`/admin/customers/${props.customer.id}/addresses/${id}/set-default-billing`, {}, { preserveScroll: true });
+    router.post(
+        `/admin/customers/${props.customer.id}/addresses/${id}/set-default-billing`,
+        {},
+        { preserveScroll: true },
+    );
 }
 </script>
 
 <template>
-  <AdminLayout :title="$t('Customer Addresses')">
-    <Head :title="$t('Addresses')" />
+    <AdminLayout :title="$t('Customer Addresses')">
+        <Head :title="$t('Addresses')" />
 
-    <div class="p-6">
-      <!-- Header -->
-      <div class="mb-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $t('Customer Addresses') }}</h1>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-              {{ $t('Manage addresses for {name}', { name: `${props.customer.first_name} ${props.customer.last_name}` }) }}
-            </p>
-          </div>
-          <div class="flex items-center gap-3">
-            <Link
-              :href="`/admin/customers/${props.customer.id}`"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              {{ $t('Back to Customer') }}
-            </Link>
-            <Link
-              :href="`/admin/customers/${props.customer.id}/addresses/create`"
-              class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              {{ $t('New Address') }}
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      <!-- Addresses Table -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-700/50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Type') }}</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Name') }}</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Address') }}</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Phone') }}</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Default For') }}</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $t('Actions') }}</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            <tr v-for="addr in props.addresses.data" :key="addr.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" :class="addr.type === 'shipping' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'">
-                  {{ addr.type === 'shipping' ? $t('Shipping') : $t('Billing') }}
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ addr.full_name }}</div>
-                <div v-if="addr.company" class="text-sm text-gray-500 dark:text-gray-400">{{ addr.company }}</div>
-              </td>
-              <td class="px-6 py-4">
-                <div class="text-sm text-gray-900 dark:text-gray-100">{{ addr.formatted_address }}</div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                {{ addr.phone || '-' }}
-              </td>
-              <td class="px-6 py-4">
-                <div class="flex flex-col gap-2">
-                  <div v-if="addr.is_default_shipping" class="inline-flex items-center text-xs text-green-600">
-                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                    {{ $t('Shipping') }}
-                  </div>
-                  <button v-else @click="setDefaultShipping(addr.id)" class="text-xs text-gray-600 dark:text-gray-400 hover:text-blue-600 text-left">
-                    {{ $t('Set as default shipping') }}
-                  </button>
-                  
-                  <div v-if="addr.is_default_billing" class="inline-flex items-center text-xs text-green-600">
-                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                    {{ $t('Billing') }}
-                  </div>
-                  <button v-else @click="setDefaultBilling(addr.id)" class="text-xs text-gray-600 dark:text-gray-400 hover:text-blue-600 text-left">
-                    {{ $t('Set as default billing') }}
-                  </button>
+        <div class="p-6">
+            <!-- Header -->
+            <div class="mb-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1
+                            class="text-2xl font-bold text-gray-900 dark:text-gray-100"
+                        >
+                            {{ $t('Customer Addresses') }}
+                        </h1>
+                        <p
+                            class="mt-1 text-sm text-gray-600 dark:text-gray-400"
+                        >
+                            {{
+                                $t('Manage addresses for {name}', {
+                                    name: `${props.customer.first_name} ${props.customer.last_name}`,
+                                })
+                            }}
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <Link
+                            :href="`/admin/customers/${props.customer.id}`"
+                            class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                        >
+                            <svg
+                                class="mr-2 h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                                />
+                            </svg>
+                            {{ $t('Back to Customer') }}
+                        </Link>
+                        <Link
+                            :href="`/admin/customers/${props.customer.id}/addresses/create`"
+                            class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+                        >
+                            <svg
+                                class="mr-2 h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M12 4v16m8-8H4"
+                                />
+                            </svg>
+                            {{ $t('New Address') }}
+                        </Link>
+                    </div>
                 </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <div class="flex items-center justify-end gap-2">
-                  <Link
-                    :href="`/admin/customers/${props.customer.id}/addresses/${addr.id}/edit`"
-                    class="text-indigo-600 hover:text-indigo-900 cursor-pointer"
-                    :title="$t('Edit Address')"
-                  >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </Link>
-                  <button
-                    @click="confirmDelete(addr.id)"
-                    class="text-red-600 hover:text-red-900 cursor-pointer"
-                    :title="$t('Delete Address')"
-                  >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+            </div>
 
-        <!-- Pagination -->
-        <div v-if="props.addresses.data.length > 0" class="bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700">
-          <Pagination :data="props.addresses" />
-        </div>
-
-        <!-- Empty State -->
-        <div v-if="props.addresses.data.length === 0" class="text-center py-12">
-          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">{{ $t('No addresses') }}</h3>
-          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $t('Get started by adding a new address.') }}</p>
-          <div class="mt-6">
-            <Link
-              :href="`/admin/customers/${props.customer.id}/addresses/create`"
-              class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            <!-- Addresses Table -->
+            <div
+                class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
             >
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              {{ $t('New Address') }}
-            </Link>
-          </div>
+                <table
+                    class="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
+                >
+                    <thead class="bg-gray-50 dark:bg-gray-700/50">
+                        <tr>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                            >
+                                {{ $t('Type') }}
+                            </th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                            >
+                                {{ $t('Name') }}
+                            </th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                            >
+                                {{ $t('Address') }}
+                            </th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                            >
+                                {{ $t('Phone') }}
+                            </th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                            >
+                                {{ $t('Default For') }}
+                            </th>
+                            <th
+                                class="px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                            >
+                                {{ $t('Actions') }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody
+                        class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800"
+                    >
+                        <tr
+                            v-for="addr in props.addresses.data"
+                            :key="addr.id"
+                            class="hover:bg-gray-50 dark:hover:bg-gray-700"
+                        >
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span
+                                    class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                                    :class="
+                                        addr.type === 'shipping'
+                                            ? 'bg-blue-100 text-blue-800'
+                                            : 'bg-green-100 text-green-800'
+                                    "
+                                >
+                                    {{
+                                        addr.type === 'shipping'
+                                            ? $t('Shipping')
+                                            : $t('Billing')
+                                    }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div
+                                    class="text-sm font-medium text-gray-900 dark:text-gray-100"
+                                >
+                                    {{ addr.full_name }}
+                                </div>
+                                <div
+                                    v-if="addr.company"
+                                    class="text-sm text-gray-500 dark:text-gray-400"
+                                >
+                                    {{ addr.company }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div
+                                    class="text-sm text-gray-900 dark:text-gray-100"
+                                >
+                                    {{ addr.formatted_address }}
+                                </div>
+                            </td>
+                            <td
+                                class="px-6 py-4 text-sm whitespace-nowrap text-gray-900 dark:text-gray-100"
+                            >
+                                {{ addr.phone || '-' }}
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex flex-col gap-2">
+                                    <div
+                                        v-if="addr.is_default_shipping"
+                                        class="inline-flex items-center text-xs text-green-600"
+                                    >
+                                        <svg
+                                            class="mr-1 h-3 w-3"
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path
+                                                fill-rule="evenodd"
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                clip-rule="evenodd"
+                                            />
+                                        </svg>
+                                        {{ $t('Shipping') }}
+                                    </div>
+                                    <button
+                                        v-else
+                                        @click="setDefaultShipping(addr.id)"
+                                        class="text-left text-xs text-gray-600 hover:text-blue-600 dark:text-gray-400"
+                                    >
+                                        {{ $t('Set as default shipping') }}
+                                    </button>
+
+                                    <div
+                                        v-if="addr.is_default_billing"
+                                        class="inline-flex items-center text-xs text-green-600"
+                                    >
+                                        <svg
+                                            class="mr-1 h-3 w-3"
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path
+                                                fill-rule="evenodd"
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                clip-rule="evenodd"
+                                            />
+                                        </svg>
+                                        {{ $t('Billing') }}
+                                    </div>
+                                    <button
+                                        v-else
+                                        @click="setDefaultBilling(addr.id)"
+                                        class="text-left text-xs text-gray-600 hover:text-blue-600 dark:text-gray-400"
+                                    >
+                                        {{ $t('Set as default billing') }}
+                                    </button>
+                                </div>
+                            </td>
+                            <td
+                                class="px-6 py-4 text-right text-sm font-medium whitespace-nowrap"
+                            >
+                                <div
+                                    class="flex items-center justify-end gap-2"
+                                >
+                                    <Link
+                                        :href="`/admin/customers/${props.customer.id}/addresses/${addr.id}/edit`"
+                                        class="cursor-pointer text-indigo-600 hover:text-indigo-900"
+                                        :title="$t('Edit Address')"
+                                    >
+                                        <svg
+                                            class="h-5 w-5"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                            />
+                                        </svg>
+                                    </Link>
+                                    <button
+                                        @click="confirmDelete(addr.id)"
+                                        class="cursor-pointer text-red-600 hover:text-red-900"
+                                        :title="$t('Delete Address')"
+                                    >
+                                        <svg
+                                            class="h-5 w-5"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                            />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Pagination -->
+                <div
+                    v-if="props.addresses.data.length > 0"
+                    class="border-t border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800"
+                >
+                    <Pagination :data="props.addresses" />
+                </div>
+
+                <!-- Empty State -->
+                <div
+                    v-if="props.addresses.data.length === 0"
+                    class="py-12 text-center"
+                >
+                    <svg
+                        class="mx-auto h-12 w-12 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        />
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                    </svg>
+                    <h3
+                        class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100"
+                    >
+                        {{ $t('No addresses') }}
+                    </h3>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        {{ $t('Get started by adding a new address.') }}
+                    </p>
+                    <div class="mt-6">
+                        <Link
+                            :href="`/admin/customers/${props.customer.id}/addresses/create`"
+                            class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                        >
+                            <svg
+                                class="mr-2 h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M12 4v16m8-8H4"
+                                />
+                            </svg>
+                            {{ $t('New Address') }}
+                        </Link>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delete Confirmation Modal -->
+            <ConfirmDeleteModal
+                v-model:show="showDeleteModal"
+                :title="$t('Address')"
+                :message="
+                    $t(
+                        'Are you sure you want to delete this address? This action cannot be undone.',
+                    )
+                "
+                @confirm="deleteAddress"
+            />
         </div>
-      </div>
-
-      <!-- Delete Confirmation Modal -->
-      <ConfirmDeleteModal
-        v-model:show="showDeleteModal"
-        :title="$t('Address')"
-        :message="$t('Are you sure you want to delete this address? This action cannot be undone.')"
-        @confirm="deleteAddress"
-      />
-
-    </div>
-  </AdminLayout>
+    </AdminLayout>
 </template>

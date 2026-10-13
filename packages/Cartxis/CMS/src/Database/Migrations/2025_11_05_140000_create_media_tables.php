@@ -36,27 +36,27 @@ return new class extends Migration
             $table->string('mime_type');
             $table->unsignedBigInteger('size'); // File size in bytes
             $table->string('extension', 10)->nullable();
-            
+
             // Relationships
             $table->foreignId('folder_id')->nullable()->constrained('media_folders')->onDelete('set null');
-            
+
             // SEO & Accessibility
             $table->string('alt_text')->nullable();
             $table->string('title')->nullable();
             $table->text('description')->nullable();
-            
+
             // Image-specific fields
             $table->unsignedInteger('width')->nullable();
             $table->unsignedInteger('height')->nullable();
-            
+
             // Thumbnails stored as JSON: {"150": "path/to/thumb-150.jpg", "600": "path/to/thumb-600.jpg"}
             $table->json('thumbnails')->nullable();
-            
+
             // Tracking
             $table->unsignedInteger('used_count')->default(0); // How many times used
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
-            
+
             $table->timestamps();
             $table->softDeletes();
 
@@ -67,12 +67,12 @@ return new class extends Migration
             $table->index('created_by');
             $table->index(['disk', 'path']);
         });
-        
+
         // Add fulltext index only for MySQL/MariaDB (not supported in SQLite, PostgreSQL or TiDB)
         $driver = Schema::getConnection()->getDriverName();
         $isTiDB = in_array($driver, ['mysql', 'mariadb'])
             && str_contains(Schema::getConnection()->selectOne('select version() as v')?->v ?? '', 'TiDB');
-        if (in_array($driver, ['mysql', 'mariadb']) && !$isTiDB) {
+        if (in_array($driver, ['mysql', 'mariadb']) && ! $isTiDB) {
             Schema::table('media_files', function (Blueprint $table) {
                 $table->fullText(['filename', 'original_filename', 'alt_text', 'title', 'description'], 'media_files_fulltext');
             });

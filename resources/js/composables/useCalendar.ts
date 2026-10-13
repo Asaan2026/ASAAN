@@ -82,7 +82,9 @@ export function useCalendar() {
     const page = usePage();
     const props = page.props as Record<string, unknown>;
 
-    const settings = computed<CalendarSettings>(() => readSettings(props.calendar));
+    const settings = computed<CalendarSettings>(() =>
+        readSettings(props.calendar),
+    );
 
     /** The reader's chosen language, 'fa' if the page has not said. */
     const locale = computed<string>(() => {
@@ -129,11 +131,20 @@ export function useCalendar() {
     }));
 
     /** '۱۵ شهریور ۱۴۰۴ (6 September 2025)' -- the full pairing. */
-    const formatDate = (value: DateInput, options: FormatOptions = {}): string =>
-        formatDateEngine(value, locale.value, { ...storeDefaults.value, ...options });
+    const formatDate = (
+        value: DateInput,
+        options: FormatOptions = {},
+    ): string =>
+        formatDateEngine(value, locale.value, {
+            ...storeDefaults.value,
+            ...options,
+        });
 
     /** The Solar Hijri half on its own: '۱۵ شهریور ۱۴۰۴'. */
-    const formatSolar = (value: DateInput, options: FormatOptions = {}): string =>
+    const formatSolar = (
+        value: DateInput,
+        options: FormatOptions = {},
+    ): string =>
         formatSolarEngine(value, locale.value, {
             numerals: settings.value.numerals,
             ...options,
@@ -145,21 +156,33 @@ export function useCalendar() {
      * Latin because the reference is the copyable half -- a bank form, a
      * spreadsheet -- so it is never rendered in Persian digits.
      */
-    const formatGregorian = (value: DateInput, options: FormatOptions = {}): string =>
+    const formatGregorian = (
+        value: DateInput,
+        options: FormatOptions = {},
+    ): string =>
         formatGregorianEngine(value, locale.value, {
             numerals: settings.value.secondaryNumerals,
             ...options,
         });
 
     /** Numerals only, both calendars: '۱۴۰۴/۰۶/۱۵ (2025/09/06)'. */
-    const formatShort = (value: DateInput, options: FormatOptions = {}): string =>
-        formatShortEngine(value, locale.value, { ...storeDefaults.value, ...options });
+    const formatShort = (
+        value: DateInput,
+        options: FormatOptions = {},
+    ): string =>
+        formatShortEngine(value, locale.value, {
+            ...storeDefaults.value,
+            ...options,
+        });
 
     /**
      * In words, with the weekday on both halves:
      * 'شنبه، ۱۵ شهریور ۱۴۰۴ (Saturday, 6 September 2025)'.
      */
-    const formatLong = (value: DateInput, options: FormatOptions = {}): string =>
+    const formatLong = (
+        value: DateInput,
+        options: FormatOptions = {},
+    ): string =>
         formatDateEngine(value, locale.value, {
             ...storeDefaults.value,
             weekday: true,

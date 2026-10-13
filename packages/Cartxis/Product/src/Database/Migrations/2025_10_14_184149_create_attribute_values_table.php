@@ -22,7 +22,7 @@ return new class extends Migration
             $table->integer('sort_order')->default(0)->comment('Display order');
             $table->boolean('is_default')->default(false)->comment('Is this the default value?');
             $table->timestamps();
-            
+
             // Indexes
             $table->index('attribute_id');
             $table->index('sort_order');

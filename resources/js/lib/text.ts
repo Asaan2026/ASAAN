@@ -10,13 +10,18 @@
  * to change: a real implementation looks the key up and falls back to the key
  * itself, exactly as this one does.
  */
-export function translate(key: string, params?: Record<string, string | number>): string {
+export function translate(
+    key: string,
+    params?: Record<string, string | number>,
+): string {
     if (!params) {
         return key;
     }
 
     return key.replace(/\{(\w+)\}/g, (match, name: string) =>
-        Object.prototype.hasOwnProperty.call(params, name) ? String(params[name]) : match,
+        Object.prototype.hasOwnProperty.call(params, name)
+            ? String(params[name])
+            : match,
     );
 }
 

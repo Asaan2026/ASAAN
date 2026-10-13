@@ -3,13 +3,13 @@
 namespace Cartxis\Product\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Cartxis\Product\Models\Category;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\Product\Models\Category;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
 use Mews\Purifier\Facades\Purifier;
 
 class CategoryController extends Controller
@@ -25,8 +25,8 @@ class CategoryController extends Controller
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('slug', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('slug', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -144,7 +144,7 @@ class CategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:categories,slug,' . $category->id,
+            'slug' => 'nullable|string|max:255|unique:categories,slug,'.$category->id,
             'description' => 'nullable|string',
             'parent_id' => 'nullable|exists:categories,id',
             'status' => 'required|in:enabled,disabled',
@@ -223,14 +223,16 @@ class CategoryController extends Controller
 
         foreach ($request->ids as $id) {
             $category = Category::find($id);
-            
+
             if ($category->children()->count() > 0) {
                 $errors[] = "Category '{$category->name}' has sub-categories.";
+
                 continue;
             }
 
             if ($category->products()->count() > 0) {
                 $errors[] = "Category '{$category->name}' has products.";
+
                 continue;
             }
 
@@ -239,9 +241,9 @@ class CategoryController extends Controller
         }
 
         $message = "{$deleted} categories deleted successfully.";
-        
+
         if (count($errors) > 0) {
-            $message .= ' ' . implode(' ', $errors);
+            $message .= ' '.implode(' ', $errors);
         }
 
         return back()->with('success', $message);
@@ -260,6 +262,6 @@ class CategoryController extends Controller
 
         Category::whereIn('id', $request->ids)->update(['status' => $request->status]);
 
-        return back()->with('success', count($request->ids) . ' categories status updated successfully.');
+        return back()->with('success', count($request->ids).' categories status updated successfully.');
     }
 }

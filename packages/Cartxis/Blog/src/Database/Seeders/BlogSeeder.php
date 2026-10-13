@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Cartxis\Blog\Database\Seeders;
 
-use Illuminate\Database\Seeder;
+use App\Models\User;
 use Cartxis\Blog\Models\BlogCategory;
 use Cartxis\Blog\Models\BlogPost;
-use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class BlogSeeder extends Seeder
 {

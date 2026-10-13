@@ -53,7 +53,7 @@ class MediaUsage extends Model
     /**
      * Static methods
      */
-    public static function track(int $mediaFileId, $usable, string $context = null): self
+    public static function track(int $mediaFileId, $usable, ?string $context = null): self
     {
         return static::firstOrCreate([
             'media_file_id' => $mediaFileId,
@@ -63,7 +63,7 @@ class MediaUsage extends Model
         ]);
     }
 
-    public static function untrack(int $mediaFileId, $usable, string $context = null): void
+    public static function untrack(int $mediaFileId, $usable, ?string $context = null): void
     {
         static::where([
             'media_file_id' => $mediaFileId,

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Cartxis\UIEditor\Http\Controllers\Admin;
 
+use Cartxis\UIEditor\Models\SavedBlock;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Http\JsonResponse;
-use Cartxis\UIEditor\Models\SavedBlock;
 
 class SavedBlocksController extends Controller
 {
@@ -32,27 +32,27 @@ class SavedBlocksController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'name'        => ['required', 'string', 'max:120'],
+            'name' => ['required', 'string', 'max:120'],
             'description' => ['nullable', 'string', 'max:500'],
-            'type'        => ['required', 'in:section,block'],
+            'type' => ['required', 'in:section,block'],
             'layout_data' => ['required', 'array'],
         ]);
 
         $saved = SavedBlock::create([
-            'name'        => $data['name'],
+            'name' => $data['name'],
             'description' => $data['description'] ?? null,
-            'type'        => $data['type'],
+            'type' => $data['type'],
             'layout_data' => $data['layout_data'],
-            'created_by'  => auth()->id(),
+            'created_by' => auth()->id(),
         ]);
 
         return response()->json([
-            'id'          => $saved->id,
-            'name'        => $saved->name,
+            'id' => $saved->id,
+            'name' => $saved->name,
             'description' => $saved->description,
-            'type'        => $saved->type,
+            'type' => $saved->type,
             'layout_data' => $saved->layout_data,
-            'created_at'  => $saved->created_at,
+            'created_at' => $saved->created_at,
         ], 201);
     }
 

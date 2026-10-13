@@ -103,11 +103,11 @@ class MenuRepository
     public function toggleActive(int $id): bool
     {
         $item = $this->find($id);
-        
-        if (!$item) {
+
+        if (! $item) {
             return false;
         }
 
-        return $this->update($id, ['active' => !$item->active]);
+        return $this->update($id, ['active' => ! $item->active]);
     }
 }

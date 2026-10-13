@@ -5,6 +5,7 @@ namespace Cartxis\Core\Models;
 use Cartxis\Core\Support\DisplayCurrency;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 /**
  * The store's money.
@@ -110,7 +111,7 @@ class Currency extends Model
                 $newDefault = static::where('is_active', true)
                     ->orderBy('sort_order')
                     ->first();
-                
+
                 if ($newDefault) {
                     $newDefault->update(['is_default' => true]);
                 }
@@ -157,7 +158,7 @@ class Currency extends Model
     /**
      * The currencies a shopper may choose, in display order.
      */
-    public static function selectable(): \Illuminate\Support\Collection
+    public static function selectable(): Collection
     {
         return static::query()
             ->selectable()
@@ -236,8 +237,8 @@ class Currency extends Model
         );
 
         return $this->symbol_position === 'after'
-            ? $formattedAmount . $this->symbol
-            : $this->symbol . $formattedAmount;
+            ? $formattedAmount.$this->symbol
+            : $this->symbol.$formattedAmount;
     }
 
     /**
@@ -296,7 +297,7 @@ class Currency extends Model
      */
     public static function exchangeRateLabel(): string
     {
-        return '1 ' . self::OPTIONAL_CODE . ' = ? ' . self::BASE_CODE;
+        return '1 '.self::OPTIONAL_CODE.' = ? '.self::BASE_CODE;
     }
 
     /**

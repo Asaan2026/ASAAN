@@ -11,11 +11,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Delivery extends Model
 {
     const STATUS_PENDING = 'pending';
+
     const STATUS_ASSIGNED = 'assigned';
+
     const STATUS_OUT_FOR_DELIVERY = 'out_for_delivery';
+
     const STATUS_ARRIVING = 'arriving';
+
     const STATUS_DELIVERED = 'delivered';
+
     const STATUS_UNDELIVERED = 'undelivered';
+
     const STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [

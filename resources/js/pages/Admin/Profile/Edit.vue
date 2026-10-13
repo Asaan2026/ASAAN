@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { Head, router, useForm } from '@inertiajs/vue3';
-import AdminLayout from '@/layouts/AdminLayout.vue';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { User } from 'lucide-vue-next';
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import { useI18nStore } from '@/Stores/i18n';
+import { Head, useForm } from '@inertiajs/vue3';
+import { User } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 interface Props {
     user: {
@@ -32,10 +31,10 @@ const photoPreview = ref<string | null>(null);
 const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
-    
+
     if (file) {
         form.profile_photo = file;
-        
+
         // Create preview
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -61,31 +60,54 @@ const submit = () => {
 
         <div class="max-w-4xl">
             <div class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('Profile Settings') }}</h1>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                    {{ $t('Profile Settings') }}
+                </h1>
                 <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                     {{ $t('Update your profile information and photo') }}
                 </p>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-                <form @submit.prevent="submit" class="p-6 space-y-6">
+            <div
+                class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+            >
+                <form @submit.prevent="submit" class="space-y-6 p-6">
                     <!-- Profile Photo -->
                     <div class="space-y-2">
-                        <Label for="profile_photo">{{ $t('Profile Photo') }}</Label>
+                        <Label for="profile_photo">{{
+                            $t('Profile Photo')
+                        }}</Label>
                         <div class="flex items-center gap-6">
                             <!-- Current/Preview Photo -->
                             <div class="flex-shrink-0">
-                                <div v-if="photoPreview" class="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-600">
-                                    <img :src="photoPreview" :alt="$t('Preview')" class="w-full h-full object-cover" />
+                                <div
+                                    v-if="photoPreview"
+                                    class="h-24 w-24 overflow-hidden rounded-full border-2 border-gray-200 dark:border-gray-600"
+                                >
+                                    <img
+                                        :src="photoPreview"
+                                        :alt="$t('Preview')"
+                                        class="h-full w-full object-cover"
+                                    />
                                 </div>
-                                <div v-else-if="user.profile_photo_path" class="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-600">
-                                    <img :src="`/storage/${user.profile_photo_path}`" :alt="$t('Current photo')" class="w-full h-full object-cover" />
+                                <div
+                                    v-else-if="user.profile_photo_path"
+                                    class="h-24 w-24 overflow-hidden rounded-full border-2 border-gray-200 dark:border-gray-600"
+                                >
+                                    <img
+                                        :src="`/storage/${user.profile_photo_path}`"
+                                        :alt="$t('Current photo')"
+                                        class="h-full w-full object-cover"
+                                    />
                                 </div>
-                                <div v-else class="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center border-2 border-gray-200 dark:border-gray-600">
-                                    <User class="w-12 h-12 text-gray-400" />
+                                <div
+                                    v-else
+                                    class="flex h-24 w-24 items-center justify-center rounded-full border-2 border-gray-200 bg-gray-200 dark:border-gray-600 dark:bg-gray-700"
+                                >
+                                    <User class="h-12 w-12 text-gray-400" />
                                 </div>
                             </div>
-                            
+
                             <!-- File Input -->
                             <div class="flex-1">
                                 <Input
@@ -95,12 +117,17 @@ const submit = () => {
                                     @change="handleFileChange"
                                     class="cursor-pointer"
                                 />
-                                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                <p
+                                    class="mt-2 text-sm text-gray-500 dark:text-gray-400"
+                                >
                                     {{ $t('JPG, PNG or GIF (max. 2MB)') }}
                                 </p>
                             </div>
                         </div>
-                        <p v-if="form.errors.profile_photo" class="text-sm text-red-600 dark:text-red-400">
+                        <p
+                            v-if="form.errors.profile_photo"
+                            class="text-sm text-red-600 dark:text-red-400"
+                        >
                             {{ form.errors.profile_photo }}
                         </p>
                     </div>
@@ -116,7 +143,10 @@ const submit = () => {
                             class="w-full"
                             :placeholder="$t('Your name')"
                         />
-                        <p v-if="form.errors.name" class="text-sm text-red-600 dark:text-red-400">
+                        <p
+                            v-if="form.errors.name"
+                            class="text-sm text-red-600 dark:text-red-400"
+                        >
                             {{ form.errors.name }}
                         </p>
                     </div>
@@ -132,19 +162,28 @@ const submit = () => {
                             class="w-full"
                             placeholder="your.email@example.com"
                         />
-                        <p v-if="form.errors.email" class="text-sm text-red-600 dark:text-red-400">
+                        <p
+                            v-if="form.errors.email"
+                            class="text-sm text-red-600 dark:text-red-400"
+                        >
                             {{ form.errors.email }}
                         </p>
                     </div>
 
                     <!-- Submit Button -->
-                    <div class="flex items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div
+                        class="flex items-center gap-4 border-t border-gray-200 pt-4 dark:border-gray-700"
+                    >
                         <button
                             type="submit"
                             :disabled="form.processing"
-                            class="inline-flex justify-center items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                            class="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-6 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                            {{ form.processing ? $t('Saving...') : $t('Save Changes') }}
+                            {{
+                                form.processing
+                                    ? $t('Saving...')
+                                    : $t('Save Changes')
+                            }}
                         </button>
 
                         <Transition

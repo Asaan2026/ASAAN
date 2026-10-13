@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use Cartxis\CMS\Models\Block;
+use Illuminate\Database\Seeder;
 
 class MobileHeroBannersSeeder extends Seeder
 {
@@ -53,6 +53,6 @@ class MobileHeroBannersSeeder extends Seeder
             );
         }
 
-        $this->command?->info('Mobile hero banners seeded: ' . count($banners));
+        $this->command?->info('Mobile hero banners seeded: '.count($banners));
     }
 }

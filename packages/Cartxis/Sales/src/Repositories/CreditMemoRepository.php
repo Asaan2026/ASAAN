@@ -16,40 +16,40 @@ class CreditMemoRepository
         $query = CreditMemo::with(['order.user', 'invoice', 'items', 'creator']);
 
         // Search
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('credit_memo_number', 'like', "%{$search}%")
-                  ->orWhereHas('order', function ($orderQuery) use ($search) {
-                      $orderQuery->where('order_number', 'like', "%{$search}%")
-                          ->orWhere('customer_email', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('order', function ($orderQuery) use ($search) {
+                        $orderQuery->where('order_number', 'like', "%{$search}%")
+                            ->orWhere('customer_email', 'like', "%{$search}%");
+                    });
             });
         }
 
         // Status filter
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
         // Refund status filter
-        if (!empty($filters['refund_status'])) {
+        if (! empty($filters['refund_status'])) {
             $query->where('refund_status', $filters['refund_status']);
         }
 
         // Date range filter
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->whereDate('created_at', '>=', $filters['date_from']);
         }
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->whereDate('created_at', '<=', $filters['date_to']);
         }
 
         // Amount range filter
-        if (!empty($filters['min_amount'])) {
+        if (! empty($filters['min_amount'])) {
             $query->where('grand_total', '>=', $filters['min_amount']);
         }
-        if (!empty($filters['max_amount'])) {
+        if (! empty($filters['max_amount'])) {
             $query->where('grand_total', '<=', $filters['max_amount']);
         }
 
@@ -94,8 +94,8 @@ class CreditMemoRepository
     public function update(int $id, array $data): bool
     {
         $creditMemo = $this->find($id);
-        
-        if (!$creditMemo) {
+
+        if (! $creditMemo) {
             return false;
         }
 
@@ -108,8 +108,8 @@ class CreditMemoRepository
     public function delete(int $id): bool
     {
         $creditMemo = $this->find($id);
-        
-        if (!$creditMemo || !$creditMemo->canBeDeleted()) {
+
+        if (! $creditMemo || ! $creditMemo->canBeDeleted()) {
             return false;
         }
 

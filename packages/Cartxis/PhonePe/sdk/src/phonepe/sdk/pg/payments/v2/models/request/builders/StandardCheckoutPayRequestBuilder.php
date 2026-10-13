@@ -16,114 +16,119 @@
 *  limitations under the License.
 */
 
-
 namespace PhonePe\payments\v2\models\request\builders;
 
 use PhonePe\payments\v2\models\request\StandardCheckoutPayRequest;
-use PhonePe\payments\v2\models\response\ResponseComponents\MetaInfo;
 use PhonePe\payments\v2\standardCheckout\StandardCheckoutConstants;
 
 class StandardCheckoutPayRequestBuilder
 {
+    private string $merchantOrderId;
 
-	private string $merchantOrderId;
-	private int $amount;
-	private string $message;
-	private string $redirectUrl;
+    private int $amount;
 
-	private $metaInfo;
+    private string $message;
 
-	/**
-	 * @param string $merchantOrderId
-	 * @return $this
-	 */
-	public function merchantOrderId($merchantOrderId): StandardCheckoutPayRequestBuilder
-	{
-		$this->merchantOrderId = $merchantOrderId;
-		return $this;
-	}
+    private string $redirectUrl;
 
-	/**
-	 * @param int $amount
-	 * @return $this
-	 */
-	public function amount($amount): StandardCheckoutPayRequestBuilder
-	{
-		$this->amount = $amount;
-		return $this;
-	}
+    private $metaInfo;
 
-	/**
-	 * @param string $message
-	 * @return $this
-	 */
-	public function message($message): StandardCheckoutPayRequestBuilder
-	{
-		$this->message = $message;
-		return $this;
-	}
+    /**
+     * @param  string  $merchantOrderId
+     * @return $this
+     */
+    public function merchantOrderId($merchantOrderId): StandardCheckoutPayRequestBuilder
+    {
+        $this->merchantOrderId = $merchantOrderId;
 
-	/**
-	 * @param string $redirectUrl
-	 * @return $this
-	 */
-	public function redirectUrl($redirectUrl): StandardCheckoutPayRequestBuilder
-	{
-		$this->redirectUrl = $redirectUrl;
-		return $this;
-	}
+        return $this;
+    }
 
-	public function udf1($udf1): StandardCheckoutPayRequestBuilder{
-		$this->metaInfo['udf1'] = $udf1;
-		return $this;
-	}
+    /**
+     * @param  int  $amount
+     * @return $this
+     */
+    public function amount($amount): StandardCheckoutPayRequestBuilder
+    {
+        $this->amount = $amount;
 
-	public function udf2($udf2): StandardCheckoutPayRequestBuilder{
-		$this->metaInfo['udf2'] = $udf2;
-		return $this;
-	}
+        return $this;
+    }
 
-	public function udf3($udf3): StandardCheckoutPayRequestBuilder{
-		$this->metaInfo['udf3'] = $udf3;
-		return $this;
-	}
+    /**
+     * @param  string  $message
+     * @return $this
+     */
+    public function message($message): StandardCheckoutPayRequestBuilder
+    {
+        $this->message = $message;
 
-	public function udf4($udf4): StandardCheckoutPayRequestBuilder{
-		$this->metaInfo['udf4'] = $udf4;
-		return $this;
-	}
+        return $this;
+    }
 
-	public function udf5($udf5): StandardCheckoutPayRequestBuilder{
-		$this->metaInfo['udf5'] = $udf5;
-		return $this;
-	}
+    /**
+     * @param  string  $redirectUrl
+     * @return $this
+     */
+    public function redirectUrl($redirectUrl): StandardCheckoutPayRequestBuilder
+    {
+        $this->redirectUrl = $redirectUrl;
 
-	/**
-	 * @return StandardCheckoutPayRequestBuilder
-	 */
-	public static function builder(): StandardCheckoutPayRequestBuilder
-	{
-		return new StandardCheckoutPayRequestBuilder();
-	}
+        return $this;
+    }
 
-	/**
-	 * @return StandardCheckoutPayRequest
-	 */
-	public function build(): StandardCheckoutPayRequest
-	{
-		$paymentFlow = array();
-		$paymentFlow["type"] = StandardCheckoutConstants::STANDARD_CHECKOUT_PAYMENT_FLOW_TYPE;
-		$paymentFlow["message"] = $this->message;
-		$paymentFlow["merchantUrls"]["redirectUrl"] = $this->redirectUrl;
+    public function udf1($udf1): StandardCheckoutPayRequestBuilder
+    {
+        $this->metaInfo['udf1'] = $udf1;
 
-		return new StandardCheckoutPayRequest(
-			$this->merchantOrderId,
-			$this->amount,
-			$this->metaInfo,
-			$paymentFlow
-		);
-	}
+        return $this;
+    }
 
+    public function udf2($udf2): StandardCheckoutPayRequestBuilder
+    {
+        $this->metaInfo['udf2'] = $udf2;
 
+        return $this;
+    }
 
+    public function udf3($udf3): StandardCheckoutPayRequestBuilder
+    {
+        $this->metaInfo['udf3'] = $udf3;
+
+        return $this;
+    }
+
+    public function udf4($udf4): StandardCheckoutPayRequestBuilder
+    {
+        $this->metaInfo['udf4'] = $udf4;
+
+        return $this;
+    }
+
+    public function udf5($udf5): StandardCheckoutPayRequestBuilder
+    {
+        $this->metaInfo['udf5'] = $udf5;
+
+        return $this;
+    }
+
+    public static function builder(): StandardCheckoutPayRequestBuilder
+    {
+        return new StandardCheckoutPayRequestBuilder;
+    }
+
+    public function build(): StandardCheckoutPayRequest
+    {
+        $paymentFlow = [];
+        $paymentFlow['type'] = StandardCheckoutConstants::STANDARD_CHECKOUT_PAYMENT_FLOW_TYPE;
+        $paymentFlow['message'] = $this->message;
+        $paymentFlow['merchantUrls']['redirectUrl'] = $this->redirectUrl;
+
+        return new StandardCheckoutPayRequest(
+            $this->merchantOrderId,
+            $this->amount,
+            $this->metaInfo,
+            $paymentFlow
+        );
+    }
 }

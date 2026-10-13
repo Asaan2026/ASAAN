@@ -16,7 +16,6 @@
 *  limitations under the License.
 */
 
-
 namespace Unit;
 
 use PhonePe\common\configs\Constants;
@@ -25,17 +24,17 @@ use PHPUnit\Framework\TestCase;
 
 class EnvTest extends TestCase
 {
-	public function testGetBaseUrl(): void
-	{
-		$this->assertEquals(Constants::BASE_URL_PROD, Env::getBaseUrl(Env::PRODUCTION));
-		$this->assertEquals(Constants::BASE_URL_UAT, Env::getBaseUrl(Env::UAT));
-		$this->assertEquals('Invalid Environment', Env::getBaseUrl('test'));
-	}
+    public function test_get_base_url(): void
+    {
+        $this->assertEquals(Constants::BASE_URL_PROD, Env::getBaseUrl(Env::PRODUCTION));
+        $this->assertEquals(Constants::BASE_URL_UAT, Env::getBaseUrl(Env::UAT));
+        $this->assertEquals('Invalid Environment', Env::getBaseUrl('test'));
+    }
 
-	public function testGetEventUrl(): void
-	{
-		$this->assertEquals(Constants::BASE_URL_PROD_EVENTS, Env::getEventsUrl(Env::PRODUCTION));
-		$this->assertEquals(Constants::BASE_URL_UAT_EVENTS, Env::getEventsUrl(Env::UAT));
-		$this->assertEquals('Invalid Environment', Env::getEventsUrl('test'));
-	}
+    public function test_get_event_url(): void
+    {
+        $this->assertEquals(Constants::BASE_URL_PROD_EVENTS, Env::getEventsUrl(Env::PRODUCTION));
+        $this->assertEquals(Constants::BASE_URL_UAT_EVENTS, Env::getEventsUrl(Env::UAT));
+        $this->assertEquals('Invalid Environment', Env::getEventsUrl('test'));
+    }
 }

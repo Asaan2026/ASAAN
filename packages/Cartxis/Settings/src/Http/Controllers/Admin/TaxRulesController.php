@@ -2,13 +2,13 @@
 
 namespace Cartxis\Settings\Http\Controllers\Admin;
 
+use Cartxis\Core\Models\TaxClass;
+use Cartxis\Core\Models\TaxRate;
+use Cartxis\Core\Models\TaxRule;
+use Cartxis\Core\Models\TaxZone;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\Core\Models\TaxRule;
-use Cartxis\Core\Models\TaxClass;
-use Cartxis\Core\Models\TaxRate;
-use Cartxis\Core\Models\TaxZone;
 
 class TaxRulesController
 {
@@ -31,7 +31,7 @@ class TaxRulesController
 
         // Apply search
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('name', 'like', '%'.$request->search.'%');
         }
 
         // Apply sorting
@@ -138,7 +138,7 @@ class TaxRulesController
 
         TaxRule::whereIn('id', $request->ids)->delete();
 
-        return redirect()->back()->with('success', count($request->ids) . ' tax rules deleted successfully.');
+        return redirect()->back()->with('success', count($request->ids).' tax rules deleted successfully.');
     }
 
     public function bulkStatus(Request $request)
@@ -152,6 +152,7 @@ class TaxRulesController
         TaxRule::whereIn('id', $request->ids)->update(['is_active' => $request->status]);
 
         $statusText = $request->status ? 'activated' : 'deactivated';
-        return redirect()->back()->with('success', count($request->ids) . ' tax rules ' . $statusText . ' successfully.');
+
+        return redirect()->back()->with('success', count($request->ids).' tax rules '.$statusText.' successfully.');
     }
 }

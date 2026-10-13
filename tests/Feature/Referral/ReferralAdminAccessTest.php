@@ -1,6 +1,11 @@
 <?php
 
 use App\Models\User;
+use Cartxis\Referral\Http\Requests\ReverseReferralCommissionRequest;
+use Cartxis\Referral\Http\Requests\SaveReferralSettingsRequest;
+use Cartxis\Referral\Http\Requests\StoreReferralCreditRequest;
+use Cartxis\Referral\Models\ReferralCommission;
+use Cartxis\Referral\Services\ReferralSettings;
 
 function adminUser(): User
 {
@@ -78,7 +83,7 @@ it('stops a customer changing the programme settings', function () {
         ])
         ->assertRedirect();
 
-    expect(app(Cartxis\Referral\Services\ReferralSettings::class)->rewardAmount())->toBe(10.0);
+    expect(app(ReferralSettings::class)->rewardAmount())->toBe(10.0);
 });
 
 it('stops a customer giving themselves credit by hand', function () {
@@ -104,7 +109,7 @@ it('stops a customer reversing a reward', function () {
     linkReferral($referrer, $shopper);
     referralOrder($shopper, 600, 'paid');
 
-    $commission = Cartxis\Referral\Models\ReferralCommission::first();
+    $commission = ReferralCommission::first();
 
     $this->actingAs($shopper)
         ->post(route('admin.marketing.referrals.commissions.reverse', $commission), [
@@ -139,42 +144,42 @@ it('lets an admin into every programme screen', function () {
 */
 
 it('refuses settings changes from anybody who is not an admin', function () {
-    $request = Cartxis\Referral\Http\Requests\SaveReferralSettingsRequest::create('/', 'PUT', []);
+    $request = SaveReferralSettingsRequest::create('/', 'PUT', []);
     $request->setUserResolver(fn () => referralUser());
 
     expect($request->authorize())->toBeFalse();
 });
 
 it('refuses settings changes from nobody at all', function () {
-    $request = Cartxis\Referral\Http\Requests\SaveReferralSettingsRequest::create('/', 'PUT', []);
+    $request = SaveReferralSettingsRequest::create('/', 'PUT', []);
     $request->setUserResolver(fn () => null);
 
     expect($request->authorize())->toBeFalse();
 });
 
 it('accepts settings changes from an admin', function () {
-    $request = Cartxis\Referral\Http\Requests\SaveReferralSettingsRequest::create('/', 'PUT', []);
+    $request = SaveReferralSettingsRequest::create('/', 'PUT', []);
     $request->setUserResolver(fn () => adminUser());
 
     expect($request->authorize())->toBeTrue();
 });
 
 it('refuses hand-issued credit from anybody who is not an admin', function () {
-    $request = Cartxis\Referral\Http\Requests\StoreReferralCreditRequest::create('/', 'POST', []);
+    $request = StoreReferralCreditRequest::create('/', 'POST', []);
     $request->setUserResolver(fn () => referralUser());
 
     expect($request->authorize())->toBeFalse();
 });
 
 it('refuses reward reversals from anybody who is not an admin', function () {
-    $request = Cartxis\Referral\Http\Requests\ReverseReferralCommissionRequest::create('/', 'POST', []);
+    $request = ReverseReferralCommissionRequest::create('/', 'POST', []);
     $request->setUserResolver(fn () => referralUser());
 
     expect($request->authorize())->toBeFalse();
 });
 
 it('accepts hand-issued credit from an admin', function () {
-    $request = Cartxis\Referral\Http\Requests\StoreReferralCreditRequest::create('/', 'POST', []);
+    $request = StoreReferralCreditRequest::create('/', 'POST', []);
     $request->setUserResolver(fn () => adminUser());
 
     expect($request->authorize())->toBeTrue();
@@ -275,7 +280,7 @@ it('saves a valid set of settings and applies them straight away', function () {
         ])
         ->assertSessionHasNoErrors();
 
-    $settings = app(Cartxis\Referral\Services\ReferralSettings::class);
+    $settings = app(ReferralSettings::class);
 
     expect($settings->rewardAmount())->toBe(25.0)
         ->and($settings->thresholdAmount())->toBe(1000.0)
@@ -398,7 +403,7 @@ it('refuses to reverse a reward with no reason written down', function () {
     linkReferral($referrer, $shopper);
     referralOrder($shopper, 600, 'paid');
 
-    $commission = Cartxis\Referral\Models\ReferralCommission::first();
+    $commission = ReferralCommission::first();
 
     $this->actingAs(adminUser(), 'admin')
         ->post(route('admin.marketing.referrals.commissions.reverse', $commission), ['reason' => ''])
@@ -415,7 +420,7 @@ it('reverses a reward for an admin and says how much was taken', function () {
     linkReferral($referrer, $shopper);
     referralOrder($shopper, 600, 'paid');
 
-    $commission = Cartxis\Referral\Models\ReferralCommission::first();
+    $commission = ReferralCommission::first();
 
     $this->actingAs(adminUser(), 'admin')
         ->post(route('admin.marketing.referrals.commissions.reverse', $commission), [

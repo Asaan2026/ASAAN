@@ -2,14 +2,14 @@
 
 namespace Cartxis\PayPal\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 use Cartxis\Core\Services\PaymentGatewayManager;
-use Cartxis\Shop\Models\Order;
 use Cartxis\Sales\Services\InvoiceService;
 use Cartxis\Sales\Services\TransactionService;
-use Illuminate\Support\Facades\Log;
+use Cartxis\Shop\Models\Order;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
 class PayPalController extends Controller
@@ -29,20 +29,20 @@ class PayPalController extends Controller
             $orderId = $request->query('order');
             $paypalOrderId = $request->query('token');
 
-            if (!$orderId || !$paypalOrderId) {
+            if (! $orderId || ! $paypalOrderId) {
                 return redirect()->route('shop.checkout.index')->with('error', 'Invalid payment callback');
             }
 
             $order = Order::find($orderId);
 
-            if (!$order) {
+            if (! $order) {
                 return redirect()->route('shop.checkout.index')->with('error', 'Order not found');
             }
 
             // Get PayPal gateway
             $gateway = $this->gatewayManager->get('paypal');
 
-            if (!$gateway) {
+            if (! $gateway) {
                 return redirect()->route('shop.checkout.index')->with('error', 'PayPal gateway not found');
             }
 
@@ -79,7 +79,6 @@ class PayPalController extends Controller
                     ]);
                 });
 
-
                 Session::put('checkout.last_order_id', $order->id);
                 Session::forget('cart');
 
@@ -115,6 +114,7 @@ class PayPalController extends Controller
             // Reject all inbound requests until proper SDK-based verification is added
             // to prevent forged payment-capture events marking orders as paid.
             Log::warning('PayPal webhook: signature verification not implemented — request rejected');
+
             return response()->json(['status' => 'not_implemented'], 400);
         } catch (\Exception $e) {
             Log::error('PayPal webhook error', [

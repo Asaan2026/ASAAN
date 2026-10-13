@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Cartxis\Service\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class UpdateServiceCategoryRequest extends StoreServiceCategoryRequest

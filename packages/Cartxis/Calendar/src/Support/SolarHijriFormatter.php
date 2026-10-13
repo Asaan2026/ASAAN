@@ -57,20 +57,20 @@ final class SolarHijriFormatter
      * Format a date for a person.
      *
      * @param  DateTimeInterface|string|int|null  $date  Any date-shaped value.
-     *                                                  Null means "now".
+     *                                                   Null means "now".
      * @param  string|null  $locale  'fa' (the store default), 'fa_alt', 'ps'
-     *                                or 'en'. Null means the app's current
-     *                                locale, so an English reader gets English
-     *                                month names without any call site knowing.
+     *                               or 'en'. Null means the app's current
+     *                               locale, so an English reader gets English
+     *                               month names without any call site knowing.
      * @param  array  $options  Any of these, each defaulting to config:
-     *        primary            self::SOLAR | self::GREGORIAN
-     *        secondary          self::GREGORIAN | self::SOLAR | self::NONE
-     *        numerals           'fa' | 'arab' | 'latn'     -- the primary
-     *        secondaryNumerals  'latn' | 'fa' | 'arab'     -- the secondary
-     *        weekday            bool -- lead with the weekday name
-     *        short              bool -- '۱۴۰۴/۰۶/۱۵' instead of words
-     *        bracket            template with a {secondary} placeholder,
-     *                           default '({secondary})'
+     *                          primary            self::SOLAR | self::GREGORIAN
+     *                          secondary          self::GREGORIAN | self::SOLAR | self::NONE
+     *                          numerals           'fa' | 'arab' | 'latn'     -- the primary
+     *                          secondaryNumerals  'latn' | 'fa' | 'arab'     -- the secondary
+     *                          weekday            bool -- lead with the weekday name
+     *                          short              bool -- '۱۴۰۴/۰۶/۱۵' instead of words
+     *                          bracket            template with a {secondary} placeholder,
+     *                          default '({secondary})'
      */
     public static function format(
         DateTimeInterface|string|int|null $date = null,

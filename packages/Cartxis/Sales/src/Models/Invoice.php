@@ -2,9 +2,9 @@
 
 namespace Cartxis\Sales\Models;
 
+use Cartxis\Shop\Models\Order;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Cartxis\Shop\Models\Order;
 
 class Invoice extends Model
 {
@@ -91,14 +91,14 @@ class Invoice extends Model
     {
         $year = now()->format('Y');
         $month = now()->format('m');
-        
+
         $lastInvoice = static::whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
             ->orderBy('id', 'desc')
             ->first();
-        
+
         $sequential = $lastInvoice ? (int) substr($lastInvoice->invoice_number, -5) + 1 : 1;
-        
+
         return sprintf('INV-%s%s%05d', $year, $month, $sequential);
     }
 

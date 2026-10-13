@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Cartxis\UIEditor\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Cartxis\UIEditor\Models\PageLayout;
+use Cartxis\UIEditor\Services\LayoutService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\UIEditor\Models\PageLayout;
-use Cartxis\UIEditor\Services\LayoutService;
 
 class HomepageEditorController extends Controller
 {
@@ -24,8 +24,8 @@ class HomepageEditorController extends Controller
     public function save(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'layout_data'          => 'required|array',
-            'layout_data.version'  => 'required|string',
+            'layout_data' => 'required|array',
+            'layout_data.version' => 'required|string',
             'layout_data.sections' => 'present|array',
         ]);
 
@@ -35,7 +35,7 @@ class HomepageEditorController extends Controller
         );
 
         return response()->json([
-            'status'  => $layout->status,
+            'status' => $layout->status,
             'savedAt' => now()->toIso8601String(),
             'message' => 'Draft saved successfully.',
         ]);
@@ -55,9 +55,9 @@ class HomepageEditorController extends Controller
         $layout = $this->layoutService->publish($layout);
 
         return response()->json([
-            'status'      => $layout->status,
+            'status' => $layout->status,
             'publishedAt' => $layout->published_at->toIso8601String(),
-            'message'     => 'Homepage layout published successfully.',
+            'message' => 'Homepage layout published successfully.',
         ]);
     }
 
@@ -75,7 +75,7 @@ class HomepageEditorController extends Controller
         $layout = $this->layoutService->unpublish($layout);
 
         return response()->json([
-            'status'  => $layout->status,
+            'status' => $layout->status,
             'message' => 'Homepage layout unpublished.',
         ]);
     }
@@ -88,7 +88,7 @@ class HomepageEditorController extends Controller
         $layout = $this->layoutService->getHomepage();
 
         return Inertia::render('Admin/UIEditor/Preview', [
-            'page'       => ['id' => null, 'title' => 'Homepage'],
+            'page' => ['id' => null, 'title' => 'Homepage'],
             'layoutData' => $layout?->layout_data ?? $this->layoutService->emptyLayout(),
         ]);
     }

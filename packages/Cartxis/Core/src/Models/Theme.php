@@ -91,8 +91,8 @@ class Theme extends Model
      */
     public function getConfig(): array
     {
-        $configPath = $this->getPath() . '/theme.json';
-        
+        $configPath = $this->getPath().'/theme.json';
+
         if (file_exists($configPath)) {
             return json_decode(file_get_contents($configPath), true) ?? [];
         }

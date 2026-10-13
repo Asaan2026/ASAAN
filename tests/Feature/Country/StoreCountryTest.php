@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\User;
+use Cartxis\Cart\Models\Cart;
+use Cartxis\Core\Database\Seeders\ShippingMethodSeeder;
 use Cartxis\Core\Models\PaymentMethod;
 use Cartxis\Core\Models\ShippingMethod;
 use Cartxis\Core\Models\ShippingRate;
@@ -11,6 +13,7 @@ use Cartxis\Customer\Models\CustomerGroup;
 use Cartxis\Product\Models\Product;
 use Cartxis\Shop\Models\Address;
 use Cartxis\Shop\Models\Order;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -20,7 +23,6 @@ use Illuminate\Support\Str;
  * models with the country missing, with it wrong, and with it hostile, because
  * the whole point is that the shopper never has to think about it.
  */
-
 function countryAdmin(): User
 {
     return User::factory()->create([
@@ -42,8 +44,8 @@ function countryCustomer(): Customer
 function countryCustomerForUser(?User $user = null): Customer
 {
     $group = CustomerGroup::create([
-        'name' => 'Country Test Group ' . Str::random(4),
-        'code' => 'country-test-group-' . Str::random(6),
+        'name' => 'Country Test Group '.Str::random(4),
+        'code' => 'country-test-group-'.Str::random(6),
         'description' => 'Group for the country tests',
         'color' => '#000000',
         'is_active' => true,
@@ -54,7 +56,7 @@ function countryCustomerForUser(?User $user = null): Customer
         'user_id' => $user?->id,
         'first_name' => 'John',
         'last_name' => 'Doe',
-        'email' => $user?->email ?? Str::random(6) . '@example.test',
+        'email' => $user?->email ?? Str::random(6).'@example.test',
         'customer_group_id' => $group->id,
         'is_active' => true,
         'is_verified' => true,
@@ -293,7 +295,7 @@ it('stores the store country when a shopper sends a different one', function () 
 function countryCartItem(): Product
 {
     $product = Product::create([
-        'name' => 'Country test product ' . Str::random(6),
+        'name' => 'Country test product '.Str::random(6),
         'price' => 100,
         'quantity' => 10,
         'status' => 'active',
@@ -576,7 +578,7 @@ function countryApiAddress(Customer $customer): CustomerAddress
 function countryApiCart(User $user): void
 {
     $product = Product::create([
-        'name' => 'Mobile country test ' . Str::random(6),
+        'name' => 'Mobile country test '.Str::random(6),
         'price' => 100,
         'quantity' => 10,
         'status' => 'active',
@@ -584,7 +586,7 @@ function countryApiCart(User $user): void
         'manage_stock' => true,
     ]);
 
-    $cart = \Cartxis\Cart\Models\Cart::create(['user_id' => $user->id]);
+    $cart = Cart::create(['user_id' => $user->id]);
 
     $cart->items()->create([
         'product_id' => $product->id,
@@ -689,7 +691,7 @@ it('stores the store country when the mobile app overwrites a saved address', fu
     $address = countryApiAddress($customer);
 
     $this->actingAs($user, 'sanctum')
-        ->putJson('/api/v1/customer/addresses/' . $address->id, [
+        ->putJson('/api/v1/customer/addresses/'.$address->id, [
             'first_name' => 'Ali',
             'last_name' => 'Ahmadi',
             'address_line_1' => '9 Updated Street',
@@ -830,11 +832,11 @@ it('keeps the shipping rate unique index usable for several weight bands', funct
         'base_cost' => 99,
         'cost_per_kg' => 1,
         'status' => 'active',
-    ]))->toThrow(\Illuminate\Database\QueryException::class);
+    ]))->toThrow(QueryException::class);
 });
 
 it('seeds shipping rates for the store country only', function () {
-    (new \Cartxis\Core\Database\Seeders\ShippingMethodSeeder())->run();
+    (new ShippingMethodSeeder)->run();
 
     $countries = \DB::table('shipping_rates')->distinct()->pluck('country')->all();
 

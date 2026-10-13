@@ -142,6 +142,6 @@ final class GatewayCurrency
     {
         $usdSettling = self::isUsdSettling($gatewayCode);
 
-        return ($usdSettling ? '$' : "\u{060B}") . self::describeCharge($canonicalAfnAmount, $gatewayCode);
+        return ($usdSettling ? '$' : "\u{060B}").self::describeCharge($canonicalAfnAmount, $gatewayCode);
     }
 }

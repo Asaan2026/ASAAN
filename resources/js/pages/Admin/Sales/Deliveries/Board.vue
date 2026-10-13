@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/AdminLayout.vue';
+import { useI18nStore } from '@/Stores/i18n';
 import { Head, router } from '@inertiajs/vue3';
 import Leaflet from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -12,7 +13,6 @@ import {
     Truck,
 } from 'lucide-vue-next';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { useI18nStore } from '@/Stores/i18n';
 
 interface StatusBadge {
     label: string;
@@ -299,13 +299,23 @@ onBeforeUnmount(() => {
                         {{ $t('Live deliveries') }}
                     </h2>
                     <p class="mt-0.5 text-xs text-muted-foreground">
-                        {{ $t('{count} on the road · {live} sharing live location', { count: props.activeDeliveries.length, live: liveCount }) }}
+                        {{
+                            $t(
+                                '{count} on the road · {live} sharing live location',
+                                {
+                                    count: props.activeDeliveries.length,
+                                    live: liveCount,
+                                },
+                            )
+                        }}
                     </p>
                 </div>
                 <div
                     class="flex items-center gap-2 text-xs text-muted-foreground"
                 >
-                    <span>{{ $t('Updated {time}', { time: lastUpdateText }) }}</span>
+                    <span>{{
+                        $t('Updated {time}', { time: lastUpdateText })
+                    }}</span>
                     <button
                         type="button"
                         class="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 font-semibold text-foreground transition-colors hover:bg-muted"
@@ -318,7 +328,8 @@ onBeforeUnmount(() => {
                         class="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 font-semibold text-foreground transition-colors hover:bg-muted"
                         @click="fitBounds"
                     >
-                        <Crosshair class="h-3.5 w-3.5" /> {{ $t('Zoom to all') }}
+                        <Crosshair class="h-3.5 w-3.5" />
+                        {{ $t('Zoom to all') }}
                     </button>
                 </div>
             </div>
@@ -377,7 +388,12 @@ onBeforeUnmount(() => {
                                         <span
                                             class="mt-0.5 block truncate text-xs text-muted-foreground"
                                         >
-                                            {{ $t(item.driver?.name ?? 'Unassigned') }}
+                                            {{
+                                                $t(
+                                                    item.driver?.name ??
+                                                        'Unassigned',
+                                                )
+                                            }}
                                         </span>
                                         <span
                                             class="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground"
@@ -386,7 +402,13 @@ onBeforeUnmount(() => {
                                                 class="inline-flex items-center gap-1"
                                             >
                                                 <Navigation class="h-3 w-3" />
-                                                {{ $t(item.driver ? 'Live' : 'No location') }}
+                                                {{
+                                                    $t(
+                                                        item.driver
+                                                            ? 'Live'
+                                                            : 'No location',
+                                                    )
+                                                }}
                                             </span>
                                             <span
                                                 v-if="item.customer_phone"
@@ -418,7 +440,11 @@ onBeforeUnmount(() => {
                                 v-else
                                 class="px-4 py-16 text-center text-sm text-muted-foreground"
                             >
-                                {{ $t('No active deliveries. Assign a shipment to a driver to see it here.') }}
+                                {{
+                                    $t(
+                                        'No active deliveries. Assign a shipment to a driver to see it here.',
+                                    )
+                                }}
                             </p>
                         </div>
                     </aside>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Cartxis\Admin\Database\Seeders\AdminMenuSeeder;
 use Cartxis\Sales\Models\Delivery;
 use Cartxis\Sales\Models\Shipment;
 use Cartxis\Shop\Models\Address;
@@ -10,7 +11,7 @@ use Illuminate\Support\Str;
 function boardOrder(): Order
 {
     $order = Order::create([
-        'order_number' => 'ORD-' . Str::upper(Str::random(8)),
+        'order_number' => 'ORD-'.Str::upper(Str::random(8)),
         'status' => 'processing',
         'payment_status' => 'paid',
         'customer_email' => 'customer@example.com',
@@ -78,7 +79,7 @@ function boardDelivery(array $attributes = []): Delivery
 }
 
 test('delivery board and report menu items are seeded', function () {
-    $this->artisan('db:seed', ['--class' => Cartxis\Admin\Database\Seeders\AdminMenuSeeder::class])->assertSuccessful();
+    $this->artisan('db:seed', ['--class' => AdminMenuSeeder::class])->assertSuccessful();
 
     $this->assertDatabaseHas('menu_items', ['key' => 'sales-delivery-board', 'route' => 'admin.sales.deliveries.board']);
     $this->assertDatabaseHas('menu_items', ['key' => 'sales-deliveries']);

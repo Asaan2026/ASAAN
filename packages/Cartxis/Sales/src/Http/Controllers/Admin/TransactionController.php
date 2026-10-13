@@ -3,14 +3,14 @@
 namespace Cartxis\Sales\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Cartxis\Sales\Models\Transaction;
+use Cartxis\Sales\Repositories\TransactionRepository;
+use Cartxis\Sales\Services\TransactionService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
-use Cartxis\Sales\Models\Transaction;
-use Cartxis\Sales\Services\TransactionService;
-use Cartxis\Sales\Repositories\TransactionRepository;
-use Illuminate\Support\Facades\Response;
 
 class TransactionController extends Controller
 {
@@ -36,7 +36,7 @@ class TransactionController extends Controller
             'amount_max',
             'order_id',
             'sort_by',
-            'sort_order'
+            'sort_order',
         ]);
 
         $transactions = $this->transactionRepository->paginate(
@@ -63,7 +63,7 @@ class TransactionController extends Controller
     {
         $transaction = $this->transactionRepository->find($id);
 
-        if (!$transaction) {
+        if (! $transaction) {
             abort(404);
         }
 
@@ -91,13 +91,13 @@ class TransactionController extends Controller
 
         $transaction = $this->transactionRepository->find($id);
 
-        if (!$transaction) {
+        if (! $transaction) {
             return redirect()
                 ->route('admin.sales.transactions.index')
                 ->with('error', 'Transaction not found');
         }
 
-        if (!$transaction->canBeRefunded()) {
+        if (! $transaction->canBeRefunded()) {
             return redirect()
                 ->route('admin.sales.transactions.show', $id)
                 ->with('error', 'This transaction cannot be refunded');
@@ -125,7 +125,7 @@ class TransactionController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->route('admin.sales.transactions.show', $id)
-                ->with('error', 'Failed to process refund: ' . $e->getMessage());
+                ->with('error', 'Failed to process refund: '.$e->getMessage());
         }
     }
 
@@ -136,13 +136,13 @@ class TransactionController extends Controller
     {
         $transaction = $this->transactionRepository->find($id);
 
-        if (!$transaction) {
+        if (! $transaction) {
             return redirect()
                 ->route('admin.sales.transactions.index')
                 ->with('error', 'Transaction not found');
         }
 
-        if (!$transaction->canBeRetried()) {
+        if (! $transaction->canBeRetried()) {
             return redirect()
                 ->route('admin.sales.transactions.show', $id)
                 ->with('error', 'This transaction cannot be retried');
@@ -157,7 +157,7 @@ class TransactionController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->route('admin.sales.transactions.show', $id)
-                ->with('error', 'Failed to retry transaction: ' . $e->getMessage());
+                ->with('error', 'Failed to retry transaction: '.$e->getMessage());
         }
     }
 
@@ -168,7 +168,7 @@ class TransactionController extends Controller
     {
         $transaction = $this->transactionRepository->find($id);
 
-        if (!$transaction) {
+        if (! $transaction) {
             return redirect()
                 ->route('admin.sales.transactions.index')
                 ->with('error', 'Transaction not found');
@@ -189,7 +189,7 @@ class TransactionController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->route('admin.sales.transactions.show', $id)
-                ->with('error', 'Failed to cancel transaction: ' . $e->getMessage());
+                ->with('error', 'Failed to cancel transaction: '.$e->getMessage());
         }
     }
 
@@ -212,16 +212,16 @@ class TransactionController extends Controller
 
         $transactions = $this->transactionRepository->getForExport($filters);
 
-        $filename = 'transactions_' . now()->format('Y-m-d_His') . '.csv';
+        $filename = 'transactions_'.now()->format('Y-m-d_His').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
 
-        $callback = function() use ($transactions) {
+        $callback = function () use ($transactions) {
             $file = fopen('php://output', 'w');
-            
+
             // Add CSV headers
             fputcsv($file, [
                 'Transaction #',

@@ -52,7 +52,7 @@ class HesabPayGateway implements PaymentGatewayInterface
      */
     protected function getPaymentMethod(): ?PaymentMethod
     {
-        if (!$this->paymentMethod) {
+        if (! $this->paymentMethod) {
             $this->paymentMethod = PaymentMethod::where('code', 'hesabpay')
                 ->where('is_active', true)
                 ->first();
@@ -89,7 +89,7 @@ class HesabPayGateway implements PaymentGatewayInterface
     {
         $method = $this->getPaymentMethod();
 
-        if (!$method) {
+        if (! $method) {
             return $default;
         }
 
@@ -127,13 +127,13 @@ class HesabPayGateway implements PaymentGatewayInterface
     {
         $apiKey = $this->getApiKey();
 
-        if (!$apiKey) {
+        if (! $apiKey) {
             throw new \Exception('HesabPay API key is not configured');
         }
 
         return Http::baseUrl($this->getBaseUrl())
             ->withHeaders([
-                'Authorization' => 'API-KEY ' . $apiKey,
+                'Authorization' => 'API-KEY '.$apiKey,
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
             ])
@@ -359,7 +359,7 @@ class HesabPayGateway implements PaymentGatewayInterface
         // the customer still sees their goods itemised.
         if ($remainder > 0) {
             $items[] = [
-                'id' => mb_substr($order->order_number . '-adj', 0, 50),
+                'id' => mb_substr($order->order_number.'-adj', 0, 50),
                 'name' => 'Tax, shipping and discounts',
                 'price' => $remainder,
             ];

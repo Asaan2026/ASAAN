@@ -3,9 +3,8 @@
 namespace Cartxis\Reports\Repositories;
 
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Cartxis\Shop\Models\Order;
+use Illuminate\Support\Collection;
 
 class SalesReportRepository
 {
@@ -15,7 +14,7 @@ class SalesReportRepository
     public function getRevenueStatistics(Carbon $startDate, Carbon $endDate, array $filters = []): array
     {
         $query = $this->buildBaseQuery($startDate, $endDate, $filters);
-        
+
         // Statuses that represent captured/paid revenue
         $revenueStatuses = ['processing', 'shipped', 'delivered', 'completed'];
         $revenueStatusList = implode('", "', $revenueStatuses);
@@ -27,21 +26,21 @@ class SalesReportRepository
             SUM(CASE WHEN status = 'refunded' THEN total ELSE 0 END) as refunded_amount,
             AVG(CASE WHEN status IN (\"$revenueStatusList\") THEN total ELSE NULL END) as avg_order_value
         ")->first();
-        
+
         // Previous period for comparison
         $periodDiff = $startDate->diffInDays($endDate);
         $previousStart = $startDate->copy()->subDays($periodDiff);
         $previousEnd = $startDate->copy()->subDay();
-        
+
         $previousRevenue = Order::whereBetween('created_at', [$previousStart, $previousEnd])
             ->whereIn('status', $revenueStatuses)
             ->sum('total');
-        
+
         // Calculate growth
-        $growthPercentage = $previousRevenue > 0 
-            ? (($currentStats->total_revenue - $previousRevenue) / $previousRevenue) * 100 
+        $growthPercentage = $previousRevenue > 0
+            ? (($currentStats->total_revenue - $previousRevenue) / $previousRevenue) * 100
             : 0;
-        
+
         return [
             'total_revenue' => (float) ($currentStats->total_revenue ?? 0),
             'order_count' => (int) ($currentStats->order_count ?? 0),
@@ -58,14 +57,14 @@ class SalesReportRepository
      */
     public function getRevenueOverTime(Carbon $startDate, Carbon $endDate, string $groupBy = 'day'): array
     {
-        $dateFormat = match($groupBy) {
+        $dateFormat = match ($groupBy) {
             'hour' => '%Y-%m-%d %H:00:00',
             'day' => '%Y-%m-%d',
             'week' => '%Y-%u',
             'month' => '%Y-%m',
             default => '%Y-%m-%d',
         };
-        
+
         $results = Order::whereBetween('created_at', [$startDate, $endDate])
             ->whereIn('status', ['processing', 'shipped', 'delivered', 'completed'])
             ->selectRaw("
@@ -76,18 +75,18 @@ class SalesReportRepository
             ->groupBy('date_group')
             ->orderBy('date_group')
             ->get();
-        
+
         return [
             'labels' => $results->pluck('date_group')->toArray(),
             'datasets' => [
                 [
                     'label' => 'Revenue',
-                    'data' => $results->pluck('revenue')->map(fn($v) => (float) $v)->toArray(),
+                    'data' => $results->pluck('revenue')->map(fn ($v) => (float) $v)->toArray(),
                     'borderColor' => '#3b82f6',
                     'backgroundColor' => 'rgba(59, 130, 246, 0.1)',
                     'tension' => 0.4,
-                ]
-            ]
+                ],
+            ],
         ];
     }
 
@@ -97,15 +96,15 @@ class SalesReportRepository
     public function getOrdersByStatus(Carbon $startDate, Carbon $endDate, array $filters = []): array
     {
         $query = $this->buildBaseQuery($startDate, $endDate, $filters);
-        
+
         $results = $query->selectRaw('
             status,
             COUNT(*) as count,
             SUM(total) as revenue
         ')
-        ->groupBy('status')
-        ->get();
-        
+            ->groupBy('status')
+            ->get();
+
         $statusLabels = [
             'pending' => 'Pending',
             'processing' => 'Processing',
@@ -115,7 +114,7 @@ class SalesReportRepository
             'cancelled' => 'Cancelled',
             'refunded' => 'Refunded',
         ];
-        
+
         $colors = [
             'pending' => '#f59e0b',
             'processing' => '#3b82f6',
@@ -125,16 +124,16 @@ class SalesReportRepository
             'cancelled' => '#6b7280',
             'refunded' => '#ef4444',
         ];
-        
+
         return [
-            'labels' => $results->pluck('status')->map(fn($s) => $statusLabels[$s] ?? $s)->toArray(),
+            'labels' => $results->pluck('status')->map(fn ($s) => $statusLabels[$s] ?? $s)->toArray(),
             'datasets' => [
                 [
                     'label' => 'Orders',
                     'data' => $results->pluck('count')->toArray(),
-                    'backgroundColor' => $results->pluck('status')->map(fn($s) => $colors[$s] ?? '#6b7280')->toArray(),
-                ]
-            ]
+                    'backgroundColor' => $results->pluck('status')->map(fn ($s) => $colors[$s] ?? '#6b7280')->toArray(),
+                ],
+            ],
         ];
     }
 
@@ -164,18 +163,18 @@ class SalesReportRepository
             ')
             ->groupBy('payment_method')
             ->get();
-        
+
         return [
-            'labels' => $results->pluck('payment_method')->map(fn($pm) => ucfirst($pm ?? 'Unknown'))->toArray(),
+            'labels' => $results->pluck('payment_method')->map(fn ($pm) => ucfirst($pm ?? 'Unknown'))->toArray(),
             'datasets' => [
                 [
                     'label' => 'Revenue',
-                    'data' => $results->pluck('revenue')->map(fn($v) => (float) $v)->toArray(),
+                    'data' => $results->pluck('revenue')->map(fn ($v) => (float) $v)->toArray(),
                     'backgroundColor' => [
-                        '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'
+                        '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
     }
 
@@ -185,15 +184,15 @@ class SalesReportRepository
     protected function buildBaseQuery(Carbon $startDate, Carbon $endDate, array $filters = [])
     {
         $query = Order::query()->whereBetween('created_at', [$startDate, $endDate]);
-        
-        if (!empty($filters['status'])) {
+
+        if (! empty($filters['status'])) {
             $query->whereIn('status', (array) $filters['status']);
         }
-        
-        if (!empty($filters['payment_method'])) {
+
+        if (! empty($filters['payment_method'])) {
             $query->where('payment_method', $filters['payment_method']);
         }
-        
+
         return $query;
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Cartxis\Core\Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use Cartxis\Core\Models\EmailTemplate;
+use Illuminate\Database\Seeder;
 
 class EmailSeeder extends Seeder
 {
@@ -167,7 +167,7 @@ class EmailSeeder extends Seeder
 
     private function getOrderPlacedTemplate(): string
     {
-        return <<<HTML
+        return <<<'HTML'
 <!DOCTYPE html>
 <html>
 <head>
@@ -210,7 +210,7 @@ HTML;
 
     private function getOrderPlacedPlainText(): string
     {
-        return <<<TEXT
+        return <<<'TEXT'
 Order Confirmation
 
 Hi {customer_name},
@@ -236,7 +236,7 @@ TEXT;
 
     private function getOrderShippedTemplate(): string
     {
-        return <<<HTML
+        return <<<'HTML'
 <!DOCTYPE html>
 <html>
 <head>
@@ -270,7 +270,7 @@ HTML;
 
     private function getOrderShippedPlainText(): string
     {
-        return <<<TEXT
+        return <<<'TEXT'
 Your Order Has Shipped!
 
 Hi {customer_name},
@@ -291,7 +291,7 @@ TEXT;
 
     private function getOrderDeliveredTemplate(): string
     {
-        return <<<HTML
+        return <<<'HTML'
 <!DOCTYPE html>
 <html>
 <head>
@@ -324,7 +324,7 @@ HTML;
 
     private function getOrderDeliveredPlainText(): string
     {
-        return <<<TEXT
+        return <<<'TEXT'
 Order Delivered!
 
 Hi {customer_name},
@@ -344,7 +344,7 @@ TEXT;
 
     private function getOrderCancelledTemplate(): string
     {
-        return <<<HTML
+        return <<<'HTML'
 <!DOCTYPE html>
 <html>
 <head>
@@ -376,7 +376,7 @@ HTML;
 
     private function getOrderCancelledPlainText(): string
     {
-        return <<<TEXT
+        return <<<'TEXT'
 Order Cancelled
 
 Hi {customer_name},
@@ -397,7 +397,7 @@ TEXT;
 
     private function getWelcomeTemplate(): string
     {
-        return <<<HTML
+        return <<<'HTML'
 <!DOCTYPE html>
 <html>
 <head>
@@ -439,7 +439,7 @@ HTML;
 
     private function getWelcomePlainText(): string
     {
-        return <<<TEXT
+        return <<<'TEXT'
 Welcome to {store_name}!
 
 Hi {customer_name},
@@ -465,7 +465,7 @@ TEXT;
 
     private function getPasswordResetTemplate(): string
     {
-        return <<<HTML
+        return <<<'HTML'
 <!DOCTYPE html>
 <html>
 <head>
@@ -498,7 +498,7 @@ HTML;
 
     private function getPasswordResetPlainText(): string
     {
-        return <<<TEXT
+        return <<<'TEXT'
 Reset Your Password
 
 Hi {customer_name},
@@ -518,7 +518,7 @@ TEXT;
 
     private function getEmailVerificationTemplate(): string
     {
-        return <<<HTML
+        return <<<'HTML'
 <!DOCTYPE html>
 <html>
 <head>
@@ -549,7 +549,7 @@ HTML;
 
     private function getEmailVerificationPlainText(): string
     {
-        return <<<TEXT
+        return <<<'TEXT'
 Verify Your Email Address
 
 Hi {customer_name},
@@ -569,7 +569,7 @@ TEXT;
 
     private function getPaymentReceivedTemplate(): string
     {
-        return <<<HTML
+        return <<<'HTML'
 <!DOCTYPE html>
 <html>
 <head>
@@ -602,7 +602,7 @@ HTML;
 
     private function getPaymentReceivedPlainText(): string
     {
-        return <<<TEXT
+        return <<<'TEXT'
 Payment Received
 
 Hi {customer_name},
@@ -623,7 +623,7 @@ TEXT;
 
     private function getPaymentFailedTemplate(): string
     {
-        return <<<HTML
+        return <<<'HTML'
 <!DOCTYPE html>
 <html>
 <head>
@@ -656,7 +656,7 @@ HTML;
 
     private function getPaymentFailedPlainText(): string
     {
-        return <<<TEXT
+        return <<<'TEXT'
 Payment Failed
 
 Hi {customer_name},
@@ -678,7 +678,7 @@ TEXT;
 
     private function getInvoiceSentTemplate(): string
     {
-        return <<<HTML
+        return <<<'HTML'
 <!DOCTYPE html>
 <html>
 <head>
@@ -841,7 +841,7 @@ HTML;
 
     private function getInvoiceSentPlainText(): string
     {
-        return <<<TEXT
+        return <<<'TEXT'
 Invoice {invoice_number}
 
 Dear {customer_name},

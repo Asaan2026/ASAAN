@@ -144,7 +144,7 @@ class Service extends Model
             return $query;
         }
 
-        $like = '%' . $term . '%';
+        $like = '%'.$term.'%';
 
         return $query->where(function (Builder $q) use ($like) {
             $q->where('name', 'like', $like)
@@ -184,7 +184,7 @@ class Service extends Model
             return $this->image;
         }
 
-        return asset('storage/' . ltrim($this->image, '/'));
+        return asset('storage/'.ltrim($this->image, '/'));
     }
 
     /**
@@ -192,7 +192,7 @@ class Service extends Model
      */
     public function getPriceDisplayAttribute(): string
     {
-        return $this->price . ' ' . $this->unitLabel();
+        return $this->price.' '.$this->unitLabel();
     }
 
     /**
@@ -211,19 +211,19 @@ class Service extends Model
         $minutes = (int) $this->duration_minutes;
 
         if ($minutes < 60) {
-            return $minutes . ' min';
+            return $minutes.' min';
         }
 
         $hours = intdiv($minutes, 60);
         $rest = $minutes % 60;
 
         if ($rest === 0) {
-            return $hours === 1 ? '1 hour' : $hours . ' hours';
+            return $hours === 1 ? '1 hour' : $hours.' hours';
         }
 
         return $hours === 1
-            ? '1 hour ' . $rest . ' min'
-            : $hours . ' hours ' . $rest . ' min';
+            ? '1 hour '.$rest.' min'
+            : $hours.' hours '.$rest.' min';
     }
 
     public static function uniqueSlug(string $name, ?int $ignoreId = null): string
@@ -237,7 +237,7 @@ class Service extends Model
             ->when($ignoreId, fn ($q) => $q->whereKeyNot($ignoreId))
             ->exists()
         ) {
-            $slug = $base . '-' . $suffix++;
+            $slug = $base.'-'.$suffix++;
         }
 
         return $slug;

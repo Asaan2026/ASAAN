@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Route;
-use Cartxis\CMS\Http\Controllers\Admin\PagesController;
-use Cartxis\CMS\Http\Controllers\Admin\MediaController;
 use Cartxis\CMS\Http\Controllers\Admin\FolderController;
+use Cartxis\CMS\Http\Controllers\Admin\MediaController;
+use Cartxis\CMS\Http\Controllers\Admin\PagesController;
 use Cartxis\CMS\Http\Controllers\Admin\StorefrontMenuController;
+use Illuminate\Support\Facades\Route;
 
 // CMS Admin Routes
 Route::middleware(['web', 'auth:admin'])->prefix('admin')->name('admin.')->group(function () {

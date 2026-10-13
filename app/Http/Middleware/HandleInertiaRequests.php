@@ -2,16 +2,19 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use Inertia\Middleware;
+use Cartxis\Admin\Services\AdminNotificationService;
+use Cartxis\Calendar\Support\CalendarConfig;
 use Cartxis\Core\Models\Currency;
+use Cartxis\Core\Models\Locale;
 use Cartxis\Core\Services\MenuService;
 use Cartxis\Core\Services\SettingService;
 use Cartxis\Core\Support\DisplayCurrency;
-use Cartxis\Admin\Services\AdminNotificationService;
 use Cartxis\Settings\Models\Setting as SystemSetting;
+use Illuminate\Foundation\Inspiring;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -74,7 +77,7 @@ class HandleInertiaRequests extends Middleware
                     'admin' => [],
                     'shop' => [],
                 ],
-                'flash' => \Inertia\Inertia::always(function () use ($request) {
+                'flash' => Inertia::always(function () {
                     return [
                         'success' => null,
                         'error' => null,
@@ -105,13 +108,13 @@ class HandleInertiaRequests extends Middleware
         // Build menu trees with error handling
         $adminMenu = [];
         $shopMenu = [];
-        
+
         try {
             $adminMenu = $menuService->buildTree('admin');
         } catch (\Exception $e) {
             // Silently fail during migration when table doesn't exist
         }
-        
+
         try {
             $shopMenu = $menuService->buildTree('shop');
         } catch (\Exception $e) {
@@ -124,7 +127,7 @@ class HandleInertiaRequests extends Middleware
             'locale' => app()->getLocale(),
             'locales' => function () {
                 try {
-                    return \Cartxis\Core\Models\Locale::query()
+                    return Locale::query()
                         ->where('is_active', true)
                         ->orderBy('sort_order')
                         ->get(['code', 'name', 'native_name', 'direction', 'is_default'])
@@ -149,7 +152,7 @@ class HandleInertiaRequests extends Middleware
                     : $request->user(),
             ],
             'adminNotifications' => function () use ($request, $adminNotificationService) {
-                if ((!$request->is('admin/*') && !$request->is('admin')) || !$request->user('admin')) {
+                if ((! $request->is('admin/*') && ! $request->is('admin')) || ! $request->user('admin')) {
                     return [
                         'unread_count' => 0,
                     ];
@@ -167,10 +170,10 @@ class HandleInertiaRequests extends Middleware
             },
             'adminConfig' => function () use ($request, $settingService) {
                 // Only load for admin routes
-                if (!$request->is('admin/*') && !$request->is('admin')) {
+                if (! $request->is('admin/*') && ! $request->is('admin')) {
                     return null;
                 }
-                
+
                 try {
                     return [
                         'logo' => $settingService->get('admin_logo') ?? null,
@@ -181,7 +184,7 @@ class HandleInertiaRequests extends Middleware
                 }
             },
             'adminMaintenance' => function () use ($request) {
-                if (!$request->is('admin/*') && !$request->is('admin')) {
+                if (! $request->is('admin/*') && ! $request->is('admin')) {
                     return null;
                 }
 
@@ -201,7 +204,7 @@ class HandleInertiaRequests extends Middleware
                 'admin' => $adminMenu,
                 'shop' => $shopMenu,
             ],
-            'flash' => \Inertia\Inertia::always(function () use ($request) {
+            'flash' => Inertia::always(function () use ($request) {
                 return [
                     'success' => $request->session()->get('success'),
                     'error' => $request->session()->get('error'),
@@ -232,6 +235,7 @@ class HandleInertiaRequests extends Middleware
             'currency' => function () {
                 try {
                     $currency = Currency::getDefault();
+
                     return $currency ? [
                         'code' => $currency->code,
                         'name' => $currency->name,
@@ -266,7 +270,7 @@ class HandleInertiaRequests extends Middleware
             // The store's calendar decisions, so the Solar Hijri picker and
             // every displayed date agree with config/calendar.php rather than
             // each repeating the defaults and drifting apart.
-            'calendar' => fn () => \Cartxis\Calendar\Support\CalendarConfig::shared(),
+            'calendar' => fn () => CalendarConfig::shared(),
             // Note: Theme-specific data (theme, contactInfo, socialLinks) is shared
             // by ShareFrontendData middleware via the hook system. Each theme registers
             // only the shared props it needs through its hooks.php file.

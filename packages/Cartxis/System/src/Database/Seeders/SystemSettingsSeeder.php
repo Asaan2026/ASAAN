@@ -20,8 +20,8 @@ class SystemSettingsSeeder extends Seeder
             ['group' => 'system', 'key' => 'maintenance_allowed_ips', 'value' => '[]',                                                                    'type' => 'json'],
             ['group' => 'system', 'key' => 'maintenance_start_time',  'value' => '',                                                                      'type' => 'datetime'],
             ['group' => 'system', 'key' => 'maintenance_end_time',    'value' => '',                                                                      'type' => 'datetime'],
-            ['group' => 'system', 'key' => 'maintenance_bypass_admin','value' => '1',                                                                     'type' => 'boolean'],
-            ['group' => 'system', 'key' => 'maintenance_contact_email','value' => '',                                                                     'type' => 'email'],
+            ['group' => 'system', 'key' => 'maintenance_bypass_admin', 'value' => '1',                                                                     'type' => 'boolean'],
+            ['group' => 'system', 'key' => 'maintenance_contact_email', 'value' => '',                                                                     'type' => 'email'],
             ['group' => 'system', 'key' => 'maintenance_show_eta',    'value' => '1',                                                                     'type' => 'boolean'],
         ];
 

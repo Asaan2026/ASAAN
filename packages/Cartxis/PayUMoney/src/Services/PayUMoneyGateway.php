@@ -5,8 +5,8 @@ namespace Cartxis\PayUMoney\Services;
 use Cartxis\Core\Contracts\PaymentGatewayInterface;
 use Cartxis\Core\Models\PaymentMethod;
 use Cartxis\Core\Support\GatewayCurrency;
+use Cartxis\Core\Support\StoreCountry;
 use Cartxis\Shop\Models\Order;
-use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -32,6 +32,7 @@ class PayUMoneyGateway implements PaymentGatewayInterface
      * PayUMoney API URLs
      */
     protected const TEST_URL = 'https://test.payu.in/_payment';
+
     protected const LIVE_URL = 'https://secure.payu.in/_payment';
 
     /**
@@ -47,7 +48,7 @@ class PayUMoneyGateway implements PaymentGatewayInterface
      */
     protected function getPaymentMethod(): ?PaymentMethod
     {
-        if (!$this->paymentMethod) {
+        if (! $this->paymentMethod) {
             $this->paymentMethod = PaymentMethod::where('code', 'payumoney')
                 ->where('is_active', true)
                 ->first();
@@ -62,6 +63,7 @@ class PayUMoneyGateway implements PaymentGatewayInterface
     protected function getConfig(string $key, mixed $default = null): mixed
     {
         $method = $this->getPaymentMethod();
+
         return $method?->getConfigValue($key, $default);
     }
 
@@ -71,6 +73,7 @@ class PayUMoneyGateway implements PaymentGatewayInterface
     protected function getPaymentUrl(): string
     {
         $mode = $this->getConfig('mode', 'test');
+
         return $mode === 'production' ? self::LIVE_URL : self::TEST_URL;
     }
 
@@ -135,8 +138,8 @@ class PayUMoneyGateway implements PaymentGatewayInterface
 
         $hashString = implode('|', $parts);
 
-        if (!empty($additionalCharges)) {
-            $hashString = $additionalCharges . '|' . $hashString;
+        if (! empty($additionalCharges)) {
+            $hashString = $additionalCharges.'|'.$hashString;
         }
 
         $calculatedHash = hash('sha512', $hashString);
@@ -179,7 +182,7 @@ class PayUMoneyGateway implements PaymentGatewayInterface
             $merchantKey = $this->getConfig('merchant_key');
             $merchantSalt = $this->getConfig('merchant_salt');
 
-            if (!$merchantKey || !$merchantSalt) {
+            if (! $merchantKey || ! $merchantSalt) {
                 throw new \Exception('PayUMoney API credentials not configured');
             }
 
@@ -187,17 +190,17 @@ class PayUMoneyGateway implements PaymentGatewayInterface
             $billingAddress = $order->billingAddress ?? $order->shippingAddress;
             $customer = $order->customer;
 
-            if (!$billingAddress) {
+            if (! $billingAddress) {
                 throw new \Exception('Billing address not found');
             }
 
             $customerEmail = $customer?->email ?? $order->customer_email;
-            if (!$customerEmail) {
+            if (! $customerEmail) {
                 throw new \Exception('Customer email not found');
             }
 
             // Generate unique transaction ID
-            $txnId = 'TXN' . $order->id . '_' . time();
+            $txnId = 'TXN'.$order->id.'_'.time();
 
             // Prepare payment parameters. The API takes no currency field, so
             // this is the canonical AFN total passed through the one helper
@@ -211,7 +214,7 @@ class PayUMoneyGateway implements PaymentGatewayInterface
                 'key' => $merchantKey,
                 'txnid' => $txnId,
                 'amount' => number_format((float) $amount, 2, '.', ''),
-                'productinfo' => 'Order #' . $order->order_number,
+                'productinfo' => 'Order #'.$order->order_number,
                 'firstname' => $billingAddress->first_name,
                 'lastname' => $billingAddress->last_name,
                 'email' => $customerEmail,
@@ -220,7 +223,7 @@ class PayUMoneyGateway implements PaymentGatewayInterface
                 'address2' => $billingAddress->address_line_2 ?? '',
                 'city' => $billingAddress->city,
                 'state' => $billingAddress->state,
-                'country' => \Cartxis\Core\Support\StoreCountry::name(),
+                'country' => StoreCountry::name(),
                 'zipcode' => $billingAddress->postcode,
                 'surl' => route('payumoney.callback'),
                 'furl' => route('payumoney.callback'),
@@ -260,7 +263,7 @@ class PayUMoneyGateway implements PaymentGatewayInterface
                 'error' => $e->getMessage(),
             ]);
 
-            throw new \Exception('PayUMoney payment processing failed: ' . $e->getMessage());
+            throw new \Exception('PayUMoney payment processing failed: '.$e->getMessage());
         }
     }
 
@@ -271,19 +274,19 @@ class PayUMoneyGateway implements PaymentGatewayInterface
     {
         try {
             // Verify hash
-            if (!$this->verifyHash($data)) {
+            if (! $this->verifyHash($data)) {
                 throw new \Exception('Invalid payment response hash');
             }
 
             $orderId = $data['udf1'] ?? null;
             $status = $data['status'] ?? '';
 
-            if (!$orderId) {
+            if (! $orderId) {
                 throw new \Exception('Order ID not found in callback');
             }
 
             $order = Order::find($orderId);
-            if (!$order) {
+            if (! $order) {
                 throw new \Exception('Order not found');
             }
 
@@ -309,7 +312,7 @@ class PayUMoneyGateway implements PaymentGatewayInterface
                 ];
             }
 
-            throw new \Exception('Payment failed. Status: ' . $status);
+            throw new \Exception('Payment failed. Status: '.$status);
         } catch (\Exception $e) {
             Log::error('PayUMoneyGateway: Callback handling failed', [
                 'error' => $e->getMessage(),
@@ -318,7 +321,7 @@ class PayUMoneyGateway implements PaymentGatewayInterface
 
             return [
                 'success' => false,
-                'message' => 'Payment verification failed: ' . $e->getMessage(),
+                'message' => 'Payment verification failed: '.$e->getMessage(),
             ];
         }
     }
@@ -331,13 +334,13 @@ class PayUMoneyGateway implements PaymentGatewayInterface
         try {
             $txnId = $order->payment_gateway_data['txnid'] ?? null;
 
-            if (!$txnId) {
+            if (! $txnId) {
                 return false;
             }
 
             // PayUMoney doesn't have a direct verification API
             // Payment verification is done through callback hash verification
-            return !empty($order->payment_gateway_data['status']) &&
+            return ! empty($order->payment_gateway_data['status']) &&
                    $order->payment_gateway_data['status'] === 'success';
         } catch (\Exception $e) {
             Log::error('PayUMoneyGateway: Payment verification failed', [
@@ -363,7 +366,6 @@ class PayUMoneyGateway implements PaymentGatewayInterface
             // PayUMoney requires manual refund processing or separate refund API credentials
             // This is a placeholder implementation
             throw new \Exception('PayUMoney refunds must be processed through the PayU merchant dashboard');
-
             // If you have refund API access, implement here:
             // $mihpayid = $order->payment_gateway_data['mihpayid'] ?? null;
             // Make API call to PayU refund endpoint
@@ -380,7 +382,7 @@ class PayUMoneyGateway implements PaymentGatewayInterface
 
             return [
                 'success' => false,
-                'message' => 'Refund failed: ' . $e->getMessage(),
+                'message' => 'Refund failed: '.$e->getMessage(),
             ];
         }
     }
@@ -430,13 +432,13 @@ class PayUMoneyGateway implements PaymentGatewayInterface
     {
         $method = $this->getPaymentMethod();
 
-        if (!$method) {
+        if (! $method) {
             return false;
         }
 
         $merchantKey = $method->getConfigValue('merchant_key');
         $merchantSalt = $method->getConfigValue('merchant_salt');
 
-        return !empty($merchantKey) && !empty($merchantSalt);
+        return ! empty($merchantKey) && ! empty($merchantSalt);
     }
 }

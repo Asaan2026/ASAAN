@@ -2,17 +2,21 @@
 
 namespace Cartxis\Shop\Models;
 
+use App\Models\User;
+use Cartxis\Core\Support\DisplayCurrency;
+use Cartxis\Customer\Models\Customer;
+use Cartxis\Sales\Models\Delivery;
+use Cartxis\Sales\Models\Invoice;
+use Cartxis\Sales\Models\OrderHistory;
+use Cartxis\Sales\Models\Shipment;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\User;
-use Cartxis\Customer\Models\Customer;
-use Cartxis\Shop\Models\OrderItem;
-use Cartxis\Shop\Models\Address;
 
 class Order extends Model
 {
@@ -78,18 +82,26 @@ class Order extends Model
      * Order status constants
      */
     const STATUS_PENDING = 'pending';
+
     const STATUS_PROCESSING = 'processing';
+
     const STATUS_COMPLETED = 'completed';
+
     const STATUS_CANCELLED = 'cancelled';
+
     const STATUS_REFUNDED = 'refunded';
+
     const STATUS_FAILED = 'failed';
 
     /**
      * Payment status constants
      */
     const PAYMENT_PENDING = 'pending';
+
     const PAYMENT_PAID = 'paid';
+
     const PAYMENT_FAILED = 'failed';
+
     const PAYMENT_REFUNDED = 'refunded';
 
     /**
@@ -106,8 +118,6 @@ class Order extends Model
 
     /**
      * Get all available order statuses.
-     *
-     * @return array
      */
     public static function getStatuses(): array
     {
@@ -123,8 +133,6 @@ class Order extends Model
 
     /**
      * Get all available payment statuses.
-     *
-     * @return array
      */
     public static function getPaymentStatuses(): array
     {
@@ -138,8 +146,6 @@ class Order extends Model
 
     /**
      * Get the user that owns the order.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user(): BelongsTo
     {
@@ -148,8 +154,6 @@ class Order extends Model
 
     /**
      * Get the customer that owns the order.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function customer(): BelongsTo
     {
@@ -158,8 +162,6 @@ class Order extends Model
 
     /**
      * Get the order items for the order.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function items(): HasMany
     {
@@ -168,8 +170,6 @@ class Order extends Model
 
     /**
      * Get all of the order's addresses (polymorphic).
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function addresses(): MorphMany
     {
@@ -178,8 +178,6 @@ class Order extends Model
 
     /**
      * Get the shipping address.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
      */
     public function shippingAddress(): MorphOne
     {
@@ -189,8 +187,6 @@ class Order extends Model
 
     /**
      * Get billing address for the order.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
      */
     public function billingAddress(): MorphOne
     {
@@ -203,7 +199,7 @@ class Order extends Model
      */
     public function histories(): HasMany
     {
-        return $this->hasMany(\Cartxis\Sales\Models\OrderHistory::class);
+        return $this->hasMany(OrderHistory::class);
     }
 
     /**
@@ -211,7 +207,7 @@ class Order extends Model
      */
     public function invoices(): HasMany
     {
-        return $this->hasMany(\Cartxis\Sales\Models\Invoice::class);
+        return $this->hasMany(Invoice::class);
     }
 
     /**
@@ -219,7 +215,7 @@ class Order extends Model
      */
     public function shipments(): HasMany
     {
-        return $this->hasMany(\Cartxis\Sales\Models\Shipment::class);
+        return $this->hasMany(Shipment::class);
     }
 
     /**
@@ -227,13 +223,11 @@ class Order extends Model
      */
     public function deliveries(): HasMany
     {
-        return $this->hasMany(\Cartxis\Sales\Models\Delivery::class);
+        return $this->hasMany(Delivery::class);
     }
 
     /**
      * Check if order is paid.
-     *
-     * @return bool
      */
     public function isPaid(): bool
     {
@@ -242,8 +236,6 @@ class Order extends Model
 
     /**
      * Check if order is pending.
-     *
-     * @return bool
      */
     public function isPending(): bool
     {
@@ -252,8 +244,6 @@ class Order extends Model
 
     /**
      * Check if order is processing.
-     *
-     * @return bool
      */
     public function isProcessing(): bool
     {
@@ -262,8 +252,6 @@ class Order extends Model
 
     /**
      * Check if order is completed.
-     *
-     * @return bool
      */
     public function isCompleted(): bool
     {
@@ -272,8 +260,6 @@ class Order extends Model
 
     /**
      * Check if order is cancelled.
-     *
-     * @return bool
      */
     public function isCancelled(): bool
     {
@@ -282,8 +268,6 @@ class Order extends Model
 
     /**
      * Check if order can be cancelled.
-     *
-     * @return bool
      */
     public function canBeCancelled(): bool
     {
@@ -292,108 +276,96 @@ class Order extends Model
 
     /**
      * Check if order can be shipped.
-     *
-     * @return bool
      */
     public function canBeShipped(): bool
     {
-        return $this->isPaid() && 
-               !$this->isCancelled() && 
-               !$this->isFullyShipped();
+        return $this->isPaid() &&
+               ! $this->isCancelled() &&
+               ! $this->isFullyShipped();
     }
 
     /**
      * Check if order is fully shipped.
-     *
-     * @return bool
      */
     public function isFullyShipped(): bool
     {
         // Get total quantity ordered
         $orderedQuantity = $this->items->sum('quantity');
-        
+
         // Get total quantity shipped
         $shippedQuantity = 0;
         foreach ($this->shipments as $shipment) {
-            if (!in_array($shipment->status, ['cancelled', 'failed'])) {
+            if (! in_array($shipment->status, ['cancelled', 'failed'])) {
                 $shippedQuantity += $shipment->shipmentItems->sum('quantity');
             }
         }
-        
+
         return $orderedQuantity > 0 && $shippedQuantity >= $orderedQuantity;
     }
 
     /**
      * Check if order is partially shipped.
-     *
-     * @return bool
      */
     public function isPartiallyShipped(): bool
     {
         if ($this->shipments->isEmpty()) {
             return false;
         }
-        
+
         // Has at least one valid shipment but not fully shipped
         $hasValidShipment = $this->shipments()
             ->whereNotIn('status', ['cancelled', 'failed'])
             ->exists();
-            
-        return $hasValidShipment && !$this->isFullyShipped();
+
+        return $hasValidShipment && ! $this->isFullyShipped();
     }
 
     /**
      * Get remaining quantity to ship for an order item.
-     *
-     * @param int $orderItemId
-     * @return int
      */
     public function getRemainingQuantityToShip(int $orderItemId): int
     {
         $orderItem = $this->items->find($orderItemId);
-        if (!$orderItem) {
+        if (! $orderItem) {
             return 0;
         }
-        
+
         $orderedQuantity = $orderItem->quantity;
-        
+
         // Calculate shipped quantity from all valid shipments
         $shippedQuantity = 0;
         foreach ($this->shipments as $shipment) {
-            if (!in_array($shipment->status, ['cancelled', 'failed'])) {
+            if (! in_array($shipment->status, ['cancelled', 'failed'])) {
                 $shipmentItem = $shipment->shipmentItems
                     ->where('order_item_id', $orderItemId)
                     ->first();
-                    
+
                 if ($shipmentItem) {
                     $shippedQuantity += $shipmentItem->quantity;
                 }
             }
         }
-        
+
         return max(0, $orderedQuantity - $shippedQuantity);
     }
 
     /**
      * Generate a unique order number.
-     *
-     * @return string
      */
     public static function generateOrderNumber(): string
     {
         $prefix = config('shop.order.number_prefix', 'ORD');
         $number = str_pad(random_int(1, 999999), 6, '0', STR_PAD_LEFT);
         $timestamp = now()->format('ymd');
-        
-        return $prefix . '-' . $timestamp . '-' . $number;
+
+        return $prefix.'-'.$timestamp.'-'.$number;
     }
 
     /**
      * Scope a query to only include orders with a specific status.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  string  $status
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeWithStatus($query, string $status)
     {
@@ -403,8 +375,8 @@ class Order extends Model
     /**
      * Scope a query to only include paid orders.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopePaid($query)
     {
@@ -414,9 +386,8 @@ class Order extends Model
     /**
      * Scope a query to only include orders for a specific user.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  int  $userId
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeForUser($query, int $userId)
     {
@@ -430,43 +401,37 @@ class Order extends Model
      * currency the shopper is viewing and prints it in that currency's own
      * format -- so the afghani comes out with no decimals and the dollar with
      * two. The value on the order is never changed.
-     *
-     * @return string
      */
     public function getFormattedTotalAttribute(): string
     {
-        return \Cartxis\Core\Support\DisplayCurrency::format((float) $this->total);
+        return DisplayCurrency::format((float) $this->total);
     }
 
     /**
      * Get the order's formatted subtotal.
-     *
-     * @return string
      */
     public function getFormattedSubtotalAttribute(): string
     {
-        return \Cartxis\Core\Support\DisplayCurrency::format((float) $this->subtotal);
+        return DisplayCurrency::format((float) $this->subtotal);
     }
 
     /**
      * Get the order's status label.
-     *
-     * @return string
      */
     public function getStatusLabelAttribute(): string
     {
         $statuses = self::getStatuses();
+
         return $statuses[$this->status] ?? 'Unknown';
     }
 
     /**
      * Get the order's payment status label.
-     *
-     * @return string
      */
     public function getPaymentStatusLabelAttribute(): string
     {
         $statuses = self::getPaymentStatuses();
+
         return $statuses[$this->payment_status] ?? 'Unknown';
     }
 }

@@ -2,9 +2,9 @@
 
 namespace Cartxis\Core\Console\Commands;
 
-use Illuminate\Console\Command;
 use Cartxis\Core\Models\Extension;
 use Cartxis\Core\Services\ExtensionService;
+use Illuminate\Console\Command;
 
 class ExtensionsSyncCommand extends Command
 {
@@ -20,6 +20,7 @@ class ExtensionsSyncCommand extends Command
 
         if ($discovered->isEmpty()) {
             $this->info('No extensions discovered.');
+
             return self::SUCCESS;
         }
 
@@ -29,20 +30,20 @@ class ExtensionsSyncCommand extends Command
         foreach ($discovered as $item) {
             $manifest = $item['manifest'] ?? [];
             $code = $manifest['code'] ?? null;
-            if (!$code) {
+            if (! $code) {
                 continue;
             }
 
             $legacyCode = str_starts_with($code, 'cartxis-')
-                ? 'vortex-' . substr($code, strlen('cartxis-'))
+                ? 'vortex-'.substr($code, strlen('cartxis-'))
                 : null;
 
-            if ($legacyCode && !Extension::where('code', $code)->exists()) {
+            if ($legacyCode && ! Extension::where('code', $code)->exists()) {
                 Extension::where('code', $legacyCode)->update(['code' => $code]);
             }
 
             $extension = Extension::firstOrNew(['code' => $code]);
-            $isNew = !$extension->exists;
+            $isNew = ! $extension->exists;
 
             // Always refresh metadata from manifest.
             $extension->name = $manifest['name'] ?? $extension->name;
@@ -60,7 +61,7 @@ class ExtensionsSyncCommand extends Command
                 $extension->installed = $isBundled;
                 $extension->installed_at = $isBundled ? now() : null;
 
-                if ($isBundled && !$this->option('no-activate-bundled')) {
+                if ($isBundled && ! $this->option('no-activate-bundled')) {
                     $extension->active = true;
                 }
             }
@@ -75,7 +76,7 @@ class ExtensionsSyncCommand extends Command
         }
 
         $this->info("Extensions synced. Created: {$created}. Updated: {$updated}.");
-        $this->line("Tip: run `php artisan cartxis:extensions:list` to view status.");
+        $this->line('Tip: run `php artisan cartxis:extensions:list` to view status.');
 
         return self::SUCCESS;
     }

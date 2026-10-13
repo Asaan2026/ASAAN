@@ -2,14 +2,14 @@
 
 namespace Cartxis\PayUMoney\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 use Cartxis\Core\Services\PaymentGatewayManager;
-use Cartxis\Shop\Models\Order;
 use Cartxis\Sales\Services\InvoiceService;
 use Cartxis\Sales\Services\TransactionService;
-use Illuminate\Support\Facades\Log;
+use Cartxis\Shop\Models\Order;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
 class PayUMoneyController extends Controller
@@ -29,20 +29,20 @@ class PayUMoneyController extends Controller
             $orderId = $request->input('udf1');
             $status = $request->input('status');
 
-            if (!$orderId) {
+            if (! $orderId) {
                 return redirect()->route('shop.checkout.index')->with('error', 'Invalid payment callback');
             }
 
             $order = Order::find($orderId);
 
-            if (!$order) {
+            if (! $order) {
                 return redirect()->route('shop.checkout.index')->with('error', 'Order not found');
             }
 
             // Get PayUMoney gateway
             $gateway = $this->gatewayManager->get('payumoney');
 
-            if (!$gateway) {
+            if (! $gateway) {
                 return redirect()->route('shop.checkout.index')->with('error', 'PayUMoney gateway not found');
             }
 
@@ -113,8 +113,9 @@ class PayUMoneyController extends Controller
         try {
             $gateway = $this->gatewayManager->get('payumoney');
 
-            if (!$gateway) {
+            if (! $gateway) {
                 Log::error('PayUMoney: Gateway not found for IPN webhook');
+
                 return response()->json(['status' => 'error'], 500);
             }
 
@@ -135,17 +136,17 @@ class PayUMoneyController extends Controller
 
                         $this->transactionService->createPaymentIfMissing($order, [
                             'payment_method' => 'payumoney',
-                            'gateway'        => 'payumoney',
+                            'gateway' => 'payumoney',
                             'gateway_transaction_id' => $result['transaction_id'],
-                            'amount'         => $order->total,
-                            'status'         => 'completed',
-                            'response_data'  => $result['response_data'] ?? null,
-                            'notes'          => 'Payment confirmed via PayUMoney IPN webhook',
-                            'invoice_id'     => $invoice?->id,
+                            'amount' => $order->total,
+                            'status' => 'completed',
+                            'response_data' => $result['response_data'] ?? null,
+                            'notes' => 'Payment confirmed via PayUMoney IPN webhook',
+                            'invoice_id' => $invoice?->id,
                         ]);
 
                         $order->update([
-                            'status'         => 'processing',
+                            'status' => 'processing',
                             'payment_status' => 'paid',
                             'payment_gateway_data' => array_merge(
                                 $order->payment_gateway_data ?? [],

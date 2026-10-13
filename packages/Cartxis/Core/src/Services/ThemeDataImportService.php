@@ -96,7 +96,7 @@ class ThemeDataImportService
             $parts[] = "{$productResults['attributes']} attributes";
         }
 
-        return 'Theme data imported successfully! ' . implode(', ', $parts) . ' have been updated.';
+        return 'Theme data imported successfully! '.implode(', ', $parts).' have been updated.';
     }
 
     /**
@@ -110,7 +110,7 @@ class ThemeDataImportService
             throw new RuntimeException("Theme '{$slug}' not found.");
         }
 
-        $dataPath = $theme->getPath() . '/data/theme-data.json';
+        $dataPath = $theme->getPath().'/data/theme-data.json';
 
         if (! file_exists($dataPath)) {
             throw new RuntimeException('No theme-data.json found for this theme.');
@@ -119,7 +119,7 @@ class ThemeDataImportService
         $data = json_decode((string) file_get_contents($dataPath), true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new RuntimeException('Invalid JSON in theme-data.json: ' . json_last_error_msg());
+            throw new RuntimeException('Invalid JSON in theme-data.json: '.json_last_error_msg());
         }
 
         return ['theme' => $theme, 'data' => $data];
@@ -135,12 +135,12 @@ class ThemeDataImportService
             Block::withTrashed()->updateOrCreate(
                 ['identifier' => $identifier],
                 [
-                    'title'      => $blockData['title'],
-                    'type'       => $blockData['type'] ?? 'html',
-                    'content'    => is_array($blockData['content'])
+                    'title' => $blockData['title'],
+                    'type' => $blockData['type'] ?? 'html',
+                    'content' => is_array($blockData['content'])
                         ? json_encode($blockData['content'])
                         : $blockData['content'],
-                    'status'     => $blockData['status'] ?? 'active',
+                    'status' => $blockData['status'] ?? 'active',
                     'deleted_at' => null,
                 ]
             );
@@ -167,22 +167,22 @@ class ThemeDataImportService
     private function createMenuItem(array $item, string $menuType, string $themeSlug, ?int $parentId): int
     {
         $count = 0;
-        $key = "{$themeSlug}-{$menuType}-" . Str::slug($item['title']);
+        $key = "{$themeSlug}-{$menuType}-".Str::slug($item['title']);
 
         $existing = DB::table('menu_items')->where('key', $key)->first();
 
         $data = [
-            'title'      => $item['title'],
-            'key'        => $key,
-            'icon'       => $item['icon'] ?? null,
-            'route'      => $item['route'] ?? null,
-            'url'        => $item['url'] ?? null,
-            'location'   => 'storefront',
-            'menu_type'  => $menuType,
-            'parent_id'  => $parentId,
-            'order'      => $item['order'] ?? 0,
-            'active'     => $item['active'] ?? true,
-            'meta'       => isset($item['meta']) ? json_encode($item['meta']) : null,
+            'title' => $item['title'],
+            'key' => $key,
+            'icon' => $item['icon'] ?? null,
+            'route' => $item['route'] ?? null,
+            'url' => $item['url'] ?? null,
+            'location' => 'storefront',
+            'menu_type' => $menuType,
+            'parent_id' => $parentId,
+            'order' => $item['order'] ?? 0,
+            'active' => $item['active'] ?? true,
+            'meta' => isset($item['meta']) ? json_encode($item['meta']) : null,
             'updated_at' => now(),
         ];
 
@@ -276,7 +276,7 @@ class ThemeDataImportService
                     ['attribute_id' => $attribute->id, 'value' => $optData['value']],
                     collect($optData)->except('value')->merge(['attribute_id' => $attribute->id])->toArray()
                 );
-                $optionMap[$attribute->code . ':' . $optData['value']] = $option;
+                $optionMap[$attribute->code.':'.$optData['value']] = $option;
             }
         }
 
@@ -427,7 +427,7 @@ class ThemeDataImportService
                         continue;
                     }
 
-                    $optionKey = $attrCode . ':' . $optValue;
+                    $optionKey = $attrCode.':'.$optValue;
                     $option = $optionMap[$optionKey] ?? AttributeOption::where('attribute_id', $attribute->id)
                         ->where('value', $optValue)->first();
 
@@ -567,7 +567,7 @@ class ThemeDataImportService
             ['bg' => '#F0FCFF', 'accent' => '#0891B2', 'shape' => '#CFFAFE'],
             ['bg' => '#FEFCE8', 'accent' => '#CA8A04', 'shape' => '#FEF08A'],
         ];
-        $hash = crc32($slug . $position);
+        $hash = crc32($slug.$position);
         $colors = $palette[abs($hash) % count($palette)];
 
         $width = 800;

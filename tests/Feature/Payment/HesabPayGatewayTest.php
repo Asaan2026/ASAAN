@@ -5,6 +5,7 @@ use Cartxis\Core\Services\PaymentGatewayManager;
 use Cartxis\HesabPay\Services\HesabPayGateway;
 use Cartxis\Sales\Models\Transaction;
 use Cartxis\Shop\Models\Order;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Http;
 
 /**
@@ -16,7 +17,7 @@ function hesabpayOrder(array $attributes = []): Order
     $counter++;
 
     return Order::create(array_merge([
-        'order_number' => 'HSP-' . str_pad((string) $counter, 6, '0', STR_PAD_LEFT),
+        'order_number' => 'HSP-'.str_pad((string) $counter, 6, '0', STR_PAD_LEFT),
         'status' => Order::STATUS_PENDING,
         'payment_status' => Order::PAYMENT_PENDING,
         'payment_method' => 'hesabpay',
@@ -68,7 +69,7 @@ function hesabpayWebhookPayload(Order $order, array $overrides = []): array
         'status_code' => 10,
         'success' => true,
         'user_id' => $order->order_number,
-        'transaction_id' => 'txn_' . $order->order_number,
+        'transaction_id' => 'txn_'.$order->order_number,
         'amount' => 100,
         'signature' => 'sig_abc123',
         'timestamp' => '1707719607',
@@ -151,7 +152,7 @@ it('redirects the shopper to the hosted checkout', function () {
     $gateway = app(PaymentGatewayManager::class)->get('hesabpay');
     $response = $gateway->processPayment($order);
 
-    expect($response)->toBeInstanceOf(Illuminate\Http\RedirectResponse::class);
+    expect($response)->toBeInstanceOf(RedirectResponse::class);
     expect($response->getTargetUrl())->toBe('https://checkout.hesab.test/session/abc123');
 });
 
@@ -187,8 +188,8 @@ it('sends the api key, our order reference and the multiplied line items', funct
         expect($body['items'][0]['name'])->toBe('Running shoes');
         expect($body['items'][0]['price'])->toBe(120.0);
 
-        expect($body['redirect_success_url'])->toContain('/hesabpay/return/success/' . $order->id);
-        expect($body['redirect_failure_url'])->toContain('/hesabpay/return/failure/' . $order->id);
+        expect($body['redirect_success_url'])->toContain('/hesabpay/return/success/'.$order->id);
+        expect($body['redirect_failure_url'])->toContain('/hesabpay/return/failure/'.$order->id);
 
         return true;
     });
@@ -397,7 +398,7 @@ it('marks the order paid once the signature verifies and the amount matches', fu
     expect($order->status)->toBe(Order::STATUS_PROCESSING);
 
     $data = $order->payment_data;
-    expect($data['hesabpay']['transaction_id'])->toBe('txn_' . $order->order_number);
+    expect($data['hesabpay']['transaction_id'])->toBe('txn_'.$order->order_number);
     expect($data['hesabpay']['last_webhook'])->toBe('payment_success');
 });
 
@@ -493,7 +494,7 @@ it('does not mark the order paid when the shopper returns from checkout', functi
     $order = hesabpayOrder();
     hesabpayItem($order);
 
-    $this->get('/hesabpay/return/success/' . $order->id)
+    $this->get('/hesabpay/return/success/'.$order->id)
         ->assertRedirect(route('shop.checkout.success', ['order' => $order->id]));
 
     // Payment is not confirmed until the webhook arrives.
@@ -508,7 +509,7 @@ it('keeps the basket after a failed attempt so the shopper can retry', function 
 
     session(['cart' => [['id' => 1, 'product_id' => 1, 'quantity' => 1, 'price' => 50]]]);
 
-    $this->get('/hesabpay/return/failure/' . $order->id)
+    $this->get('/hesabpay/return/failure/'.$order->id)
         ->assertRedirect(route('shop.checkout.success', ['order' => $order->id]));
 
     expect(session('cart'))->not->toBeNull();

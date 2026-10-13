@@ -13,7 +13,7 @@ class AdminServiceProvider extends ServiceProvider
     {
         // Merge configuration
         $this->mergeConfigFrom(
-            __DIR__ . '/../Config/admin.php',
+            __DIR__.'/../Config/admin.php',
             'admin'
         );
     }
@@ -24,14 +24,14 @@ class AdminServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load migrations
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
 
         // Load routes
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/admin.php');
+        $this->loadRoutesFrom(__DIR__.'/../Routes/admin.php');
 
         // Publish configuration
         $this->publishes([
-            __DIR__ . '/../Config/admin.php' => config_path('admin.php'),
+            __DIR__.'/../Config/admin.php' => config_path('admin.php'),
         ], 'admin-config');
     }
 }

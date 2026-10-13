@@ -2,10 +2,10 @@
 
 namespace Cartxis\Settings\Http\Controllers\Admin;
 
+use Cartxis\Core\Models\TaxClass;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\Core\Models\TaxClass;
 
 class TaxClassesController
 {
@@ -37,7 +37,7 @@ class TaxClassesController
         $taxClass = TaxClass::findOrFail($id);
 
         $validated = $request->validate([
-            'code' => 'required|string|max:100|unique:tax_classes,code,' . $id,
+            'code' => 'required|string|max:100|unique:tax_classes,code,'.$id,
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'is_default' => 'boolean',

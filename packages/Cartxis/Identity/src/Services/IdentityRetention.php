@@ -3,6 +3,7 @@
 namespace Cartxis\Identity\Services;
 
 use Cartxis\Identity\Models\IdentityVerification;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -135,7 +136,7 @@ class IdentityRetention
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  Builder  $query
      */
     protected function purgeQuery($query): int
     {

@@ -45,7 +45,7 @@ class StorefrontMenuSyncService
         $activeKeys = [];
 
         foreach ($categories as $index => $category) {
-            $key = 'category-' . $category->slug;
+            $key = 'category-'.$category->slug;
             $activeKeys[] = $key;
 
             $existing = DB::table('menu_items')
@@ -54,14 +54,14 @@ class StorefrontMenuSyncService
                 ->first();
 
             $data = [
-                'title'      => $category->name,
-                'icon'       => null,
-                'route'      => null,
-                'url'        => '/category/' . $category->slug,
-                'menu_type'  => 'header',
-                'parent_id'  => $parent->id,
-                'order'      => $index + 1,
-                'active'     => true,
+                'title' => $category->name,
+                'icon' => null,
+                'route' => null,
+                'url' => '/category/'.$category->slug,
+                'menu_type' => 'header',
+                'parent_id' => $parent->id,
+                'order' => $index + 1,
+                'active' => true,
                 'updated_at' => now(),
             ];
 
@@ -69,8 +69,8 @@ class StorefrontMenuSyncService
                 DB::table('menu_items')->where('id', $existing->id)->update($data);
             } else {
                 DB::table('menu_items')->insert(array_merge($data, [
-                    'key'        => $key,
-                    'location'   => 'storefront',
+                    'key' => $key,
+                    'location' => 'storefront',
                     'created_at' => now(),
                 ]));
             }

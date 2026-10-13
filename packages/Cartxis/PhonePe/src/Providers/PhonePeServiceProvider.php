@@ -2,12 +2,13 @@
 
 namespace Cartxis\PhonePe\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Schema;
 use Cartxis\Core\Models\Extension;
 use Cartxis\Core\Models\PaymentMethod;
 use Cartxis\Core\Services\PaymentGatewayManager;
 use Cartxis\PhonePe\Services\PhonePeGateway;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\ServiceProvider;
 
 class PhonePeServiceProvider extends ServiceProvider
 {
@@ -23,7 +24,7 @@ class PhonePeServiceProvider extends ServiceProvider
     {
         // Merge configuration
         $this->mergeConfigFrom(
-            __DIR__ . '/../Config/phonepe.php',
+            __DIR__.'/../Config/phonepe.php',
             'phonepe'
         );
     }
@@ -34,30 +35,30 @@ class PhonePeServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load migrations from package
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
 
         // Ensure payment method exists even if extension is disabled
         $this->seedPaymentMethod();
 
         // If extensions table exists and this extension is disabled, do not boot routes/gateway.
-        if (!$this->isExtensionActive()) {
+        if (! $this->isExtensionActive()) {
             return;
         }
 
         // Load routes
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
+        $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
 
         // Register PhonePe gateway with the payment gateway manager
         $this->registerGateway();
 
         // Publish configuration
         $this->publishes([
-            __DIR__ . '/../Config/phonepe.php' => config_path('phonepe.php'),
+            __DIR__.'/../Config/phonepe.php' => config_path('phonepe.php'),
         ], 'phonepe-config');
 
         // Publish migrations
         $this->publishes([
-            __DIR__ . '/../Database/Migrations' => database_path('migrations'),
+            __DIR__.'/../Database/Migrations' => database_path('migrations'),
         ], 'phonepe-migrations');
     }
 
@@ -87,7 +88,7 @@ class PhonePeServiceProvider extends ServiceProvider
     protected function isExtensionActive(): bool
     {
         try {
-            if (!Schema::hasTable('extensions')) {
+            if (! Schema::hasTable('extensions')) {
                 return true;
             }
 
@@ -108,7 +109,7 @@ class PhonePeServiceProvider extends ServiceProvider
                 ]
             );
 
-            if (!$extension->installed) {
+            if (! $extension->installed) {
                 $extension->update(['installed' => true, 'installed_at' => now()]);
             }
 
@@ -125,11 +126,11 @@ class PhonePeServiceProvider extends ServiceProvider
     {
         try {
             $manager = $this->app->make(PaymentGatewayManager::class);
-            $manager->register(new PhonePeGateway());
+            $manager->register(new PhonePeGateway);
         } catch (\Throwable $e) {
             // Silently fail if gateway registration fails (e.g., SDK not installed)
             // The payment method will still appear but won't be functional until SDK is installed
-            \Illuminate\Support\Facades\Log::warning('PhonePe gateway registration failed: ' . $e->getMessage());
+            Log::warning('PhonePe gateway registration failed: '.$e->getMessage());
         }
     }
 
@@ -139,7 +140,7 @@ class PhonePeServiceProvider extends ServiceProvider
     protected function seedPaymentMethod(): void
     {
         try {
-            if (!Schema::hasTable('payment_methods')) {
+            if (! Schema::hasTable('payment_methods')) {
                 return;
             }
 

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use Cartxis\Core\Database\Seeders\DatabaseSeeder as CartxisDatabaseSeeder;
+use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
     {
         // Call the main Cartxis Core Seeder which orchestrates all package seeders
         $this->call(CartxisDatabaseSeeder::class);
-        
+
         // You can add project-specific seeders here if needed
         // $this->call(TransactionSeeder::class);
     }

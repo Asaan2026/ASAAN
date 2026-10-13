@@ -2,9 +2,9 @@
 
 namespace Cartxis\Reports\Repositories;
 
-use Illuminate\Support\Facades\DB;
 use Cartxis\Product\Models\Product;
 use Cartxis\Shop\Models\OrderItem;
+use Illuminate\Support\Facades\DB;
 
 class ProductReportRepository
 {
@@ -19,17 +19,17 @@ class ProductReportRepository
             'products.sku',
             DB::raw('SUM(order_items.quantity) as total_quantity'),
             DB::raw('SUM(order_items.price * order_items.quantity) as total_revenue'),
-            DB::raw('COUNT(DISTINCT order_items.order_id) as order_count')
+            DB::raw('COUNT(DISTINCT order_items.order_id) as order_count'),
         ])
-        ->join('orders', 'order_items.order_id', '=', 'orders.id')
-        ->join('products', 'order_items.product_id', '=', 'products.id')
-        ->whereBetween('orders.created_at', [$startDate, $endDate])
-        ->whereIn('orders.status', ['processing', 'completed'])
-        ->groupBy('order_items.product_id', 'products.name', 'products.sku')
-        ->orderByDesc('total_quantity')
-        ->limit($limit)
-        ->get()
-        ->toArray();
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->join('products', 'order_items.product_id', '=', 'products.id')
+            ->whereBetween('orders.created_at', [$startDate, $endDate])
+            ->whereIn('orders.status', ['processing', 'completed'])
+            ->groupBy('order_items.product_id', 'products.name', 'products.sku')
+            ->orderByDesc('total_quantity')
+            ->limit($limit)
+            ->get()
+            ->toArray();
     }
 
     /**
@@ -42,15 +42,15 @@ class ProductReportRepository
             'name',
             'sku',
             'quantity',
-            'status'
+            'status',
         ])
-        ->where('status', 'enabled')
-        ->where('quantity', '<=', $threshold)
-        ->where('quantity', '>', 0)
-        ->orderBy('quantity', 'asc')
-        ->limit(20)
-        ->get()
-        ->toArray();
+            ->where('status', 'enabled')
+            ->where('quantity', '<=', $threshold)
+            ->where('quantity', '>', 0)
+            ->orderBy('quantity', 'asc')
+            ->limit(20)
+            ->get()
+            ->toArray();
     }
 
     /**
@@ -63,14 +63,14 @@ class ProductReportRepository
             'name',
             'sku',
             'quantity',
-            'status'
+            'status',
         ])
-        ->where('status', 'enabled')
-        ->where('quantity', '<=', 0)
-        ->orderBy('updated_at', 'desc')
-        ->limit(20)
-        ->get()
-        ->toArray();
+            ->where('status', 'enabled')
+            ->where('quantity', '<=', 0)
+            ->orderBy('updated_at', 'desc')
+            ->limit(20)
+            ->get()
+            ->toArray();
     }
 
     /**
@@ -84,18 +84,18 @@ class ProductReportRepository
             DB::raw('SUM(order_items.quantity) as total_quantity'),
             DB::raw('SUM(order_items.price * order_items.quantity) as total_revenue'),
             DB::raw('COUNT(DISTINCT order_items.product_id) as product_count'),
-            DB::raw('COUNT(DISTINCT order_items.order_id) as order_count')
+            DB::raw('COUNT(DISTINCT order_items.order_id) as order_count'),
         ])
-        ->join('orders', 'order_items.order_id', '=', 'orders.id')
-        ->join('products', 'order_items.product_id', '=', 'products.id')
-        ->join('category_product', 'products.id', '=', 'category_product.product_id')
-        ->join('categories', 'category_product.category_id', '=', 'categories.id')
-        ->whereBetween('orders.created_at', [$startDate, $endDate])
-        ->whereIn('orders.status', ['processing', 'completed'])
-        ->groupBy('categories.id', 'categories.name')
-        ->orderByDesc('total_revenue')
-        ->get()
-        ->toArray();
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->join('products', 'order_items.product_id', '=', 'products.id')
+            ->join('category_product', 'products.id', '=', 'category_product.product_id')
+            ->join('categories', 'category_product.category_id', '=', 'categories.id')
+            ->whereBetween('orders.created_at', [$startDate, $endDate])
+            ->whereIn('orders.status', ['processing', 'completed'])
+            ->groupBy('categories.id', 'categories.name')
+            ->orderByDesc('total_revenue')
+            ->get()
+            ->toArray();
     }
 
     /**
@@ -110,26 +110,26 @@ class ProductReportRepository
             'products.quantity',
             'products.price',
             DB::raw('COALESCE(SUM(order_items.quantity), 0) as sold_quantity'),
-            DB::raw('COALESCE(COUNT(DISTINCT order_items.order_id), 0) as order_count')
+            DB::raw('COALESCE(COUNT(DISTINCT order_items.order_id), 0) as order_count'),
         ])
-        ->leftJoin('order_items', function($join) use ($startDate, $endDate) {
-            $join->on('products.id', '=', 'order_items.product_id')
-                ->whereExists(function($query) use ($startDate, $endDate) {
-                    $query->select(DB::raw(1))
-                        ->from('orders')
-                        ->whereColumn('orders.id', 'order_items.order_id')
-                        ->whereBetween('orders.created_at', [$startDate, $endDate])
-                        ->whereIn('orders.status', ['processing', 'completed']);
-                });
-        })
-        ->where('products.status', 'enabled')
-        ->where('products.quantity', '>', 0)
-        ->groupBy('products.id', 'products.name', 'products.sku', 'products.quantity', 'products.price')
-        ->havingRaw('COALESCE(SUM(order_items.quantity), 0) < 5')
-        ->orderBy('sold_quantity', 'asc')
-        ->limit($limit)
-        ->get()
-        ->toArray();
+            ->leftJoin('order_items', function ($join) use ($startDate, $endDate) {
+                $join->on('products.id', '=', 'order_items.product_id')
+                    ->whereExists(function ($query) use ($startDate, $endDate) {
+                        $query->select(DB::raw(1))
+                            ->from('orders')
+                            ->whereColumn('orders.id', 'order_items.order_id')
+                            ->whereBetween('orders.created_at', [$startDate, $endDate])
+                            ->whereIn('orders.status', ['processing', 'completed']);
+                    });
+            })
+            ->where('products.status', 'enabled')
+            ->where('products.quantity', '>', 0)
+            ->groupBy('products.id', 'products.name', 'products.sku', 'products.quantity', 'products.price')
+            ->havingRaw('COALESCE(SUM(order_items.quantity), 0) < 5')
+            ->orderBy('sold_quantity', 'asc')
+            ->limit($limit)
+            ->get()
+            ->toArray();
     }
 
     /**
@@ -141,15 +141,15 @@ class ProductReportRepository
             DB::raw('DATE(orders.created_at) as date'),
             DB::raw('SUM(order_items.quantity) as quantity'),
             DB::raw('SUM(order_items.price * order_items.quantity) as revenue'),
-            DB::raw('COUNT(DISTINCT order_items.product_id) as unique_products')
+            DB::raw('COUNT(DISTINCT order_items.product_id) as unique_products'),
         ])
-        ->join('orders', 'order_items.order_id', '=', 'orders.id')
-        ->whereBetween('orders.created_at', [$startDate, $endDate])
-        ->whereIn('orders.status', ['processing', 'completed'])
-        ->groupBy(DB::raw('DATE(orders.created_at)'))
-        ->orderBy('date', 'asc')
-        ->get()
-        ->toArray();
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->whereBetween('orders.created_at', [$startDate, $endDate])
+            ->whereIn('orders.status', ['processing', 'completed'])
+            ->groupBy(DB::raw('DATE(orders.created_at)'))
+            ->orderBy('date', 'asc')
+            ->get()
+            ->toArray();
     }
 
     /**
@@ -165,7 +165,7 @@ class ProductReportRepository
                 DB::raw('SUM(order_items.quantity) as total_quantity_sold'),
                 DB::raw('SUM(order_items.price * order_items.quantity) as total_revenue'),
                 DB::raw('COUNT(DISTINCT order_items.product_id) as unique_products_sold'),
-                DB::raw('COUNT(DISTINCT order_items.order_id) as total_orders')
+                DB::raw('COUNT(DISTINCT order_items.order_id) as total_orders'),
             ])
             ->first();
 
@@ -186,8 +186,8 @@ class ProductReportRepository
             'total_products' => $totalProducts,
             'low_stock_count' => $lowStockCount,
             'out_of_stock_count' => $outOfStockCount,
-            'avg_revenue_per_product' => $stats->unique_products_sold > 0 
-                ? ($stats->total_revenue / $stats->unique_products_sold) 
+            'avg_revenue_per_product' => $stats->unique_products_sold > 0
+                ? ($stats->total_revenue / $stats->unique_products_sold)
                 : 0,
         ];
     }

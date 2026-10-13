@@ -52,11 +52,23 @@ const user = page.props.auth.user;
                     <div class="grid gap-2">
                         <Label for="profile_photo">Profile Photo</Label>
                         <div class="flex items-center gap-4">
-                            <div v-if="user.profile_photo_path" class="w-20 h-20 rounded-full overflow-hidden bg-gray-200">
-                                <img :src="`/storage/${user.profile_photo_path}`" alt="Profile photo" class="w-full h-full object-cover" />
+                            <div
+                                v-if="user.profile_photo_path"
+                                class="h-20 w-20 overflow-hidden rounded-full bg-gray-200"
+                            >
+                                <img
+                                    :src="`/storage/${user.profile_photo_path}`"
+                                    alt="Profile photo"
+                                    class="h-full w-full object-cover"
+                                />
                             </div>
-                            <div v-else class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-gray-400">
-                                <span class="text-2xl">{{ user.name?.charAt(0).toUpperCase() }}</span>
+                            <div
+                                v-else
+                                class="flex h-20 w-20 items-center justify-center rounded-full bg-gray-200 text-gray-400"
+                            >
+                                <span class="text-2xl">{{
+                                    user.name?.charAt(0).toUpperCase()
+                                }}</span>
                             </div>
                             <Input
                                 id="profile_photo"
@@ -66,8 +78,13 @@ const user = page.props.auth.user;
                                 class="mt-1 block w-full"
                             />
                         </div>
-                        <p class="text-sm text-muted-foreground">Upload a new profile photo (JPG, PNG, max 2MB)</p>
-                        <InputError class="mt-2" :message="errors.profile_photo" />
+                        <p class="text-sm text-muted-foreground">
+                            Upload a new profile photo (JPG, PNG, max 2MB)
+                        </p>
+                        <InputError
+                            class="mt-2"
+                            :message="errors.profile_photo"
+                        />
                     </div>
 
                     <div class="grid gap-2">

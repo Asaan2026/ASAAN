@@ -203,7 +203,7 @@ it('counts a guest order through the customer record', function () {
     $order = Order::create([
         'user_id' => null,
         'customer_id' => referralCustomer($shopper),
-        'order_number' => 'ORD-GUEST-' . strtoupper(Str::random(8)),
+        'order_number' => 'ORD-GUEST-'.strtoupper(Str::random(8)),
         'status' => 'processing',
         'subtotal' => 600,
         'tax' => 0,
@@ -310,7 +310,7 @@ it('pays automatically when the order is created already paid', function () {
     Order::create([
         'user_id' => $shopper->id,
         'customer_email' => $shopper->email,
-        'order_number' => 'ORD-' . strtoupper(Str::random(10)),
+        'order_number' => 'ORD-'.strtoupper(Str::random(10)),
         'status' => 'processing',
         'subtotal' => 600,
         'tax' => 0,

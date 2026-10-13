@@ -5,6 +5,12 @@ declare(strict_types=1);
 namespace Cartxis\Setup\Services;
 
 use Cartxis\CMS\Services\StorefrontMenuSyncService;
+use Cartxis\Setup\Database\Seeders\ElectronicsDemoSeeder;
+use Cartxis\Setup\Database\Seeders\FashionDemoSeeder;
+use Cartxis\Setup\Database\Seeders\KiranaDemoSeeder;
+use Cartxis\Setup\Database\Seeders\RetailDemoSeeder;
+use Database\Seeders\OrderSeeder;
+use Database\Seeders\TransactionSeeder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -19,28 +25,28 @@ class DemoDataService
             'name' => 'Retail Store',
             'description' => 'General retail shopping with clothing, electronics, and accessories',
             'seeders' => [
-                    \Cartxis\Setup\Database\Seeders\RetailDemoSeeder::class,
+                RetailDemoSeeder::class,
             ],
         ],
         'kirana' => [
             'name' => 'Kirana/Grocery Store',
             'description' => 'Grocery and daily essentials for neighborhood stores',
             'seeders' => [
-                    \Cartxis\Setup\Database\Seeders\KiranaDemoSeeder::class,
+                KiranaDemoSeeder::class,
             ],
         ],
         'electronics' => [
             'name' => 'Electronics Store',
             'description' => 'Consumer electronics, gadgets, and tech accessories',
             'seeders' => [
-                    \Cartxis\Setup\Database\Seeders\ElectronicsDemoSeeder::class,
+                ElectronicsDemoSeeder::class,
             ],
         ],
         'fashion' => [
             'name' => 'Fashion & Apparel',
             'description' => 'Clothing, shoes, and fashion accessories',
             'seeders' => [
-                    \Cartxis\Setup\Database\Seeders\FashionDemoSeeder::class,
+                FashionDemoSeeder::class,
             ],
         ],
     ];
@@ -64,7 +70,7 @@ class DemoDataService
      */
     public function importDemoData(string $businessType, bool $importProducts = true): array
     {
-        if (!isset(self::BUSINESS_TYPES[$businessType])) {
+        if (! isset(self::BUSINESS_TYPES[$businessType])) {
             throw new \InvalidArgumentException("Invalid business type: {$businessType}");
         }
 
@@ -79,24 +85,24 @@ class DemoDataService
 
             if ($importProducts) {
                 $config = self::BUSINESS_TYPES[$businessType];
-                
+
                 // Run the seeders for this business type
                 foreach ($config['seeders'] as $seederClass) {
                     Log::info("Running seeder: {$seederClass}");
-                    
+
                     // Check if seeder class exists
-                    if (!class_exists($seederClass)) {
+                    if (! class_exists($seederClass)) {
                         throw new \Exception("Seeder class not found: {$seederClass}. Run 'composer dump-autoload' on the server.");
                     }
-                    
+
                     $exitCode = Artisan::call('db:seed', [
                         '--class' => $seederClass,
                         '--force' => true, // Required for production
                     ]);
-                    
+
                     $output = Artisan::output();
                     Log::info("Seeder output: {$output}, Exit code: {$exitCode}");
-                    
+
                     if ($exitCode !== 0) {
                         throw new \Exception("Seeder failed with exit code {$exitCode}: {$output}");
                     }
@@ -106,7 +112,7 @@ class DemoDataService
                 // import is explicitly demo data, so give it a history of orders
                 // and payments too. Both seeders no-op on a store that already
                 // has orders, so this cannot duplicate anything.
-                foreach ([\Database\Seeders\OrderSeeder::class, \Database\Seeders\TransactionSeeder::class] as $salesSeeder) {
+                foreach ([OrderSeeder::class, TransactionSeeder::class] as $salesSeeder) {
                     if (! class_exists($salesSeeder)) {
                         continue;
                     }
@@ -148,7 +154,7 @@ class DemoDataService
             ]);
 
             $results['success'] = false;
-            $results['message'] = 'Failed to import demo data: ' . $e->getMessage();
+            $results['message'] = 'Failed to import demo data: '.$e->getMessage();
         }
 
         return $results;

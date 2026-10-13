@@ -2,8 +2,8 @@
 
 namespace Cartxis\Core\Console\Commands;
 
-use Illuminate\Console\Command;
 use Cartxis\Core\Services\ExtensionService;
+use Illuminate\Console\Command;
 
 class ExtensionsDeactivateCommand extends Command
 {
@@ -20,9 +20,11 @@ class ExtensionsDeactivateCommand extends Command
         try {
             $extension = $extensions->deactivate($code);
             $this->info("Deactivated: {$extension->code}");
+
             return self::SUCCESS;
         } catch (\Throwable $e) {
             $this->error($e->getMessage());
+
             return self::FAILURE;
         }
     }

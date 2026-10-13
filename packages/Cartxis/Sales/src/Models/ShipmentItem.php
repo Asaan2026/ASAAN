@@ -2,9 +2,9 @@
 
 namespace Cartxis\Sales\Models;
 
+use Cartxis\Shop\Models\OrderItem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Cartxis\Shop\Models\OrderItem;
 
 class ShipmentItem extends Model
 {

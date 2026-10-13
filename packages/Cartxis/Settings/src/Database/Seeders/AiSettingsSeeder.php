@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Cartxis\Settings\Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use Cartxis\Core\Models\Setting;
+use Illuminate\Database\Seeder;
 
 class AiSettingsSeeder extends Seeder
 {
     private const PRODUCT_DESCRIPTION_AGENT = 'Product Description Agent';
+
     private const PRICE_COMPARISON_AGENT = 'Price Comparison Agent';
 
     public function run(): void
@@ -31,7 +32,7 @@ class AiSettingsSeeder extends Seeder
 
         $agents = collect($agents)
             ->map(function ($agent) {
-                if (!is_array($agent)) {
+                if (! is_array($agent)) {
                     return $agent;
                 }
 
@@ -42,7 +43,7 @@ class AiSettingsSeeder extends Seeder
             })
             ->all();
 
-        if (!$hasProductDescriptionAgent) {
+        if (! $hasProductDescriptionAgent) {
             $agents[] = [
                 'name' => self::PRODUCT_DESCRIPTION_AGENT,
                 'provider' => '',
@@ -55,7 +56,7 @@ class AiSettingsSeeder extends Seeder
             ];
         }
 
-        if (!$hasPriceComparisonAgent) {
+        if (! $hasPriceComparisonAgent) {
             $agents[] = [
                 'name' => self::PRICE_COMPARISON_AGENT,
                 'provider' => '',
@@ -77,7 +78,7 @@ class AiSettingsSeeder extends Seeder
             ]
         );
 
-        if (!Setting::where('key', 'ai.product_description_agent')->exists()) {
+        if (! Setting::where('key', 'ai.product_description_agent')->exists()) {
             Setting::updateOrCreate(
                 ['key' => 'ai.product_description_agent'],
                 [
@@ -88,7 +89,7 @@ class AiSettingsSeeder extends Seeder
             );
         }
 
-        if (!Setting::where('key', 'ai.price_comparison_agent')->exists()) {
+        if (! Setting::where('key', 'ai.price_comparison_agent')->exists()) {
             Setting::updateOrCreate(
                 ['key' => 'ai.price_comparison_agent'],
                 [

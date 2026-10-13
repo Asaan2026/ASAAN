@@ -45,7 +45,9 @@ const FALLBACK: Currency = {
 /** Read an array prop that may be missing or the wrong shape. */
 function readList(value: unknown): Currency[] {
     if (!Array.isArray(value)) return [];
-    return value.filter((entry): entry is Currency => !!entry && typeof entry === 'object');
+    return value.filter(
+        (entry): entry is Currency => !!entry && typeof entry === 'object',
+    );
 }
 
 /**
@@ -70,12 +72,18 @@ export function useCurrency() {
 
     /** What the shopper is looking at right now. Always one of `currencies`. */
     const active = computed<Currency>(() => {
-        const shared = page.props.displayCurrency as Currency | null | undefined;
+        const shared = page.props.displayCurrency as
+            | Currency
+            | null
+            | undefined;
         if (shared && shared.code) {
             const match = currencies.value.find((c) => c.code === shared.code);
             if (match) return match;
         }
-        const base = page.props.currency as { code?: string } | null | undefined;
+        const base = page.props.currency as
+            | { code?: string }
+            | null
+            | undefined;
         const fallback = base?.code
             ? currencies.value.find((c) => c.code === base.code)
             : undefined;
@@ -91,7 +99,9 @@ export function useCurrency() {
     );
 
     /** "1 USD = 71 AFN" -- the rate behind every converted figure on screen. */
-    const rateLabel = computed(() => `1 ${OPTIONAL_CODE} = ${usdToAfn.value} ${BASE_CODE}`);
+    const rateLabel = computed(
+        () => `1 ${OPTIONAL_CODE} = ${usdToAfn.value} ${BASE_CODE}`,
+    );
 
     const usdToAfn = computed<number>(() => {
         const usd = currencies.value.find((c) => c.code === OPTIONAL_CODE);
@@ -132,7 +142,11 @@ export function useCurrency() {
      */
     const formatPrice = (
         afnAmount: number,
-        options?: { decimalPlaces?: number; showSymbol?: boolean; showCode?: boolean },
+        options?: {
+            decimalPlaces?: number;
+            showSymbol?: boolean;
+            showCode?: boolean;
+        },
     ): string => {
         const currency = active.value;
         const amount = Number.isFinite(afnAmount) ? afnAmount : 0;
@@ -159,7 +173,8 @@ export function useCurrency() {
     };
 
     /** Format a stored AFN price, labelled with the code rather than a symbol. */
-    const formatPriceWithCode = (afnAmount: number): string => formatPrice(afnAmount, { showCode: true });
+    const formatPriceWithCode = (afnAmount: number): string =>
+        formatPrice(afnAmount, { showCode: true });
 
     /**
      * Format a number in AFN specifically, ignoring the shopper's choice.
@@ -167,12 +182,17 @@ export function useCurrency() {
      * For the one place a single currency has to be right: a payment gateway's
      * charge, an invoice, or a total the customer is about to be charged.
      */
-    const formatAfn = (afnAmount: number, options?: { showSymbol?: boolean }): string => {
+    const formatAfn = (
+        afnAmount: number,
+        options?: { showSymbol?: boolean },
+    ): string => {
         const decimalPlaces = base.value.decimal_places;
         const formatted = new Intl.NumberFormat('en-US', {
             minimumFractionDigits: decimalPlaces,
             maximumFractionDigits: decimalPlaces,
-        }).format(roundTo(Number.isFinite(afnAmount) ? afnAmount : 0, decimalPlaces));
+        }).format(
+            roundTo(Number.isFinite(afnAmount) ? afnAmount : 0, decimalPlaces),
+        );
 
         if (options?.showSymbol === false) return formatted;
         return base.value.symbol_position === 'after'

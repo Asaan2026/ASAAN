@@ -4,29 +4,25 @@ declare(strict_types=1);
 
 namespace Cartxis\Core\Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Cartxis\Admin\Database\Seeders\AdminUserSeeder;
 use Cartxis\Admin\Database\Seeders\AdminMenuSeeder;
-use Cartxis\Shop\Database\Seeders\ThemeSeeder;
-use Cartxis\Core\Database\Seeders\PaymentMethodsTableSeeder;
-use Cartxis\Core\Database\Seeders\ShippingMethodSeeder;
-use Cartxis\Core\Database\Seeders\TaxSeeder;
-use Cartxis\Core\Database\Seeders\EmailSeeder;
-use Cartxis\Customer\Database\Seeders\CustomerMenuSeeder;
-use Cartxis\Customer\Database\Seeders\CustomerGroupSeeder;
+use Cartxis\Admin\Database\Seeders\AdminUserSeeder;
+use Cartxis\Blog\Database\Seeders\BlogSeeder;
 use Cartxis\CMS\Database\Seeders\BlockSeeder;
 use Cartxis\CMS\Database\Seeders\PageSeeder;
 use Cartxis\CMS\Database\Seeders\StorefrontMenuSeeder;
+use Cartxis\Customer\Database\Seeders\CustomerGroupSeeder;
+use Cartxis\Customer\Database\Seeders\CustomerMenuSeeder;
 use Cartxis\Marketing\Database\Seeders\MarketingMenuSeeder;
 use Cartxis\Marketing\Database\Seeders\SampleMarketingSeeder;
 use Cartxis\Reports\Database\Seeders\ReportsMenuSeeder;
 use Cartxis\Sales\Database\Seeders\CreditMemoEmailTemplatesSeeder;
 use Cartxis\Sales\Database\Seeders\ShipmentEmailTemplatesSeeder;
 use Cartxis\Settings\Database\Seeders\AiSettingsSeeder;
+use Cartxis\Shop\Database\Seeders\ThemeSeeder;
 use Cartxis\System\Database\Seeders\SystemSettingsSeeder;
 use Cartxis\UIEditor\Database\Seeders\GlobalRegionSeeder;
-use Cartxis\Blog\Database\Seeders\BlogSeeder;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {

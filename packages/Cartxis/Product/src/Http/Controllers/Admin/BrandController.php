@@ -3,11 +3,12 @@
 namespace Cartxis\Product\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Cartxis\Product\Models\Brand;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
-use Cartxis\Product\Models\Brand;
 
 class BrandController extends Controller
 {
@@ -91,11 +92,11 @@ class BrandController extends Controller
 
         // Auto-generate slug if not provided
         if (empty($validated['slug'])) {
-            $validated['slug'] = \Illuminate\Support\Str::slug($validated['name']);
+            $validated['slug'] = Str::slug($validated['name']);
         }
 
         // Auto-set sort_order if not provided
-        if (!isset($validated['sort_order'])) {
+        if (! isset($validated['sort_order'])) {
             $maxSortOrder = Brand::max('sort_order') ?? 0;
             $validated['sort_order'] = $maxSortOrder + 1;
         }
@@ -140,7 +141,7 @@ class BrandController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:brands,slug,' . $brand->id,
+            'slug' => 'nullable|string|max:255|unique:brands,slug,'.$brand->id,
             'description' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
             'website' => 'nullable|url|max:255',
@@ -166,7 +167,7 @@ class BrandController extends Controller
             if ($brand->logo && \Storage::disk('public')->exists($brand->logo)) {
                 \Storage::disk('public')->delete($brand->logo);
             }
-            
+
             $logoPath = $request->file('logo')->store('brands', 'public');
             $validated['logo'] = $logoPath;
         } else {
@@ -176,7 +177,7 @@ class BrandController extends Controller
 
         // Auto-generate slug if not provided
         if (empty($validated['slug'])) {
-            $validated['slug'] = \Illuminate\Support\Str::slug($validated['name']);
+            $validated['slug'] = Str::slug($validated['name']);
         }
 
         // Convert boolean fields properly
@@ -200,9 +201,10 @@ class BrandController extends Controller
 
         try {
             $brand->delete();
+
             return back()->with('success', 'Brand deleted successfully.');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to delete brand: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to delete brand: '.$e->getMessage()]);
         }
     }
 
@@ -220,19 +222,19 @@ class BrandController extends Controller
             $count = 0;
             foreach ($request->ids as $id) {
                 $brand = Brand::find($id);
-                if ($brand && !$brand->hasProducts()) {
+                if ($brand && ! $brand->hasProducts()) {
                     $brand->delete();
                     $count++;
                 }
             }
 
             if ($count > 0) {
-                return back()->with('success', $count . ' brand(s) deleted successfully.');
+                return back()->with('success', $count.' brand(s) deleted successfully.');
             } else {
                 return back()->withErrors(['error' => 'Cannot delete brands with associated products.']);
             }
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to delete brands: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to delete brands: '.$e->getMessage()]);
         }
     }
 
@@ -249,6 +251,6 @@ class BrandController extends Controller
 
         Brand::whereIn('id', $request->ids)->update(['status' => $request->status]);
 
-        return back()->with('success', count($request->ids) . ' brand(s) status updated successfully.');
+        return back()->with('success', count($request->ids).' brand(s) status updated successfully.');
     }
 }

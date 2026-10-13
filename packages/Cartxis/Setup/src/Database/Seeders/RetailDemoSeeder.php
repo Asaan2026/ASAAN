@@ -37,9 +37,9 @@ class RetailDemoSeeder extends Seeder
                 return null;
             }
 
-            $path = 'products/' . $filename;
+            $path = 'products/'.$filename;
             Storage::disk('public')->put($path, $imageContent);
-            
+
             return $path;
         } catch (\Exception $e) {
             return null;
@@ -388,12 +388,12 @@ class RetailDemoSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-            
+
             // Download and create product image if URL exists
             if ($productId && isset($product['image'])) {
-                $filename = Str::slug($product['name']) . '-' . $productId . '.jpg';
+                $filename = Str::slug($product['name']).'-'.$productId.'.jpg';
                 $localPath = $this->downloadImage($product['image'], $filename);
-                
+
                 if ($localPath) {
                     $imageId = DB::table('product_images')->insertGetId([
                         'product_id' => $productId,
@@ -404,7 +404,7 @@ class RetailDemoSeeder extends Seeder
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
-                    
+
                     // Set as main image
                     if ($imageId) {
                         DB::table('products')->where('id', $productId)->update([
@@ -413,7 +413,7 @@ class RetailDemoSeeder extends Seeder
                     }
                 }
             }
-            
+
             // Attach category via pivot table
             if ($productId && $categoryId) {
                 DB::table('category_product')->insertOrIgnore([

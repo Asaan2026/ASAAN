@@ -1,24 +1,30 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { Head, router, usePage } from '@inertiajs/vue3';
-import AdminLayout from '@/layouts/AdminLayout.vue';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import { useI18nStore } from '@/Stores/i18n';
-import { RefreshCw, Link2, Wifi, WifiOff, Smartphone } from 'lucide-vue-next';
+import { Head, router, usePage } from '@inertiajs/vue3';
+import { Link2, RefreshCw, Wifi, WifiOff } from 'lucide-vue-next';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 interface ApiSyncStatus {
-  connected: boolean;
-  sync_enabled: boolean;
-  last_sync_at: string;
-  last_status: string;
-  last_message: string;
-  last_checked_at: string;
+    connected: boolean;
+    sync_enabled: boolean;
+    last_sync_at: string;
+    last_status: string;
+    last_message: string;
+    last_checked_at: string;
 }
 
 const props = defineProps<{
-  status: ApiSyncStatus;
+    status: ApiSyncStatus;
 }>();
 
 const page = usePage();
@@ -30,137 +36,214 @@ const pollIntervalMs = 10000;
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 
 const statusBadge = computed(() => {
-  if (liveStatus.value.last_status === 'success') return 'success';
-  if (liveStatus.value.last_status === 'failed') return 'destructive';
-  return 'secondary';
+    if (liveStatus.value.last_status === 'success') return 'success';
+    if (liveStatus.value.last_status === 'failed') return 'destructive';
+    return 'secondary';
 });
 
 const refreshSync = () => {
-  router.post('/admin/system/api-sync/refresh', {}, {
-    preserveScroll: true,
-    onSuccess: () => refreshStatus(),
-  });
+    router.post(
+        '/admin/system/api-sync/refresh',
+        {},
+        {
+            preserveScroll: true,
+            onSuccess: () => refreshStatus(),
+        },
+    );
 };
 
 const refreshStatus = async () => {
-  try {
-    const response = await fetch('/admin/system/api-sync/status', {
-      headers: {
-        Accept: 'application/json',
-      },
-    });
+    try {
+        const response = await fetch('/admin/system/api-sync/status', {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
 
-    if (!response.ok) return;
+        if (!response.ok) return;
 
-    const data = await response.json();
-    liveStatus.value = data as ApiSyncStatus;
-  } catch (error) {
-    // silent fail for polling
-  }
+        const data = await response.json();
+        liveStatus.value = data as ApiSyncStatus;
+    } catch (error) {
+        // silent fail for polling
+    }
 };
 
 onMounted(() => {
-  refreshStatus();
-  pollTimer = setInterval(refreshStatus, pollIntervalMs);
+    refreshStatus();
+    pollTimer = setInterval(refreshStatus, pollIntervalMs);
 });
 
 onUnmounted(() => {
-  if (pollTimer) {
-    clearInterval(pollTimer);
-  }
+    if (pollTimer) {
+        clearInterval(pollTimer);
+    }
 });
 </script>
 
 <template>
-  <AdminLayout :title="$t('API Sync')">
-    <Head :title="$t('API Sync')" />
+    <AdminLayout :title="$t('API Sync')">
+        <Head :title="$t('API Sync')" />
 
-    <div class="space-y-6">
-      <!-- Header -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            {{ $t('API Sync') }}
-          </h1>
-          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {{ $t('Monitor and control mobile app synchronization') }}
-          </p>
-        </div>
-        <Button @click="refreshSync" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-sm border-transparent rounded-xl transition-all duration-200">
-          <RefreshCw class="h-4 w-4" />
-          {{ $t('Refresh / Sync Now') }}
-        </Button>
-      </div>
-
-      <!-- Content -->
-      <div class="overflow-auto rounded-xl">
         <div class="space-y-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card class="bg-white dark:bg-gray-900/70 border-gray-200 dark:border-gray-800 shadow-sm">
-              <CardHeader>
-                <CardTitle class="flex items-center gap-2">
-                  <Link2 class="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                  {{ $t('Connection Status') }}
-                </CardTitle>
-                <CardDescription>{{ $t('Indicates if the mobile app is connected.') }}</CardDescription>
-              </CardHeader>
-              <CardContent class="space-y-4">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <Badge :variant="liveStatus.connected ? 'success' : 'destructive'">
-                      {{ liveStatus.connected ? $t('Connected') : $t('Disconnected') }}
-                    </Badge>
-                    <span class="text-sm text-gray-500 dark:text-gray-300">
-                      {{ $t('Last checked:') }} {{ liveStatus.last_checked_at || $t('Never') }}
-                    </span>
-                  </div>
+            <!-- Header -->
+            <div
+                class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+            >
+                <div>
+                    <h1
+                        class="flex items-center gap-2 text-2xl font-bold text-gray-900 dark:text-white"
+                    >
+                        {{ $t('API Sync') }}
+                    </h1>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        {{
+                            $t('Monitor and control mobile app synchronization')
+                        }}
+                    </p>
                 </div>
-              </CardContent>
-            </Card>
+                <Button
+                    @click="refreshSync"
+                    class="inline-flex items-center gap-2 rounded-xl border-transparent bg-blue-600 px-4 py-2 text-white shadow-sm transition-all duration-200 hover:bg-blue-700"
+                >
+                    <RefreshCw class="h-4 w-4" />
+                    {{ $t('Refresh / Sync Now') }}
+                </Button>
+            </div>
 
-            <Card class="bg-white dark:bg-gray-900/70 border-gray-200 dark:border-gray-800 shadow-sm">
-              <CardHeader>
-                <CardTitle class="flex items-center gap-2">
-                  <Wifi class="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                  {{ $t('Sync Status') }}
-                </CardTitle>
-                <CardDescription>{{ $t('Controls whether automatic sync is enabled.') }}</CardDescription>
-              </CardHeader>
-              <CardContent class="space-y-4">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <Badge :variant="liveStatus.sync_enabled ? 'success' : 'secondary'">
-                      {{ liveStatus.sync_enabled ? $t('Enabled') : $t('Disabled') }}
-                    </Badge>
-                    <span class="text-sm text-gray-500 dark:text-gray-300">
-                      {{ $t('Last sync:') }} {{ liveStatus.last_sync_at || $t('Never') }}
-                    </span>
-                  </div>
+            <!-- Content -->
+            <div class="overflow-auto rounded-xl">
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <Card
+                            class="border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+                        >
+                            <CardHeader>
+                                <CardTitle class="flex items-center gap-2">
+                                    <Link2
+                                        class="h-4 w-4 text-blue-600 dark:text-blue-400"
+                                    />
+                                    {{ $t('Connection Status') }}
+                                </CardTitle>
+                                <CardDescription>{{
+                                    $t(
+                                        'Indicates if the mobile app is connected.',
+                                    )
+                                }}</CardDescription>
+                            </CardHeader>
+                            <CardContent class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <Badge
+                                            :variant="
+                                                liveStatus.connected
+                                                    ? 'success'
+                                                    : 'destructive'
+                                            "
+                                        >
+                                            {{
+                                                liveStatus.connected
+                                                    ? $t('Connected')
+                                                    : $t('Disconnected')
+                                            }}
+                                        </Badge>
+                                        <span
+                                            class="text-sm text-gray-500 dark:text-gray-300"
+                                        >
+                                            {{ $t('Last checked:') }}
+                                            {{
+                                                liveStatus.last_checked_at ||
+                                                $t('Never')
+                                            }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        <Card
+                            class="border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+                        >
+                            <CardHeader>
+                                <CardTitle class="flex items-center gap-2">
+                                    <Wifi
+                                        class="h-4 w-4 text-blue-600 dark:text-blue-400"
+                                    />
+                                    {{ $t('Sync Status') }}
+                                </CardTitle>
+                                <CardDescription>{{
+                                    $t(
+                                        'Controls whether automatic sync is enabled.',
+                                    )
+                                }}</CardDescription>
+                            </CardHeader>
+                            <CardContent class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <Badge
+                                            :variant="
+                                                liveStatus.sync_enabled
+                                                    ? 'success'
+                                                    : 'secondary'
+                                            "
+                                        >
+                                            {{
+                                                liveStatus.sync_enabled
+                                                    ? $t('Enabled')
+                                                    : $t('Disabled')
+                                            }}
+                                        </Badge>
+                                        <span
+                                            class="text-sm text-gray-500 dark:text-gray-300"
+                                        >
+                                            {{ $t('Last sync:') }}
+                                            {{
+                                                liveStatus.last_sync_at ||
+                                                $t('Never')
+                                            }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    <Card
+                        class="border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+                    >
+                        <CardHeader>
+                            <CardTitle class="flex items-center gap-2">
+                                <WifiOff
+                                    class="h-4 w-4 text-blue-600 dark:text-blue-400"
+                                />
+                                {{ $t('Last Sync Result') }}
+                            </CardTitle>
+                            <CardDescription>{{
+                                $t('Latest API sync outcome and message.')
+                            }}</CardDescription>
+                        </CardHeader>
+                        <CardContent class="space-y-3">
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="text-sm text-gray-500 dark:text-gray-300"
+                                    >{{ $t('Status:') }}</span
+                                >
+                                <Badge :variant="statusBadge">{{
+                                    liveStatus.last_status
+                                }}</Badge>
+                            </div>
+                            <div
+                                class="text-sm text-gray-700 dark:text-gray-200"
+                            >
+                                {{
+                                    liveStatus.last_message ||
+                                    $t('No sync message available.')
+                                }}
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card class="bg-white dark:bg-gray-900/70 border-gray-200 dark:border-gray-800 shadow-sm">
-            <CardHeader>
-              <CardTitle class="flex items-center gap-2">
-                <WifiOff class="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                {{ $t('Last Sync Result') }}
-              </CardTitle>
-              <CardDescription>{{ $t('Latest API sync outcome and message.') }}</CardDescription>
-            </CardHeader>
-            <CardContent class="space-y-3">
-              <div class="flex items-center gap-2">
-                <span class="text-sm text-gray-500 dark:text-gray-300">{{ $t('Status:') }}</span>
-                <Badge :variant="statusBadge">{{ liveStatus.last_status }}</Badge>
-              </div>
-              <div class="text-sm text-gray-700 dark:text-gray-200">
-                {{ liveStatus.last_message || $t('No sync message available.') }}
-              </div>
-            </CardContent>
-          </Card>
+            </div>
         </div>
-      </div>
-    </div>
-  </AdminLayout>
+    </AdminLayout>
 </template>

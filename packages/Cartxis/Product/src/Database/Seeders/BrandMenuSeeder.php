@@ -18,7 +18,7 @@ class BrandMenuSeeder extends Seeder
             ->where('location', 'admin')
             ->first();
 
-        if (!$catalogMenu) {
+        if (! $catalogMenu) {
             // Create Catalog menu if it doesn't exist
             $catalogMenuId = DB::table('menu_items')->insertGetId([
                 'key' => 'catalog',
@@ -40,7 +40,7 @@ class BrandMenuSeeder extends Seeder
             ->where('location', 'admin')
             ->exists();
 
-        if (!$brandsMenuExists) {
+        if (! $brandsMenuExists) {
             // Add Brands menu item under Catalog
             DB::table('menu_items')->insert([
                 'key' => 'catalog-brands',
@@ -67,7 +67,7 @@ class BrandMenuSeeder extends Seeder
             ->where('location', 'admin')
             ->exists();
 
-        if (!$attributesMenuExists) {
+        if (! $attributesMenuExists) {
             DB::table('menu_items')->insert([
                 'key' => 'catalog-attributes',
                 'parent_id' => $catalogMenuId,

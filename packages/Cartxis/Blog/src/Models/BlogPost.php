@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Cartxis\Blog\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -33,7 +34,7 @@ class BlogPost extends Model
 
     protected $casts = [
         'published_at' => 'datetime',
-        'view_count'   => 'integer',
+        'view_count' => 'integer',
     ];
 
     protected static function booted(): void
@@ -52,12 +53,12 @@ class BlogPost extends Model
 
     public function author(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'author_id');
+        return $this->belongsTo(User::class, 'author_id');
     }
 
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function getRouteKeyName(): string
@@ -68,9 +69,9 @@ class BlogPost extends Model
     public function scopePublished($query)
     {
         return $query->where('status', 'published')
-                     ->where(function ($q) {
-                         $q->whereNull('published_at')
-                           ->orWhere('published_at', '<=', now());
-                     });
+            ->where(function ($q) {
+                $q->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
+            });
     }
 }
