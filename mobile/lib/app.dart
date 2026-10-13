@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:vortex_app/core/localization/locale_controller.dart';
 import 'package:vortex_app/core/theme/app_theme.dart';
 import 'package:vortex_app/routes/app_router.dart';
 import 'package:vortex_app/data/services/api_sync_service.dart';
+import 'package:vortex_app/l10n/app_localizations.dart';
 
 class CartxisApp extends StatefulWidget {
   const CartxisApp({super.key});
@@ -18,6 +20,7 @@ class _CartxisAppState extends State<CartxisApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    LocaleController.instance.load();
     _sendHeartbeat();
   }
 
@@ -53,35 +56,31 @@ class _CartxisAppState extends State<CartxisApp> with WidgetsBindingObserver {
       ),
     );
 
-    return MaterialApp(
-      title: 'Asaan Store',
-      debugShowCheckedModeBanner: false,
-      
-      // Theme
-      theme: AppTheme.lightTheme(),
-      darkTheme: AppTheme.darkTheme(),
-      themeMode: ThemeMode.system, // TODO: Make this configurable via settings
-      
-      // Routing
-      initialRoute: AppRouter.splash,
-      onGenerateRoute: AppRouter.generateRoute,
-      
-      // Localization (TODO: Add when implementing i18n)
-      // locale: const Locale('en', 'US'),
-      // supportedLocales: const [
-      //   Locale('en', 'US'),
-      // ],
-      
-      // Builder for global configurations
-      builder: (context, child) {
-        return MediaQuery(
-          // Prevent text scaling beyond reasonable limits
-          data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.linear(
-              MediaQuery.of(context).textScaleFactor.clamp(0.8, 1.2),
-            ),
-          ),
-          child: child!,
+    return ListenableBuilder(
+      listenable: LocaleController.instance,
+      builder: (context, _) {
+        return MaterialApp(
+          onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+          debugShowCheckedModeBanner: false,
+
+          // Theme
+          theme: AppTheme.lightTheme(),
+          darkTheme: AppTheme.darkTheme(),
+          themeMode: ThemeMode.system, // TODO: Make this configurable via settings
+
+          // Localization — the chosen language, or the phone's own if none.
+          locale: LocaleController.instance.locale,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+
+          // Routing
+          initialRoute: AppRouter.splash,
+          onGenerateRoute: AppRouter.generateRoute,
+
+          // Builder for global configurations
+          builder: (context, child) {
+            return child ?? const SizedBox.shrink();
+          },
         );
       },
     );

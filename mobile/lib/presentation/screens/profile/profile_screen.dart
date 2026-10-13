@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vortex_app/data/services/auth_service.dart';
 import 'package:vortex_app/data/models/user_model.dart';
 import 'package:vortex_app/core/network/api_exception.dart';
+import 'package:vortex_app/l10n/app_localizations.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -33,7 +34,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
 
       final user = await _authService.getProfile();
-      
+
       if (mounted) {
         setState(() {
           _user = user;
@@ -45,12 +46,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         setState(() {
           _isLoading = false;
         });
-        
+
         String errorMessage = 'Failed to load profile: $e';
         if (e is ApiException) {
           errorMessage = 'API Error: ${e.message}\nCode: ${e.code}';
         }
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(errorMessage),
@@ -78,7 +79,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // In a real app, this would trigger a theme change
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Dark mode ${value ? 'enabled' : 'disabled'}. Restart app to apply.'),
+        content: Text(
+            'Dark mode ${value ? 'enabled' : 'disabled'}. Restart app to apply.'),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -105,7 +107,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(e is ApiException ? e.message : 'Failed to delete account'),
+              content: Text(
+                  e is ApiException ? e.message : 'Failed to delete account'),
               backgroundColor: Colors.red,
             ),
           );
@@ -139,7 +142,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (confirm == true && mounted) {
       // Clear auth data using auth service
       await _authService.logout();
-      
+
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/login');
       }
@@ -158,9 +161,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF101922) : const Color(0xFFF6F7F8),
+      backgroundColor:
+          isDark ? const Color(0xFF101922) : const Color(0xFFF6F7F8),
       body: Column(
         children: [
           // Header
@@ -169,7 +174,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: isDark ? const Color(0xFF101922) : const Color(0xFFF6F7F8),
               border: Border(
                 bottom: BorderSide(
-                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                  color: isDark
+                      ? const Color(0xFF1E293B)
+                      : const Color(0xFFE2E8F0),
                 ),
               ),
             ),
@@ -181,9 +188,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const SizedBox(width: 40),
-                    const Text(
-                      'Profile',
-                      style: TextStyle(
+                    Text(
+                      l10n.navProfile,
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -213,241 +220,305 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             padding: const EdgeInsets.all(24),
                             child: Column(
                               children: [
-                              // Avatar with Edit Button
-                              Stack(
-                                children: [
-                                  Container(
-                                    width: 112,
-                                    height: 112,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: isDark ? const Color(0xFF1E293B) : Colors.white,
-                                        width: 4,
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.1),
-                                          blurRadius: 20,
-                                          offset: const Offset(0, 4),
+                                // Avatar with Edit Button
+                                Stack(
+                                  children: [
+                                    Container(
+                                      width: 112,
+                                      height: 112,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: isDark
+                                              ? const Color(0xFF1E293B)
+                                              : Colors.white,
+                                          width: 4,
                                         ),
-                                      ],
-                                      image: _user?.avatarUrl != null
-                                          ? DecorationImage(
-                                              image: NetworkImage(
-                                                '${_user!.avatarUrl!}?t=${DateTime.now().millisecondsSinceEpoch}',
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.1),
+                                            blurRadius: 20,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ],
+                                        image: _user?.avatarUrl != null
+                                            ? DecorationImage(
+                                                image: NetworkImage(
+                                                  '${_user!.avatarUrl!}?t=${DateTime.now().millisecondsSinceEpoch}',
+                                                ),
+                                                fit: BoxFit.cover,
+                                              )
+                                            : null,
+                                        color: _user?.avatarUrl == null
+                                            ? AppColors.primary
+                                            : null,
+                                      ),
+                                      child: _user?.avatarUrl == null
+                                          ? Center(
+                                              child: Text(
+                                                _user?.name
+                                                        .substring(0, 1)
+                                                        .toUpperCase() ??
+                                                    'U',
+                                                style: const TextStyle(
+                                                  fontSize: 40,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
                                               ),
-                                              fit: BoxFit.cover,
                                             )
                                           : null,
-                                      color: _user?.avatarUrl == null ? AppColors.primary : null,
                                     ),
-                                    child: _user?.avatarUrl == null
-                                        ? Center(
-                                            child: Text(
-                                              _user?.name.substring(0, 1).toUpperCase() ?? 'U',
-                                              style: const TextStyle(
-                                                fontSize: 40,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          )
-                                        : null,
-                                  ),
-                          ],
-                        ),
-                              const SizedBox(height: 16),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
 
-                              // Name and Email
-                              Text(
-                                _user?.name ?? 'User',
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
+                                // Name and Email
+                                Text(
+                                  _user?.name ?? 'User',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                _user?.email ?? '',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
-                                ),
-                              ),
-                              if (_user?.phone != null) ...[
                                 const SizedBox(height: 4),
                                 Text(
-                                  _user!.phone!,
+                                  _user?.email ?? '',
                                   style: TextStyle(
                                     fontSize: 14,
-                                    color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                                    color: isDark
+                                        ? Colors.grey.shade400
+                                        : Colors.grey.shade600,
+                                  ),
+                                ),
+                                if (_user?.phone != null) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _user!.phone!,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: isDark
+                                          ? Colors.grey.shade400
+                                          : Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                                const SizedBox(height: 20),
+
+                                // Edit Profile Button
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    final result = await Navigator.pushNamed(
+                                        context, '/edit-profile');
+                                    // Reload profile if changes were made
+                                    if (result == true && mounted) {
+                                      _loadUserProfile();
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primary,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 32, vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(24),
+                                    ),
+                                    elevation: 4,
+                                    shadowColor:
+                                        AppColors.primary.withOpacity(0.3),
+                                  ),
+                                  child: Text(
+                                    l10n.profileEditProfile,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                               ],
-                              const SizedBox(height: 20),
+                            ),
+                          ),
 
-                              // Edit Profile Button
-                              ElevatedButton(
-                                onPressed: () async {
-                                  final result = await Navigator.pushNamed(context, '/edit-profile');
-                                  // Reload profile if changes were made
-                                  if (result == true && mounted) {
-                                    _loadUserProfile();
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(24),
+                          // Account Section
+                          _buildSectionHeader(
+                              l10n.profileHeaderAccount, isDark),
+                          _buildMenuItem(
+                            icon: Icons.local_shipping_outlined,
+                            title: l10n.profileMyOrders,
+                            onTap: () =>
+                                Navigator.pushNamed(context, '/order-list'),
+                            isDark: isDark,
+                          ),
+                          _buildMenuItem(
+                            icon: Icons.location_on_outlined,
+                            title: l10n.profileAddresses,
+                            onTap: () => Navigator.pushNamed(
+                                context, '/address-management'),
+                            isDark: isDark,
+                          ),
+                          _buildMenuItem(
+                            icon: Icons.verified_user_outlined,
+                            title: l10n.profileIdentity,
+                            onTap: () async {
+                              await Navigator.pushNamed(
+                                context,
+                                '/identity-verification',
+                              );
+                              if (mounted) _loadUserProfile();
+                            },
+                            isDark: isDark,
+                          ),
+                          _buildMenuItem(
+                            icon: Icons.card_giftcard_outlined,
+                            title: l10n.profileReferrals,
+                            onTap: () =>
+                                Navigator.pushNamed(context, '/referrals'),
+                            isDark: isDark,
+                          ),
+                          _buildMenuItem(
+                            icon: Icons.build_outlined,
+                            title: l10n.profileServices,
+                            onTap: () =>
+                                Navigator.pushNamed(context, '/services'),
+                            isDark: isDark,
+                          ),
+                          _buildMenuItem(
+                            icon: Icons.language_outlined,
+                            title: l10n.commonLanguage,
+                            onTap: () =>
+                                Navigator.pushNamed(context, '/language'),
+                            isDark: isDark,
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Support Section
+                          _buildSectionHeader(
+                              l10n.profileHeaderSupport, isDark),
+                          _buildMenuItem(
+                            icon: Icons.help_outline,
+                            title: l10n.profileHelpSupport,
+                            onTap: () =>
+                                Navigator.pushNamed(context, '/help-support'),
+                            isDark: isDark,
+                          ),
+                          _buildMenuItem(
+                            icon: Icons.info_outline,
+                            title: l10n.profileAboutUs,
+                            onTap: () =>
+                                Navigator.pushNamed(context, '/about-us'),
+                            isDark: isDark,
+                          ),
+                          _buildMenuItem(
+                            icon: Icons.description_outlined,
+                            title: l10n.profileTerms,
+                            onTap: () => Navigator.pushNamed(
+                                context, '/terms-conditions'),
+                            isDark: isDark,
+                          ),
+                          _buildMenuItem(
+                            icon: Icons.security_outlined,
+                            title: l10n.profilePrivacy,
+                            onTap: () =>
+                                Navigator.pushNamed(context, '/privacy-policy'),
+                            isDark: isDark,
+                          ),
+
+                          // Delete Account + Logout Buttons
+                          Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: OutlinedButton(
+                                    onPressed: _deleteAccount,
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: Colors.red,
+                                      side: const BorderSide(color: Colors.red),
+                                      backgroundColor:
+                                          Colors.red.withOpacity(0.05),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 14),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: const Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.delete_forever_outlined,
+                                            size: 20),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          'Delete Account',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  elevation: 4,
-                                  shadowColor: AppColors.primary.withOpacity(0.3),
                                 ),
-                                child: const Text(
-                                  'Edit Profile',
+                                const SizedBox(height: 12),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: OutlinedButton(
+                                    onPressed: _logout,
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: AppColors.primary,
+                                      side: BorderSide(
+                                        color:
+                                            AppColors.primary.withOpacity(0.2),
+                                      ),
+                                      backgroundColor:
+                                          AppColors.primary.withOpacity(0.05),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 14),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(Icons.logout, size: 20),
+                                        const SizedBox(width: 8),
+                                        const Text(
+                                          'Logout',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Version ${AppStrings.appVersion}',
                                   style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                    color: Colors.grey.shade400,
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-
-                        // Account Section
-                        _buildSectionHeader('ACCOUNT', isDark),
-                        _buildMenuItem(
-                          icon: Icons.local_shipping_outlined,
-                          title: 'My Orders',
-                          onTap: () => Navigator.pushNamed(context, '/order-list'),
-                          isDark: isDark,
-                        ),
-                        _buildMenuItem(
-                          icon: Icons.location_on_outlined,
-                          title: 'Addresses',
-                          onTap: () => Navigator.pushNamed(context, '/address-management'),
-                          isDark: isDark,
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        // Support Section
-                        _buildSectionHeader('SUPPORT', isDark),
-                        _buildMenuItem(
-                          icon: Icons.help_outline,
-                          title: 'Help & Support',
-                          onTap: () => Navigator.pushNamed(context, '/help-support'),
-                          isDark: isDark,
-                        ),
-                        _buildMenuItem(
-                          icon: Icons.info_outline,
-                          title: 'About Us',
-                          onTap: () => Navigator.pushNamed(context, '/about-us'),
-                          isDark: isDark,
-                        ),
-                        _buildMenuItem(
-                          icon: Icons.description_outlined,
-                          title: 'Terms & Conditions',
-                          onTap: () => Navigator.pushNamed(context, '/terms-conditions'),
-                          isDark: isDark,
-                        ),
-                        _buildMenuItem(
-                          icon: Icons.security_outlined,
-                          title: 'Privacy Policy',
-                          onTap: () => Navigator.pushNamed(context, '/privacy-policy'),
-                          isDark: isDark,
-                        ),
-
-                        // Delete Account + Logout Buttons
-                        Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                width: double.infinity,
-                                child: OutlinedButton(
-                                  onPressed: _deleteAccount,
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: Colors.red,
-                                    side: const BorderSide(color: Colors.red),
-                                    backgroundColor: Colors.red.withOpacity(0.05),
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  child: const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.delete_forever_outlined, size: 20),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        'Delete Account',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              SizedBox(
-                                width: double.infinity,
-                                child: OutlinedButton(
-                                  onPressed: _logout,
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: AppColors.primary,
-                                    side: BorderSide(
-                                      color: AppColors.primary.withOpacity(0.2),
-                                    ),
-                                    backgroundColor: AppColors.primary.withOpacity(0.05),
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(Icons.logout, size: 20),
-                                      const SizedBox(width: 8),
-                                      const Text(
-                                        'Logout',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Version ${AppStrings.appVersion}',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey.shade400,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ],
           ),
-        );
-      }
+        ],
+      ),
+    );
+  }
 
   Widget _buildSectionHeader(String title, bool isDark) {
     return Padding(
@@ -458,7 +529,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           fontSize: 12,
           fontWeight: FontWeight.bold,
           letterSpacing: 0.5,
-          color: (isDark ? Colors.white : const Color(0xFF0F172A)).withOpacity(0.7),
+          color: (isDark ? Colors.white : const Color(0xFF0F172A))
+              .withOpacity(0.7),
         ),
       ),
     );

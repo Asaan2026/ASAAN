@@ -14,6 +14,7 @@ use Cartxis\API\Http\Controllers\V1\LocaleController;
 use Cartxis\API\Http\Controllers\V1\OrderController;
 use Cartxis\API\Http\Controllers\V1\ProductAiController;
 use Cartxis\API\Http\Controllers\V1\ProductController;
+use Cartxis\API\Http\Controllers\V1\ReferralController;
 use Cartxis\API\Http\Controllers\V1\ReviewController;
 use Cartxis\API\Http\Controllers\V1\SearchController;
 use Cartxis\API\Http\Controllers\V1\ServiceController;
@@ -191,6 +192,14 @@ Route::prefix('api/v1')->group(function () {
             Route::get('/', [IdentityController::class, 'show']);
             Route::post('/', [IdentityController::class, 'store'])
                 ->middleware('throttle:5,1');
+        });
+
+        // Referrals (the customer's own referral code, balance and history)
+        Route::prefix('referrals')->group(function () {
+            Route::get('/', [ReferralController::class, 'show']);
+            Route::get('/ledger', [ReferralController::class, 'ledger']);
+            Route::post('/apply', [ReferralController::class, 'apply'])
+                ->middleware('throttle:10,1');
         });
 
         // AI Product Description Generator

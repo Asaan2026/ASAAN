@@ -1,0 +1,244 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Asaan Store",
+  "navHome": "Home",
+  "navCategories": "Categories",
+  "navCart": "Cart",
+  "navWishlist": "Wishlist",
+  "navProfile": "Profile",
+
+  "commonTryAgain": "Try again",
+  "commonDone": "Done",
+  "commonCancel": "Cancel",
+  "commonSave": "Save",
+  "commonDiscard": "DISCARD",
+  "commonKeepEditing": "KEEP EDITING",
+  "commonLanguage": "Language",
+
+  "languageTitle": "Language",
+  "languageSubtitle": "Choose the language for the app.",
+  "languageSystem": "System default",
+  "languageLoadError": "Could not load the available languages.",
+
+  "servicesTitle": "Services",
+  "servicesSearchHint": "Search services",
+  "servicesAll": "All",
+  "servicesEmpty": "No services match your search yet.",
+  "servicesLoadError": "Could not load services. Please try again.",
+  "servicesDetailsTitle": "Service details",
+  "servicesAbout": "About this service",
+  "servicesIncluded": "What is included",
+  "servicesExcluded": "Not included",
+  "servicesBooking": "Booking",
+  "servicesInfoOnly": "This service is shown for information only and cannot be booked right now.",
+  "servicesBookButton": "Book this service",
+  "servicesAlsoNeed": "You may also need",
+  "servicesFeatured": "Featured",
+  "servicesDetailLoadError": "Could not load this service. Please try again.",
+
+  "bookingTitle": "Book a service",
+  "bookingIntro": "Tell us where to come and when. The shop will confirm shortly.",
+  "bookingName": "Your name",
+  "bookingNameRequired": "Tell us your name so we know who to ask for.",
+  "bookingPhone": "Phone number",
+  "bookingPhoneRequired": "A phone number is needed so the worker can call you.",
+  "bookingPhoneShort": "That phone number looks too short.",
+  "bookingEmail": "Email (optional)",
+  "bookingEmailInvalid": "That email address is not valid.",
+  "bookingAddress": "Address where the work is needed",
+  "bookingAddressRequired": "Tell us the address where the work is needed.",
+  "bookingAddressShort": "Please give the full address, including the area.",
+  "bookingCity": "City / district (optional)",
+  "bookingDate": "Date",
+  "bookingPickDate": "Choose a date",
+  "bookingDateRequired": "Choose the day you would like the work done.",
+  "bookingTime": "Time of day",
+  "bookingPickTime": "Choose a time",
+  "bookingTimeRequired": "Choose a time of day.",
+  "bookingNotes": "Anything else? (optional)",
+  "bookingSend": "Send booking",
+  "bookingCalendarError": "Could not load the booking calendar.",
+  "bookingSendFailed": "Could not send your booking. Please try again.",
+  "bookingDiscardTitle": "Discard this booking?",
+  "bookingDiscardBody": "You have typed details that have not been sent yet. Leaving now will lose them.",
+  "bookingSentTitle": "Booking sent",
+  "bookingSentBody": "The shop will confirm your booking shortly.",
+  "bookingReference": "Reference",
+  "bookingServiceLabel": "Service",
+  "bookingPhoneLabel": "Phone",
+
+  "@referralShareBody": {
+    "placeholders": {
+      "threshold": {"type": "String"},
+      "reward": {"type": "String"},
+      "days": {"type": "int"}
+    }
+  },
+  "referralShareBody": "Share your link. When a friend joins and spends {threshold}, you earn {reward} in store credit. Credit unlocks after {days} days.",
+
+  "@referralSpentSoFar": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "referralSpentSoFar": "Spent {amount} so far",
+
+  "@referralJoined": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "referralJoined": "joined {date}",
+
+  "@referralLockedUntil": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "referralLockedUntil": "Locked until {date}",
+
+  "@referralVerifiedOn": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "referralVerifiedOn": "Verified on {date}.",
+
+  "@referralSubmittedOn": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "referralSubmittedOn": "Submitted on {date}. Our team will check it shortly.",
+
+  "@identityAcceptedFormats": {
+    "placeholders": {
+      "types": {"type": "String"},
+      "max": {"type": "String"}
+    }
+  },
+  "identityAcceptedFormats": "Accepted formats: {types} · Maximum size: {max}",
+
+  "profileHeaderAccount": "ACCOUNT",
+  "profileHeaderSupport": "SUPPORT",
+  "profileMyOrders": "My Orders",
+  "profileAddresses": "Addresses",
+  "profileIdentity": "Identity Verification",
+  "profileReferrals": "Referrals",
+  "profileServices": "Services",
+  "profileHelpSupport": "Help & Support",
+  "profileAboutUs": "About Us",
+  "profileTerms": "Terms & Conditions",
+  "profilePrivacy": "Privacy Policy",
+  "profileEditProfile": "Edit Profile",
+
+  "referralsTitle": "Referrals",
+  "referralProgramOff": "The referral programme is currently switched off. You can still see your balance.",
+  "referralCreditAvailable": "Credit available",
+  "referralPending": "Pending",
+  "referralEarned": "Earned",
+  "referralUsed": "Used",
+  "referralYourCode": "Your referral code",
+  "referralCopyCode": "Copy code",
+  "referralCopiedCode": "Code copied.",
+  "referralCopiedLink": "Link copied.",
+  "referralApplyTitle": "Enter a friend's code",
+  "referralApplyHint": "Enter the code a friend shared with you. It can only be used once, and only on an account that does not have one yet.",
+  "referralApplyFieldHint": "e.g. AHMAD-7K2QX",
+  "referralApplyButton": "Apply code",
+  "referralApplyFailed": "Could not apply the code. Please try again.",
+  "referralApplied": "Referral code applied.",
+  "referralInvitedTitle": "Friends you invited",
+  "referralInvitedEmpty": "Nobody yet. Share your link to get started.",
+  "referralRewarded": "Rewarded",
+  "referralVoided": "Voided",
+  "referralRewardPending": "Reward pending",
+  "referralHistoryTitle": "Credit history",
+  "referralHistoryEmpty": "No credit activity yet.",
+  "referralDiscardTitle": "Discard your changes?",
+  "referralDiscardBody": "The referral code you typed has not been applied.",
+  "referralLedgerCredit": "Credit",
+  "referralLedgerReward": "Referral reward",
+  "referralLedgerAdminCredit": "Store credit added",
+  "referralLedgerAdminDebit": "Adjustment",
+
+  "identityTitle": "Identity Verification",
+  "identityVerified": "Verified",
+  "identityNotAccepted": "Not accepted",
+  "identityUnderReview": "Under review",
+  "identityNotVerified": "Not verified yet",
+  "identityVerifiedDefault": "Your identity has been verified.",
+  "identityRejectedDefault": "Your last submission was not accepted. You can try again.",
+  "identityNotVerifiedBody": "Verify your Tazkira to unlock earning from referrals and to keep your account secure.",
+  "identityVerifiedNotice": "Your identity is verified. Nothing more is needed.",
+  "identityPendingNotice": "You already have a Tazkira under review. We will let you know once it is checked.",
+  "identityNumberLabel": "Tazkira number",
+  "identityNumberHint": "Tazkira number",
+  "identityNumberEmpty": "Enter your Tazkira number.",
+  "identityNumberInvalid": "That Tazkira number does not look right. Type the digits as printed.",
+  "identityFullNameLabel": "Full name (as on the Tazkira)",
+  "identityFullNameHint": "Your full name",
+  "identityFullNameEmpty": "Enter your full name exactly as it is written on the Tazkira.",
+  "identityFatherNameLabel": "Father's name (optional)",
+  "identityFatherNameHint": "Father's name",
+  "identityDateLabel": "Date of birth (optional)",
+  "identitySelectDate": "Select date",
+  "identityPhotoLabel": "Photo of your Tazkira",
+  "identityPhotoTap": "Tap to add a photo",
+  "identityPhotoMissing": "Add a photo of your Tazkira so our team can check it.",
+  "identitySubmit": "Submit for review",
+  "identitySubmitted": "Tazkira submitted. Our team will review it shortly.",
+  "identityLoadError": "Could not load your verification status.",
+  "identitySubmitError": "Something went wrong. Please try again.",
+  "identityDiscardTitle": "Discard your changes?",
+  "identityDiscardBody": "You have typed information that has not been submitted yet.",
+  "identityPhotoError": "Could not open your photos.",
+
+  "commonError": "Something went wrong. Please try again.",
+  "commonShare": "Share",
+
+  "@servicesContactCall": {
+    "placeholders": {
+      "phone": {"type": "String"}
+    }
+  },
+  "servicesContactCall": "Call {phone}",
+
+  "@servicesContactWhatsapp": {
+    "placeholders": {
+      "phone": {"type": "String"}
+    }
+  },
+  "servicesContactWhatsapp": "WhatsApp {phone}",
+
+  "referralApplyEmpty": "Type the code you were given.",
+  "referralHaveCode": "Have a referral code?",
+
+  "@referralJoinedWith": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "referralJoinedWith": "You joined with {name}'s referral code.",
+
+  "referralLedgerSpent": "Used on an order",
+  "referralLedgerReversed": "Reversed",
+
+  "@identityVerifiedOn": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "identityVerifiedOn": "Verified on {date}.",
+
+  "@identitySubmittedOn": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "identitySubmittedOn": "Submitted on {date}. Our team will check it shortly.",
+
+  "identityNumberExample": "e.g. 1401 5678 9012",
+  "identityFullNameShort": "That name looks too short."
+}

@@ -10,8 +10,9 @@ class ApiConfig {
   // Base URLs
   // iOS simulator: resolved via /etc/hosts on Mac → cartxis.test
   // Android emulator: 10.0.2.2 = host machine loopback; nginx vhost selected via Host header
-  static const String _iosBaseUrl     = 'https://cartxis.test';
-  static const String _androidBaseUrl = 'https://10.0.2.2'; // No path prefix — Host header routes to vhost root
+  static const String _iosBaseUrl = 'https://cartxis.test';
+  static const String _androidBaseUrl =
+      'https://10.0.2.2'; // No path prefix — Host header routes to vhost root
   static const String productionBaseUrl = 'https://asaandotaf.store';
 
   // Sent as Host header on Android dev so nginx routes to the cartxis.test vhost
@@ -41,16 +42,39 @@ class ApiConfig {
   // Customer Endpoints
   static const String customerProfile = '/api/$apiVersion/customer/profile';
   static const String customerOrders = '/api/$apiVersion/customer/orders';
-  static String customerOrderDetail(int orderId) => '/api/$apiVersion/customer/orders/$orderId';
+  static String customerOrderDetail(int orderId) =>
+      '/api/$apiVersion/customer/orders/$orderId';
   static const String wishlist = '/api/$apiVersion/customer/wishlist';
   static const String wishlistAdd = '/api/$apiVersion/customer/wishlist/add';
+
+  // Identity (Tazkira) Endpoints
+  static const String identity = '/api/$apiVersion/identity';
+
+  // Referral Endpoints
+  static const String referrals = '/api/$apiVersion/referrals';
+  static const String referralsLedger = '/api/$apiVersion/referrals/ledger';
+  static const String referralsApply = '/api/$apiVersion/referrals/apply';
 
   // Currency Endpoints
   static const String currencyDefault = '/api/$apiVersion/currency/default';
 
   // System Sync Endpoints
-  static const String apiSyncHeartbeat = '/api/$apiVersion/system/api-sync/heartbeat';
+  static const String apiSyncHeartbeat =
+      '/api/$apiVersion/system/api-sync/heartbeat';
   static const String apiSyncStatus = '/api/$apiVersion/system/api-sync/status';
+
+  // Service (bookings) Endpoints
+  static const String services = '/api/$apiVersion/services';
+  static const String serviceCategories =
+      '/api/$apiVersion/services/categories';
+  static String serviceDetail(String slug) => '/api/$apiVersion/services/$slug';
+  static String serviceSlots(String slug) =>
+      '/api/$apiVersion/services/$slug/slots';
+  static String serviceBook(String slug) =>
+      '/api/$apiVersion/services/$slug/book';
+
+  // Localization Endpoints
+  static const String locales = '/api/$apiVersion/locales';
 
   // Product Endpoints
   static const String products = '/api/$apiVersion/products';

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Cartxis\API\Helpers\ApiResponse;
 use Cartxis\API\Http\Resources\UserResource;
+use Cartxis\Referral\Services\ReferralLinkService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -13,8 +14,10 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
+    public function __construct(protected ReferralLinkService $referrals) {}
+
     /**
-     * Register a new user.
+     * Register user.
      */
     public function register(Request $request)
     {
@@ -22,7 +25,8 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'nullable|string|max:255',
+            'referral_code' => 'nullable|string|max:32',
             'terms_accepted' => 'required|accepted',
         ]);
 
@@ -36,6 +40,11 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'phone' => $request->phone,
         ]);
+
+        // A mistyped or refused code must never cost somebody their account, so
+        // the link is attempted after the account exists and its failure is only
+        // logged. The same rule the website follows.
+        $this->referrals->linkFor($user, $request->input('referral_code'));
 
         $token = $user->createToken(
             $request->device_name ?? config('cartxis-api.token.name')

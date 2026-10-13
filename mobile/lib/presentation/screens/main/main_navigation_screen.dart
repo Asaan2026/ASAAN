@@ -10,6 +10,7 @@ import 'package:vortex_app/presentation/screens/products/new_arrivals_screen.dar
 import 'package:vortex_app/presentation/screens/products/flash_sales_screen.dart';
 import 'package:vortex_app/presentation/screens/products/featured_products_screen.dart';
 import 'package:vortex_app/data/services/cart_service.dart';
+import 'package:vortex_app/l10n/app_localizations.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -18,7 +19,8 @@ class MainNavigationScreen extends StatefulWidget {
   State<MainNavigationScreen> createState() => _MainNavigationScreenState();
 }
 
-class _MainNavigationScreenState extends State<MainNavigationScreen> with WidgetsBindingObserver {
+class _MainNavigationScreenState extends State<MainNavigationScreen>
+    with WidgetsBindingObserver {
   int _selectedIndex = 0;
   int _cartCount = 0;
   final CartService _cartService = CartService();
@@ -58,7 +60,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Widget
     setState(() {
       _selectedIndex = index;
     });
-    
+
     // Reload cart when cart tab is selected
     if (index == 2) {
       _refreshCart();
@@ -81,8 +83,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Widget
           _cartCount = count;
         });
       }
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   @override
@@ -158,6 +159,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Widget
   }
 
   Widget _buildBottomNavBar(bool isDark) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1A2633) : Colors.white,
@@ -181,11 +183,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Widget
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildNavItem(Icons.home, 'Home', 0, isDark),
-              _buildNavItem(Icons.category_outlined, 'Categories', 1, isDark),
-              _buildNavItemWithBadge(Icons.shopping_cart_outlined, 'Cart', 2, isDark, _cartCount > 0 ? '$_cartCount' : null),
-              _buildNavItem(Icons.favorite_outline, 'Wishlist', 3, isDark),
-              _buildNavItem(Icons.person_outline, 'Profile', 4, isDark),
+              _buildNavItem(Icons.home, l10n.navHome, 0, isDark),
+              _buildNavItem(
+                  Icons.category_outlined, l10n.navCategories, 1, isDark),
+              _buildNavItemWithBadge(Icons.shopping_cart_outlined, l10n.navCart,
+                  2, isDark, _cartCount > 0 ? '$_cartCount' : null),
+              _buildNavItem(
+                  Icons.favorite_outline, l10n.navWishlist, 3, isDark),
+              _buildNavItem(Icons.person_outline, l10n.navProfile, 4, isDark),
             ],
           ),
         ),
@@ -201,7 +206,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Widget
     String? badgeCount,
   ) {
     final isSelected = _selectedIndex == index;
-    
+
     return GestureDetector(
       onTap: () {
         _onTabTapped(index);
@@ -216,8 +221,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Widget
               Icon(
                 icon,
                 size: 24,
-                color: isSelected 
-                    ? AppColors.primary 
+                color: isSelected
+                    ? AppColors.primary
                     : (isDark ? Colors.grey.shade400 : Colors.grey.shade400),
               ),
               if (badgeCount != null)
@@ -253,8 +258,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Widget
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w500,
-              color: isSelected 
-                  ? AppColors.primary 
+              color: isSelected
+                  ? AppColors.primary
                   : (isDark ? Colors.grey.shade400 : Colors.grey.shade400),
             ),
           ),
@@ -265,7 +270,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Widget
 
   Widget _buildNavItem(IconData icon, String label, int index, bool isDark) {
     final isSelected = _selectedIndex == index;
-    
+
     return GestureDetector(
       onTap: () {
         _onTabTapped(index);
@@ -276,8 +281,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Widget
           Icon(
             icon,
             size: 24,
-            color: isSelected 
-                ? AppColors.primary 
+            color: isSelected
+                ? AppColors.primary
                 : (isDark ? Colors.grey.shade400 : Colors.grey.shade400),
           ),
           const SizedBox(height: 4),
@@ -286,8 +291,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Widget
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w500,
-              color: isSelected 
-                  ? AppColors.primary 
+              color: isSelected
+                  ? AppColors.primary
                   : (isDark ? Colors.grey.shade400 : Colors.grey.shade400),
             ),
           ),

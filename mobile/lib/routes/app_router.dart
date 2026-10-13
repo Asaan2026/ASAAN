@@ -16,6 +16,12 @@ import 'package:vortex_app/presentation/screens/order/order_detail_screen.dart';
 import 'package:vortex_app/presentation/screens/order/order_list_screen.dart';
 import 'package:vortex_app/presentation/screens/profile/edit_profile_screen.dart';
 import 'package:vortex_app/presentation/screens/profile/address_management_screen.dart';
+import 'package:vortex_app/presentation/screens/profile/identity_verification_screen.dart';
+import 'package:vortex_app/presentation/screens/profile/referrals_screen.dart';
+import 'package:vortex_app/presentation/screens/profile/language_screen.dart';
+import 'package:vortex_app/presentation/screens/services/services_screen.dart';
+import 'package:vortex_app/presentation/screens/services/service_detail_screen.dart';
+import 'package:vortex_app/presentation/screens/services/service_booking_screen.dart';
 import 'package:vortex_app/presentation/screens/support/help_support_screen.dart';
 import 'package:vortex_app/presentation/screens/support/about_us_screen.dart';
 import 'package:vortex_app/presentation/screens/support/terms_conditions_screen.dart';
@@ -46,6 +52,12 @@ class AppRouter {
   static const String orderList = '/order-list';
   static const String editProfile = '/edit-profile';
   static const String addressManagement = '/address-management';
+  static const String identityVerification = '/identity-verification';
+  static const String referrals = '/referrals';
+  static const String language = '/language';
+  static const String services = '/services';
+  static const String serviceDetail = '/service-detail';
+  static const String serviceBooking = '/service-booking';
   static const String helpSupport = '/help-support';
   static const String aboutUs = '/about-us';
   static const String termsConditions = '/terms-conditions';
@@ -190,6 +202,47 @@ class AppRouter {
       case addressManagement:
         return MaterialPageRoute(
           builder: (_) => const AddressManagementScreen(),
+          settings: settings,
+        );
+
+      case identityVerification:
+        return MaterialPageRoute(
+          builder: (_) => const IdentityVerificationScreen(),
+          settings: settings,
+        );
+
+      case referrals:
+        return MaterialPageRoute(
+          builder: (_) => const ReferralsScreen(),
+          settings: settings,
+        );
+
+      case language:
+        return MaterialPageRoute(
+          builder: (_) => const LanguageScreen(),
+          settings: settings,
+        );
+
+      case services:
+        return MaterialPageRoute(
+          builder: (_) => const ServicesScreen(),
+          settings: settings,
+        );
+
+      case serviceDetail:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+          builder: (_) => ServiceDetailScreen(slug: args?['slug'] ?? ''),
+          settings: settings,
+        );
+
+      case serviceBooking:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+          builder: (_) => ServiceBookingScreen(
+            slug: args?['slug'] ?? '',
+            serviceName: args?['serviceName'] ?? 'Service',
+          ),
           settings: settings,
         );
 
