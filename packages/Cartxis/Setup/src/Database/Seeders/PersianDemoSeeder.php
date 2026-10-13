@@ -197,7 +197,7 @@ class PersianDemoSeeder extends Seeder
                     'description' => $product['desc'],
                     'short_description' => $product['short'],
                     'status' => 'enabled',
-                    'visibility' => 'visible',
+                    'visibility' => 'both',
                     'featured' => $product['featured'],
                     'new' => true,
                     'quantity' => $product['qty'],
@@ -455,3 +455,5 @@ class PersianDemoSeeder extends Seeder
         );
     }
 }
+
+

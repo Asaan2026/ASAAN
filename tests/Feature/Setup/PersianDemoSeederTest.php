@@ -16,6 +16,14 @@ use Illuminate\Support\Facades\Hash;
 test('the Dari demo store fills the shop with a full Afghan catalogue', function () {
     $this->seed(PersianDemoSeeder::class);
 
+    // The products table stores visibility as an enum (catalog, search, both,
+    // none). SQLite does not enforce enums, so an invalid value such as
+    // "visible" passes the tests but is rejected by the live MySQL, which
+    // silently dropped every product while still creating the categories.
+    foreach (DB::table('products')->pluck('visibility') as $visibility) {
+        expect($visibility)->toBeIn(['catalog', 'search', 'both', 'none']);
+    }
+
     expect(DB::table('categories')->count())->toBe(8)
         ->and(DB::table('brands')->count())->toBe(8)
         ->and(DB::table('products')->count())->toBe(24)
