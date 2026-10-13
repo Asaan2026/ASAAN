@@ -6,6 +6,7 @@ Agents.md
 /public/build
 /public/hot
 /public/storage
+/public/downloads
 /storage/*.key
 /storage/pail
 /resources/js/actions
