@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Cartxis\Product\Models\Category;
 use Cartxis\Product\Models\ProductImage;
 use Cartxis\Setup\Database\Seeders\PersianDemoSeeder;
 use Cartxis\Setup\Services\DemoDataService;
@@ -105,6 +106,26 @@ test('image links resolve for outside links, bundled files and storage files', f
         ->and(ProductImage::urlFor('/images/products/a.jpg'))->not->toContain('/storage/')
         ->and(ProductImage::urlFor('products/a.jpg'))->toContain('/storage/products/a.jpg')
         ->and(ProductImage::urlFor(null))->toBeNull();
+});
+
+test('the demo categories have a cover image that is bundled with the app', function () {
+    $this->seed(PersianDemoSeeder::class);
+
+    $categories = DB::table('categories')->get(['slug', 'image']);
+
+    expect($categories)->not->toBeEmpty();
+
+    foreach ($categories as $category) {
+        expect($category->image)->toStartWith('/images/categories/')
+            ->and(is_file(public_path(ltrim($category->image, '/'))))->toBeTrue();
+    }
+});
+
+test('a category cover that ships in public/ is served from the app, not the storage link', function () {
+    $category = new Category(['image' => '/images/categories/mobile-tablets.jpg']);
+
+    expect($category->image_url)->toContain('/images/categories/mobile-tablets.jpg')
+        ->and($category->image_url)->not->toContain('/storage/');
 });
 
 test('the demo store can be seeded again without duplicating anything', function () {

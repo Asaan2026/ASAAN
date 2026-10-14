@@ -48,19 +48,7 @@ class Category extends Model
      */
     public function getImageUrlAttribute(): ?string
     {
-        if (empty($this->attributes['image'])) {
-            return null;
-        }
-
-        $image = $this->attributes['image'];
-
-        // If it's already a full URL, return as is
-        if (filter_var($image, FILTER_VALIDATE_URL)) {
-            return $image;
-        }
-
-        // Otherwise, convert storage path to public URL
-        return asset('storage/'.$image);
+        return ProductImage::urlFor($this->attributes['image'] ?? null);
     }
 
     /**

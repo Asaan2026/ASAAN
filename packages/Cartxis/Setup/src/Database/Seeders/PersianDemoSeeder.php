@@ -48,14 +48,14 @@ class PersianDemoSeeder extends Seeder
     private function seedCategories(): void
     {
         $categories = [
-            ['name' => 'موبایل و تبلت', 'slug' => 'mobile-tablets', 'description' => 'جدیدترین موبایل‌ها و تبلت‌ها از برندهای معتبر'],
-            ['name' => 'لپ‌تاپ و کمپیوتر', 'slug' => 'laptops-computers', 'description' => 'لپ‌تاپ و کمپیوترهای قدرتمند برای کار و تحصیل'],
-            ['name' => 'لوازم خانگی', 'slug' => 'home-appliances', 'description' => 'یخچال، ماشین لباس‌شویی و سایر لوازم خانه'],
-            ['name' => 'پوشاک و البسه', 'slug' => 'clothing', 'description' => 'لباس مردانه، زنانه و اطفال با کیفیت خوب'],
-            ['name' => 'مواد غذایی', 'slug' => 'groceries', 'description' => 'مواد اولیه و خواربار مورد نیاز روزمره'],
-            ['name' => 'زیبایی و صحت', 'slug' => 'beauty-health', 'description' => 'محصولات زیبایی، بهداشتی و صحی'],
-            ['name' => 'ورزش و تفریح', 'slug' => 'sports', 'description' => 'لوازم ورزشی و سرگرمی برای همه'],
-            ['name' => 'کتاب و لوازم تحریر', 'slug' => 'books-stationery', 'description' => 'کتاب، قلم و لوازم مورد نیاز مکتب و دفتر'],
+            ['name' => 'موبایل و تبلت', 'slug' => 'mobile-tablets', 'image' => '/images/categories/mobile-tablets.jpg', 'description' => 'جدیدترین موبایل‌ها و تبلت‌ها از برندهای معتبر'],
+            ['name' => 'لپ‌تاپ و کمپیوتر', 'slug' => 'laptops-computers', 'image' => '/images/categories/laptops-computers.jpg', 'description' => 'لپ‌تاپ و کمپیوترهای قدرتمند برای کار و تحصیل'],
+            ['name' => 'لوازم خانگی', 'slug' => 'home-appliances', 'image' => '/images/categories/home-appliances.jpg', 'description' => 'یخچال، ماشین لباس‌شویی و سایر لوازم خانه'],
+            ['name' => 'پوشاک و البسه', 'slug' => 'clothing', 'image' => '/images/categories/clothing.jpg', 'description' => 'لباس مردانه، زنانه و اطفال با کیفیت خوب'],
+            ['name' => 'مواد غذایی', 'slug' => 'groceries', 'image' => '/images/categories/groceries.jpg', 'description' => 'مواد اولیه و خواربار مورد نیاز روزمره'],
+            ['name' => 'زیبایی و صحت', 'slug' => 'beauty-health', 'image' => '/images/categories/beauty-health.jpg', 'description' => 'محصولات زیبایی، بهداشتی و صحی'],
+            ['name' => 'ورزش و تفریح', 'slug' => 'sports', 'image' => '/images/categories/sports.jpg', 'description' => 'لوازم ورزشی و سرگرمی برای همه'],
+            ['name' => 'کتاب و لوازم تحریر', 'slug' => 'books-stationery', 'image' => '/images/categories/books-stationery.jpg', 'description' => 'کتاب، قلم و لوازم مورد نیاز مکتب و دفتر'],
         ];
 
         foreach ($categories as $index => $category) {
@@ -65,6 +65,7 @@ class PersianDemoSeeder extends Seeder
                     'name' => $category['name'],
                     'slug' => $category['slug'],
                     'description' => $category['description'],
+                    'image' => $category['image'],
                     'status' => 'enabled',
                     'show_in_menu' => true,
                     'sort_order' => $index + 1,
@@ -455,5 +456,3 @@ class PersianDemoSeeder extends Seeder
         );
     }
 }
-
-
