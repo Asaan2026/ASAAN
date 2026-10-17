@@ -85,17 +85,17 @@ chmod -R u+rwX,g+rwX storage bootstrap/cache 2>/dev/null || true
 # Fetch the Android app file at boot instead of storing it in the repository.
 # A 66 MB binary in git made every push time out (GitHub answers HTTP 408 on the
 # upload), which blocked every deploy. The file is kept on the repository's apk
-# tag, so the download stays on this same domain at /downloads/asaan-2.5.7.apk.
+# tag, so the download stays on this same domain at /downloads/asaan-2.6.0.apk.
 # Runs in the background so nginx and php-fpm boot instantly. Set FETCH_APK=0 to
 # switch this off, or APK_URL to point somewhere else.
 if [ "${FETCH_APK:-1}" = "1" ]; then
     (
         mkdir -p public/downloads
-        APK=public/downloads/asaan-2.5.7.apk
+        APK=public/downloads/asaan-2.6.0.apk
         if [ -s "$APK" ]; then
             echo "[entrypoint] Android app already present."
         else
-            URL="${APK_URL:-https://raw.githubusercontent.com/Mohammadafzalakbari2022/new-Asaan-/apk-2.5.7/public/downloads/asaan-2.5.7.apk}"
+            URL="${APK_URL:-https://raw.githubusercontent.com/Mohammadafzalakbari2022/new-Asaan-/apk-2.6.0/public/downloads/asaan-2.6.0.apk}"
             if curl -fsSL --retry 3 --retry-delay 5 -o "${APK}.tmp" "$URL" && [ -s "${APK}.tmp" ]; then
                 mv "${APK}.tmp" "$APK"
                 echo "[entrypoint] Android app downloaded."

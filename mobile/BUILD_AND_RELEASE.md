@@ -5,8 +5,8 @@ This guide covers how to build the Android app (on any machine) and the iOS app
 
 The app name on the phone is **Asaan**. The Android package id (also called
 `applicationId`) is `com.cartxis.app`. The version is set in one place, the
-`version:` line in `pubspec.yaml` — currently `2.5.6+7`, which means version
-name `2.5.6` and build number `7`.
+`version:` line in `pubspec.yaml` — currently `2.6.0+9`, which means version
+name `2.6.0` and build number `9`.
 
 ---
 
@@ -73,8 +73,8 @@ flutter build appbundle --release
 ### 3. Publish the Android build
 
 - **Direct download from the website:** copy the APK to
-  `public/downloads/asaan-2.5.7.apk` in the store repository. The website links
-  to `/downloads/asaan-2.5.7.apk`, so the download works as soon as the site is
+  `public/downloads/asaan-2.6.0.apk` in the store repository. The website links
+  to `/downloads/asaan-2.6.0.apk`, so the download works as soon as the site is
   deployed. This is the current method.
 - **GitHub Releases:** attach the APK to a release on the client repository
   (`Asaan2026/ASAAN`). Note: this needs write access to that repository.
