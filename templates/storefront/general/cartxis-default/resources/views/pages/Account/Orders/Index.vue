@@ -2,6 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import ThemeLayout from '../../../layouts/ThemeLayout.vue';
 import DateDisplay from '@/components/Calendar/DateDisplay.vue';
+import { useCurrency } from '@/composables/useCurrency';
 
 interface OrderItem {
   id: number;
@@ -23,6 +24,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const { formatPrice } = useCurrency();
 
 const getStatusColor = (status: string) => {
   const colors: Record<string, string> = {
@@ -33,14 +35,6 @@ const getStatusColor = (status: string) => {
     cancelled: 'bg-red-100 text-red-800',
   };
   return colors[status] || 'bg-gray-100 text-gray-800';
-};
-
-const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    minimumFractionDigits: 2,
-  }).format(price);
 };
 </script>
 

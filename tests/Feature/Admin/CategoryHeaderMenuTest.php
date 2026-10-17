@@ -119,12 +119,6 @@ test('deleting a category takes it out of the header menu', function () {
 });
 
 /**
- * The homepage used to hand the header its own cached category list. That
- * list is kept for an hour, so a category added in the dashboard stayed
- * invisible in the header of the homepage (the page most people land on)
- * long after it was saved, and a renamed or deleted one stayed clickable.
- */
-/**
  * The homepage used to hand the header its own cached category list built
  * from every root category, ignoring the "Show in Navigation Menu" switch.
  * The header must get the same list as the rest of the shop: shown, enabled

@@ -2,8 +2,10 @@
 import { Head, Link } from '@inertiajs/vue3';
 import ThemeLayout from '../../../layouts/ThemeLayout.vue';
 import { useCalendar } from '@/composables/useCalendar';
+import { useCurrency } from '@/composables/useCurrency';
 
 const { formatDate: formatCalendarDate } = useCalendar();
+const { formatPrice } = useCurrency();
 
 interface Address {
   first_name: string;
@@ -63,14 +65,6 @@ const getStatusColor = (status: string) => {
     cancelled: 'bg-red-100 text-red-800 border-red-200',
   };
   return colors[status] || 'bg-gray-100 text-gray-800 border-gray-200';
-};
-
-const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    minimumFractionDigits: 2,
-  }).format(price);
 };
 
 const formatAddress = (address?: Address) => {

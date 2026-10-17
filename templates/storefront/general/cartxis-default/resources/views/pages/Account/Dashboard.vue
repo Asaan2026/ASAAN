@@ -6,6 +6,7 @@ import { computed } from 'vue';
 import AppDownloadBlock from '../../components/AppDownloadBlock.vue';
 import WhatsAppButton from '../../components/WhatsAppButton.vue';
 import ThemeLayout from '../../layouts/ThemeLayout.vue';
+import { useCurrency } from '@/composables/useCurrency';
 
 interface OrderItem {
     id: number;
@@ -24,6 +25,7 @@ const props = defineProps<Props>();
 const page = usePage();
 const user = (page.props.auth as any)?.user;
 const referralEnabled = computed(() => page.props.referralEnabled === true);
+const { formatPrice } = useCurrency();
 
 const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
@@ -34,14 +36,6 @@ const getStatusColor = (status: string) => {
         cancelled: 'bg-red-100 text-red-800',
     };
     return colors[status] || 'bg-gray-100 text-gray-800';
-};
-
-const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        minimumFractionDigits: 2,
-    }).format(price);
 };
 </script>
 

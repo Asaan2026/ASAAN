@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import ThemeLayout from '../../layouts/ThemeLayout.vue';
+import { useCurrency } from '@/composables/useCurrency';
 import { computed } from 'vue';
 
 interface Category {
@@ -45,13 +46,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
-const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-    }).format(price);
-};
+const { formatPrice } = useCurrency();
 
 const hasDiscount = (product: Product) => {
     return product.special_price && product.special_price < product.price;

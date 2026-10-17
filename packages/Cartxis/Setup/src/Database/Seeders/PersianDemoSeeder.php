@@ -22,8 +22,10 @@ use Illuminate\Support\Str;
  * moving), store pages, and two login accounts to try it with.
  *
  * Prices are written straight in AFN, because AFN is the store's base currency.
- * Product photos are stable public image links, so the seed never has to reach
- * the network while it runs -- the pictures load in the visitor's browser.
+ * Category and product photos ship with the app (public/images/catalog), so the
+ * seed never has to reach the network while it runs and the pictures still load
+ * on a slow connection. Running the seed again replaces the catalogue it made
+ * last time -- it never touches a category or a product the owner added by hand.
  */
 class PersianDemoSeeder extends Seeder
 {
@@ -44,36 +46,73 @@ class PersianDemoSeeder extends Seeder
 
     /**
      * The shop's product categories, in Dari.
+     *
+     * Every category is a normal row in the `categories` table, so the shop owner
+     * can rename, re-picture, reorder or delete any of them from the dashboard
+     * afterwards. Nothing here is hard-coded into the storefront.
      */
     private function seedCategories(): void
     {
+        $this->removeSupersededCategories();
+
         $categories = [
-            ['name' => 'موبایل و تبلت', 'slug' => 'mobile-tablets', 'image' => '/images/categories/mobile-tablets.jpg', 'description' => 'جدیدترین موبایل‌ها و تبلت‌ها از برندهای معتبر'],
-            ['name' => 'لپ‌تاپ و کمپیوتر', 'slug' => 'laptops-computers', 'image' => '/images/categories/laptops-computers.jpg', 'description' => 'لپ‌تاپ و کمپیوترهای قدرتمند برای کار و تحصیل'],
-            ['name' => 'لوازم خانگی', 'slug' => 'home-appliances', 'image' => '/images/categories/home-appliances.jpg', 'description' => 'یخچال، ماشین لباس‌شویی و سایر لوازم خانه'],
-            ['name' => 'پوشاک و البسه', 'slug' => 'clothing', 'image' => '/images/categories/clothing.jpg', 'description' => 'لباس مردانه، زنانه و اطفال با کیفیت خوب'],
-            ['name' => 'مواد غذایی', 'slug' => 'groceries', 'image' => '/images/categories/groceries.jpg', 'description' => 'مواد اولیه و خواربار مورد نیاز روزمره'],
-            ['name' => 'زیبایی و صحت', 'slug' => 'beauty-health', 'image' => '/images/categories/beauty-health.jpg', 'description' => 'محصولات زیبایی، بهداشتی و صحی'],
-            ['name' => 'ورزش و تفریح', 'slug' => 'sports', 'image' => '/images/categories/sports.jpg', 'description' => 'لوازم ورزشی و سرگرمی برای همه'],
-            ['name' => 'کتاب و لوازم تحریر', 'slug' => 'books-stationery', 'image' => '/images/categories/books-stationery.jpg', 'description' => 'کتاب، قلم و لوازم مورد نیاز مکتب و دفتر'],
+            ['name' => 'مواد ارتزاقی', 'slug' => 'food-provisions', 'image' => '/images/catalog/categories/food-provisions.jpg', 'description' => 'برنج، روغن، آرد و سایر مواد اولیه مورد ضرورت خانه'],
+            ['name' => 'لوازم بهداشتی', 'slug' => 'toiletries', 'image' => '/images/catalog/categories/toiletries.jpg', 'description' => 'صابون، شامپو، کرم و لوازم پاکی و بهداشت شخصی'],
+            ['name' => 'لوازم برقی', 'slug' => 'electrical-appliances', 'image' => '/images/catalog/categories/electrical-appliances.jpg', 'description' => 'کتری، پنکه، اتو و سایر وسایل برقی خانه'],
+            ['name' => 'پوشاک', 'slug' => 'clothing', 'image' => '/images/catalog/categories/clothing.jpg', 'description' => 'لباس مردانه، زنانه و اطفال با کیفیت خوب'],
+            ['name' => 'بخش اطفال', 'slug' => 'kids', 'image' => '/images/catalog/categories/kids.jpg', 'description' => 'لباس، اسباب‌بازی و لوازم مورد ضرورت اطفال'],
+            ['name' => 'میوه خشک', 'slug' => 'dried-fruit', 'image' => '/images/catalog/categories/dried-fruit.jpg', 'description' => 'توت، انجیر و آلوچه خشک با کیفیت خوب'],
+            ['name' => 'تحایف و هدیه ها', 'slug' => 'gifts', 'image' => '/images/catalog/categories/gifts.jpg', 'description' => 'جعبه تحفه، عطر و اقلام مناسب برای هدیه دادن'],
+            ['name' => 'خشکبار', 'slug' => 'nuts', 'image' => '/images/catalog/categories/nuts.jpg', 'description' => 'بادام، پسته و چهارمغز تازه و باکیفیت'],
         ];
 
         foreach ($categories as $index => $category) {
-            DB::table('categories')->updateOrInsert(
-                ['slug' => $category['slug']],
-                [
-                    'name' => $category['name'],
-                    'slug' => $category['slug'],
-                    'description' => $category['description'],
-                    'image' => $category['image'],
-                    'status' => 'enabled',
-                    'show_in_menu' => true,
-                    'sort_order' => $index + 1,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]
-            );
+            $attributes = [
+                'name' => $category['name'],
+                'slug' => $category['slug'],
+                'description' => $category['description'],
+                'image' => $category['image'],
+                'parent_id' => null,
+                'status' => 'enabled',
+                'show_in_menu' => true,
+                'sort_order' => $index + 1,
+                'deleted_at' => null,
+                'updated_at' => now(),
+            ];
+
+            $existingId = DB::table('categories')->where('slug', $category['slug'])->value('id');
+
+            if ($existingId) {
+                DB::table('categories')->where('id', $existingId)->update($attributes);
+            } else {
+                DB::table('categories')->insert($attributes + ['created_at' => now()]);
+            }
         }
+    }
+
+    /**
+     * Take the old demo categories out of the shop before the new ones go in.
+     *
+     * The list is deliberately explicit: only the categories this seeder itself
+     * used to create are removed, so a category the owner made by hand is never
+     * touched. "clothing" is left out on purpose -- the new catalogue re-uses
+     * that slug, so it is updated in place instead of being deleted and re-made.
+     * Any sub-category that pointed at a removed parent is left standing and
+     * re-parented to the top level by the parent_id foreign key (nullOnDelete).
+     */
+    private function removeSupersededCategories(): void
+    {
+        $slugs = [
+            'mobile-tablets',
+            'laptops-computers',
+            'home-appliances',
+            'groceries',
+            'beauty-health',
+            'sports',
+            'books-stationery',
+        ];
+
+        DB::table('categories')->whereIn('slug', $slugs)->delete();
     }
 
     /**
@@ -112,78 +151,56 @@ class PersianDemoSeeder extends Seeder
      */
     private function seedProducts(): void
     {
-        $products = [
-            ['name' => 'موبایل سامسونگ گلکسی A55', 'sku' => 'PH-SAM-A55', 'price' => 42000, 'category' => 'mobile-tablets', 'brand' => 'samsung', 'featured' => true, 'qty' => 40, 'short' => 'سامسونگ گلکسی A55 - ۲۵۶ گیگابایت', 'desc' => 'موبایل سامسونگ گلکسی A55 با نمایشگر Super AMOLED، دوربین ۵۰ میگاپیکسل و بتری با عمر طولانی. مناسب برای کار و سرگرمی روزمره.'],
-            ['name' => 'موبایل شیائومی ردمی نوت ۱۳ پرو', 'sku' => 'PH-XIA-RN13P', 'price' => 28500, 'category' => 'mobile-tablets', 'brand' => 'xiaomi', 'featured' => true, 'qty' => 60, 'short' => 'ردمی نوت ۱۳ پرو - ۲۵۶ گیگابایت', 'desc' => 'موبایل شیائومی ردمی نوت ۱۳ پرو با دوربین ۲۰۰ میگاپیکسل، شارژ سریع ۶۷ وات و نمایشگر روان ۱۲۰ هرتز.'],
-            ['name' => 'موبایل هوآوی نوا ۱۲', 'sku' => 'PH-HUA-N12', 'price' => 31000, 'category' => 'mobile-tablets', 'brand' => 'huawei', 'featured' => false, 'qty' => 35, 'short' => 'هوآوی نوا ۱۲ - ۲۵۶ گیگابایت', 'desc' => 'موبایل هوآوی نوا ۱۲ با طراحی شیک، دوربین دوگانه و بتری پرظرفیت. گزینه‌ای مطمئن با قیمت مناسب.'],
-            ['name' => 'تبلت سامسونگ گلکسی تب A9', 'sku' => 'TB-SAM-A9', 'price' => 22000, 'category' => 'mobile-tablets', 'brand' => 'samsung', 'featured' => false, 'qty' => 45, 'short' => 'گلکسی تب A9 - ۱۲۸ گیگابایت', 'desc' => 'تبلت سامسونگ گلکسی تب A9 با نمایشگر ۸.۷ اینچی و بتری طویل‌العمر. عالی برای مطالعه و تماشای فیلم.'],
-            ['name' => 'لپ‌تاپ اسوس ویووبوک ۱۵', 'sku' => 'LP-ASU-VB15', 'price' => 55000, 'category' => 'laptops-computers', 'brand' => null, 'featured' => true, 'qty' => 25, 'short' => 'اسوس ویووبوک ۱۵ - Core i5', 'desc' => 'لپ‌تاپ اسوس ویووبوک با پروسسور Core i5، رم ۱۶ گیگابایت و هارد SSD ۵۱۲ گیگابایت. مناسب مکتب، دفتر و خانه.'],
-            ['name' => 'لپ‌تاپ اچ‌پی پاولیان', 'sku' => 'LP-HP-PAV', 'price' => 78000, 'category' => 'laptops-computers', 'brand' => null, 'featured' => true, 'qty' => 18, 'short' => 'اچ‌پی پاولیان - Core i7', 'desc' => 'لپ‌تاپ اچ‌پی پاولیان با پروسسور Core i7، رم ۱۶ گیگابایت و گرافیک اختصاصی. برای کارهای سنگین و طراحی.'],
-            ['name' => 'یخچال سامسونگ ۱۸ فوت', 'sku' => 'HA-SAM-F18', 'price' => 95000, 'category' => 'home-appliances', 'brand' => 'samsung', 'featured' => true, 'qty' => 12, 'short' => 'یخچال سامسونگ ۱۸ فوت', 'desc' => 'یخچال سامسونگ با ظرفیت ۱۸ فوت، سیستم سرمایش مطمئن و مصرف برق پایین. مناسب خانواده‌های بزرگ.'],
-            ['name' => 'ماشین لباس‌شویی ال‌جی', 'sku' => 'HA-LG-WM7', 'price' => 62000, 'category' => 'home-appliances', 'brand' => 'lg', 'featured' => false, 'qty' => 15, 'short' => 'ال‌جی ۷ کیلوگرام', 'desc' => 'ماشین لباس‌شویی ال‌جی با ظرفیت ۷ کیلوگرام، برنامه‌های متنوع شستوشو و موتور کم‌صدا.'],
-            ['name' => 'آشپزخانه برقی فیلیپس', 'sku' => 'HA-PHI-COOK', 'price' => 8500, 'category' => 'home-appliances', 'brand' => 'philips', 'featured' => false, 'qty' => 30, 'short' => 'آشپزخانه برقی فیلیپس', 'desc' => 'آشپزخانه برقی فیلیپس با دو شعله، ایمنی بالا و طراحی جمع‌وجور. مناسب آشپزخانه‌های کوچک.'],
-            ['name' => 'پیراهن مردانه نخی', 'sku' => 'CL-M-SHIRT', 'price' => 1200, 'category' => 'clothing', 'brand' => null, 'featured' => false, 'qty' => 120, 'short' => 'پیراهن نخی مردانه', 'desc' => 'پیراهن مردانه از پارچه نخی درجه اول، راحت و مناسب فصل گرما. در اندازه‌های متنوع موجود است.'],
-            ['name' => 'کت چرم زنانه', 'sku' => 'CL-W-JACKET', 'price' => 4500, 'category' => 'clothing', 'brand' => null, 'featured' => true, 'qty' => 40, 'short' => 'کت چرم زنانه', 'desc' => 'کت چرم زنانه با طراحی مدرن و دوخت باکیفیت. مناسب فصل سرد و استایل روزمره.'],
-            ['name' => 'کتانی ورزشی نایکی', 'sku' => 'CL-NK-SHOE', 'price' => 3200, 'category' => 'clothing', 'brand' => 'nike', 'featured' => true, 'qty' => 70, 'short' => 'کتانی نایکی - یونیسکس', 'desc' => 'کتانی ورزشی نایکی با کفی نرم و سبک، مناسب پیاده‌روی و ورزش روزانه.'],
-            ['name' => 'برنج سیله', 'sku' => 'GR-RICE', 'price' => 2600, 'category' => 'groceries', 'brand' => null, 'featured' => false, 'qty' => 200, 'short' => 'برنج سیله - ۲۴ کیلوگرام', 'desc' => 'برنج سیله ممتاز، خوش‌عطر و بلند. بسته‌بندی ۲۴ کیلوگرامی، مناسب مصرف خانواده.'],
-            ['name' => 'روغن آفتاب‌گرد', 'sku' => 'GR-OIL', 'price' => 950, 'category' => 'groceries', 'brand' => null, 'featured' => false, 'qty' => 150, 'short' => 'روغن آفتاب‌گرد - ۵ لیتر', 'desc' => 'روغن آفتاب‌گرد خالص، مناسب پخت‌وپز روزانه. بسته‌بندی ۵ لیتری.'],
-            ['name' => 'بسته آرد ۵۰ کیلویی', 'sku' => 'GR-FLOUR', 'price' => 2400, 'category' => 'groceries', 'brand' => null, 'featured' => false, 'qty' => 180, 'short' => 'آرد ۵۰ کیلوگرام', 'desc' => 'آرد گندم مرغوب، الک‌شده و مناسب پخت نان. بسته‌بندی ۵۰ کیلوگرامی.'],
-            ['name' => 'صابون زیبایی گیاهی', 'sku' => 'BH-SOAP', 'price' => 150, 'category' => 'beauty-health', 'brand' => null, 'featured' => false, 'qty' => 300, 'short' => 'صابون گیاهی', 'desc' => 'صابون گیاهی با عصاره طبیعی، ملایم برای پوست و مناسب استفاده روزمره.'],
-            ['name' => 'کرم مرطوب‌کننده دست', 'sku' => 'BH-CREAM', 'price' => 450, 'category' => 'beauty-health', 'brand' => null, 'featured' => false, 'qty' => 220, 'short' => 'کرم دست و صورت', 'desc' => 'کرم مرطوب‌کننده دست و صورت با ویتامین E، مناسب پوست‌های خشک و حساس.'],
-            ['name' => 'دستگاه فشار خون دیجیتل', 'sku' => 'BH-BP', 'price' => 2800, 'category' => 'beauty-health', 'brand' => 'philips', 'featured' => true, 'qty' => 50, 'short' => 'دستگاه فشار خون دیجیتل', 'desc' => 'دستگاه اندازه‌گیری فشار خون دیجیتل با نمایشگر واضح و دقت بالا. مناسب استفاده خانگی.'],
-            ['name' => 'توپ فوتبال حرفه‌ای', 'sku' => 'SP-BALL', 'price' => 850, 'category' => 'sports', 'brand' => 'nike', 'featured' => false, 'qty' => 140, 'short' => 'توپ فوتبال', 'desc' => 'توپ فوتبال با دوخت مقاوم و جلد چرمی مصنوعی، مناسب زمین‌های خاکی و چمنی.'],
-            ['name' => 'دمبل فلزی ۱۰ کیلویی', 'sku' => 'SP-DUMBBELL', 'price' => 1500, 'category' => 'sports', 'brand' => null, 'featured' => false, 'qty' => 90, 'short' => 'دمبل ۱۰ کیلوگرام', 'desc' => 'دمبل فلزی ۱۰ کیلوگرامی با دسته ضدلغزش، مناسب تمرین در خانه و باشگاه.'],
-            ['name' => 'چادر کوه‌نوردی دو نفره', 'sku' => 'SP-TENT', 'price' => 6500, 'category' => 'sports', 'brand' => null, 'featured' => false, 'qty' => 35, 'short' => 'چادر کوه‌نوردی', 'desc' => 'چادر کوه‌نوردی دو نفره، ضدآب و سبک. مناسب سفر و کمپینگ در فضای آزاد.'],
-            ['name' => 'کتاب داستان‌های کوتاه دری', 'sku' => 'BK-STORIES', 'price' => 350, 'category' => 'books-stationery', 'brand' => null, 'featured' => false, 'qty' => 160, 'short' => 'مجموعه داستان‌های کوتاه', 'desc' => 'مجموعه داستان‌های کوتاه به زبان دری، مناسب تقویت مهارت خواندن و مطالعه.'],
-            ['name' => 'بسته قلم هفت رنگ', 'sku' => 'BK-PENS', 'price' => 220, 'category' => 'books-stationery', 'brand' => null, 'featured' => false, 'qty' => 250, 'short' => 'قلم هفت رنگ', 'desc' => 'بسته قلم رنگی با هفت رنگ مختلف، مناسب مکتب، دفتر و نقاشی اطفال.'],
-            ['name' => 'کاپی چهل برگ', 'sku' => 'BK-COPY', 'price' => 90, 'category' => 'books-stationery', 'brand' => null, 'featured' => false, 'qty' => 400, 'short' => 'کاپی ۴۰ برگی', 'desc' => 'کاپی چهل برگی با کاغذ مرغوب و خط کشی واضح. مناسب مکتب و کار روزمره.'],
-        ];
+        $this->removeSupersededProducts();
 
-        // Photos ship inside the app (public/images/products), not on an outside
-        // site. Afghan networks often cannot reach image hosts such as
-        // picsum.photos or unsplash.com, which left every demo product blank.
-        // A leading "/" tells the image model to serve the file from public/.
-        $productImages = [
-            'PH-SAM-A55' => 'smartphone-pro-max-2.jpg',
-            'PH-XIA-RN13P' => 'smartphone-pro-max-2.jpg',
-            'PH-HUA-N12' => 'smartphone-pro-max-2.jpg',
-            'TB-SAM-A9' => 'smartphone-pro-max-2.jpg',
-            'LP-ASU-VB15' => 'mechanical-keyboard-rgb-5.jpg',
-            'LP-HP-PAV' => 'mechanical-keyboard-rgb-5.jpg',
-            'HA-SAM-F18' => '4k-ultra-hd-smart-tv-55-4.jpg',
-            'HA-LG-WM7' => 'ceramic-dinner-set-13.jpg',
-            'HA-PHI-COOK' => 'ceramic-dinner-set-13.jpg',
-            'CL-M-SHIRT' => 'cotton-t-shirt-premium-6.jpg',
-            'CL-W-JACKET' => 'leather-jacket-8.jpg',
-            'CL-NK-SHOE' => 'running-shoes-sport-10.jpg',
-            'GR-RICE' => 'ceramic-dinner-set-13.jpg',
-            'GR-OIL' => 'ceramic-dinner-set-13.jpg',
-            'GR-FLOUR' => 'ceramic-dinner-set-13.jpg',
-            'BH-SOAP' => 'indoor-plant-pot-set-15.jpg',
-            'BH-CREAM' => 'indoor-plant-pot-set-15.jpg',
-            'BH-BP' => '4k-ultra-hd-smart-tv-55-4.jpg',
-            'SP-BALL' => 'running-shoes-sport-10.jpg',
-            'SP-DUMBBELL' => 'yoga-mat-premium-16.jpg',
-            'SP-TENT' => 'camping-tent-4-person-17.jpg',
-            'BK-STORIES' => 'bestseller-novel-collection-19.jpg',
-            'BK-PENS' => 'bestseller-novel-collection-19.jpg',
-            'BK-COPY' => 'bestseller-novel-collection-19.jpg',
+        // Every product carries its own photo, keyed by slug and shipped inside
+        // the app (public/images/catalog/products/<slug>.jpg). Afghan networks
+        // often cannot reach outside image hosts, which left demo products blank,
+        // so nothing here points at an external site. A leading "/" tells the
+        // image model to serve the file straight from public/.
+        $products = [
+            ['name' => 'برنج باسمتی ۵ کیلویی', 'sku' => 'FOOD-RICE5', 'slug' => 'basmati-rice-5kg', 'category' => 'food-provisions', 'price' => 1450, 'featured' => true, 'qty' => 120, 'short' => 'برنج باسمتی — بسته ۵ کیلویی', 'desc' => 'برنج باسمتی خوش‌عطر و بلند، بسته‌بندی ۵ کیلوگرامی. مناسب مصرف روزمره خانواده.'],
+            ['name' => 'روغن آفتابگردان ۵ لیتر', 'sku' => 'FOOD-OIL5', 'slug' => 'sunflower-oil-5l', 'category' => 'food-provisions', 'price' => 780, 'featured' => false, 'qty' => 150, 'short' => 'روغن آفتابگردان — ۵ لیتر', 'desc' => 'روغن آفتابگردان خالص، مناسب پخت‌وپز روزانه. بسته‌بندی ۵ لیتری.'],
+            ['name' => 'آرد گندم ۱۰ کیلویی', 'sku' => 'FOOD-FLOUR10', 'slug' => 'wheat-flour-10kg', 'category' => 'food-provisions', 'price' => 620, 'featured' => false, 'qty' => 180, 'short' => 'آرد گندم — ۱۰ کیلوگرام', 'desc' => 'آرد گندم مرغوب و الک‌شده، مناسب پخت نان. بسته‌بندی ۱۰ کیلوگرامی.'],
+            ['name' => 'صابون حمام', 'sku' => 'HYG-SOAP', 'slug' => 'bath-soap', 'category' => 'toiletries', 'price' => 90, 'featured' => false, 'qty' => 300, 'short' => 'صابون حمام گیاهی', 'desc' => 'صابون حمام با عصاره گیاهی، ملایم برای پوست و مناسب استفاده روزمره.'],
+            ['name' => 'شامپو مو', 'sku' => 'HYG-SHAMPOO', 'slug' => 'hair-shampoo', 'category' => 'toiletries', 'price' => 260, 'featured' => true, 'qty' => 200, 'short' => 'شامپو مو — ۴۰۰ ملی‌لیتر', 'desc' => 'شامپو مو با فرمول ملایم، مناسب انواع مو. بسته‌بندی ۴۰۰ ملی‌لیتری.'],
+            ['name' => 'کرم دست و صورت', 'sku' => 'HYG-CREAM', 'slug' => 'hand-face-cream', 'category' => 'toiletries', 'price' => 190, 'featured' => false, 'qty' => 220, 'short' => 'کرم دست و صورت', 'desc' => 'کرم مرطوب‌کننده دست و صورت با ویتامین E، مناسب پوست‌های خشک و حساس.'],
+            ['name' => 'کتری برقی', 'sku' => 'ELE-KETTLE', 'slug' => 'electric-kettle', 'category' => 'electrical-appliances', 'price' => 1250, 'featured' => true, 'qty' => 60, 'short' => 'کتری برقی — ۱.۸ لیتر', 'desc' => 'کتری برقی با ظرفیت ۱.۸ لیتر، جوش سریع و محافظ خودکار. مناسب آشپزخانه.'],
+            ['name' => 'پنکه سقفی', 'sku' => 'ELE-FAN', 'slug' => 'ceiling-fan', 'category' => 'electrical-appliances', 'price' => 2400, 'featured' => false, 'qty' => 35, 'short' => 'پنکه سقفی — سه سرعته', 'desc' => 'پنکه سقفی با سه سرعت، موتور کم‌صدا و مصرف برق پایین. مناسب فصل گرما.'],
+            ['name' => 'اتو برقی', 'sku' => 'ELE-IRON', 'slug' => 'electric-iron', 'category' => 'electrical-appliances', 'price' => 1050, 'featured' => false, 'qty' => 50, 'short' => 'اتو برقی بخاردار', 'desc' => 'اتو برقی با کف نچسب و تنظیم حرارت، مناسب اتوی همه نوع پارچه.'],
+            ['name' => 'پیراهن نخی مردانه', 'sku' => 'CLO-SHIRT', 'slug' => 'mens-cotton-shirt', 'category' => 'clothing', 'price' => 750, 'featured' => false, 'qty' => 120, 'short' => 'پیراهن نخی مردانه', 'desc' => 'پیراهن مردانه از پارچه نخی درجه اول، راحت و مناسب فصل گرما. در اندازه‌های متنوع.'],
+            ['name' => 'شال زنانه', 'sku' => 'CLO-SHAWL', 'slug' => 'womens-shawl', 'category' => 'clothing', 'price' => 1200, 'featured' => true, 'qty' => 80, 'short' => 'شال زنانه', 'desc' => 'شال زنانه با پارچه نرم و رنگ‌های متنوع، مناسب استایل روزمره.'],
+            ['name' => 'کاپشن زمستانی', 'sku' => 'CLO-JACKET', 'slug' => 'winter-jacket', 'category' => 'clothing', 'price' => 2600, 'featured' => false, 'qty' => 45, 'short' => 'کاپشن زمستانی', 'desc' => 'کاپشن زمستانی با آستر گرم و دوخت باکیفیت، مناسب فصل سرد.'],
+            ['name' => 'لباس اطفال', 'sku' => 'KID-OUTFIT', 'slug' => 'kids-outfit', 'category' => 'kids', 'price' => 650, 'featured' => false, 'qty' => 90, 'short' => 'لباس اطفال', 'desc' => 'لباس اطفال از پارچه نرم و راحت، مناسب استفاده روزمره. در اندازه‌های مختلف.'],
+            ['name' => 'اسباب‌بازی کودکان', 'sku' => 'KID-TOY', 'slug' => 'childrens-toy', 'category' => 'kids', 'price' => 450, 'featured' => false, 'qty' => 110, 'short' => 'اسباب‌بازی کودکان', 'desc' => 'اسباب‌بازی کودکان از مواد سالم، مناسب سرگرمی و تقویت خلاقیت اطفال.'],
+            ['name' => 'پوشک اطفال', 'sku' => 'KID-DIAPERS', 'slug' => 'baby-diapers', 'category' => 'kids', 'price' => 380, 'featured' => true, 'qty' => 200, 'short' => 'پوشک اطفال', 'desc' => 'پوشک اطفال با جذب بالا و لایه نرم، مناسب استفاده شبانه‌روزی.'],
+            ['name' => 'توت خشک', 'sku' => 'FRU-MULB', 'slug' => 'dried-mulberry', 'category' => 'dried-fruit', 'price' => 320, 'featured' => false, 'qty' => 90, 'short' => 'توت خشک — ۵۰۰ گرام', 'desc' => 'توت خشک طبیعی و شیرین، مناسب چای و پذیرایی. بسته‌بندی ۵۰۰ گرامی.'],
+            ['name' => 'انجیر خشک', 'sku' => 'FRU-FIGS', 'slug' => 'dried-figs', 'category' => 'dried-fruit', 'price' => 480, 'featured' => true, 'qty' => 80, 'short' => 'انجیر خشک — ۵۰۰ گرام', 'desc' => 'انجیر خشک ممتاز با طعم شیرین و مغذی. بسته‌بندی ۵۰۰ گرامی.'],
+            ['name' => 'آلوچه خشک', 'sku' => 'FRU-PLUM', 'slug' => 'dried-sour-plum', 'category' => 'dried-fruit', 'price' => 240, 'featured' => false, 'qty' => 100, 'short' => 'آلوچه خشک — ۵۰۰ گرام', 'desc' => 'آلوچه خشک با طعم ملس، مناسب پذیرایی و آشپزی. بسته‌بندی ۵۰۰ گرامی.'],
+            ['name' => 'جعبه تحفه', 'sku' => 'GFT-BOX', 'slug' => 'gift-box', 'category' => 'gifts', 'price' => 1500, 'featured' => false, 'qty' => 40, 'short' => 'جعبه تحفه زیبا', 'desc' => 'جعبه تحفه با بسته‌بندی شیک، مناسب هدیه دادن در مناسبت‌ها.'],
+            ['name' => 'ست عطر', 'sku' => 'GFT-PERFUME', 'slug' => 'perfume-set', 'category' => 'gifts', 'price' => 2200, 'featured' => true, 'qty' => 30, 'short' => 'ست عطر هدیه', 'desc' => 'ست عطر شامل بطری عطر و بسته‌بندی هدیه، مناسب تحفه دادن.'],
+            ['name' => 'گلدان تزئینی', 'sku' => 'GFT-VASE', 'slug' => 'decorative-vase', 'category' => 'gifts', 'price' => 900, 'featured' => false, 'qty' => 55, 'short' => 'گلدان تزئینی', 'desc' => 'گلدان تزئینی با طراحی زیبا، مناسب دکوراسیون خانه و هدیه.'],
+            ['name' => 'بادام', 'sku' => 'NUT-ALMOND', 'slug' => 'almonds', 'category' => 'nuts', 'price' => 1100, 'featured' => false, 'qty' => 70, 'short' => 'بادام — ۵۰۰ گرام', 'desc' => 'بادام باکیفیت و مغذی، مناسب پذیرایی. بسته‌بندی ۵۰۰ گرامی.'],
+            ['name' => 'پسته', 'sku' => 'NUT-PISTA', 'slug' => 'pistachios', 'category' => 'nuts', 'price' => 1650, 'featured' => true, 'qty' => 60, 'short' => 'پسته — ۵۰۰ گرام', 'desc' => 'پسته تازه و خندان با طعم عالی، مناسب پذیرایی. بسته‌بندی ۵۰۰ گرامی.'],
+            ['name' => 'چهارمغز', 'sku' => 'NUT-MIXED', 'slug' => 'mixed-nuts', 'category' => 'nuts', 'price' => 1350, 'featured' => false, 'qty' => 65, 'short' => 'چهارمغز — ۵۰۰ گرام', 'desc' => 'چهارمغز مخلوط از بادام، پسته، جوز و بادام زمینی. بسته‌بندی ۵۰۰ گرامی.'],
         ];
 
         foreach ($products as $product) {
             $categoryId = DB::table('categories')->where('slug', $product['category'])->value('id');
-            $brandId = $product['brand']
-                ? DB::table('brands')->where('slug', $product['brand'])->value('id')
-                : null;
+            $imagePath = '/images/catalog/products/'.$product['slug'].'.jpg';
 
             $existingId = DB::table('products')->where('sku', $product['sku'])->value('id');
 
             if ($existingId) {
                 DB::table('products')->where('id', $existingId)->update([
                     'name' => $product['name'],
+                    'slug' => $product['slug'],
                     'price' => $product['price'],
                     'description' => $product['desc'],
                     'short_description' => $product['short'],
+                    'featured' => $product['featured'],
+                    'quantity' => $product['qty'],
+                    'deleted_at' => null,
                     'updated_at' => now(),
                 ]);
 
@@ -192,7 +209,7 @@ class PersianDemoSeeder extends Seeder
                 $productId = DB::table('products')->insertGetId([
                     'name' => $product['name'],
                     'sku' => $product['sku'],
-                    'slug' => 'product-'.$product['sku'],
+                    'slug' => $product['slug'],
                     'type' => 'simple',
                     'price' => $product['price'],
                     'description' => $product['desc'],
@@ -205,7 +222,6 @@ class PersianDemoSeeder extends Seeder
                     'manage_stock' => true,
                     'stock_status' => 'in_stock',
                     'min_quantity' => 1,
-                    'brand_id' => $brandId,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
@@ -220,12 +236,20 @@ class PersianDemoSeeder extends Seeder
                 ]);
             }
 
-            $imageFile = $productImages[$product['sku']] ?? null;
+            if ($productId) {
+                $imageId = DB::table('product_images')
+                    ->where('product_id', $productId)
+                    ->orderBy('position')
+                    ->value('id');
 
-            if ($productId && $imageFile) {
-                $imagePath = '/images/products/'.$imageFile;
-
-                if (! DB::table('product_images')->where('product_id', $productId)->exists()) {
+                if ($imageId) {
+                    DB::table('product_images')->where('id', $imageId)->update([
+                        'path' => $imagePath,
+                        'thumbnail_path' => $imagePath,
+                        'alt_text' => $product['name'],
+                        'updated_at' => now(),
+                    ]);
+                } else {
                     $imageId = DB::table('product_images')->insertGetId([
                         'product_id' => $productId,
                         'path' => $imagePath,
@@ -235,20 +259,46 @@ class PersianDemoSeeder extends Seeder
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
-
-                    DB::table('products')->where('id', $productId)->update(['main_image_id' => $imageId]);
-                } else {
-                    // Repair images left pointing at an outside host by an older seed.
-                    DB::table('product_images')
-                        ->where('product_id', $productId)
-                        ->update([
-                            'path' => $imagePath,
-                            'thumbnail_path' => $imagePath,
-                            'updated_at' => now(),
-                        ]);
                 }
+
+                DB::table('products')->where('id', $productId)->update(['main_image_id' => $imageId]);
             }
         }
+    }
+
+    /**
+     * Take the old demo products out of the shop before the new catalogue goes in.
+     *
+     * Only the SKUs this seeder itself used to create are listed, so a product
+     * the owner added by hand is never removed. Everything that hangs off a
+     * product (its photos, its category links, its reviews, its stock history)
+     * is deleted along with it by the database's cascade rules; only
+     * credit-memo items refuse, which is why this is a deliberate hard delete on
+     * a demo catalogue rather than a blanket wipe.
+     */
+    private function removeSupersededProducts(): void
+    {
+        $skus = [
+            'PH-SAM-A55', 'PH-XIA-RN13P', 'PH-HUA-N12', 'TB-SAM-A9',
+            'LP-ASU-VB15', 'LP-HP-PAV',
+            'HA-SAM-F18', 'HA-LG-WM7', 'HA-PHI-COOK',
+            'CL-M-SHIRT', 'CL-W-JACKET', 'CL-NK-SHOE',
+            'GR-RICE', 'GR-OIL', 'GR-FLOUR',
+            'BH-SOAP', 'BH-CREAM', 'BH-BP',
+            'SP-BALL', 'SP-DUMBBELL', 'SP-TENT',
+            'BK-STORIES', 'BK-PENS', 'BK-COPY',
+        ];
+
+        $ids = DB::table('products')->whereIn('sku', $skus)->pluck('id')->all();
+
+        if ($ids === []) {
+            return;
+        }
+
+        DB::table('products')->whereIn('id', $ids)->update(['main_image_id' => null]);
+        DB::table('product_images')->whereIn('product_id', $ids)->delete();
+        DB::table('category_product')->whereIn('product_id', $ids)->delete();
+        DB::table('products')->whereIn('id', $ids)->delete();
     }
 
     /**
