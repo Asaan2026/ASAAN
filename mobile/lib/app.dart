@@ -74,6 +74,7 @@ class _CartxisAppState extends State<CartxisApp> with WidgetsBindingObserver {
           supportedLocales: AppLocalizations.supportedLocales,
 
           // Routing
+          navigatorKey: AppRouter.navigatorKey,
           initialRoute: AppRouter.splash,
           onGenerateRoute: AppRouter.generateRoute,
 

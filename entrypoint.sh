@@ -13,7 +13,7 @@ MYSQL_ATTR_SSL_CA="${MYSQL_ATTR_SSL_CA-/etc/ssl/certs/ca-certificates.crt}"
     echo "APP_DEBUG=${APP_DEBUG:-false}"
     echo "APP_URL=${APP_URL:-http://localhost}"
     echo "ASSET_URL=${ASSET_URL:-}"
-    echo "APP_VERSION=${APP_VERSION:-1.0.14}"
+    echo "APP_VERSION=${APP_VERSION:-2.6.0}"
     echo "APP_KEY=${APP_KEY:-base64:$(openssl rand -base64 32)}"
     echo "APP_LOCALE=${APP_LOCALE:-fa}"
     echo "APP_FALLBACK_LOCALE=${APP_FALLBACK_LOCALE:-en}"
@@ -71,6 +71,16 @@ php artisan storage:link 2>/dev/null || true
 # build time, but branding settings and fallbacks resolve under /storage/.
 mkdir -p storage/app/public/logos
 cp -f public/logos/* storage/app/public/logos/ 2>/dev/null || true
+
+# storage/app/public is bind-mounted from the host, where it arrives owned by
+# root while PHP runs as www-data. Every upload then failed with "Unable to
+# create a directory at .../storage/app/public/media" (HTTP 422) - product,
+# category, brand, service and media-library uploads alike. Hand the storage
+# tree and bootstrap/cache to www-data on every boot so ownership heals itself
+# after a redeploy or a host-side change.
+mkdir -p storage/app/private storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
+chmod -R u+rwX,g+rwX storage bootstrap/cache 2>/dev/null || true
 
 # Fetch the Android app file at boot instead of storing it in the repository.
 # A 66 MB binary in git made every push time out (GitHub answers HTTP 408 on the

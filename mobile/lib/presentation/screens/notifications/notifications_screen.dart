@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/network/api_exception.dart';
+import '../../../core/utils/notification_navigator.dart';
 import '../../../data/models/app_notification_model.dart';
 import '../../../data/services/notification_service.dart';
 import '../../../l10n/app_localizations.dart';
@@ -65,6 +66,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Future<void> _openNotification(AppNotification item) async {
+    // Open the related screen first. This used to sit behind the read check, so
+    // tapping an already-read order notification did nothing at all.
+    NotificationNavigator.handle(item.data, type: item.type);
+
     if (item.read) return;
 
     // Show it as read straight away so the list feels instant; put it back if

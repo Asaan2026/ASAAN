@@ -10,6 +10,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import {
     BadgeCheck,
+    ChevronDown,
     ClipboardList,
     Heart,
     Home,
@@ -106,6 +107,22 @@ const accountLinks = computed(() => {
 const mobileMenuOpen = ref(false);
 const mobileSearchOpen = ref(false);
 
+/**
+ * Which drawer sections (menu items that have children, e.g. Categories) are
+ * open. Collapsed by default so the drawer mirrors the header's dropdowns
+ * instead of dumping every sub-link into the list.
+ */
+const expandedMobileMenus = ref<number[]>([]);
+
+const isMobileMenuExpanded = (id: number) =>
+    expandedMobileMenus.value.includes(id);
+
+const toggleMobileMenuSection = (id: number) => {
+    expandedMobileMenus.value = expandedMobileMenus.value.includes(id)
+        ? expandedMobileMenus.value.filter((entry) => entry !== id)
+        : [...expandedMobileMenus.value, id];
+};
+
 const searchQuery = ref('');
 const suggestions = ref<SearchSuggestion[]>([]);
 const showSuggestions = ref(false);
@@ -125,6 +142,7 @@ let categoriesTimeout: ReturnType<typeof setTimeout> | null = null;
 const closeMobileMenu = () => {
     mobileMenuOpen.value = false;
     mobileSearchOpen.value = false;
+    expandedMobileMenus.value = [];
 };
 
 watch(mobileMenuOpen, (open) => {
@@ -1039,11 +1057,20 @@ onUnmounted(() => {
                         class="absolute inset-0 bg-black/40"
                         @click="closeMobileMenu"
                     />
+                    <!--
+                        One scroll region rather than a fixed menu strip beside a
+                        tall account panel. When the drawer was a flex column, the
+                        menu links (flex-1) and the account block competed for the
+                        height; on a phone the account block won and the links were
+                        squeezed down to a single row. Scrolling the whole drawer
+                        keeps every header link visible, with the account block
+                        underneath, and the title bar stays put via sticky.
+                    -->
                     <aside
-                        class="absolute top-0 left-0 flex h-full w-[min(320px,88vw)] flex-col bg-white shadow-xl dark:bg-slate-900"
+                        class="absolute top-0 left-0 h-full w-[min(320px,88vw)] overflow-y-auto bg-white shadow-xl dark:bg-slate-900"
                     >
                         <div
-                            class="flex h-16 items-center justify-between border-b border-slate-200 px-4 dark:border-slate-700"
+                            class="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 dark:border-slate-700 dark:bg-slate-900"
                         >
                             <span
                                 class="font-bold text-slate-900 dark:text-slate-100"
@@ -1059,7 +1086,7 @@ onUnmounted(() => {
                             </button>
                         </div>
 
-                        <nav class="flex-1 space-y-1 overflow-y-auto p-4">
+                        <nav class="space-y-1 p-4">
                             <template
                                 v-if="!loading && menus.header.length > 0"
                             >
@@ -1075,21 +1102,41 @@ onUnmounted(() => {
                                     >
                                         {{ $t(item.title) }}
                                     </Link>
-                                    <div v-else class="py-1">
-                                        <p
-                                            class="px-3 py-2 text-xs font-semibold tracking-wide text-slate-400 uppercase"
+                                    <div v-else>
+                                        <button
+                                            type="button"
+                                            class="flex w-full items-center justify-between rounded-lg px-3 py-3 text-left text-[15px] font-medium text-slate-800 hover:bg-blue-50 dark:text-slate-100 dark:hover:bg-blue-950/40"
+                                            @click="
+                                                toggleMobileMenuSection(item.id)
+                                            "
                                         >
                                             {{ $t(item.title) }}
-                                        </p>
-                                        <Link
-                                            v-for="child in item.children"
-                                            :key="child.id"
-                                            :href="getMenuUrl(child)"
-                                            class="block rounded-lg px-3 py-2 text-[14px] text-slate-700 hover:bg-blue-50 dark:text-slate-300 dark:hover:bg-blue-950/40"
-                                            @click="closeMobileMenu"
+                                            <ChevronDown
+                                                class="h-4 w-4 shrink-0 transition-transform"
+                                                :class="{
+                                                    'rotate-180':
+                                                        isMobileMenuExpanded(
+                                                            item.id,
+                                                        ),
+                                                }"
+                                            />
+                                        </button>
+                                        <div
+                                            v-show="
+                                                isMobileMenuExpanded(item.id)
+                                            "
+                                            class="space-y-1 pt-1"
                                         >
-                                            {{ $t(child.title) }}
-                                        </Link>
+                                            <Link
+                                                v-for="child in item.children"
+                                                :key="child.id"
+                                                :href="getMenuUrl(child)"
+                                                class="block rounded-lg px-3 py-2 text-[14px] text-slate-700 hover:bg-blue-50 dark:text-slate-300 dark:hover:bg-blue-950/40"
+                                                @click="closeMobileMenu"
+                                            >
+                                                {{ $t(child.title) }}
+                                            </Link>
+                                        </div>
                                     </div>
                                 </template>
                             </template>

@@ -33,6 +33,12 @@ import 'package:vortex_app/presentation/screens/search/search_screen.dart';
 class AppRouter {
   AppRouter._();
 
+  /// The app's single navigator. A notification tap (in-app or push) happens
+  /// outside any widget, so it has no BuildContext; this key lets it change
+  /// screens from there.
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+
   // Route names
   static const String splash = '/';
   static const String onboarding = '/onboarding';

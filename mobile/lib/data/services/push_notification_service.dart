@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/utils/notification_navigator.dart';
 import 'notification_service.dart';
 
 /// Push notifications for the phone itself.
@@ -57,6 +58,17 @@ class PushNotificationService {
       // the server pointing at the phone's current token.
       messaging.onTokenRefresh.listen(_saveAndRegister);
 
+      // Tapping a push must open the right screen. onMessageOpenedApp covers
+      // the app being in the background; getInitialMessage covers a tap that
+      // launched the app from cold. Without these the tap only opened the app
+      // and left the customer on the home screen.
+      FirebaseMessaging.onMessageOpenedApp.listen(_openFromMessage);
+
+      final initialMessage = await messaging.getInitialMessage();
+      if (initialMessage != null) {
+        _openFromMessage(initialMessage);
+      }
+
       final token = await messaging.getToken();
       if (token != null && token.isNotEmpty) {
         await _saveAndRegister(token);
@@ -67,6 +79,15 @@ class PushNotificationService {
       // Firebase is optional. Without it the app runs and the in-app
       // notification centre still works.
     }
+  }
+
+  /// Route a tapped push to the screen its payload points at.
+  void _openFromMessage(RemoteMessage message) {
+    NotificationNavigator.handle(
+      message.data,
+      type: message.data['type'] as String?,
+      openFallback: true,
+    );
   }
 
   /// Send the current token to the server, if someone is signed in.

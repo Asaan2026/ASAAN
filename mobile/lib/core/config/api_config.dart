@@ -108,7 +108,7 @@ class ApiConfig {
 
   // Public Android APK download on the live site
   static const String androidApkDownloadUrl =
-      '$productionBaseUrl/downloads/asaan-2.5.7.apk';
+      '$productionBaseUrl/downloads/asaan-2.6.0.apk';
 
   // Timeout Settings
   static const Duration connectionTimeout = Duration(seconds: 30);

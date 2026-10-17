@@ -5,8 +5,8 @@ class AppStrings {
   // App Info
   static const String appName = 'Asaan Store';
   static const String appTagline = 'eCommerce';
-    // Update this value to change the displayed app version across the UI.
-    static const String appVersion = '1.0';
+  // Update this value to change the displayed app version across the UI.
+  static const String appVersion = '2.6.0';
   static const String poweredBy = 'Powered by Akbari Development Group API';
 
   // Splash Screen
