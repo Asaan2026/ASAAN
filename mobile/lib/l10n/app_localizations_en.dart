@@ -523,4 +523,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get identityFullNameShort => 'That name looks too short.';
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsMarkAllRead => 'Mark all read';
+
+  @override
+  String get notificationsAllRead => 'All notifications marked as read.';
+
+  @override
+  String get notificationsEmptyTitle => 'No notifications yet';
+
+  @override
+  String get notificationsEmptyBody =>
+      'Order updates and store news will appear here.';
+
+  @override
+  String get notificationsLoadError => 'Could not load your notifications.';
 }

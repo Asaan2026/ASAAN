@@ -20,7 +20,7 @@ class CategoryResource extends JsonResource
             'name' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description,
-            'image' => $this->image ? \Storage::url($this->image) : null,
+            'image' => $this->image_url,
             'icon' => $this->icon,
             'position' => $this->position,
             'products_count' => $this->products_count ?? 0,

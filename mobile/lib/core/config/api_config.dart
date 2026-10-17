@@ -50,6 +50,16 @@ class ApiConfig {
   // Identity (Tazkira) Endpoints
   static const String identity = '/api/$apiVersion/identity';
 
+  // Notification Endpoints
+  static const String notifications = '/api/$apiVersion/notifications';
+  static const String notificationsUnreadCount =
+      '/api/$apiVersion/notifications/unread-count';
+  static const String notificationsReadAll =
+      '/api/$apiVersion/notifications/read-all';
+  static String notificationRead(int id) =>
+      '/api/$apiVersion/notifications/$id/read';
+  static const String devices = '/api/$apiVersion/devices';
+
   // Referral Endpoints
   static const String referrals = '/api/$apiVersion/referrals';
   static const String referralsLedger = '/api/$apiVersion/referrals/ledger';

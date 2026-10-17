@@ -37,6 +37,10 @@ services:
         condition: service_healthy
     volumes:
       - ./storage/app/public:/var/www/html/storage/app/public
+      # Server secrets kept outside the code repository (git-ignored). The
+      # Firebase service-account key lives here so push can sign its requests.
+      # Read-only; if empty, the server simply skips push and nothing breaks.
+      - ./secrets:/var/www/html/secrets:ro
 
 volumes:
   asaan_db_data:

@@ -6,6 +6,7 @@ import '../../core/network/api_exception.dart';
 import '../models/api_response.dart';
 import '../models/login_response.dart';
 import '../models/user_model.dart';
+import 'push_notification_service.dart';
 
 /// Authentication Service
 class AuthService {
@@ -107,15 +108,19 @@ class AuthService {
   /// Save authentication data to local storage
   Future<void> _saveAuthData(LoginData loginData) async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     // Save token
     await prefs.setString(_tokenKey, loginData.token);
-    
+
     // Save user data as JSON string
     await prefs.setString(_userKey, _userToJson(loginData.user));
-    
+
     // Keep the existing isLoggedIn flag
     await prefs.setBool('isLoggedIn', true);
+
+    // Let the server push order updates to this phone. Fire-and-forget: a slow
+    // network must not hold up the sign-in that just succeeded.
+    PushNotificationService.instance.registerForCurrentUser();
   }
 
   /// Convert user to JSON string
@@ -123,7 +128,7 @@ class AuthService {
     final userMap = user.toJson();
     final buffer = StringBuffer();
     buffer.write('{');
-    
+
     userMap.forEach((key, value) {
       if (buffer.length > 1) buffer.write(',');
       buffer.write('"$key":');
@@ -135,7 +140,7 @@ class AuthService {
         buffer.write('$value');
       }
     });
-    
+
     buffer.write('}');
     return buffer.toString();
   }
@@ -145,15 +150,16 @@ class AuthService {
     try {
       // Basic JSON parsing for our user model
       final data = <String, dynamic>{};
-      final content = jsonString.substring(1, jsonString.length - 1); // Remove { }
+      final content =
+          jsonString.substring(1, jsonString.length - 1); // Remove { }
       final pairs = content.split(',');
-      
+
       for (var pair in pairs) {
         final parts = pair.split(':');
         if (parts.length == 2) {
           final key = parts[0].trim().replaceAll('"', '');
           var value = parts[1].trim();
-          
+
           if (value == 'null') {
             data[key] = null;
           } else if (value.startsWith('"')) {
@@ -163,7 +169,7 @@ class AuthService {
           }
         }
       }
-      
+
       return UserModel.fromJson(data);
     } catch (e) {
       return null;
@@ -180,11 +186,11 @@ class AuthService {
   Future<UserModel?> getUser() async {
     final prefs = await SharedPreferences.getInstance();
     final userJson = prefs.getString(_userKey);
-    
+
     if (userJson != null) {
       return _parseUserFromJson(userJson);
     }
-    
+
     return null;
   }
 
@@ -196,8 +202,12 @@ class AuthService {
 
   /// Logout
   Future<void> logout() async {
+    // Stop pushes to this phone while the token is still valid, so a different
+    // person signing in next does not receive the previous person's orders.
+    await PushNotificationService.instance.removeDevice();
+
     final prefs = await SharedPreferences.getInstance();
-    
+
     // Clear authentication data
     await prefs.remove(_tokenKey);
     await prefs.remove(_userKey);
@@ -207,20 +217,20 @@ class AuthService {
   /// Get authorization header
   Future<Map<String, String>?> getAuthHeaders() async {
     final token = await getToken();
-    
+
     if (token != null) {
       return {
         'Authorization': 'Bearer $token',
       };
     }
-    
+
     return null;
   }
 
   /// Get user profile from API
   Future<UserModel> getProfile() async {
     final headers = await getAuthHeaders();
-    
+
     if (headers == null) {
       throw ApiException(
         message: 'Not authenticated',
@@ -297,7 +307,7 @@ class AuthService {
     File? avatar,
   }) async {
     final headers = await getAuthHeaders();
-    
+
     if (headers == null) {
       throw ApiException(
         message: 'Not authenticated',
@@ -316,7 +326,8 @@ class AuthService {
         fields: {
           'name': fullName,
           if (phone != null && phone.isNotEmpty) 'phone': phone,
-          if (dateOfBirth != null && dateOfBirth.isNotEmpty) 'date_of_birth': dateOfBirth,
+          if (dateOfBirth != null && dateOfBirth.isNotEmpty)
+            'date_of_birth': dateOfBirth,
           if (gender != null && gender.isNotEmpty) 'gender': gender,
           '_method': 'PUT',
         },
@@ -370,13 +381,11 @@ class AuthService {
       body['gender'] = gender;
     }
 
-
     final response = await _apiClient.put(
       ApiConfig.customerProfile,
       headers: headers,
       body: body,
     );
-
 
     // Check success first before parsing data
     if (response['success'] == false) {
@@ -403,7 +412,6 @@ class AuthService {
     // Update stored user data
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userKey, _userToJson(apiResponse.data!));
-
 
     return apiResponse.data!;
   }

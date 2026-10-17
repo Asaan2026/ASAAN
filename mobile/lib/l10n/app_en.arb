@@ -242,5 +242,12 @@
   "identitySubmittedOn": "Submitted on {date}. Our team will check it shortly.",
 
   "identityNumberExample": "e.g. 1401 5678 9012",
-  "identityFullNameShort": "That name looks too short."
+  "identityFullNameShort": "That name looks too short.",
+
+  "notificationsTitle": "Notifications",
+  "notificationsMarkAllRead": "Mark all read",
+  "notificationsAllRead": "All notifications marked as read.",
+  "notificationsEmptyTitle": "No notifications yet",
+  "notificationsEmptyBody": "Order updates and store news will appear here.",
+  "notificationsLoadError": "Could not load your notifications."
 }

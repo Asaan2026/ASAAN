@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:vortex_app/app.dart';
 import 'package:vortex_app/core/utils/currency_utils.dart';
 import 'package:vortex_app/core/config/api_config.dart';
+import 'package:vortex_app/data/services/push_notification_service.dart';
 
 void main() async {
   // Ensure Flutter binding is initialized
@@ -34,6 +35,11 @@ void main() async {
   // Preload default currency
   CurrencyUtils.preload();
 
+  // Start push in the background. It asks the phone for a push token and hands
+  // it to the server when someone is signed in. Not awaited so the first screen
+  // still appears immediately.
+  PushNotificationService.instance.initialize();
+
   // Run the app
   runApp(const CartxisApp());
 }
@@ -43,6 +49,7 @@ class _DevHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
     return super.createHttpClient(context)
-      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }

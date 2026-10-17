@@ -11,6 +11,7 @@ use Cartxis\API\Http\Controllers\V1\CurrencyController;
 use Cartxis\API\Http\Controllers\V1\CustomerController;
 use Cartxis\API\Http\Controllers\V1\IdentityController;
 use Cartxis\API\Http\Controllers\V1\LocaleController;
+use Cartxis\API\Http\Controllers\V1\NotificationController;
 use Cartxis\API\Http\Controllers\V1\OrderController;
 use Cartxis\API\Http\Controllers\V1\ProductAiController;
 use Cartxis\API\Http\Controllers\V1\ProductController;
@@ -211,6 +212,18 @@ Route::prefix('api/v1')->group(function () {
             Route::post('/apply', [ReferralController::class, 'apply'])
                 ->middleware('throttle:10,1');
         });
+
+        // Notifications (the customer's own bell)
+        Route::prefix('notifications')->group(function () {
+            Route::get('/', [NotificationController::class, 'index']);
+            Route::get('/unread-count', [NotificationController::class, 'unreadCount']);
+            Route::post('/read-all', [NotificationController::class, 'markAllRead']);
+            Route::post('/{id}/read', [NotificationController::class, 'markRead']);
+        });
+
+        // Device push tokens
+        Route::post('/devices', [NotificationController::class, 'registerDevice']);
+        Route::delete('/devices', [NotificationController::class, 'unregisterDevice']);
 
         // AI Product Description Generator
         Route::post('products/{id}/generate-description', [ProductAiController::class, 'generateDescription']);

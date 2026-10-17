@@ -4,6 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Concerns\ReferralAwareUserBuilder;
+use Cartxis\API\Models\CustomerNotification;
+use Cartxis\API\Models\DeviceToken;
 use Cartxis\Core\Traits\HasPermissions;
 use Cartxis\Customer\Models\Customer;
 use Cartxis\Customer\Models\CustomerAddress;
@@ -101,6 +103,22 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Get the phones this user has signed in on for push notifications.
+     */
+    public function deviceTokens()
+    {
+        return $this->hasMany(DeviceToken::class, 'user_id');
+    }
+
+    /**
+     * Get this user's in-app notifications, newest first through the query.
+     */
+    public function customerNotifications()
+    {
+        return $this->hasMany(CustomerNotification::class, 'user_id');
     }
 
     /**

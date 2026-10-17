@@ -1035,6 +1035,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'That name looks too short.'**
   String get identityFullNameShort;
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationsMarkAllRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all read'**
+  String get notificationsMarkAllRead;
+
+  /// No description provided for @notificationsAllRead.
+  ///
+  /// In en, this message translates to:
+  /// **'All notifications marked as read.'**
+  String get notificationsAllRead;
+
+  /// No description provided for @notificationsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet'**
+  String get notificationsEmptyTitle;
+
+  /// No description provided for @notificationsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Order updates and store news will appear here.'**
+  String get notificationsEmptyBody;
+
+  /// No description provided for @notificationsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your notifications.'**
+  String get notificationsLoadError;
 }
 
 class _AppLocalizationsDelegate

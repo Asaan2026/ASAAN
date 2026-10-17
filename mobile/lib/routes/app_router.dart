@@ -19,6 +19,7 @@ import 'package:vortex_app/presentation/screens/profile/address_management_scree
 import 'package:vortex_app/presentation/screens/profile/identity_verification_screen.dart';
 import 'package:vortex_app/presentation/screens/profile/referrals_screen.dart';
 import 'package:vortex_app/presentation/screens/profile/language_screen.dart';
+import 'package:vortex_app/presentation/screens/notifications/notifications_screen.dart';
 import 'package:vortex_app/presentation/screens/services/services_screen.dart';
 import 'package:vortex_app/presentation/screens/services/service_detail_screen.dart';
 import 'package:vortex_app/presentation/screens/services/service_booking_screen.dart';
@@ -55,6 +56,7 @@ class AppRouter {
   static const String identityVerification = '/identity-verification';
   static const String referrals = '/referrals';
   static const String language = '/language';
+  static const String notifications = '/notifications';
   static const String services = '/services';
   static const String serviceDetail = '/service-detail';
   static const String serviceBooking = '/service-booking';
@@ -220,6 +222,12 @@ class AppRouter {
       case language:
         return MaterialPageRoute(
           builder: (_) => const LanguageScreen(),
+          settings: settings,
+        );
+
+      case notifications:
+        return MaterialPageRoute(
+          builder: (_) => const NotificationsScreen(),
           settings: settings,
         );
 

@@ -2,6 +2,11 @@
 
 namespace Cartxis\API\Providers;
 
+use Cartxis\API\Observers\OrderNotificationObserver;
+use Cartxis\API\Services\Push\FcmPushSender;
+use Cartxis\API\Services\Push\NullPushSender;
+use Cartxis\API\Services\Push\PushSender;
+use Cartxis\Shop\Models\Order;
 use Illuminate\Support\ServiceProvider;
 
 class APIServiceProvider extends ServiceProvider
@@ -16,6 +21,10 @@ class APIServiceProvider extends ServiceProvider
 
         // Load API routes
         $this->loadRoutesFrom(__DIR__.'/../Routes/api.php');
+
+        // Customers hear about their orders through the same notification path
+        // the bell reads, whatever changed the order.
+        Order::observe(OrderNotificationObserver::class);
 
         // Load config
         $this->publishes([
@@ -35,5 +44,17 @@ class APIServiceProvider extends ServiceProvider
     {
         // Register API helper
         require_once __DIR__.'/../Helpers/ApiResponse.php';
+
+        // Push notifications: use Firebase when it is set up, and a sender that
+        // does nothing when it is not. Callers never have to check.
+        $this->app->bind(PushSender::class, function () {
+            $sender = new FcmPushSender(
+                config('services.fcm.project_id'),
+                config('services.fcm.credentials'),
+                (string) config('services.fcm.notification_channel', ''),
+            );
+
+            return $sender->isConfigured() ? $sender : new NullPushSender;
+        });
     }
 }

@@ -68,7 +68,8 @@ const identityEnabled = computed(() => page.props.identityEnabled === true);
 
 const { wishlistCount, fetchWishlist } = useWishlist();
 const { formatPrice } = useCurrency();
-const { primary, stickyHeader, wishlistEnabled } = useThemeSettings();
+const { primary, primaryText, stickyHeader, wishlistEnabled } =
+    useThemeSettings();
 
 /**
  * The pages behind "My Account", declared once and reused by the desktop
@@ -338,10 +339,10 @@ onUnmounted(() => {
                 </button>
 
                 <!-- Logo -->
-                <div class="flex flex-1 items-center md:flex-none">
+                <div class="flex min-w-0 flex-1 items-center md:flex-none">
                     <Link
                         href="/"
-                        class="flex items-center"
+                        class="flex min-w-0 items-center"
                         @click="closeMobileMenu"
                     >
                         <img
@@ -353,7 +354,7 @@ onUnmounted(() => {
                         />
                         <h1
                             v-else
-                            class="text-xl font-bold md:text-2xl"
+                            class="truncate text-lg font-bold sm:text-xl md:text-2xl"
                             :style="{ color: primary }"
                         >
                             {{ siteConfig.name }}
@@ -761,8 +762,11 @@ onUnmounted(() => {
                     <template v-if="!user">
                         <Link
                             href="/login"
-                            class="hidden rounded-lg px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 sm:inline-flex"
-                            :style="{ backgroundColor: primary }"
+                            class="hidden rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90 sm:inline-flex"
+                            :style="{
+                                backgroundColor: primary,
+                                color: primaryText,
+                            }"
                         >
                             {{ $t('Login') }}
                         </Link>
@@ -793,8 +797,11 @@ onUnmounted(() => {
                             class="flex items-center space-x-2 rounded-lg px-3 py-2 transition-colors hover:bg-gray-100 dark:hover:bg-slate-800"
                         >
                             <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full font-medium text-white"
-                                :style="{ backgroundColor: primary }"
+                                class="flex h-8 w-8 items-center justify-center rounded-full font-medium"
+                                :style="{
+                                    backgroundColor: primary,
+                                    color: primaryText,
+                                }"
                             >
                                 {{ user.name?.charAt(0).toUpperCase() }}
                             </div>
@@ -1063,7 +1070,7 @@ onUnmounted(() => {
                                     <Link
                                         v-if="!hasChildren(item)"
                                         :href="getMenuUrl(item)"
-                                        class="block rounded-lg px-3 py-3 font-medium text-slate-700 hover:bg-blue-50 dark:hover:bg-blue-950/40"
+                                        class="block rounded-lg px-3 py-3 text-[15px] font-medium text-slate-800 hover:bg-blue-50 dark:text-slate-100 dark:hover:bg-blue-950/40"
                                         @click="closeMobileMenu"
                                     >
                                         {{ $t(item.title) }}
@@ -1078,7 +1085,7 @@ onUnmounted(() => {
                                             v-for="child in item.children"
                                             :key="child.id"
                                             :href="getMenuUrl(child)"
-                                            class="block rounded-lg px-3 py-2 text-slate-700 hover:bg-blue-50 dark:hover:bg-blue-950/40"
+                                            class="block rounded-lg px-3 py-2 text-[14px] text-slate-700 hover:bg-blue-50 dark:text-slate-300 dark:hover:bg-blue-950/40"
                                             @click="closeMobileMenu"
                                         >
                                             {{ $t(child.title) }}
@@ -1089,25 +1096,25 @@ onUnmounted(() => {
                             <template v-else>
                                 <Link
                                     href="/products"
-                                    class="block rounded-lg px-3 py-3 font-medium text-slate-700 hover:bg-blue-50 dark:hover:bg-blue-950/40"
+                                    class="block rounded-lg px-3 py-3 text-[15px] font-medium text-slate-800 hover:bg-blue-50 dark:text-slate-100 dark:hover:bg-blue-950/40"
                                     @click="closeMobileMenu"
                                     >{{ $t('Shop') }}</Link
                                 >
                                 <Link
                                     href="/products?on_sale=1"
-                                    class="block rounded-lg px-3 py-3 font-medium text-slate-700 hover:bg-blue-50 dark:hover:bg-blue-950/40"
+                                    class="block rounded-lg px-3 py-3 text-[15px] font-medium text-slate-800 hover:bg-blue-50 dark:text-slate-100 dark:hover:bg-blue-950/40"
                                     @click="closeMobileMenu"
                                     >{{ $t('Deals') }}</Link
                                 >
                                 <Link
                                     href="/blog"
-                                    class="block rounded-lg px-3 py-3 font-medium text-slate-700 hover:bg-blue-50 dark:hover:bg-blue-950/40"
+                                    class="block rounded-lg px-3 py-3 text-[15px] font-medium text-slate-800 hover:bg-blue-50 dark:text-slate-100 dark:hover:bg-blue-950/40"
                                     @click="closeMobileMenu"
                                     >{{ $t('Blog') }}</Link
                                 >
                                 <Link
                                     href="/about-us"
-                                    class="block rounded-lg px-3 py-3 font-medium text-slate-700 hover:bg-blue-50 dark:hover:bg-blue-950/40"
+                                    class="block rounded-lg px-3 py-3 text-[15px] font-medium text-slate-800 hover:bg-blue-50 dark:text-slate-100 dark:hover:bg-blue-950/40"
                                     @click="closeMobileMenu"
                                     >{{ $t('About') }}</Link
                                 >
@@ -1121,7 +1128,7 @@ onUnmounted(() => {
                                         v-for="category in categories"
                                         :key="category.id"
                                         :href="`/category/${category.slug}`"
-                                        class="block rounded-lg px-3 py-2 text-slate-700 hover:bg-blue-50 dark:hover:bg-blue-950/40"
+                                        class="block rounded-lg px-3 py-2 text-[14px] text-slate-700 hover:bg-blue-50 dark:text-slate-300 dark:hover:bg-blue-950/40"
                                         @click="closeMobileMenu"
                                     >
                                         {{ category.name }}
@@ -1148,8 +1155,11 @@ onUnmounted(() => {
                             <template v-if="!user">
                                 <Link
                                     href="/login"
-                                    class="block w-full rounded-lg px-4 py-3 text-center text-sm font-medium text-white"
-                                    :style="{ backgroundColor: primary }"
+                                    class="block w-full rounded-lg px-4 py-3 text-center text-sm font-medium"
+                                    :style="{
+                                        backgroundColor: primary,
+                                        color: primaryText,
+                                    }"
                                     @click="closeMobileMenu"
                                 >
                                     {{ $t('Login') }}
@@ -1177,8 +1187,11 @@ onUnmounted(() => {
                                     class="flex items-center gap-3 rounded-lg bg-slate-100 px-3 py-2.5 dark:bg-slate-800"
                                 >
                                     <div
-                                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white"
-                                        :style="{ backgroundColor: primary }"
+                                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold"
+                                        :style="{
+                                            backgroundColor: primary,
+                                            color: primaryText,
+                                        }"
                                     >
                                         {{ user.name?.charAt(0).toUpperCase() }}
                                     </div>
@@ -1198,8 +1211,11 @@ onUnmounted(() => {
 
                                 <Link
                                     href="/account"
-                                    class="block w-full rounded-lg px-4 py-3 text-center text-sm font-medium text-slate-800 dark:text-slate-200"
-                                    :style="{ backgroundColor: primary }"
+                                    class="block w-full rounded-lg px-4 py-3 text-center text-sm font-medium"
+                                    :style="{
+                                        backgroundColor: primary,
+                                        color: primaryText,
+                                    }"
                                     @click="closeMobileMenu"
                                 >
                                     {{ $t('My Account') }}

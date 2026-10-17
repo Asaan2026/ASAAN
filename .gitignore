@@ -22,6 +22,12 @@ Agents.md
 /design
 /templates-design
 
+# Firebase service-account key and any other server secrets. Never commit these.
+/secrets
+# Android app config for Firebase. This file identifies the app (not a secret)
+# and ships inside the APK, so it is committed on purpose.
+!mobile/android/app/google-services.json
+
 # Storefront templates live under templates/storefront/{category}/{slug}/
 # Published static assets are mirrored to public/templates/{slug}/ at install/activate.
 /test-screenshots

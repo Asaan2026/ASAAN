@@ -226,25 +226,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> with AutomaticKeepA
                 ),
                 child: Column(
                   children: [
-                    // Main Category
+                    // Main Category — a tap always opens the category's
+                    // products. The arrow on the right, shown only when there
+                    // are subcategories, is what expands the list.
                     InkWell(
-                      onTap: hasSubcategories
-                          ? () {
-                              setState(() {
-                                _expandedCategoryIndex = isExpanded ? null : index;
-                              });
-                            }
-                          : () {
-                              // Navigate to category products screen
-                              Navigator.pushNamed(
-                                context,
-                                '/category-products',
-                                arguments: {
-                                  'categoryId': category.id,
-                                  'categoryName': category.name,
-                                },
-                              );
-                            },
+                      onTap: () => _openCategory(category),
                       borderRadius: BorderRadius.circular(16),
                       child: Container(
                         padding: const EdgeInsets.all(16),
@@ -256,23 +242,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> with AutomaticKeepA
                         ),
                         child: Row(
                           children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: isExpanded
-                                    ? AppColors.primary.withOpacity(0.1)
-                                    : (isDark ? Colors.grey.shade700 : Colors.grey.shade100),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Icon(
-                                _getCategoryIcon(category.slug),
-                                size: 24,
-                                color: isExpanded
-                                    ? AppColors.primary
-                                    : (isDark ? Colors.grey.shade300 : Colors.grey.shade600),
-                              ),
-                            ),
+                            _buildCategoryCover(category, isExpanded, isDark),
                             const SizedBox(width: 16),
                             Expanded(
                               child: Text(
@@ -284,14 +254,26 @@ class _CategoriesScreenState extends State<CategoriesScreen> with AutomaticKeepA
                                 ),
                               ),
                             ),
-                            Icon(
-                              hasSubcategories
-                                  ? (isExpanded ? Icons.expand_less : Icons.expand_more)
-                                  : Icons.chevron_right,
-                              color: hasSubcategories && isExpanded
-                                  ? AppColors.primary
-                                  : Colors.grey.shade400,
-                            ),
+                            if (hasSubcategories)
+                              IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _expandedCategoryIndex = isExpanded ? null : index;
+                                  });
+                                },
+                                tooltip: isExpanded
+                                    ? 'Hide subcategories'
+                                    : 'Show subcategories',
+                                icon: Icon(
+                                  isExpanded ? Icons.expand_less : Icons.expand_more,
+                                  color: isExpanded ? AppColors.primary : Colors.grey.shade400,
+                                ),
+                              )
+                            else
+                              Icon(
+                                Icons.chevron_right,
+                                color: Colors.grey.shade400,
+                              ),
                           ],
                         ),
                       ),
@@ -384,6 +366,62 @@ class _CategoriesScreenState extends State<CategoriesScreen> with AutomaticKeepA
           }),
         ],
       ),
+    );
+  }
+
+  void _openCategory(CategoryModel category) {
+    Navigator.pushNamed(
+      context,
+      '/category-products',
+      arguments: {
+        'categoryId': category.id,
+        'categoryName': category.name,
+      },
+    );
+  }
+
+  // Shows the cover image uploaded for the category in the dashboard. If there
+  // is no cover, or it cannot be loaded, a category icon is shown instead.
+  Widget _buildCategoryCover(CategoryModel category, bool isExpanded, bool isDark) {
+    const size = 40.0;
+    final Color background = isExpanded
+        ? AppColors.primary.withOpacity(0.1)
+        : (isDark ? Colors.grey.shade700 : Colors.grey.shade100);
+    final image = category.image;
+
+    return Container(
+      width: size,
+      height: size,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: image != null && image.isNotEmpty
+          ? Image.network(
+              image,
+              width: size,
+              height: size,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) =>
+                  _categoryIconFallback(category, isExpanded, isDark, size),
+            )
+          : _categoryIconFallback(category, isExpanded, isDark, size),
+    );
+  }
+
+  Widget _categoryIconFallback(
+    CategoryModel category,
+    bool isExpanded,
+    bool isDark,
+    double size,
+  ) {
+    return Icon(
+      _getCategoryIcon(category.slug),
+      size: size * 0.6,
+      color: isExpanded
+          ? AppColors.primary
+          : (isDark ? Colors.grey.shade300 : Colors.grey.shade600),
     );
   }
 

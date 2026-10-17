@@ -46,6 +46,9 @@ MYSQL_ATTR_SSL_CA="${MYSQL_ATTR_SSL_CA-/etc/ssl/certs/ca-certificates.crt}"
     echo "MAIL_FROM_NAME=\"${APP_NAME:-Cartxis}\""
     echo "CARTXIS_THEME_DIRECTORY_URL=${CARTXIS_THEME_DIRECTORY_URL:-https://cartxis.com/api}"
     echo "CARTXIS_THEME_API_KEY=${CARTXIS_THEME_API_KEY:-}"
+    echo "FCM_PROJECT_ID=${FCM_PROJECT_ID:-}"
+    echo "FCM_CREDENTIALS_PATH=${FCM_CREDENTIALS_PATH:-}"
+    echo "FCM_ANDROID_CHANNEL=${FCM_ANDROID_CHANNEL:-}"
     echo "MYSQL_ATTR_SSL_CA=${MYSQL_ATTR_SSL_CA}"
 } > .env
 

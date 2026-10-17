@@ -5,6 +5,7 @@ import 'package:vortex_app/data/services/category_service.dart';
 import 'package:vortex_app/data/services/cart_service.dart';
 import 'package:vortex_app/data/services/wishlist_service.dart';
 import 'package:vortex_app/data/services/banner_service.dart';
+import 'package:vortex_app/data/services/notification_service.dart';
 import 'package:vortex_app/data/models/product_model.dart';
 import 'package:vortex_app/data/models/category_model.dart';
 import 'package:vortex_app/data/models/banner_model.dart';
@@ -26,12 +27,14 @@ class _HomeScreenState extends State<HomeScreen> {
   final _cartService = CartService();
   final _wishlistService = WishlistService();
   final _bannerService = BannerService();
+  final _notificationService = NotificationService();
   
   List<ProductModel> _featuredProducts = [];
   List<ProductModel> _newArrivals = [];
   List<ProductModel> _saleProducts = [];
   List<CategoryModel> _categories = [];
   List<BannerModel> _homeBanners = [];
+  int _unreadNotifications = 0;
   
   bool _isLoadingFeatured = true;
   bool _isLoadingNewArrivals = true;
@@ -48,6 +51,17 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadProducts();
     _loadCategories();
     _loadBanners();
+    _loadUnreadNotifications();
+  }
+
+  Future<void> _loadUnreadNotifications() async {
+    try {
+      final count = await _notificationService.fetchUnreadCount();
+      if (!mounted) return;
+      setState(() => _unreadNotifications = count);
+    } catch (_) {
+      // A quiet failure keeps the bell usable; the screen shows the real error.
+    }
   }
 
   Future<void> _loadBanners() async {
@@ -78,6 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _loadBanners(),
       _loadCategories(),
       _loadProducts(),
+      _loadUnreadNotifications(),
     ]);
   }
 
@@ -464,48 +479,72 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 12),
           
           // Notification Icon
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1A2633) : Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isDark ? Colors.grey.shade700 : Colors.grey.shade200,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 4,
+          GestureDetector(
+            onTap: () async {
+              await Navigator.pushNamed(context, '/notifications');
+              // Marking read on the next screen should clear the badge.
+              await _loadUnreadNotifications();
+            },
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1A2633) : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isDark ? Colors.grey.shade700 : Colors.grey.shade200,
                 ),
-              ],
-            ),
-            child: Stack(
-              children: [
-                Center(
-                  child: Icon(
-                    Icons.notifications_outlined,
-                    color: isDark ? Colors.grey.shade300 : Colors.grey.shade600,
-                    size: 24,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 4,
                   ),
-                ),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade500,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: isDark ? const Color(0xFF1A2633) : Colors.white,
-                        width: 1.5,
-                      ),
+                ],
+              ),
+              child: Stack(
+                children: [
+                  Center(
+                    child: Icon(
+                      Icons.notifications_outlined,
+                      color: isDark ? Colors.grey.shade300 : Colors.grey.shade600,
+                      size: 24,
                     ),
                   ),
-                ),
-              ],
+                  if (_unreadNotifications > 0)
+                    Positioned(
+                      top: 6,
+                      right: 6,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 5,
+                          vertical: 1,
+                        ),
+                        constraints: const BoxConstraints(minWidth: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade500,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color:
+                                isDark ? const Color(0xFF1A2633) : Colors.white,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Text(
+                          _unreadNotifications > 99
+                              ? '99+'
+                              : '$_unreadNotifications',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            height: 1.2,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ],
@@ -712,6 +751,27 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // Shows the category's uploaded cover in the chip; falls back to the icon.
+  Widget _buildChipCover(String? image, IconData icon, bool isSelected, bool isDark) {
+    const size = 18.0;
+    final Color iconColor =
+        isSelected ? Colors.white : (isDark ? Colors.grey.shade500 : Colors.grey.shade700);
+
+    if (image == null || image.isEmpty) {
+      return Icon(icon, size: size, color: iconColor);
+    }
+
+    return ClipOval(
+      child: Image.network(
+        image,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => Icon(icon, size: size, color: iconColor),
+      ),
+    );
+  }
+
   Widget _buildCategoryChips(bool isDark) {
     if (_isLoadingCategories) {
       return SizedBox(
@@ -727,12 +787,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Add "All" category at the beginning
     final allCategories = [
-      {'id': 0, 'name': 'All', 'slug': 'all', 'icon': Icons.grid_view},
+      {'id': 0, 'name': 'All', 'slug': 'all', 'icon': Icons.grid_view, 'image': null},
       ..._categories.map((cat) => {
         'id': cat.id,
         'name': cat.name,
         'slug': cat.slug,
         'icon': _getCategoryIcon(cat.slug),
+        'image': cat.image,
       }),
     ];
 
@@ -754,13 +815,7 @@ class _HomeScreenState extends State<HomeScreen> {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    category['icon'] as IconData,
-                    size: 18,
-                    color: isSelected 
-                        ? Colors.white 
-                        : (isDark ? Colors.grey.shade500 : Colors.grey.shade700),
-                  ),
+                  _buildChipCover(category['image'] as String?, category['icon'] as IconData, isSelected, isDark),
                   const SizedBox(width: 6),
                   Text(
                     category['name'] as String,

@@ -13,6 +13,33 @@ function settingBool(value: unknown, defaultValue = true): boolean {
     return Boolean(value);
 }
 
+/**
+ * Picks a readable foreground (near-black or white) for text sitting on top of
+ * a brand colour. The theme's Primary Color can be anything the owner picks --
+ * a light green, a mid teal -- and a fixed white or dark label becomes unreadable
+ * on the wrong one. This checks the colour's brightness and answers with the
+ * side that will actually be legible.
+ */
+export function readableOn(hex: string): string {
+    const clean = String(hex).replace('#', '').trim();
+    const full =
+        clean.length === 3
+            ? clean
+                  .split('')
+                  .map((c) => c + c)
+                  .join('')
+            : clean;
+    const value = parseInt(full, 16);
+    if (Number.isNaN(value) || full.length !== 6) return '#ffffff';
+
+    const r = (value >> 16) & 255;
+    const g = (value >> 8) & 255;
+    const b = value & 255;
+    const brightness = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+    return brightness > 0.6 ? '#111827' : '#ffffff';
+}
+
 export function useThemeSettings() {
     const page = usePage();
 
@@ -27,6 +54,8 @@ export function useThemeSettings() {
     const primary = computed(() =>
         String(settings.value['colors.primary'] ?? '#2563eb'),
     );
+    // A label colour that stays readable on top of the Primary Color.
+    const primaryText = computed(() => readableOn(primary.value));
     const secondary = computed(() =>
         String(settings.value['colors.secondary'] ?? '#1e40af'),
     );
@@ -66,6 +95,7 @@ export function useThemeSettings() {
     return {
         settings,
         primary,
+        primaryText,
         secondary,
         accent,
         fontFamily,

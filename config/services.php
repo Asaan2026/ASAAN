@@ -35,4 +35,25 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Firebase Cloud Messaging (push notifications for the mobile app)
+    |--------------------------------------------------------------------------
+    |
+    | The project id and the service-account JSON (downloaded once from the
+    | Firebase console) are all that is needed to send a push over FCM's HTTP v1
+    | API. When the path below is empty the app still gets in-app notifications;
+    | only the push to the phone is skipped. Nothing else has to change to turn
+    | push on later -- drop the file in place and set the two values.
+    |
+    */
+
+    'fcm' => [
+        'project_id' => env('FCM_PROJECT_ID'),
+        'credentials' => env('FCM_CREDENTIALS_PATH'),
+        // Empty by default: let Firebase use its own Android notification
+        // channel, so push works without one being created on the phone first.
+        'notification_channel' => env('FCM_ANDROID_CHANNEL', ''),
+    ],
+
 ];
