@@ -117,3 +117,63 @@ test('deleting a category takes it out of the header menu', function () {
     expect((bool) DB::table('menu_items')->where('key', 'category-short-lived')->value('active'))
         ->toBeFalse();
 });
+
+/**
+ * The homepage used to hand the header its own cached category list. That
+ * list is kept for an hour, so a category added in the dashboard stayed
+ * invisible in the header of the homepage (the page most people land on)
+ * long after it was saved, and a renamed or deleted one stayed clickable.
+ */
+/**
+ * The homepage used to hand the header its own cached category list built
+ * from every root category, ignoring the "Show in Navigation Menu" switch.
+ * The header must get the same list as the rest of the shop: shown, enabled
+ * categories only.
+ */
+test('the home page header uses the same category list as the rest of the shop', function () {
+    $this->actingAs($this->admin, 'admin')
+        ->post('/admin/catalog/categories', [
+            'name' => 'Home Care',
+            'slug' => 'home-care',
+            'status' => 'enabled',
+            'show_in_menu' => '1',
+        ]);
+
+    $this->actingAs($this->admin, 'admin')
+        ->post('/admin/catalog/categories', [
+            'name' => 'Hidden Shelf',
+            'slug' => 'hidden-shelf',
+            'status' => 'enabled',
+            'show_in_menu' => '0',
+        ]);
+
+    $props = $this->get('/')->viewData('page')['props'];
+    $slugs = collect($props['categories'])->pluck('slug');
+
+    expect($slugs)->toContain('home-care');
+    expect($slugs)->not->toContain('hidden-shelf');
+});
+
+test('the home page cached category data refreshes when a category changes', function () {
+    $this->actingAs($this->admin, 'admin')
+        ->post('/admin/catalog/categories', [
+            'name' => 'Home Care',
+            'slug' => 'home-care',
+            'status' => 'enabled',
+            'show_in_menu' => '1',
+        ]);
+
+    $first = $this->get('/')->viewData('page')['props'];
+    expect(collect($first['featuredCategories'])->pluck('slug'))->toContain('home-care');
+
+    $this->actingAs($this->admin, 'admin')
+        ->post('/admin/catalog/categories', [
+            'name' => 'Pet Supplies',
+            'slug' => 'pet-supplies',
+            'status' => 'enabled',
+            'show_in_menu' => '1',
+        ]);
+
+    $second = $this->get('/')->viewData('page')['props'];
+    expect(collect($second['featuredCategories'])->pluck('slug'))->toContain('pet-supplies');
+});

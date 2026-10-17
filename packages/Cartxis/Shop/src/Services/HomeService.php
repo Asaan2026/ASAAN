@@ -112,7 +112,7 @@ class HomeService extends ShopService
             $blocksUpdatedAt = Block::whereIn('identifier', $blockIdentifiers)->max('updated_at');
             $blocksVersion = $blocksUpdatedAt ? (int) strtotime((string) $blocksUpdatedAt) : 0;
 
-            return $this->remember('homepage.data.v5.'.$activeThemeSlug.'.'.$blocksVersion, 3600, function () use ($featuredCount, $blockIdentifiers, $heroCandidateGroups, $sectionCandidateGroups) {
+            $data = $this->remember('homepage.data.v5.'.$activeThemeSlug.'.'.$blocksVersion, 3600, function () use ($featuredCount, $blockIdentifiers, $heroCandidateGroups, $sectionCandidateGroups) {
                 // Get active CMS blocks for homepage
                 $blocks = Block::whereIn('identifier', $blockIdentifiers)
                     ->active()
@@ -149,22 +149,6 @@ class HomeService extends ShopService
                 $offer1Block = $resolveBlock($sectionCandidateGroups['homepage-offer-1'] ?? []);
                 $offer2Block = $resolveBlock($sectionCandidateGroups['homepage-offer-2'] ?? []);
                 $marqueeBlock = $resolveBlock($sectionCandidateGroups['homepage-marquee'] ?? []);
-
-                // Get categories with product counts
-                $categories = $this->categoryRepository->getRootCategories()
-                    ->map(function ($category) {
-                        return [
-                            'id' => $category->id,
-                            'name' => $category->name,
-                            'slug' => $category->slug,
-                            'description' => $category->description,
-                            'image' => $category->image_url,
-                            'image_url' => $category->image_url,
-                            'products_count' => $category->products()->count(),
-                        ];
-                    })
-                    ->values()
-                    ->all();
 
                 // Convert to plain arrays before caching so appended attributes
                 // (image, in_stock, etc.) are computed now, not after deserialization.
@@ -231,8 +215,6 @@ class HomeService extends ShopService
                     'banner_product' => $bannerProduct
                         ? ($toProductArray(collect([$bannerProduct]))[0] ?? null)
                         : null,
-
-                    'categories' => $categories,
 
                     'blocks' => [
                         'hero' => $heroBlock ? [
@@ -305,6 +287,29 @@ class HomeService extends ShopService
                     ],
                 ];
             });
+
+            // Categories are read outside the cache on purpose. The rest of
+            // the homepage payload is cached for an hour, but categories
+            // change from the dashboard and an hour-old list meant a newly
+            // added category was missing, and a deleted one stayed clickable,
+            // until the cache expired. Reading them live is cheap and always
+            // correct.
+            $data['categories'] = $this->categoryRepository->getRootCategories()
+                ->map(function ($category) {
+                    return [
+                        'id' => $category->id,
+                        'name' => $category->name,
+                        'slug' => $category->slug,
+                        'description' => $category->description,
+                        'image' => $category->image_url,
+                        'image_url' => $category->image_url,
+                        'products_count' => $category->products()->count(),
+                    ];
+                })
+                ->values()
+                ->all();
+
+            return $data;
         } catch (\Exception $e) {
             $this->handleException($e, 'Error fetching homepage data');
         }

@@ -64,7 +64,12 @@ class HomeController extends Controller
             'bannerProduct' => $data['banner_product'] ?? null,
             'featuredCategories' => $data['categories'], // Renamed for clarity
             'newProducts' => $data['new_products'],
-            'categories' => $data['categories'], // Keep for backward compatibility
+            // Note: no 'categories' override here on purpose. The header
+            // reads the shared category list from the middleware, which is
+            // built live. Passing the cached homepage list instead would make
+            // the header show stale categories on the busiest page of the
+            // shop (links that were renamed or deleted still listed, new ones
+            // missing until the homepage cache expired).
             'cmsBlocks' => $data['blocks'] ?? [],
             'layoutData' => $homepageLayout?->layout_data,
             'siteConfig' => [
