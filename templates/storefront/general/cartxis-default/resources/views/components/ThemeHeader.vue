@@ -2,7 +2,10 @@
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import { useCurrency } from '@/composables/useCurrency';
-import { useStorefrontMenu } from '@/composables/useStorefrontMenu';
+import {
+    useStorefrontMenu,
+    type MenuItem,
+} from '@/composables/useStorefrontMenu';
 import { useThemeSettings } from '@/composables/useThemeSettings';
 import { useWishlist } from '@/composables/useWishlist';
 import { useI18nStore } from '@/Stores/i18n';
@@ -132,6 +135,17 @@ const isSearching = ref(false);
 let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
 
 const { menus, loading, getMenuUrl, hasChildren } = useStorefrontMenu();
+
+/**
+ * Whether a header entry opens a menu instead of going straight to a page.
+ * The Categories entry must open whenever there are live categories to show,
+ * even if its stored menu row has no children yet — otherwise it renders as a
+ * dead "#" link that does nothing when someone clicks it.
+ */
+const hasDropdown = (item: MenuItem): boolean =>
+    hasChildren(item) ||
+    (item.title === 'Categories' && (props.categories?.length ?? 0) > 0);
+
 const activeDropdown = ref<number | null>(null);
 const showUserMenu = ref(false);
 const showCategoriesDropdown = ref(false);
@@ -388,13 +402,13 @@ onUnmounted(() => {
                             :key="item.id"
                             class="relative"
                             @mouseenter="
-                                hasChildren(item) ? openDropdown(item.id) : null
+                                hasDropdown(item) ? openDropdown(item.id) : null
                             "
                             @mouseleave="closeDropdown"
                         >
                             <!-- Menu Item -->
                             <Link
-                                v-if="!hasChildren(item)"
+                                v-if="!hasDropdown(item)"
                                 :href="getMenuUrl(item)"
                                 class="text-gray-700 transition-colors hover:text-gray-900 dark:text-slate-300 dark:hover:text-slate-100"
                             >
@@ -430,10 +444,10 @@ onUnmounted(() => {
                             <!-- Dropdown Menu -->
                             <div
                                 v-if="
-                                    hasChildren(item) &&
+                                    hasDropdown(item) &&
                                     activeDropdown === item.id
                                 "
-                                class="ring-opacity-5 absolute left-0 z-50 mt-2 w-48 rounded-md bg-white shadow-lg ring-1 ring-black dark:bg-slate-900"
+                                class="ring-opacity-5 absolute left-0 z-50 mt-2 max-h-96 w-48 overflow-y-auto rounded-md bg-white shadow-lg ring-1 ring-black dark:bg-slate-900"
                                 @mouseenter="openDropdown(item.id)"
                                 @mouseleave="closeDropdown"
                             >
@@ -511,7 +525,7 @@ onUnmounted(() => {
                             <!-- Categories Dropdown Menu -->
                             <div
                                 v-show="showCategoriesDropdown"
-                                class="absolute left-0 z-50 mt-2 w-64 rounded-lg border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+                                class="absolute left-0 z-50 mt-2 max-h-96 w-64 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
                             >
                                 <div class="py-2">
                                     <template
@@ -1095,7 +1109,7 @@ onUnmounted(() => {
                                     :key="item.id"
                                 >
                                     <Link
-                                        v-if="!hasChildren(item)"
+                                        v-if="!hasDropdown(item)"
                                         :href="getMenuUrl(item)"
                                         class="block rounded-lg px-3 py-3 text-[15px] font-medium text-slate-800 hover:bg-blue-50 dark:text-slate-100 dark:hover:bg-blue-950/40"
                                         @click="closeMobileMenu"
@@ -1127,15 +1141,38 @@ onUnmounted(() => {
                                             "
                                             class="space-y-1 pt-1"
                                         >
-                                            <Link
-                                                v-for="child in item.children"
-                                                :key="child.id"
-                                                :href="getMenuUrl(child)"
-                                                class="block rounded-lg px-3 py-2 text-[14px] text-slate-700 hover:bg-blue-50 dark:text-slate-300 dark:hover:bg-blue-950/40"
-                                                @click="closeMobileMenu"
+                                            <!-- Same source as the desktop
+                                            dropdown: the live categories list,
+                                            so a category added in the
+                                            dashboard shows here right away. -->
+                                            <template
+                                                v-if="
+                                                    item.title ===
+                                                        'Categories' &&
+                                                    categories?.length
+                                                "
                                             >
-                                                {{ $t(child.title) }}
-                                            </Link>
+                                                <Link
+                                                    v-for="category in categories"
+                                                    :key="category.id"
+                                                    :href="`/category/${category.slug}`"
+                                                    class="block rounded-lg px-3 py-2 text-[14px] text-slate-700 hover:bg-blue-50 dark:text-slate-300 dark:hover:bg-blue-950/40"
+                                                    @click="closeMobileMenu"
+                                                >
+                                                    {{ category.name }}
+                                                </Link>
+                                            </template>
+                                            <template v-else>
+                                                <Link
+                                                    v-for="child in item.children"
+                                                    :key="child.id"
+                                                    :href="getMenuUrl(child)"
+                                                    class="block rounded-lg px-3 py-2 text-[14px] text-slate-700 hover:bg-blue-50 dark:text-slate-300 dark:hover:bg-blue-950/40"
+                                                    @click="closeMobileMenu"
+                                                >
+                                                    {{ $t(child.title) }}
+                                                </Link>
+                                            </template>
                                         </div>
                                     </div>
                                 </template>

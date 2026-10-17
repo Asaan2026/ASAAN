@@ -15,6 +15,13 @@ interface CategoryRepositoryInterface extends ShopRepositoryInterface
     public function getRootCategories();
 
     /**
+     * Get root categories that belong in the storefront header menu.
+     *
+     * @return Collection
+     */
+    public function getMenuCategories();
+
+    /**
      * Get category by slug.
      *
      * @param  string  $slug

@@ -13,8 +13,12 @@ class StorefrontMenuSyncService
     /**
      * Sync header category dropdown items from the categories table.
      * Safe to call after demo import or whenever categories change.
+     *
+     * $limit is a safety ceiling only — the header shows every enabled root
+     * category that is marked "show in menu", so this must not cut the list
+     * short or the newest categories silently go missing.
      */
-    public function syncCategoryMenuItems(int $limit = 8): int
+    public function syncCategoryMenuItems(int $limit = 50): int
     {
         if (! Schema::hasTable('categories') || ! Schema::hasTable('menu_items')) {
             return 0;
@@ -37,10 +41,6 @@ class StorefrontMenuSyncService
             ->orderBy('name')
             ->limit($limit)
             ->get(['id', 'name', 'slug']);
-
-        if ($categories->isEmpty()) {
-            return 0;
-        }
 
         $activeKeys = [];
 
@@ -76,12 +76,19 @@ class StorefrontMenuSyncService
             }
         }
 
-        // Deactivate stale hardcoded retail category links that no longer exist in the catalog
-        DB::table('menu_items')
+        // Deactivate stale category links that no longer exist in the catalog
+        // (or that were just hidden). This runs even when the list is now
+        // empty, otherwise deleting the last category leaves a dead link in
+        // the header pointing at a page that no longer exists.
+        $staleQuery = DB::table('menu_items')
             ->where('location', 'storefront')
-            ->where('parent_id', $parent->id)
-            ->whereNotIn('key', $activeKeys)
-            ->update(['active' => false, 'updated_at' => now()]);
+            ->where('parent_id', $parent->id);
+
+        if ($activeKeys !== []) {
+            $staleQuery->whereNotIn('key', $activeKeys);
+        }
+
+        $staleQuery->update(['active' => false, 'updated_at' => now()]);
 
         return $categories->count();
     }

@@ -59,10 +59,12 @@ class ShareFrontendData
                 'appStoreUrl' => (string) $this->settingService->get('app_store_url', ''),
             ],
 
-            // Share categories for header navigation
+            // Share categories for header navigation. The "show in menu"
+            // switch on the category screen is what decides whether a
+            // category lands in this list.
             'categories' => function () {
                 try {
-                    return $this->categoryRepository->getRootCategories()
+                    return $this->categoryRepository->getMenuCategories()
                         ->load(['children' => fn ($q) => $q->where('status', 'enabled')->orderBy('sort_order')])
                         ->map(function ($category) {
                             return [

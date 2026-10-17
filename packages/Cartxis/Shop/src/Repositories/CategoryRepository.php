@@ -34,6 +34,21 @@ class CategoryRepository extends ShopRepository implements CategoryRepositoryInt
     }
 
     /**
+     * Get root categories for the storefront header menu.
+     *
+     * @return Collection
+     */
+    public function getMenuCategories()
+    {
+        return $this->model
+            ->whereNull('parent_id')
+            ->where('status', 'enabled')
+            ->where('show_in_menu', true)
+            ->orderBy('sort_order')
+            ->get();
+    }
+
+    /**
      * Get category by slug.
      *
      * @param  string  $slug

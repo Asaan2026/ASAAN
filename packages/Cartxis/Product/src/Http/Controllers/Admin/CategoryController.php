@@ -3,6 +3,7 @@
 namespace Cartxis\Product\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Cartxis\CMS\Services\StorefrontMenuSyncService;
 use Cartxis\Product\Models\Category;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -71,7 +72,7 @@ class CategoryController extends Controller
     /**
      * Store a newly created category.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, StorefrontMenuSyncService $menuSync): RedirectResponse
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -79,6 +80,7 @@ class CategoryController extends Controller
             'description' => 'nullable|string',
             'parent_id' => 'nullable|exists:categories,id',
             'status' => 'required|in:enabled,disabled',
+            'show_in_menu' => 'nullable|boolean',
             'sort_order' => 'nullable|integer',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
@@ -107,6 +109,10 @@ class CategoryController extends Controller
         }
 
         Category::create($validated);
+
+        // The header Categories menu is built from menu rows, not from the
+        // categories table, so rebuild them or the new category never shows.
+        $menuSync->syncCategoryMenuItems();
 
         return redirect()->route('admin.catalog.categories.index')
             ->with('success', 'Category created successfully.');
@@ -140,7 +146,7 @@ class CategoryController extends Controller
     /**
      * Update the specified category.
      */
-    public function update(Request $request, Category $category): RedirectResponse
+    public function update(Request $request, Category $category, StorefrontMenuSyncService $menuSync): RedirectResponse
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -148,6 +154,7 @@ class CategoryController extends Controller
             'description' => 'nullable|string',
             'parent_id' => 'nullable|exists:categories,id',
             'status' => 'required|in:enabled,disabled',
+            'show_in_menu' => 'nullable|boolean',
             'sort_order' => 'nullable|integer',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
@@ -180,6 +187,9 @@ class CategoryController extends Controller
 
         $category->update($validated);
 
+        // A rename or a status change has to reach the header menu as well.
+        $menuSync->syncCategoryMenuItems();
+
         // Flash the message to session
         session()->flash('success', 'Category updated successfully.');
 
@@ -190,7 +200,7 @@ class CategoryController extends Controller
     /**
      * Remove the specified category.
      */
-    public function destroy(Category $category): RedirectResponse
+    public function destroy(Category $category, StorefrontMenuSyncService $menuSync): RedirectResponse
     {
         // Check if category has children
         if ($category->children()->count() > 0) {
@@ -204,6 +214,9 @@ class CategoryController extends Controller
 
         $category->delete();
 
+        // Take the deleted category out of the header menu too.
+        $menuSync->syncCategoryMenuItems();
+
         return redirect()->route('admin.catalog.categories.index')
             ->with('success', 'Category deleted successfully.');
     }
@@ -211,7 +224,7 @@ class CategoryController extends Controller
     /**
      * Bulk delete categories.
      */
-    public function bulkDestroy(Request $request): RedirectResponse
+    public function bulkDestroy(Request $request, StorefrontMenuSyncService $menuSync): RedirectResponse
     {
         $request->validate([
             'ids' => 'required|array',
@@ -246,13 +259,17 @@ class CategoryController extends Controller
             $message .= ' '.implode(' ', $errors);
         }
 
+        if ($deleted > 0) {
+            $menuSync->syncCategoryMenuItems();
+        }
+
         return back()->with('success', $message);
     }
 
     /**
      * Bulk update status.
      */
-    public function bulkUpdateStatus(Request $request): RedirectResponse
+    public function bulkUpdateStatus(Request $request, StorefrontMenuSyncService $menuSync): RedirectResponse
     {
         $request->validate([
             'ids' => 'required|array',
@@ -261,6 +278,9 @@ class CategoryController extends Controller
         ]);
 
         Category::whereIn('id', $request->ids)->update(['status' => $request->status]);
+
+        // Disabling a category has to hide it from the header menu as well.
+        $menuSync->syncCategoryMenuItems();
 
         return back()->with('success', count($request->ids).' categories status updated successfully.');
     }
