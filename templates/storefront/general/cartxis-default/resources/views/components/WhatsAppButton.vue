@@ -17,32 +17,71 @@ interface Props {
     variant?: Variant;
     message?: string;
     block?: boolean;
+    placement?:
+        | 'header'
+        | 'footer'
+        | 'account'
+        | 'product'
+        | 'contact'
+        | 'floating';
 }
 
 const props = withDefaults(defineProps<Props>(), {
     label: undefined,
     variant: 'button',
-    message: 'Hello Asaan Store, ',
+    message: undefined,
     block: false,
+    placement: undefined,
 });
 
 const i18n = useI18nStore();
 const page = usePage();
 
+const contact = computed(
+    () =>
+        (page.props as Record<string, any> | undefined)?.storeContact ?? {},
+);
+
 /** Only the digits survive: wa.me wants them plain, with no + or spaces. */
 const digits = computed(() => {
-    const contact = (page.props as Record<string, any> | undefined)
-        ?.storeContact;
-    const number = contact?.whatsapp;
+    const number = contact.value?.whatsapp;
     if (!number) return '';
     return String(number).replace(/\D/g, '');
 });
 
-const available = computed(() => digits.value.length > 0);
+/** Let the dashboard turn the whole button off without clearing the number. */
+const enabled = computed(() => contact.value?.whatsappEnabled !== false);
+
+/**
+ * Which pages the button appears on. An empty or missing list means "every
+ * page", so a store that has never touched the setting keeps its button.
+ */
+const placements = computed<string[] | null>(() => {
+    const list = contact.value?.whatsappPlacements;
+    if (!Array.isArray(list) || list.length === 0) return null;
+    return list as string[];
+});
+
+const allowedHere = computed(() => {
+    if (!props.placement) return true;
+    if (!placements.value) return true;
+    return placements.value.includes(props.placement);
+});
+
+const available = computed(
+    () => enabled.value && allowedHere.value && digits.value.length > 0,
+);
+
+const resolvedMessage = computed(
+    () =>
+        props.message ??
+        contact.value?.whatsappMessage ??
+        'Hello Asaan Store, ',
+);
 
 const href = computed(
     () =>
-        `https://wa.me/${digits.value}?text=${encodeURIComponent(props.message)}`,
+        `https://wa.me/${digits.value}?text=${encodeURIComponent(resolvedMessage.value)}`,
 );
 
 const resolvedLabel = computed(() => props.label ?? i18n.t('Chat on WhatsApp'));

@@ -6,6 +6,7 @@ import ThemeFooter from '../components/ThemeFooter.vue';
 import UIBlockRenderer from '@/components/UIEditor/UIBlockRenderer.vue';
 import { useThemeSettings } from '@/composables/useThemeSettings';
 import { ChevronUp } from 'lucide-vue-next';
+import WhatsAppButton from '../components/WhatsAppButton.vue';
 
 const page = usePage();
 const { cssVars, backToTop, containerWidth } = useThemeSettings();
@@ -78,10 +79,19 @@ onUnmounted(() => {
             :container-style="containerStyle"
         />
 
+        <!-- The WhatsApp button only appears on the pages the dashboard has
+             chosen (and hides itself when switched off). It sits on the
+             opposite corner from "back to top" so the two never overlap. The
+             `start-6`/`end-6` pair flips automatically for right-to-left
+             languages. -->
+        <div class="fixed bottom-6 start-6 z-50">
+            <WhatsAppButton variant="icon" placement="floating" />
+        </div>
+
         <button
             v-if="backToTop && showBackToTop"
             type="button"
-            class="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+            class="fixed bottom-6 end-6 z-50 flex h-11 w-11 items-center justify-center rounded-full text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
             style="background-color: var(--theme-primary)"
             :aria-label="$t('Back to top')"
             @click="scrollToTop"

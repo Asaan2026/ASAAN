@@ -28,6 +28,9 @@ interface Props {
         store_phone: string;
         store_phone_alt: string;
         store_whatsapp: string;
+        whatsapp_enabled: boolean;
+        whatsapp_placements: string[];
+        whatsapp_message: string;
         store_address_1: string;
         store_address_2: string;
         store_city: string;
@@ -65,6 +68,16 @@ const props = withDefaults(defineProps<Props>(), {
         store_phone: '',
         store_phone_alt: '',
         store_whatsapp: '',
+        whatsapp_enabled: true,
+        whatsapp_placements: [
+            'header',
+            'footer',
+            'account',
+            'product',
+            'contact',
+            'floating',
+        ],
+        whatsapp_message: 'Hello Asaan Store, ',
         store_address_1: '',
         store_address_2: '',
         store_city: '',
@@ -105,6 +118,16 @@ const form = useForm({
     store_phone: props.settings.store_phone || '',
     store_phone_alt: props.settings.store_phone_alt || '',
     store_whatsapp: props.settings.store_whatsapp || '',
+    whatsapp_enabled: props.settings.whatsapp_enabled ?? true,
+    whatsapp_placements: props.settings.whatsapp_placements ?? [
+        'header',
+        'footer',
+        'account',
+        'product',
+        'contact',
+        'floating',
+    ],
+    whatsapp_message: props.settings.whatsapp_message || 'Hello Asaan Store, ',
     store_address_1: props.settings.store_address_1 || '',
     store_address_2: props.settings.store_address_2 || '',
     store_city: props.settings.store_city || '',
@@ -674,6 +697,117 @@ watch(
                                             class="mt-1 text-sm text-red-600"
                                         >
                                             {{ form.errors.store_whatsapp }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- WhatsApp button controls -->
+                                <div
+                                    class="mt-6 rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+                                >
+                                    <div class="flex items-start">
+                                        <div class="flex h-5 items-center">
+                                            <input
+                                                id="whatsapp_enabled"
+                                                v-model="form.whatsapp_enabled"
+                                                type="checkbox"
+                                                class="h-4 w-4 rounded border-gray-300 text-blue-600 transition duration-150 ease-in-out focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                                            />
+                                        </div>
+                                        <div class="ml-3 text-sm">
+                                            <label
+                                                for="whatsapp_enabled"
+                                                class="font-medium text-gray-700 dark:text-gray-300"
+                                            >
+                                                {{ $t('Show WhatsApp button') }}
+                                            </label>
+                                            <p
+                                                class="mt-1 text-gray-500 dark:text-gray-400"
+                                            >
+                                                {{
+                                                    $t(
+                                                        'When off, the button is hidden everywhere. The number above is kept, so you can switch it back on at any time.',
+                                                    )
+                                                }}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 ml-3">
+                                        <p
+                                            class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        >
+                                            {{ $t('Show it on') }}
+                                        </p>
+                                        <div
+                                            class="grid grid-cols-2 gap-2 sm:grid-cols-3"
+                                        >
+                                            <label
+                                                v-for="placement in [
+                                                    { value: 'header', label: 'Header' },
+                                                    { value: 'footer', label: 'Footer' },
+                                                    {
+                                                        value: 'account',
+                                                        label: 'Account pages',
+                                                    },
+                                                    {
+                                                        value: 'product',
+                                                        label: 'Product page',
+                                                    },
+                                                    {
+                                                        value: 'contact',
+                                                        label: 'Contact page',
+                                                    },
+                                                    {
+                                                        value: 'floating',
+                                                        label: 'Floating button',
+                                                    },
+                                                ]"
+                                                :key="placement.value"
+                                                class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"
+                                                :class="{
+                                                    'opacity-50':
+                                                        !form.whatsapp_enabled,
+                                                }"
+                                            >
+                                                <input
+                                                    v-model="
+                                                        form.whatsapp_placements
+                                                    "
+                                                    type="checkbox"
+                                                    :value="placement.value"
+                                                    :disabled="
+                                                        !form.whatsapp_enabled
+                                                    "
+                                                    class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                                                />
+                                                {{ $t(placement.label) }}
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <label
+                                            for="whatsapp_message"
+                                            class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                        >
+                                            {{ $t('Pre-filled message') }}
+                                        </label>
+                                        <input
+                                            id="whatsapp_message"
+                                            v-model="form.whatsapp_message"
+                                            type="text"
+                                            maxlength="255"
+                                            class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm placeholder-gray-400 shadow-sm transition-shadow duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700"
+                                            :placeholder="
+                                                $t('Hello, I have a question.')
+                                            "
+                                        />
+                                        <p
+                                            v-if="form.errors.whatsapp_message"
+                                            class="mt-1 text-sm text-red-600"
+                                        >
+                                            {{ form.errors.whatsapp_message }}
                                         </p>
                                     </div>
                                 </div>

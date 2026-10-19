@@ -5,6 +5,7 @@ import { useCartStore } from '@/Stores/cartStore';
 import ThemeLayout from '../../layouts/ThemeLayout.vue';
 import ProductCard from '../../components/ProductCard.vue';
 import QuickViewModal from '../../components/QuickViewModal.vue';
+import WhatsAppButton from '../../components/WhatsAppButton.vue';
 import { useCurrency } from '@/composables/useCurrency';
 import { useI18nStore } from '@/Stores/i18n';
 
@@ -491,6 +492,16 @@ const handleMouseMove = (e: MouseEvent) => {
                             </span>
                             <span v-else>{{ $t('Adding...') }}</span>
                         </button>
+                    </div>
+
+                    <!-- Ask about this product on WhatsApp. The button hides
+                         itself when WhatsApp is off or set to another page. -->
+                    <div class="mt-4">
+                        <WhatsAppButton
+                            variant="button"
+                            placement="product"
+                            :message="`Hello, I have a question about ${product.name}: `"
+                        />
                     </div>
 
                     <!-- Categories -->

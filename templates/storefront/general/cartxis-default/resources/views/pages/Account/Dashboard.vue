@@ -540,7 +540,11 @@ const getStatusColor = (status: string) => {
                             >
                                 {{ $t('Need help? Chat on WhatsApp') }}
                             </p>
-                            <WhatsAppButton variant="button" block />
+                            <WhatsAppButton
+                                variant="button"
+                                placement="account"
+                                block
+                            />
                         </div>
 
                         <!-- Download the app -->

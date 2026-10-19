@@ -23,6 +23,7 @@ class AdminMenuSyncService
 
         $marketingId = $this->parentId('marketing');
         $appearanceId = $this->parentId('appearance');
+        $settingsId = $this->parentId('settings');
 
         if ($marketingId) {
             $this->syncMarketingChildren($marketingId);
@@ -31,6 +32,10 @@ class AdminMenuSyncService
 
         if ($appearanceId) {
             $this->syncAppearanceTemplateZone($appearanceId);
+        }
+
+        if ($settingsId) {
+            $this->syncSettingsChildren($settingsId);
         }
     }
 
@@ -137,9 +142,54 @@ class AdminMenuSyncService
                 'permission' => null,
                 'location' => 'admin',
                 'active' => true,
-                'updated_at' => now(),
                 'created_at' => now(),
+                'updated_at' => now(),
             ]
         );
+    }
+
+    /**
+     * Settings children added after a store was already seeded (the entrypoint
+     * only seeds an empty database). Existing rows are left alone so an admin
+     * who re-ordered or hid a link keeps that choice - only links nobody has
+     * are inserted.
+     */
+    private function syncSettingsChildren(int $settingsId): void
+    {
+        $children = [
+            [
+                'key' => 'settings-notifications',
+                'title' => 'Notifications',
+                'icon' => 'bell',
+                'route' => 'admin.settings.notifications.index',
+                'order' => 9,
+            ],
+        ];
+
+        foreach ($children as $child) {
+            $exists = DB::table('menu_items')
+                ->where('key', $child['key'])
+                ->where('location', 'admin')
+                ->exists();
+
+            if ($exists) {
+                continue;
+            }
+
+            DB::table('menu_items')->insert([
+                'key' => $child['key'],
+                'title' => $child['title'],
+                'icon' => $child['icon'],
+                'route' => $child['route'],
+                'url' => null,
+                'parent_id' => $settingsId,
+                'order' => $child['order'],
+                'permission' => null,
+                'location' => 'admin',
+                'active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
     }
 }

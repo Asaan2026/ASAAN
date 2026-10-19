@@ -474,7 +474,7 @@ class AdminMenuSeeder extends Seeder
                 'active' => true,
             ],
 
-            // Settings Children (8 sub-modules as per documentation)
+            // Settings Children (9 sub-modules as per documentation)
             [
                 'key' => 'settings-general',
                 'title' => 'General Settings',
@@ -552,6 +552,16 @@ class AdminMenuSeeder extends Seeder
                 'route' => 'admin.settings.ai.index',
                 'parent_id' => $settingsId,
                 'order' => 8,
+                'location' => 'admin',
+                'active' => true,
+            ],
+            [
+                'key' => 'settings-notifications',
+                'title' => 'Notifications',
+                'icon' => 'bell',
+                'route' => 'admin.settings.notifications.index',
+                'parent_id' => $settingsId,
+                'order' => 9,
                 'location' => 'admin',
                 'active' => true,
             ],

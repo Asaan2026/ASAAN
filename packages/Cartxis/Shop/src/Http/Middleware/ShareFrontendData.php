@@ -53,6 +53,9 @@ class ShareFrontendData
             // the dashboard so the number never has to be hard-coded in a theme.
             'storeContact' => [
                 'whatsapp' => (string) $this->settingService->get('store_whatsapp', ''),
+                'whatsappEnabled' => (bool) $this->settingService->get('whatsapp_enabled', true),
+                'whatsappPlacements' => $this->settingService->get('whatsapp_placements', ['header', 'footer', 'account', 'product', 'contact', 'floating']),
+                'whatsappMessage' => (string) $this->settingService->get('whatsapp_message', 'Hello Asaan Store, '),
                 'phone' => (string) $this->settingService->get('store_phone', ''),
                 'email' => (string) $this->settingService->get('store_email', ''),
                 'playStoreUrl' => (string) $this->settingService->get('play_store_url', ''),

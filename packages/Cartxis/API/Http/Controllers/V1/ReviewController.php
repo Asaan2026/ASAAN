@@ -3,16 +3,20 @@
 namespace Cartxis\API\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
+use Cartxis\Admin\Services\AdminNotificationService;
 use Cartxis\API\Helpers\ApiResponse;
 use Cartxis\API\Http\Resources\ReviewResource;
 use Cartxis\Product\Models\Product;
 use Cartxis\Product\Models\ProductReview;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ReviewController extends Controller
 {
+    public function __construct(protected AdminNotificationService $adminNotifications) {}
+
     /**
      * Get product reviews.
      */
@@ -72,7 +76,7 @@ class ReviewController extends Controller
         }
 
         // Check if user already reviewed
-        $hasReviewed = ProductReview::where('customer_id', $request->user()->id)
+        $hasReviewed = ProductReview::where('user_id', $request->user()->id)
             ->where('product_id', $request->product_id)
             ->exists();
 
@@ -86,7 +90,7 @@ class ReviewController extends Controller
         }
 
         $reviewData = [
-            'customer_id' => $request->user()->id,
+            'user_id' => $request->user()->id,
             'product_id' => $request->product_id,
             'rating' => $request->rating,
             'title' => $request->title,
@@ -105,6 +109,34 @@ class ReviewController extends Controller
 
         $review = ProductReview::create($reviewData);
 
+        // The owner finds out about a new review from the admin bell, the same
+        // way they find out about a new order. A failure here must never stop
+        // the shopper's review from being saved.
+        try {
+            $product = Product::find($review->product_id);
+
+            $this->adminNotifications->notifyAllAdmins(
+                type: 'review.created',
+                title: 'New product review',
+                message: sprintf(
+                    '%s rated %s %d/5: %s',
+                    $review->reviewer_display_name,
+                    $product->name ?? 'a product',
+                    $review->rating,
+                    $review->title,
+                ),
+                actionUrl: '/admin/catalog/reviews/'.$review->id,
+                entityType: 'product_review',
+                entityId: $review->id,
+                severity: 'info',
+            );
+        } catch (\Throwable $e) {
+            Log::error('Failed to create admin notification for review', [
+                'review_id' => $review->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         return ApiResponse::success(
             new ReviewResource($review),
             'Review submitted successfully. It will be published after approval.',
@@ -117,7 +149,7 @@ class ReviewController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $review = ProductReview::where('customer_id', $request->user()->id)->find($id);
+        $review = ProductReview::where('user_id', $request->user()->id)->find($id);
 
         if (! $review) {
             return ApiResponse::notFound('Review not found', 'REVIEW_NOT_FOUND');
@@ -147,7 +179,7 @@ class ReviewController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $review = ProductReview::where('customer_id', $request->user()->id)->find($id);
+        $review = ProductReview::where('user_id', $request->user()->id)->find($id);
 
         if (! $review) {
             return ApiResponse::notFound('Review not found', 'REVIEW_NOT_FOUND');

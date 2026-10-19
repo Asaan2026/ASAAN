@@ -3,11 +3,13 @@
 namespace Cartxis\API\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
+use Cartxis\Admin\Services\AdminNotificationService;
 use Cartxis\API\Helpers\ApiResponse;
 use Cartxis\Core\Services\SettingService;
 use Cartxis\Marketing\Models\ContactMessage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -20,7 +22,10 @@ use Illuminate\Validation\ValidationException;
  */
 class StorefrontController extends Controller
 {
-    public function __construct(protected SettingService $settingService) {}
+    public function __construct(
+        protected SettingService $settingService,
+        protected AdminNotificationService $adminNotifications,
+    ) {}
 
     /**
      * The shop's public contact details and app links.
@@ -65,6 +70,30 @@ class StorefrontController extends Controller
             'ip_address' => $request->ip(),
         ]);
 
+        // The owner hears about the message through the admin bell, the same
+        // way they hear about new orders. A failure here must never stop the
+        // shopper's message from being saved.
+        try {
+            $this->adminNotifications->notifyAllAdmins(
+                type: 'contact.message_received',
+                title: 'New contact message',
+                message: sprintf(
+                    '%s wrote: %s',
+                    $message->name,
+                    mb_strimwidth($message->message, 0, 120, '…'),
+                ),
+                actionUrl: '/admin/marketing/messages/'.$message->id,
+                entityType: 'contact_message',
+                entityId: $message->id,
+                severity: 'info',
+            );
+        } catch (\Throwable $e) {
+            Log::error('Failed to create admin notification for contact message', [
+                'contact_message_id' => $message->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         return ApiResponse::success(
             ['id' => $message->id],
             __('Thank you — your message has been received. We will get back to you soon.'),
@@ -75,12 +104,14 @@ class StorefrontController extends Controller
     /**
      * The contact details in one place, read from the dashboard settings.
      *
-     * @return array<string, string>
+     * @return array<string, mixed>
      */
     protected function contactData(): array
     {
         return [
             'whatsapp' => (string) $this->settingService->get('store_whatsapp', ''),
+            'whatsapp_enabled' => (bool) $this->settingService->get('whatsapp_enabled', true),
+            'whatsapp_message' => (string) $this->settingService->get('whatsapp_message', 'Hello Asaan Store, '),
             'phone' => (string) $this->settingService->get('store_phone', ''),
             'email' => (string) $this->settingService->get('store_email', ''),
             'play_store_url' => (string) $this->settingService->get('play_store_url', ''),

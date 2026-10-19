@@ -5,10 +5,24 @@ namespace Cartxis\Admin\Services;
 use App\Models\User;
 use Cartxis\Admin\Models\AdminActivityLog;
 use Cartxis\Admin\Models\AdminNotification;
+use Cartxis\Core\Services\SettingService;
 use Illuminate\Support\Facades\DB;
 
 class AdminNotificationService
 {
+    /**
+     * Which dashboard switch controls each kind of notification, by type
+     * prefix. Types with no entry here are always allowed, so a new type can
+     * never be silenced by a switch the owner has never seen.
+     */
+    protected const TYPE_SWITCHES = [
+        'order' => 'notifications_admin_new_orders',
+        'review' => 'notifications_admin_new_reviews',
+        'contact' => 'notifications_admin_new_messages',
+    ];
+
+    public function __construct(protected SettingService $settings) {}
+
     /**
      * Create notifications for all active admins.
      */
@@ -23,6 +37,10 @@ class AdminNotificationService
         array $meta = [],
         string $severity = 'info'
     ): void {
+        if (! $this->allowed($type)) {
+            return;
+        }
+
         $adminIds = User::query()
             ->where('role', 'admin')
             ->where('is_active', true)
@@ -53,6 +71,20 @@ class AdminNotificationService
         }
 
         DB::table('admin_notifications')->insert($rows);
+    }
+
+    /**
+     * Does the owner have this kind of notification switched on?
+     */
+    protected function allowed(string $type): bool
+    {
+        foreach (self::TYPE_SWITCHES as $prefix => $settingKey) {
+            if (str_starts_with($type, $prefix)) {
+                return (bool) $this->settings->get($settingKey, true);
+            }
+        }
+
+        return true;
     }
 
     /**

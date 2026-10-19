@@ -1018,7 +1018,11 @@ onUnmounted(() => {
                                     }}</span>
                                 </Link>
                                 <div class="px-2 py-1">
-                                    <WhatsAppButton variant="button" block />
+                                    <WhatsAppButton
+                                        variant="button"
+                                        placement="header"
+                                        block
+                                    />
                                 </div>
                                 <div
                                     class="my-1 border-t border-gray-100 dark:border-slate-700"
@@ -1344,6 +1348,7 @@ onUnmounted(() => {
                                     >
                                         <WhatsAppButton
                                             variant="button"
+                                            placement="header"
                                             block
                                         />
                                     </div>

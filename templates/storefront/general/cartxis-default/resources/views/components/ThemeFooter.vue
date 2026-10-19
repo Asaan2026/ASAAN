@@ -75,7 +75,7 @@ const footerSections = computed(() => {
                         >
                             <Twitter class="h-4 w-4" />
                         </a>
-                        <WhatsAppButton variant="icon" />
+                        <WhatsAppButton variant="icon" placement="footer" />
                     </div>
 
                     <AppDownloadBlock compact tone="dark" class="mt-6" />

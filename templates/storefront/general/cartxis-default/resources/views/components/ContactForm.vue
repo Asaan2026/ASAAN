@@ -9,6 +9,7 @@
 import { useI18nStore } from '@/Stores/i18n';
 import { CheckCircle2, Loader2 } from 'lucide-vue-next';
 import { reactive, ref } from 'vue';
+import WhatsAppButton from './WhatsAppButton.vue';
 
 const i18n = useI18nStore();
 const t = (key: string) => i18n.t(key);
@@ -228,6 +229,17 @@ const fieldClass = (field: string) =>
                 <Loader2 v-if="sending" class="h-4 w-4 animate-spin" />
                 {{ $t('Send message') }}
             </button>
+
+            <!-- The button hides itself when WhatsApp is off or set to another
+                 page, so no extra condition is needed here. -->
+            <div
+                class="flex flex-wrap items-center gap-3 border-t border-gray-100 pt-4 dark:border-slate-700"
+            >
+                <span class="text-sm text-gray-500 dark:text-slate-400">
+                    {{ $t('Or message us directly:') }}
+                </span>
+                <WhatsAppButton variant="link" placement="contact" />
+            </div>
         </form>
     </div>
 </template>

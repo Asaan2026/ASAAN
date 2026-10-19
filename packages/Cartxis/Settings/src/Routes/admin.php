@@ -5,6 +5,7 @@ use Cartxis\Settings\Http\Controllers\Admin\CountryController;
 use Cartxis\Settings\Http\Controllers\Admin\EmailController;
 use Cartxis\Settings\Http\Controllers\Admin\GeneralSettingsController;
 use Cartxis\Settings\Http\Controllers\Admin\LocalesController;
+use Cartxis\Settings\Http\Controllers\Admin\NotificationSettingsController;
 use Cartxis\Settings\Http\Controllers\Admin\PaymentMethodsController;
 use Cartxis\Settings\Http\Controllers\Admin\ShippingMethodsController;
 use Cartxis\Settings\Http\Controllers\Admin\StoreConfigurationController;
@@ -28,6 +29,11 @@ Route::middleware(['web', 'auth:admin'])
         // Store Configuration
         Route::get('store', [StoreConfigurationController::class, 'index'])->name('store.index');
         Route::post('store', [StoreConfigurationController::class, 'save'])->name('store.save');
+
+        // Notifications
+        Route::get('notifications', [NotificationSettingsController::class, 'index'])->name('notifications.index');
+        Route::post('notifications', [NotificationSettingsController::class, 'save'])->name('notifications.save');
+        Route::post('notifications/test', [NotificationSettingsController::class, 'sendTestPush'])->name('notifications.test');
 
         // Locales & Currencies
         Route::get('locales', [LocalesController::class, 'index'])->name('locales.index');

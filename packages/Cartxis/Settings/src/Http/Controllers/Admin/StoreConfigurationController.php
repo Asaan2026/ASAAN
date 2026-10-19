@@ -37,6 +37,11 @@ class StoreConfigurationController
                 'store_phone_alt' => (string) $this->settingService->get('store_phone_alt', ''),
                 'store_whatsapp' => (string) $this->settingService->get('store_whatsapp', ''),
 
+                // WhatsApp button controls
+                'whatsapp_enabled' => (bool) $this->settingService->get('whatsapp_enabled', true),
+                'whatsapp_placements' => $this->settingService->get('whatsapp_placements', ['header', 'footer', 'account', 'product', 'contact', 'floating']),
+                'whatsapp_message' => (string) $this->settingService->get('whatsapp_message', 'Hello Asaan Store, '),
+
                 // Address Information
                 'store_address_1' => (string) $this->settingService->get('store_address_1', ''),
                 'store_address_2' => (string) $this->settingService->get('store_address_2', ''),
@@ -106,6 +111,12 @@ class StoreConfigurationController
                 'store_phone' => 'required|string|max:50',
                 'store_phone_alt' => 'nullable|string|max:50',
                 'store_whatsapp' => 'nullable|string|max:50',
+
+                // WhatsApp button controls
+                'whatsapp_enabled' => 'nullable|boolean',
+                'whatsapp_placements' => 'nullable|array',
+                'whatsapp_placements.*' => 'in:header,footer,account,product,contact,floating',
+                'whatsapp_message' => 'nullable|string|max:255',
 
                 // Address Information
                 'store_address_1' => 'required|string|max:255',

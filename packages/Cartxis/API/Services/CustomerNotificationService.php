@@ -5,6 +5,7 @@ namespace Cartxis\API\Services;
 use App\Models\User;
 use Cartxis\API\Models\CustomerNotification;
 use Cartxis\API\Services\Push\PushSender;
+use Cartxis\Core\Services\SettingService;
 use Cartxis\Shop\Models\Order;
 
 /**
@@ -17,7 +18,10 @@ use Cartxis\Shop\Models\Order;
  */
 class CustomerNotificationService
 {
-    public function __construct(protected PushSender $push) {}
+    public function __construct(
+        protected PushSender $push,
+        protected SettingService $settings,
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data  Extra values the app uses to open the
@@ -61,6 +65,12 @@ class CustomerNotificationService
             return null;
         }
 
+        // The owner can turn order updates off from the dashboard without
+        // touching any other kind of notification.
+        if (! (bool) $this->settings->get('notifications_customer_order_updates', true)) {
+            return null;
+        }
+
         [$title, $body] = $this->orderStatusMessage($order);
 
         return $this->notify($user, 'order', $title, $body, [
@@ -72,10 +82,18 @@ class CustomerNotificationService
 
     /**
      * Send one notification to every phone this customer has signed in on.
+     *
+     * The dashboard's push switch only silences the phone: the in-app row is
+     * already written by the time we get here, so the bell in the app keeps
+     * working while push is off.
      */
     protected function pushToDevices(User $user, CustomerNotification $notification): void
     {
         if (! $this->push->isConfigured()) {
+            return;
+        }
+
+        if (! (bool) $this->settings->get('notifications_push_enabled', true)) {
             return;
         }
 

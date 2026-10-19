@@ -185,7 +185,7 @@ const confirmDelete = () => {
                         </p>
                         <div class="space-y-4">
                             <AppDownloadBlock />
-                            <WhatsAppButton variant="button" />
+                            <WhatsAppButton variant="button" placement="account" />
                         </div>
                     </div>
 

@@ -131,7 +131,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         message: 'Hello Asaan Store, I need help with my order.',
       );
 
-      if (url.isEmpty) {
+      if (!contact.hasWhatsapp || url.isEmpty) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
