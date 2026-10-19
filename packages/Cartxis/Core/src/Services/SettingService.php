@@ -10,6 +10,11 @@ class SettingService
 {
     /**
      * Cache key prefix.
+     *
+     * Both this service and {@see \Cartxis\Settings\Models\Setting} cache the same
+     * `settings` table rows, so their prefixes must stay identical. If they drift
+     * apart, a value saved through one path is served stale by the other for up
+     * to an hour.
      */
     protected string $cachePrefix = 'settings:';
 

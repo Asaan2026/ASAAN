@@ -13,6 +13,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import {
     BadgeCheck,
+    Bell,
     ChevronDown,
     ClipboardList,
     Heart,
@@ -28,6 +29,7 @@ import {
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import CartIcon from './CartIcon.vue';
 import CurrencySelector from './CurrencySelector.vue';
+import NotificationBell from './NotificationBell.vue';
 import WhatsAppButton from './WhatsAppButton.vue';
 
 const i18n = useI18nStore();
@@ -83,6 +85,7 @@ const accountLinks = computed(() => {
     const links = [
         { href: '/account', label: 'Dashboard', icon: Home },
         { href: '/account/orders', label: 'My Orders', icon: ClipboardList },
+        { href: '/account/notifications', label: 'Notifications', icon: Bell },
         { href: '/account/profile', label: 'Profile', icon: User },
         { href: '/account/addresses', label: 'Addresses', icon: MapPin },
         { href: '/services', label: 'Services', icon: Users },
@@ -790,6 +793,12 @@ onUnmounted(() => {
                         </span>
                     </Link>
 
+                    <!-- Notifications Bell -->
+                    <NotificationBell
+                        v-if="user"
+                        variant="header"
+                    />
+
                     <!-- Auth Links - Show if NOT logged in -->
                     <template v-if="!user">
                         <Link
@@ -1321,6 +1330,13 @@ onUnmounted(() => {
                                         />
                                         {{ $t(link.label) }}
                                     </Link>
+
+                                    <div
+                                        class="px-2 py-2"
+                                        @click="closeMobileMenu"
+                                    >
+                                        <NotificationBell variant="drawer" />
+                                    </div>
 
                                     <div
                                         class="px-2 py-2"

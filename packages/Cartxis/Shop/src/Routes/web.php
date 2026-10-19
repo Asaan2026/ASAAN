@@ -3,6 +3,7 @@
 use Cartxis\Referral\Http\Controllers\ReferralDashboardController;
 use Cartxis\Shop\Http\Controllers\Account\AddressController;
 use Cartxis\Shop\Http\Controllers\Account\DashboardController;
+use Cartxis\Shop\Http\Controllers\Account\NotificationController;
 use Cartxis\Shop\Http\Controllers\Account\OrderController;
 use Cartxis\Shop\Http\Controllers\Account\ProfileController;
 use Cartxis\Shop\Http\Controllers\Account\WishlistController;
@@ -88,6 +89,24 @@ Route::group([
         Route::delete('/addresses/{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
         Route::post('/addresses/{address}/default-shipping', [AddressController::class, 'setDefaultShipping'])->name('addresses.default-shipping');
         Route::post('/addresses/{address}/default-billing', [AddressController::class, 'setDefaultBilling'])->name('addresses.default-billing');
+        /*
+        |----------------------------------------------------------------------
+        | Notifications
+        |----------------------------------------------------------------------
+        |
+        | The website's own bell and page. These are session-auth routes, NOT the
+        | token-only API routes -- the storefront logs in with a session, so it
+        | cannot use `auth:sanctum`.
+        |
+        */
+        Route::prefix('notifications')->name('notifications.')->group(function () {
+            Route::get('/', [NotificationController::class, 'index'])->name('index');
+            Route::get('/feed', [NotificationController::class, 'feed'])->name('feed');
+            Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread-count');
+            Route::post('/read-all', [NotificationController::class, 'markAllRead'])->name('read-all');
+            Route::post('/{id}/read', [NotificationController::class, 'markRead'])->name('mark-read')->whereNumber('id');
+        });
+
         Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
         Route::get('/wishlist/get', [WishlistController::class, 'get'])->name('wishlist.get');
         Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add');

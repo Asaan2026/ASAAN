@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Cartxis\Admin\Services\AdminNotificationService;
+use Cartxis\API\Models\CustomerNotification;
 use Cartxis\Calendar\Support\CalendarConfig;
 use Cartxis\Core\Models\Currency;
 use Cartxis\Core\Models\Locale;
@@ -165,6 +166,53 @@ class HandleInertiaRequests extends Middleware
                 } catch (\Exception $e) {
                     return [
                         'unread_count' => 0,
+                    ];
+                }
+            },
+            'customerNotifications' => function () use ($request) {
+                // Only for a signed-in storefront customer. The bell only exists
+                // on the storefront, and the admin panel has its own bell.
+                if ($request->is('admin/*') || $request->is('admin') || $request->is('delivery') || $request->is('delivery/*')) {
+                    return ['unread_count' => 0, 'recent' => []];
+                }
+
+                $user = $request->user();
+
+                if (! $user) {
+                    return [
+                        'unread_count' => 0,
+                        'recent' => [],
+                    ];
+                }
+
+                try {
+                    $recent = CustomerNotification::query()
+                        ->where('user_id', $user->id)
+                        ->orderByDesc('created_at')
+                        ->orderByDesc('id')
+                        ->limit(10)
+                        ->get()
+                        ->map(fn ($notification) => [
+                            'id' => $notification->id,
+                            'type' => $notification->type,
+                            'title' => $notification->title,
+                            'body' => $notification->body,
+                            'data' => $notification->data ?? [],
+                            'read' => $notification->read_at !== null,
+                            'created_at' => $notification->created_at?->toIso8601String(),
+                        ]);
+
+                    return [
+                        'unread_count' => CustomerNotification::query()
+                            ->where('user_id', $user->id)
+                            ->whereNull('read_at')
+                            ->count(),
+                        'recent' => $recent,
+                    ];
+                } catch (\Exception $e) {
+                    return [
+                        'unread_count' => 0,
+                        'recent' => [],
                     ];
                 }
             },

@@ -75,9 +75,16 @@ class PushNotificationService {
       }
 
       _initialized = true;
-    } catch (_) {
+    } catch (e, stack) {
       // Firebase is optional. Without it the app runs and the in-app
       // notification centre still works.
+      // Log error so it is not silently swallowed.
+      // Note: In production we still continue; this helps debug.
+      try {
+        // Avoid using print in favor of logging if available
+        // But keep it simple - the app should not crash
+        print('PushNotificationService initialize failed: $e');
+      } catch (_) {}
     }
   }
 
@@ -105,8 +112,11 @@ class PushNotificationService {
         token,
         platform: Platform.isIOS ? 'ios' : 'android',
       );
-    } catch (_) {
+    } catch (e) {
       // Best-effort: a failure here must never disturb sign-in.
+      try {
+        print('PushNotificationService registerForCurrentUser failed: $e');
+      } catch (_) {}
     }
   }
 
@@ -121,8 +131,11 @@ class PushNotificationService {
       await _notifications
           .unregisterDevice(token)
           .timeout(const Duration(seconds: 5));
-    } catch (_) {
+    } catch (e) {
       // If it did not go through, the row is simply replaced on the next login.
+      try {
+        print('PushNotificationService removeDevice failed: $e');
+      } catch (_) {}
     }
   }
 
@@ -143,7 +156,10 @@ class PushNotificationService {
         await prefs.setString(_tokenKey, token);
       }
       return token;
-    } catch (_) {
+    } catch (e) {
+      try {
+        print('PushNotificationService _currentToken failed: $e');
+      } catch (_) {}
       return null;
     }
   }

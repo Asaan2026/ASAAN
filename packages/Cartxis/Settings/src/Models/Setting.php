@@ -4,11 +4,23 @@ declare(strict_types=1);
 
 namespace Cartxis\Settings\Models;
 
+use Cartxis\Core\Services\SettingService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
 class Setting extends Model
 {
+    /**
+     * Cache key prefix.
+     *
+     * This MUST match {@see SettingService::$cachePrefix}
+     * exactly. Both classes read and write the same `settings` table row, so if
+     * they cache under different keys a change saved through one path is served
+     * stale by the other for up to an hour -- which looks like "my dashboard
+     * change did not apply".
+     */
+    public const CACHE_PREFIX = 'settings:';
+
     protected $fillable = [
         'group',
         'key',
@@ -26,7 +38,7 @@ class Setting extends Model
      */
     public static function get(string $key, mixed $default = null): mixed
     {
-        return Cache::remember("setting.{$key}", 3600, function () use ($key, $default) {
+        return Cache::remember(self::CACHE_PREFIX.$key, 3600, function () use ($key, $default) {
             $setting = static::where('key', $key)->first();
 
             if (! $setting) {
@@ -54,7 +66,7 @@ class Setting extends Model
             ]
         );
 
-        Cache::forget("setting.{$key}");
+        Cache::forget(self::CACHE_PREFIX.$key);
     }
 
     /**
@@ -124,7 +136,7 @@ class Setting extends Model
     public static function clearCache(?string $key = null): void
     {
         if ($key) {
-            Cache::forget("setting.{$key}");
+            Cache::forget(self::CACHE_PREFIX.$key);
         } else {
             Cache::tags(['settings'])->flush();
         }
