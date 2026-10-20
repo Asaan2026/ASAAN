@@ -54,3 +54,6 @@ yarn-error.log
 /.zed
 /*.md
 /*.log
+
+# APK builds belong in GitHub Releases, not in the repo
+/public/*.apk

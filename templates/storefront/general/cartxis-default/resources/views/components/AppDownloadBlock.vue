@@ -26,7 +26,8 @@ const i18n = useI18nStore();
 const page = usePage();
 const { primary } = useThemeSettings();
 
-const FALLBACK_APK = '/downloads/asaan-2.7.0+10.apk';
+const FALLBACK_APK =
+    'https://github.com/Asaan2026/ASAAN/releases/download/Asaan-v2.7.0/asaan-latest.apk';
 
 const contact = computed(
     () => (page.props as Record<string, any> | undefined)?.storeContact,
