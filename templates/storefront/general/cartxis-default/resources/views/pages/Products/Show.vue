@@ -58,7 +58,7 @@ interface Product {
     description: string;
     short_description: string;
     price: number;
-    discount_price: number | null;
+    special_price: number | null;
     quantity: number;
     stock_status: string;
     status: string;
@@ -121,14 +121,14 @@ const currentImage = computed(() => allImages.value[selectedImage.value] || prop
 const hasImage = computed(() => currentImage.value !== null);
 
 // Discount calculation
-const hasDiscount = computed(() => props.product.discount_price && props.product.discount_price < props.product.price);
+const hasDiscount = computed(() => !!props.product.special_price && props.product.special_price < props.product.price);
 const discountPercentage = computed(() => {
-    if (!hasDiscount.value || !props.product.discount_price) return 0;
-    return Math.round(((props.product.price - props.product.discount_price) / props.product.price) * 100);
+    if (!hasDiscount.value || !props.product.special_price) return 0;
+    return Math.round(((props.product.price - props.product.special_price) / props.product.price) * 100);
 });
 
 const displayPrice = computed(() => {
-    const price = hasDiscount.value ? props.product.discount_price : props.product.price;
+    const price = hasDiscount.value ? props.product.special_price : props.product.price;
     return typeof price === 'string' ? parseFloat(price) : price;
 });
 
@@ -222,6 +222,7 @@ const handleMouseMove = (e: MouseEvent) => {
                                 :src="currentImage"
                                 :alt="product.name"
                                 class="w-full h-full object-contain"
+                            @error="$event.target.style.display = 'none'"
                             />
                             <!-- Zoom Overlay -->
                             <div
@@ -259,6 +260,7 @@ const handleMouseMove = (e: MouseEvent) => {
                                 :src="image"
                                 :alt="`${product.name} - Image ${index + 1}`"
                                 class="w-full h-full object-contain"
+                            @error="$event.target.style.display = 'none'"
                             />
                         </button>
                     </div>

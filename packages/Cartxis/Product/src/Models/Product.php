@@ -90,6 +90,23 @@ class Product extends Model
     ];
 
     /**
+     * Normalize special_price: a zero (or empty) value means "no special
+     * price", never a real price of 0. Seed data and some admin flows store 0
+     * instead of NULL, which previously made the storefront show a price of 0
+     * on listing cards (because 0 is not null, so `special_price ?? price`
+     * resolved to 0). Treating 0 as "no special price" keeps every consumer
+     * (cards, detail, cart, API) consistent.
+     */
+    public function getSpecialPriceAttribute($value): ?string
+    {
+        if ($value === null || $value === '' || (float) $value == 0.0) {
+            return null;
+        }
+
+        return $value;
+    }
+
+    /**
      * Boot the model
      */
     protected static function boot()

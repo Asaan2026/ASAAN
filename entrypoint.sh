@@ -63,8 +63,20 @@ if [ -z "$APP_KEY" ]; then
     fi
 fi
 
-# Storage link
+# Storage link. Force (re)create it: if public/storage was ever left behind as a
+# real directory (e.g. from an older image layer or a half-finished deploy),
+# `storage:link` silently refuses and every /storage/... URL 404s, which is
+# what made uploaded product images disappear after a redeploy. Remove a stale
+# non-symlink entry first, then (re)create the link.
+if [ -e public/storage ] && [ ! -L public/storage ]; then
+    rm -rf public/storage
+fi
+rm -f public/storage 2>/dev/null || true
 php artisan storage:link 2>/dev/null || true
+# Make sure the link actually points at the mounted storage tree.
+if [ ! -L public/storage ]; then
+    ln -sfn ../storage/app/public public/storage
+fi
 
 # Seed fallback brand assets (Akbari Development Group + Asaan logos) from
 # public/logos into the storage mirror. The Docker image excludes storage/* at

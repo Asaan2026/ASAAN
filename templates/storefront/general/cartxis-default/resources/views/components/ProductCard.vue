@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { useCart } from '@/composables/useCart';
 import { useCurrency } from '@/composables/useCurrency';
@@ -55,19 +55,37 @@ const { addToCart, loading } = useCart();
 const addingToCart = ref(false);
 const showSuccess = ref(false);
 
+const imageBroken = ref(false);
+
+watch(() => props.product.image, () => {
+    imageBroken.value = false;
+});
+
+// A special price of 0 (or anything not strictly positive and below the
+// regular price) is not a real discount. Seed data stores 0 instead of NULL,
+// so guard against it here as well as in the backend accessor.
+const effectiveSpecialPrice = computed(() => {
+    const sp = props.product.special_price;
+    if (sp === null || sp === undefined) return null;
+    const n = typeof sp === 'string' ? parseFloat(sp) : sp;
+    if (!n || n <= 0) return null;
+    const price = typeof props.product.price === 'string' ? parseFloat(props.product.price) : props.product.price;
+    if (price && n >= price) return null;
+    return n;
+});
+
 const displayPrice = computed(() => {
-    const price = props.product.special_price ?? props.product.price;
+    const price = effectiveSpecialPrice.value ?? props.product.price;
     return typeof price === 'string' ? parseFloat(price) : price;
 });
 
-const hasDiscount = computed(() => props.product.special_price !== null);
+const hasDiscount = computed(() => effectiveSpecialPrice.value !== null);
 
 const discountPercentage = computed(() => {
     if (!hasDiscount.value) return 0;
     const price = typeof props.product.price === 'string' ? parseFloat(props.product.price) : props.product.price;
-    const specialPrice = typeof props.product.special_price === 'string'
-        ? parseFloat(props.product.special_price!)
-        : props.product.special_price!;
+    const specialPrice = effectiveSpecialPrice.value!;
+    if (!price) return 0;
     return Math.round(((price - specialPrice) / price) * 100);
 });
 
@@ -114,11 +132,12 @@ const handleWishlistToggle = async () => {
         <Link :href="`/product/${product.slug}`" class="block">
             <div class="relative aspect-square bg-gradient-to-br from-blue-50 to-slate-100 overflow-hidden">
                 <img
-                    v-if="product.image"
+                    v-if="product.image && !imageBroken"
                     :src="product.image"
                     :alt="product.name"
                     class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
+                    @error="imageBroken = true"
                 />
                 <div v-else class="absolute inset-0 flex items-center justify-center opacity-50">
                     <ThemePlaceholderIcon />
