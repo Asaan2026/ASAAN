@@ -475,6 +475,15 @@ class AppLocalizationsPs extends AppLocalizations {
   String get commonShare => 'شریک کړئ';
 
   @override
+  String get exitAppTitle => 'له آسان څخه ووځئ؟';
+
+  @override
+  String get exitAppMessage => 'ایا غواړئ اپلیکیشن بند کړئ؟';
+
+  @override
+  String get exitAppConfirm => 'وتل';
+
+  @override
   String servicesContactCall(String phone) {
     return '$phone ته زنګ';
   }

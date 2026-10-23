@@ -482,6 +482,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonShare => 'Share';
 
   @override
+  String get exitAppTitle => 'Leave Asaan?';
+
+  @override
+  String get exitAppMessage => 'Do you want to close the app?';
+
+  @override
+  String get exitAppConfirm => 'Exit';
+
+  @override
   String servicesContactCall(String phone) {
     return 'Call $phone';
   }

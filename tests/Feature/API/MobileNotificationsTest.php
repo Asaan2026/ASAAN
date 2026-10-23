@@ -4,8 +4,32 @@ use App\Models\User;
 use Cartxis\API\Models\CustomerNotification;
 use Cartxis\API\Models\DeviceToken;
 use Cartxis\API\Services\CustomerNotificationService;
+use Cartxis\API\Services\Push\PushSender;
 use Cartxis\Shop\Models\Order;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+
+/**
+ * A push sender that records what it was asked to send and always accepts, so a
+ * test can prove a push was attempted without a real Firebase project.
+ */
+class RecordingPushSender implements PushSender
+{
+    /** @var list<array{token: string, title: string, type: string}> */
+    public array $sent = [];
+
+    public function send(string $token, string $title, string $body, array $data = [], string $type = 'general'): bool
+    {
+        $this->sent[] = ['token' => $token, 'title' => $title, 'type' => $type];
+
+        return true;
+    }
+
+    public function isConfigured(): bool
+    {
+        return true;
+    }
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -18,6 +42,14 @@ use Illuminate\Support\Str;
 | order reaches the person who placed it.
 |
 */
+
+beforeEach(function () {
+    // A test must never reach Google or Firebase for real. Registering a device
+    // can trigger a push, and a live OAuth call needs a CA bundle (absent on
+    // some machines), so the suite would fail for a reason that has nothing to
+    // do with the code under test.
+    Http::fake();
+});
 
 function notificationUser(string $name = 'Test Customer'): User
 {
@@ -61,7 +93,7 @@ it('lists only the signed-in customer’s own notifications', function () {
     expect($titles)->toContain('Mine 1')
         ->and($titles)->toContain('Mine 2')
         ->and($titles)->not->toContain('Not mine')
-        ->and($response->json('meta.total'))->toBe(2);
+        ->and($response->json('meta.total'))->toBe(3);
 });
 
 it('counts only the unread notifications for the signed-in customer', function () {
@@ -74,7 +106,8 @@ it('counts only the unread notifications for the signed-in customer', function (
 
     $response = $this->actingAs($user)->getJson('/api/v1/notifications/unread-count')->assertOk();
 
-    expect($response->json('data.unread_count'))->toBe(2);
+    // Two manual notifications plus the welcome every new account receives.
+    expect($response->json('data.unread_count'))->toBe(3);
 });
 
 it('marks one notification as read', function () {
@@ -110,7 +143,8 @@ it('marks all of the customer’s notifications as read', function () {
 
     $response = $this->actingAs($user)->postJson('/api/v1/notifications/read-all')->assertOk();
 
-    expect($response->json('data.marked_read'))->toBe(2)
+    // Two manual notifications plus the welcome every new account receives.
+    expect($response->json('data.marked_read'))->toBe(3)
         ->and($other->fresh()->read_at)->toBeNull();
 });
 
@@ -148,8 +182,9 @@ it('tells the customer when their order status changes', function () {
         'payment_status' => 'pending',
     ]);
 
-    // Placing the order already told them it was received.
-    expect(CustomerNotification::where('user_id', $user->id)->count())->toBe(1);
+    // Placing the order already told them it was received, on top of the
+    // welcome every new account gets.
+    expect(CustomerNotification::where('user_id', $user->id)->count())->toBe(2);
 
     $order->update(['status' => Order::STATUS_PROCESSING]);
 
@@ -193,5 +228,58 @@ it('creates a notification through the service and reports it unread', function 
 
     $response = $this->actingAs($user)->getJson('/api/v1/notifications/unread-count')->assertOk();
 
-    expect($response->json('data.unread_count'))->toBe(1);
+    // The service's notification plus the welcome every new account receives.
+    expect($response->json('data.unread_count'))->toBe(2);
+});
+
+it('welcomes a brand-new customer with a notification', function () {
+    $user = notificationUser();
+
+    $welcome = CustomerNotification::where('user_id', $user->id)
+        ->where('type', 'welcome')
+        ->first();
+
+    expect($welcome)->not->toBeNull()
+        ->and($welcome->title)->toContain('Welcome')
+        ->and($welcome->read_at)->toBeNull();
+});
+
+it('does not welcome a staff account created with another role', function () {
+    $admin = User::create([
+        'name' => 'Shop Owner',
+        'email' => Str::lower(Str::random(8)).'@example.test',
+        'password' => 'password',
+        'role' => 'admin',
+        'is_active' => true,
+    ]);
+
+    expect(CustomerNotification::where('user_id', $admin->id)->count())->toBe(0);
+});
+
+it('pushes the welcome to the phone the first time it registers a token', function () {
+    $pusher = new RecordingPushSender;
+
+    $this->app->instance(PushSender::class, $pusher);
+    // Rebuild the service so it uses the recording sender.
+    $this->app->forgetInstance(CustomerNotificationService::class);
+
+    $user = notificationUser();
+
+    $this->actingAs($user)
+        ->postJson('/api/v1/devices', ['token' => 'device-welcome-1', 'platform' => 'android'])
+        ->assertOk();
+
+    $welcomePushes = array_filter($pusher->sent, fn ($push) => $push['type'] === 'welcome');
+
+    expect($welcomePushes)->toHaveCount(1)
+        ->and($user->customerNotifications()->where('type', 'welcome')->first()->data['pushed'] ?? false)->toBeTrue();
+
+    // A second registration on the same phone must not push the welcome again.
+    $this->actingAs($user)
+        ->postJson('/api/v1/devices', ['token' => 'device-welcome-1', 'platform' => 'android'])
+        ->assertOk();
+
+    $welcomePushes = array_filter($pusher->sent, fn ($push) => $push['type'] === 'welcome');
+
+    expect($welcomePushes)->toHaveCount(1);
 });

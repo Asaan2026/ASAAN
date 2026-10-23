@@ -3,9 +3,11 @@
 namespace Cartxis\API\Providers;
 
 use Cartxis\API\Observers\OrderNotificationObserver;
+use Cartxis\API\Observers\WelcomeNotificationObserver;
 use Cartxis\API\Services\Push\FcmPushSender;
 use Cartxis\API\Services\Push\NullPushSender;
 use Cartxis\API\Services\Push\PushSender;
+use App\Models\User;
 use Cartxis\Shop\Models\Order;
 use Illuminate\Support\ServiceProvider;
 
@@ -25,6 +27,10 @@ class APIServiceProvider extends ServiceProvider
         // Customers hear about their orders through the same notification path
         // the bell reads, whatever changed the order.
         Order::observe(OrderNotificationObserver::class);
+
+        // A brand-new account gets one welcome notification, from whichever
+        // path created it, so a fresh bell is never empty.
+        User::observe(WelcomeNotificationObserver::class);
 
         // Load config
         $this->publishes([

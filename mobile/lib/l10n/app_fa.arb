@@ -155,6 +155,10 @@
 
   "commonError": "مشکلی پیش آمد. دوباره تلاش کنید.",
   "commonShare": "شریک کردن",
+
+  "exitAppTitle": "از آسان خارج می‌شوید؟",
+  "exitAppMessage": "آیا می‌خواهید برنامه را ببندید؟",
+  "exitAppConfirm": "خروج",
   "servicesContactCall": "تماس {phone}",
   "servicesContactWhatsapp": "واتس‌اپ {phone}",
   "referralApplyEmpty": "کدی را که به شما داده شده وارد کنید.",

@@ -200,6 +200,10 @@
   "commonError": "Something went wrong. Please try again.",
   "commonShare": "Share",
 
+  "exitAppTitle": "Leave Asaan?",
+  "exitAppMessage": "Do you want to close the app?",
+  "exitAppConfirm": "Exit",
+
   "@servicesContactCall": {
     "placeholders": {
       "phone": {"type": "String"}

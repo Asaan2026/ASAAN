@@ -38,6 +38,11 @@ class NotificationNavigator {
   /// Push once the navigator exists. A push that opens the app from cold can
   /// arrive before the first frame, so wait for the navigator instead of
   /// dropping the tap.
+  ///
+  /// The route is forced onto the root navigator so a tap always lands on a
+  /// full screen, never buried inside a tab. If that route is already on top
+  /// (for example the customer is already on their notifications), pushing the
+  /// same name again would look like nothing happened -- so it is skipped.
   static void _push(String route, {int attempts = 30}) {
     final navigator = AppRouter.navigatorKey.currentState;
     if (navigator == null) {
@@ -48,6 +53,11 @@ class NotificationNavigator {
       return;
     }
 
+    if (AppRouter.currentRoute == route) {
+      return;
+    }
+
+    AppRouter.currentRoute = route;
     navigator.pushNamed(route);
   }
 }

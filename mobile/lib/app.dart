@@ -77,6 +77,7 @@ class _CartxisAppState extends State<CartxisApp> with WidgetsBindingObserver {
           navigatorKey: AppRouter.navigatorKey,
           initialRoute: AppRouter.splash,
           onGenerateRoute: AppRouter.generateRoute,
+          navigatorObservers: [AppRouter.routeObserver],
 
           // Builder for global configurations
           builder: (context, child) {

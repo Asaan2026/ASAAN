@@ -39,6 +39,15 @@ class AppRouter {
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
 
+  /// The route currently on top of the root navigator. A notification tap uses
+  /// this to avoid pushing a screen the customer is already looking at, which
+  /// would appear as a refresh with nothing changing.
+  static String? currentRoute;
+
+  /// Keeps [currentRoute] honest when screens are popped, not just pushed. A
+  /// push alone would leave a popped screen marked as "on top" forever.
+  static final NavigatorObserver routeObserver = _RouteTracker();
+
   // Route names
   static const String splash = '/';
   static const String onboarding = '/onboarding';
@@ -74,6 +83,9 @@ class AppRouter {
 
   /// Generate routes
   static Route<dynamic> generateRoute(RouteSettings settings) {
+    // Remember the top screen so a notification tap can tell whether it would
+    // just re-open the screen already on display.
+    currentRoute = settings.name;
     switch (settings.name) {
       case splash:
         return MaterialPageRoute(
@@ -341,5 +353,24 @@ class AppRouter {
       },
       transitionDuration: const Duration(milliseconds: 300),
     );
+  }
+}
+
+/// Follows the root navigator so a notification tap knows which screen is on
+/// top even after screens are popped.
+class _RouteTracker extends NavigatorObserver {
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    AppRouter.currentRoute = previousRoute?.settings.name;
+  }
+
+  @override
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    AppRouter.currentRoute = previousRoute?.settings.name;
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    AppRouter.currentRoute = newRoute?.settings.name;
   }
 }

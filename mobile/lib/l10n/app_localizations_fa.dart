@@ -478,6 +478,15 @@ class AppLocalizationsFa extends AppLocalizations {
   String get commonShare => 'شریک کردن';
 
   @override
+  String get exitAppTitle => 'از آسان خارج می‌شوید؟';
+
+  @override
+  String get exitAppMessage => 'آیا می‌خواهید برنامه را ببندید؟';
+
+  @override
+  String get exitAppConfirm => 'خروج';
+
+  @override
   String servicesContactCall(String phone) {
     return 'تماس $phone';
   }

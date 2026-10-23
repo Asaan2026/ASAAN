@@ -7,6 +7,7 @@ use Cartxis\API\Helpers\ApiResponse;
 use Cartxis\API\Http\Resources\CustomerNotificationResource;
 use Cartxis\API\Models\CustomerNotification;
 use Cartxis\API\Models\DeviceToken;
+use Cartxis\API\Services\CustomerNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -18,6 +19,9 @@ use Illuminate\Support\Facades\Validator;
  */
 class NotificationController extends Controller
 {
+    public function __construct(
+        protected CustomerNotificationService $customerNotifications,
+    ) {}
     public function index(Request $request)
     {
         $perPage = min(max((int) $request->integer('per_page', 20), 1), 50);
@@ -109,6 +113,15 @@ class NotificationController extends Controller
                 'platform' => $request->input('platform', 'android'),
                 'last_seen_at' => now(),
             ]
+        );
+
+        // A phone has just made itself reachable. If this account still has an
+        // un-pushed welcome, send it now -- this is the first moment it can
+        // arrive, since the account was created before any token existed.
+        $this->customerNotifications->pushPendingWelcome(
+            $request->user(),
+            (string) $request->input('token'),
+            (string) $request->input('platform', 'android'),
         );
 
         return ApiResponse::success([

@@ -81,6 +81,57 @@ class CustomerNotificationService
     }
 
     /**
+     * A phone has just told us its push token. If this account is new and still
+     * has an un-pushed welcome waiting, send it to that phone now.
+     *
+     * The welcome is written when the account is created -- before any phone has
+     * a token, so it cannot be pushed at that moment. This catches it up on the
+     * first sign-in, so a customer who installs the app and registers does get
+     * the welcome on their phone, not only in the bell.
+     */
+    public function pushPendingWelcome(User $user, string $token, string $platform): void
+    {
+        if (! $this->push->isConfigured()) {
+            return;
+        }
+
+        if (! (bool) $this->settings->get('notifications_push_enabled', true)) {
+            return;
+        }
+
+        if ($token === '') {
+            return;
+        }
+
+        $welcome = CustomerNotification::query()
+            ->where('user_id', $user->id)
+            ->where('type', 'welcome')
+            ->orderByDesc('id')
+            ->get()
+            ->first(fn (CustomerNotification $n) => ! ($n->data['pushed'] ?? false));
+
+        if (! $welcome) {
+            return;
+        }
+
+        $accepted = $this->push->send(
+            $token,
+            $welcome->title,
+            $welcome->body,
+            array_merge($welcome->data ?? [], ['notification_id' => $welcome->id]),
+            $welcome->type,
+        );
+
+        // Mark it pushed only when the provider accepted it, so a failed attempt
+        // is retried on the next sign-in instead of being lost for good.
+        if ($accepted) {
+            $welcome->forceFill([
+                'data' => array_merge($welcome->data ?? [], ['pushed' => true]),
+            ])->save();
+        }
+    }
+
+    /**
      * Send one notification to every phone this customer has signed in on.
      *
      * The dashboard's push switch only silences the phone: the in-app row is

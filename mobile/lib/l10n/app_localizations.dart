@@ -970,6 +970,24 @@ abstract class AppLocalizations {
   /// **'Share'**
   String get commonShare;
 
+  /// No description provided for @exitAppTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave Asaan?'**
+  String get exitAppTitle;
+
+  /// No description provided for @exitAppMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to close the app?'**
+  String get exitAppMessage;
+
+  /// No description provided for @exitAppConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit'**
+  String get exitAppConfirm;
+
   /// No description provided for @servicesContactCall.
   ///
   /// In en, this message translates to:

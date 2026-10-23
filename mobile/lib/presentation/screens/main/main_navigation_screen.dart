@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:vortex_app/core/constants/app_colors.dart';
 import 'package:vortex_app/presentation/screens/home/home_screen.dart';
 import 'package:vortex_app/presentation/screens/categories/categories_screen.dart';
@@ -9,6 +10,7 @@ import 'package:vortex_app/presentation/screens/profile/profile_screen.dart';
 import 'package:vortex_app/presentation/screens/products/new_arrivals_screen.dart';
 import 'package:vortex_app/presentation/screens/products/flash_sales_screen.dart';
 import 'package:vortex_app/presentation/screens/products/featured_products_screen.dart';
+import 'package:vortex_app/presentation/screens/products/product_detail_screen.dart';
 import 'package:vortex_app/data/services/cart_service.dart';
 import 'package:vortex_app/l10n/app_localizations.dart';
 
@@ -26,6 +28,15 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   final CartService _cartService = CartService();
   int _cartRefreshKey = 0; // Used to force cart screen rebuild
   int _wishlistRefreshKey = 0; // Used to force wishlist screen rebuild
+
+  // Each scrollable tab keeps its own history. Holding the keys lets the phone's
+  // back button step back through the tab you are in before it leaves the tab.
+  final GlobalKey<NavigatorState> _homeNavKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _categoriesNavKey =
+      GlobalKey<NavigatorState>();
+
+  // The tab we were on before this one, so back can return there.
+  int _previousIndex = 0;
 
   @override
   void initState() {
@@ -56,7 +67,71 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     });
   }
 
+  /// The navigator for the tab currently on screen, if it has one. Only Home
+  /// and Categories are stacked; the other tabs are single screens.
+  NavigatorState? _currentTabNavigator() {
+    switch (_selectedIndex) {
+      case 0:
+        return _homeNavKey.currentState;
+      case 1:
+        return _categoriesNavKey.currentState;
+      default:
+        return null;
+    }
+  }
+
+  /// Handle the phone's back button.
+  ///
+  /// First step back inside the current tab. When the tab is already at its
+  /// first screen, return to the tab we came from. Only when there is nowhere
+  /// left to go do we ask before closing the app.
+  Future<bool> _onWillPop() async {
+    final tabNavigator = _currentTabNavigator();
+    if (tabNavigator != null && tabNavigator.canPop()) {
+      tabNavigator.pop();
+      return false;
+    }
+
+    // Not the first tab: step back to the tab we came from.
+    if (_selectedIndex != 0) {
+      setState(() {
+        _selectedIndex = _previousIndex;
+      });
+      return false;
+    }
+
+    final shouldExit = await _confirmExit();
+    return shouldExit;
+  }
+
+  Future<bool> _confirmExit() async {
+    final l10n = AppLocalizations.of(context);
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.exitAppTitle),
+        content: Text(l10n.exitAppMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.commonCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.exitAppConfirm),
+          ),
+        ],
+      ),
+    );
+    // A dialog dismissed without a choice (tap outside, hardware back) means
+    // stay, never exit.
+    return result ?? false;
+  }
+
   void _onTabTapped(int index) {
+    if (index != _selectedIndex) {
+      _previousIndex = _selectedIndex;
+    }
     setState(() {
       _selectedIndex = index;
     });
@@ -90,71 +165,109 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: [
-          Navigator(
-            key: const ValueKey('home_navigator'),
-            initialRoute: '/',
-            onGenerateRoute: (settings) {
-              if (settings.name == '/new-arrivals') {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldExit = await _onWillPop();
+        if (shouldExit && mounted) {
+          // Nothing is left to go back to and the customer confirmed, so close
+          // the app the normal way.
+          SystemNavigator.pop();
+        }
+      },
+      child: Scaffold(
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: [
+            Navigator(
+              key: _homeNavKey,
+              initialRoute: '/',
+              onGenerateRoute: (settings) {
+                if (settings.name == '/new-arrivals') {
+                  return MaterialPageRoute(
+                    builder: (context) => NewArrivalsScreen(
+                      onCartChanged: _loadCartCount,
+                    ),
+                  );
+                }
+                if (settings.name == '/flash-sales') {
+                  return MaterialPageRoute(
+                    builder: (context) => FlashSalesScreen(
+                      onCartChanged: _loadCartCount,
+                    ),
+                  );
+                }
+                if (settings.name == '/featured-products') {
+                  return MaterialPageRoute(
+                    builder: (context) => FeaturedProductsScreen(
+                      onCartChanged: _loadCartCount,
+                    ),
+                  );
+                }
+                // Product detail opened from a Home card is pushed here too, so
+                // backing out of a product returns to the Home tab.
+                if (settings.name == '/product-detail') {
+                  final args = settings.arguments as Map<String, dynamic>?;
+                  return MaterialPageRoute(
+                    builder: (context) => ProductDetailScreen(
+                      product:
+                          (args?['product'] as Map<String, dynamic>?) ?? {},
+                    ),
+                  );
+                }
+                // Default route for Home (/ or null)
                 return MaterialPageRoute(
-                  builder: (context) => NewArrivalsScreen(
-                    onCartChanged: _loadCartCount,
-                  ),
+                  builder: (context) =>
+                      HomeScreen(onCartChanged: _loadCartCount),
                 );
-              }
-              if (settings.name == '/flash-sales') {
+              },
+            ),
+            Navigator(
+              key: _categoriesNavKey,
+              onGenerateRoute: (settings) {
+                if (settings.name == '/category-products') {
+                  final args = settings.arguments as Map<String, dynamic>?;
+                  return MaterialPageRoute(
+                    builder: (context) => CategoryProductsScreen(
+                      categoryId: args?['categoryId'] ?? 1,
+                      categoryName: args?['categoryName'] ?? 'Products',
+                    ),
+                  );
+                }
+                // Product detail is opened on THIS tab's navigator, not the root
+                // one. The category list lives here, so the detail has to be
+                // pushed here too -- otherwise the two stacks get out of step and
+                // backing out of a product lands on the wrong screen.
+                if (settings.name == '/product-detail') {
+                  final args = settings.arguments as Map<String, dynamic>?;
+                  return MaterialPageRoute(
+                    builder: (context) => ProductDetailScreen(
+                      product:
+                          (args?['product'] as Map<String, dynamic>?) ?? {},
+                    ),
+                  );
+                }
                 return MaterialPageRoute(
-                  builder: (context) => FlashSalesScreen(
-                    onCartChanged: _loadCartCount,
-                  ),
+                  builder: (context) => const CategoriesScreen(),
                 );
-              }
-              if (settings.name == '/featured-products') {
-                return MaterialPageRoute(
-                  builder: (context) => FeaturedProductsScreen(
-                    onCartChanged: _loadCartCount,
-                  ),
-                );
-              }
-              // Default route for Home (/ or null)
-              return MaterialPageRoute(
-                builder: (context) => HomeScreen(onCartChanged: _loadCartCount),
-              );
-            },
-          ),
-          Navigator(
-            onGenerateRoute: (settings) {
-              if (settings.name == '/category-products') {
-                final args = settings.arguments as Map<String, dynamic>?;
-                return MaterialPageRoute(
-                  builder: (context) => CategoryProductsScreen(
-                    categoryId: args?['categoryId'] ?? 1,
-                    categoryName: args?['categoryName'] ?? 'Products',
-                  ),
-                );
-              }
-              return MaterialPageRoute(
-                builder: (context) => const CategoriesScreen(),
-              );
-            },
-          ),
-          CartScreen(
-            key: ValueKey('cart_$_cartRefreshKey'),
-            onCartChanged: _loadCartCount,
-            onContinueShopping: () {
-              setState(() {
-                _selectedIndex = 0;
-              });
-            },
-          ),
-          WishlistScreen(key: ValueKey('wishlist_$_wishlistRefreshKey')),
-          const ProfileScreen(),
-        ],
+              },
+            ),
+            CartScreen(
+              key: ValueKey('cart_$_cartRefreshKey'),
+              onCartChanged: _loadCartCount,
+              onContinueShopping: () {
+                setState(() {
+                  _selectedIndex = 0;
+                });
+              },
+            ),
+            WishlistScreen(key: ValueKey('wishlist_$_wishlistRefreshKey')),
+            const ProfileScreen(),
+          ],
+        ),
+        bottomNavigationBar: _buildBottomNavBar(isDark),
       ),
-      bottomNavigationBar: _buildBottomNavBar(isDark),
     );
   }
 

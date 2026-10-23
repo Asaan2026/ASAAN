@@ -155,6 +155,10 @@
 
   "commonError": "یو څه غلط شو. بیا هڅه وکړئ.",
   "commonShare": "شریک کړئ",
+
+  "exitAppTitle": "له آسان څخه ووځئ؟",
+  "exitAppMessage": "ایا غواړئ اپلیکیشن بند کړئ؟",
+  "exitAppConfirm": "وتل",
   "servicesContactCall": "{phone} ته زنګ",
   "servicesContactWhatsapp": "واټس اپ {phone}",
   "referralApplyEmpty": "هغه کوډ ولیکئ چې تاسو ته درکړل شوی.",
