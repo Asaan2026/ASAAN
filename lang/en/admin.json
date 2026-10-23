@@ -2846,8 +2846,7 @@
     "0 = highest": "0 = highest",
     "20% Off All Orders": "20% Off All Orders",
     "Reviews": "Reviews",
-    "Blog": "Blog"
-,
+    "Blog": "Blog",
     "\"": "\"",
     "\" will be permanently deleted. Any pages that reference this section will show a placeholder.": "\" will be permanently deleted. Any pages that reference this section will show a placeholder.",
     "After clicking create, assign the shipment to one of your delivery staff from the Deliveries screen. No external courier is contacted.": "After clicking create, assign the shipment to one of your delivery staff from the Deliveries screen. No external courier is contacted.",
@@ -2929,5 +2928,13 @@
     "Subject": "Subject",
     "This message has no email address to reply to.": "This message has no email address to reply to.",
     "Type your reply…": "Type your reply…",
-    "Where the Android and iPhone apps can be downloaded. Leave blank until the app is published — the website falls back to the direct Android download while the Play Store link is empty.": "Where the Android and iPhone apps can be downloaded. Leave blank until the app is published — the website falls back to the direct Android download while the Play Store link is empty."
+    "Where the Android and iPhone apps can be downloaded. Leave blank until the app is published — the website falls back to the direct Android download while the Play Store link is empty.": "Where the Android and iPhone apps can be downloaded. Leave blank until the app is published — the website falls back to the direct Android download while the Play Store link is empty.",
+    "Android channel": "Android channel",
+    "Choose what reaches customers and admins, and test that push reaches a phone.": "Choose what reaches customers and admins, and test that push reaches a phone.",
+    "Credentials file": "Credentials file",
+    "File present": "File present",
+    "Firebase default": "Firebase default",
+    "Not set": "Not set",
+    "Send test push to my phone": "Send test push to my phone",
+    "What to send": "What to send"
 }

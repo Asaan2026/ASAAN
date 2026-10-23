@@ -15,6 +15,7 @@
 | FCM key file readable by PHP on the server | ✅ Fixed — was `root:root 600`, now `www-data:www-data 400` |
 | Push proven on the **live** server | ✅ Done — Google token obtained (1024 chars), welcome notification created |
 | Storefront download link → v2.7.1 | ✅ Done — assets rebuilt on the server and verified in the bundle |
+| Latest deploy | ✅ Done — run `39998919508`, success in 9m51s (image rebuilt from git) |
 | Tests | ✅ 13/13 passing (suite is now hermetic — no real network calls) |
 | Android AAB built (Play Store) | ✅ Built — **not uploaded** |
 | Android APK published | ✅ GitHub release `Asaan-v2.7.1` (`asaan-latest.apk`, HTTP 200, 69.5 MB) |

@@ -2846,8 +2846,7 @@
     "0 = highest": "۰ = بالاترین",
     "20% Off All Orders": "۲۰٪ تخفیف روی همه سفارش‌ها",
     "Reviews": "نظرات",
-    "Blog": "بلاگ"
-,
+    "Blog": "بلاگ",
     "\"": "\"",
     "\" will be permanently deleted. Any pages that reference this section will show a placeholder.": "\" برای همیشه حذف خواهد شد. هر صفحه‌ای که به این بخش اشاره کند، یک جای‌نگهدار نشان داده می‌شود.",
     "After clicking create, assign the shipment to one of your delivery staff from the Deliveries screen. No external courier is contacted.": "پس از کلیک بر ایجاد، سفارش را از صفحه «تحویل‌ها» به یکی از پیک‌های خود اختصاص دهید. هیچ پیک خارجی درگیر نمی‌شود.",
@@ -2929,5 +2928,13 @@
     "Subject": "موضوع",
     "This message has no email address to reply to.": "این پیام آدرس ایمیل برای پاسخ دادن ندارد.",
     "Type your reply…": "پاسخ خود را بنویسید…",
-    "Where the Android and iPhone apps can be downloaded. Leave blank until the app is published — the website falls back to the direct Android download while the Play Store link is empty.": "جایی که اپلیکیشن‌های اندروید و آیفون از آن دانلود می‌شوند. تا زمان نشر اپلیکیشن خالی بگذارید — تا وقتی لینک پلی استور خالی است، وبسایت به دانلود مستقیم اندروید برمی‌گردد."
+    "Where the Android and iPhone apps can be downloaded. Leave blank until the app is published — the website falls back to the direct Android download while the Play Store link is empty.": "جایی که اپلیکیشن‌های اندروید و آیفون از آن دانلود می‌شوند. تا زمان نشر اپلیکیشن خالی بگذارید — تا وقتی لینک پلی استور خالی است، وبسایت به دانلود مستقیم اندروید برمی‌گردد.",
+    "Android channel": "Android channel",
+    "Choose what reaches customers and admins, and test that push reaches a phone.": "Choose what reaches customers and admins, and test that push reaches a phone.",
+    "Credentials file": "Credentials file",
+    "File present": "File present",
+    "Firebase default": "Firebase default",
+    "Not set": "Not set",
+    "Send test push to my phone": "Send test push to my phone",
+    "What to send": "What to send"
 }

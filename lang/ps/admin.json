@@ -2846,8 +2846,7 @@
     "0 = highest": "۰ = لوړ",
     "20% Off All Orders": "۲۰٪ تخفیف پر ټولو سفارشونو",
     "Reviews": "بیاکتنې",
-    "Blog": "بلاګ"
-,
+    "Blog": "بلاګ",
     "\"": "\"",
     "\" will be permanently deleted. Any pages that reference this section will show a placeholder.": "\" دایمی توګه ړنګل کېږي. هر پاڼه چې دې برخې ته ارجاع وکړي، یو ځای نیست‌کونکی وښي.",
     "After clicking create, assign the shipment to one of your delivery staff from the Deliveries screen. No external courier is contacted.": "د جوړولو پر تڼۍ وروسته، پټۍ د تحویلونو پاڼې څخه خپلې یوې ډیلیورۍ ټیم ته وټکئ. هیڅ بهرنیي شرکت په کار کې نه ځي.",
@@ -2929,5 +2928,13 @@
     "Subject": "موضوع",
     "This message has no email address to reply to.": "دې پیغام د ځواب لپاره بریښنالیک نلري.",
     "Type your reply…": "خپل ځواب ولیکئ…",
-    "Where the Android and iPhone apps can be downloaded. Leave blank until the app is published — the website falls back to the direct Android download while the Play Store link is empty.": "هغه ځای چې د انډرویډ او آیفون اپلیکیشنونه ترې ډاونلوډ کېږي. تر هغه چې اپلیکیشن خپور شي خالي پرېږدئ — تر څو چې د پلی سټور لینک خالي وي، ویبسایټ مستقیم انډرویډ ډاونلوډ ته ځي."
+    "Where the Android and iPhone apps can be downloaded. Leave blank until the app is published — the website falls back to the direct Android download while the Play Store link is empty.": "هغه ځای چې د انډرویډ او آیفون اپلیکیشنونه ترې ډاونلوډ کېږي. تر هغه چې اپلیکیشن خپور شي خالي پرېږدئ — تر څو چې د پلی سټور لینک خالي وي، ویبسایټ مستقیم انډرویډ ډاونلوډ ته ځي.",
+    "Android channel": "Android channel",
+    "Choose what reaches customers and admins, and test that push reaches a phone.": "Choose what reaches customers and admins, and test that push reaches a phone.",
+    "Credentials file": "Credentials file",
+    "File present": "File present",
+    "Firebase default": "Firebase default",
+    "Not set": "Not set",
+    "Send test push to my phone": "Send test push to my phone",
+    "What to send": "What to send"
 }
