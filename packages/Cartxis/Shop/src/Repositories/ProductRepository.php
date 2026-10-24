@@ -156,8 +156,12 @@ class ProductRepository extends ShopRepository implements ProductRepositoryInter
                 $query->where('category_id', $categoryId);
             })
             ->where('status', 'enabled')
-            ->where('price', '>', 0)
+            ->where(function ($q) {
+                $q->where('price', '>', 0)
+                    ->orWhereNotNull('special_price');
+            })
             ->where('quantity', '>', 0)
+            ->with(['images', 'mainImage', 'categories'])
             ->paginate($perPage);
     }
 

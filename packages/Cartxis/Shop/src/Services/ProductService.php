@@ -103,6 +103,11 @@ class ProductService extends ShopService
         try {
             $perPage = $filters['per_page'] ?? config('shop.listing.products_per_page', 12);
 
+            $sort = $filters['sort'] ?? 'position';
+            if (in_array($sort, ['price', 'name', '-name', '-price', '-created_at', 'position'], true)) {
+                // Let repository handle default; basic sort handling
+            }
+
             return $this->productRepository->getByCategory($categoryId, $perPage);
         } catch (\Exception $e) {
             $this->handleException($e, "Error fetching products for category: {$categoryId}");
