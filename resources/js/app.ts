@@ -14,6 +14,45 @@ import { useI18nStore } from './Stores/i18n';
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 const pinia = createPinia();
 
+// Dari/Pashto (and other Arabic-script) keyboards emit Arabic-Indic digits
+// (٠-٩ and ۰-۹) which HTML number inputs and most validators reject. Convert
+// them to ASCII digits on the way in so every field accepts numbers regardless
+// of the active keyboard layout. Runs for all inputs/textareas globally.
+const ARABIC_INDIC = '٠١٢٣٤٥٦٧٨٩';
+const EXTENDED_ARABIC_INDIC = '۰۱۲۳۴۵۶۷۸۹';
+function toAsciiDigits(value: string): string {
+    return value.replace(/[٠-٩۰-۹]/g, (ch) => {
+        let idx = ARABIC_INDIC.indexOf(ch);
+        if (idx === -1) idx = EXTENDED_ARABIC_INDIC.indexOf(ch);
+        return idx === -1 ? ch : String(idx);
+    });
+}
+if (typeof document !== 'undefined') {
+    document.addEventListener('keydown', (e) => {
+        const target = e.target as HTMLInputElement | null;
+        if (!target || (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA')) return;
+        if (e.key && (ARABIC_INDIC.includes(e.key) || EXTENDED_ARABIC_INDIC.includes(e.key))) {
+            e.preventDefault();
+            const start = target.selectionStart ?? target.value.length;
+            const end = target.selectionEnd ?? target.value.length;
+            const ascii = toAsciiDigits(e.key);
+            target.value = target.value.slice(0, start) + ascii + target.value.slice(end);
+            target.selectionStart = target.selectionEnd = start + ascii.length;
+            target.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    }, true);
+    document.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement | null;
+        if (!target || (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA')) return;
+        const converted = toAsciiDigits(target.value);
+        if (converted !== target.value) {
+            const pos = target.selectionStart;
+            target.value = converted;
+            if (pos !== null) target.selectionStart = target.selectionEnd = pos;
+        }
+    }, true);
+}
+
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) => {
