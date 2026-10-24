@@ -19,8 +19,8 @@ interface Product {
     name: string;
     slug: string;
     price: number;
-    special_price?: number;
-    image?: string;
+    special_price?: number | null;
+    image?: string | null;
     rating?: number;
     reviews_count?: number;
 }
@@ -49,12 +49,18 @@ const props = defineProps<Props>();
 const { formatPrice } = useCurrency();
 
 const hasDiscount = (product: Product) => {
-    return product.special_price && product.special_price < product.price;
+    const sp = product.special_price;
+    if (sp === null || sp === undefined) return false;
+    const n = typeof sp === 'string' ? parseFloat(sp) : sp;
+    if (!n || n <= 0) return false;
+    return n < product.price;
 };
 
 const discountPercentage = (product: Product) => {
     if (!hasDiscount(product)) return 0;
-    return Math.round(((product.price - (product.special_price || 0)) / product.price) * 100);
+    const sp = product.special_price;
+    const n = typeof sp === 'string' ? parseFloat(sp) : (sp as number);
+    return Math.round(((product.price - n) / product.price) * 100);
 };
 </script>
 
@@ -156,6 +162,8 @@ const discountPercentage = (product: Product) => {
                             :src="product.image"
                             :alt="product.name"
                             class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300"
+                            loading="lazy"
+                            @error="$event.target.style.display = 'none'"
                         />
                         <div v-else class="w-full h-full flex items-center justify-center">
                             <svg class="w-20 h-20 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
