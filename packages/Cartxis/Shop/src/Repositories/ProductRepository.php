@@ -161,7 +161,7 @@ class ProductRepository extends ShopRepository implements ProductRepositoryInter
                     ->orWhereNotNull('special_price');
             })
             ->where('quantity', '>', 0)
-            ->with(['images', 'mainImage', 'categories'])
+            ->with(['images', 'mainImage', 'categories', 'brand'])
             ->paginate($perPage);
     }
 
