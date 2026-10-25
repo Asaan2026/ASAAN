@@ -372,25 +372,32 @@ const submit = () => {
         formData.append('images[]', file);
     });
 
-    router.post(productRoutes.store().url, formData, {
-        forceFormData: true,
-        onSuccess: (page) => {
+    axios
+        .post(productRoutes.store().url, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        })
+        .then(() => {
             images.value = [];
-        },
-        onError: (errors) => {
-            try {
-                const firstErrorField = Object.keys(errors || {})[0];
+            window.location.href = productRoutes.index().url;
+        })
+        .catch((error: any) => {
+            const errors = error.response?.data?.errors;
+            if (errors) {
+                const firstErrorField = Object.keys(errors)[0];
                 const element = firstErrorField
                     ? document.querySelector(`[name="${firstErrorField}"]`)
                     : null;
                 if (element) {
                     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
-            } catch (e) {
-                console.error('Create product error handler failed:', e, errors);
+                alert(
+                    Object.values(errors).flat().join('\\n') ||
+                        'Failed to create product',
+                );
+            } else {
+                alert(error.response?.data?.message || 'Failed to create product');
             }
-        },
-    });
+        });
 };
 
 // Save as draft
