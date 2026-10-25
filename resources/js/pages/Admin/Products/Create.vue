@@ -808,27 +808,12 @@ const saveDraft = () => {
                             :maxSize="5"
                             accept="image/*"
                         />
-                        <button
-                            v-if="images.length > 0"
-                            type="button"
-                            @click="submit"
-                            class="mt-4 inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-                        >
-                            {{
-                                $t(
-                                    images.length > 1
-                                        ? 'Upload {count} Images'
-                                        : 'Upload {count} Image',
-                                    { count: images.length },
-                                )
-                            }}
-                        </button>
                         <p
                             class="mt-4 text-xs text-gray-500 dark:text-gray-400"
                         >
                             {{
                                 $t(
-                                    'Images are uploaded together with the product when you save.',
+                                    'Selected images will be uploaded together with the product when you save.',
                                 )
                             }}
                         </p>
