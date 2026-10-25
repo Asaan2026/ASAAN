@@ -141,7 +141,7 @@ export function useCurrency() {
      * @param options.showCode - Use "AFN 500" instead of the symbol
      */
     const formatPrice = (
-        afnAmount: number,
+        afnAmount: number | string | null | undefined,
         options?: {
             decimalPlaces?: number;
             showSymbol?: boolean;
@@ -149,7 +149,16 @@ export function useCurrency() {
         },
     ): string => {
         const currency = active.value;
-        const amount = Number.isFinite(afnAmount) ? afnAmount : 0;
+        // Prices arrive from the server as strings for decimal columns
+        // (Laravel serialises decimal casts as strings). Coerce before the
+        // finiteness check, otherwise every price renders as 0.
+        const numeric =
+            typeof afnAmount === 'string'
+                ? parseFloat(afnAmount)
+                : typeof afnAmount === 'number'
+                  ? afnAmount
+                  : Number(afnAmount);
+        const amount = Number.isFinite(numeric) ? numeric : 0;
 
         const decimalPlaces = options?.decimalPlaces ?? currency.decimal_places;
         const showSymbol = options?.showSymbol !== false;

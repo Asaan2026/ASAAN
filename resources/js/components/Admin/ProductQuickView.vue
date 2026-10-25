@@ -64,7 +64,9 @@ const hasMultipleImages = computed(() => {
 
 const finalPrice = computed(() => {
     if (!props.product) return '0.00';
-    const price = props.product.special_price || props.product.price;
+    const price = (props.product.special_price !== null && props.product.special_price !== undefined && props.product.special_price !== '')
+        ? props.product.special_price
+        : props.product.price;
     return typeof price === 'number'
         ? price.toFixed(2)
         : parseFloat(price.toString()).toFixed(2);
