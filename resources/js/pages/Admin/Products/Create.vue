@@ -353,7 +353,14 @@ const applySelectedComparisonPrice = () => {
 const submit = () => {
     const formData = new FormData();
     Object.entries(form.value).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
+        if (value === null || value === undefined) return;
+        if (Array.isArray(value)) {
+            value.forEach((v) => {
+                formData.append(key + '[]', String(v));
+            });
+        } else if (typeof value === 'boolean') {
+            formData.append(key, value ? '1' : '0');
+        } else {
             formData.append(key, String(value));
         }
     });
