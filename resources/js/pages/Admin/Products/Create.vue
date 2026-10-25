@@ -351,17 +351,26 @@ const applySelectedComparisonPrice = () => {
 
 // Submit form
 const submit = () => {
-    const formData = {
-        ...form.value,
-        attribute_values: attributeValues.value,
-    };
+    const formData = new FormData();
+    Object.entries(form.value).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+            formData.append(key, String(value));
+        }
+    });
+    formData.append('attribute_values', JSON.stringify(attributeValues.value));
+
+    // Attach any images selected up front so they are uploaded in the same
+    // request instead of requiring a second "upload" step.
+    images.value.forEach((file) => {
+        formData.append('images[]', file);
+    });
 
     router.post(productRoutes.store().url, formData, {
+        forceFormData: true,
         onSuccess: () => {
-            // Success message will be shown via toast
+            images.value = [];
         },
         onError: (errors) => {
-            // Scroll to first error
             const firstErrorField = Object.keys(errors)[0];
             const element = document.querySelector(
                 `[name="${firstErrorField}"]`,
@@ -786,7 +795,7 @@ const saveDraft = () => {
                         >
                             {{
                                 $t(
-                                    'Note: Backend integration for image upload will be implemented in the next phase',
+                                    'Select images above; they will be uploaded together with the product.',
                                 )
                             }}
                         </p>

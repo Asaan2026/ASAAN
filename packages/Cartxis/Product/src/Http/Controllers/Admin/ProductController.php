@@ -135,6 +135,8 @@ class ProductController extends Controller
             'category_ids' => 'nullable|array',
             'category_ids.*' => 'exists:categories,id',
             'attribute_values' => 'nullable|array',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
         $categoryIds = $validated['category_ids'] ?? [];
@@ -148,10 +150,38 @@ class ProductController extends Controller
             $validated['short_description'] = Purifier::clean($validated['short_description']);
         }
 
+        // Images are handled separately (file uploads) and must not be mass-assigned
+        $images = $request->file('images', []);
+        unset($validated['images']);
+
         $product = Product::create($validated);
 
         if (! empty($categoryIds)) {
             $product->categories()->attach($categoryIds);
+        }
+
+        // Upload any images selected on the create form so the product is never
+        // created without its photos when the user picked them up front.
+        if (! empty($images)) {
+            $lastPosition = 0;
+            foreach ($images as $index => $image) {
+                $filename = \Illuminate\Support\Str::uuid().'.'.$image->getClientOriginalExtension();
+                $path = 'products/'.$product->id;
+                $fullPath = $path.'/'.$filename;
+                $storedPath = $image->storeAs($path, $filename, 'public');
+                if (! $storedPath || ! \Illuminate\Support\Facades\Storage::disk('public')->exists($fullPath)) {
+                    continue;
+                }
+                $productImage = $product->images()->create([
+                    'path' => $fullPath,
+                    'thumbnail_path' => $fullPath,
+                    'position' => $lastPosition + $index + 1,
+                    'alt_text' => $product->name,
+                ]);
+                if (! $product->main_image_id) {
+                    $product->update(['main_image_id' => $productImage->id]);
+                }
+            }
         }
 
         // Save attribute values
