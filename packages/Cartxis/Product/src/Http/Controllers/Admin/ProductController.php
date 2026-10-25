@@ -134,7 +134,7 @@ class ProductController extends Controller
             'brand_id' => 'nullable|exists:brands,id',
             'category_ids' => 'nullable|array',
             'category_ids.*' => 'exists:categories,id',
-            'attribute_values' => 'nullable|array',
+            'attribute_values' => 'nullable',
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
