@@ -50,11 +50,25 @@ class ProductImageController extends Controller
                 'alt_text' => $product->name,
             ]);
 
+            // The first image uploaded for a product becomes its main image
+            // automatically, so the storefront and the admin list preview show
+            // it without an extra "set as main" click. Previously main_image_id
+            // stayed null until someone clicked set-main, which is why a freshly
+            // uploaded image was invisible in the storefront and the admin list.
+            if (! $product->main_image_id) {
+                $product->update(['main_image_id' => $productImage->id]);
+            }
+
             // Return with full URL
             $productImage->url = Storage::disk('public')->url($fullPath);
 
             $uploadedImages[] = $productImage;
         }
+
+        // Drop the cached product so the new image shows up immediately
+        // instead of after the cache TTL (1 hour).
+        cache()->forget('shop.product.'.$product->slug);
+        cache()->forget('shop.related_products.'.$product->id.'.4');
 
         return response()->json([
             'message' => 'Images uploaded successfully',
@@ -80,6 +94,13 @@ class ProductImageController extends Controller
             Storage::disk('public')->delete($image->thumbnail_path);
         }
 
+        // If the deleted image was the main one, promote the next available
+        // image (or clear it) so the preview never points at a missing file.
+        if ($product->main_image_id === $image->id) {
+            $next = $product->images()->where('id', '!=', $image->id)->orderBy('position')->first();
+            $product->update(['main_image_id' => $next?->id]);
+        }
+
         // Delete database record
         $image->delete();
 
@@ -87,6 +108,9 @@ class ProductImageController extends Controller
         $product->images()->orderBy('position')->get()->each(function ($img, $index) {
             $img->update(['position' => $index + 1]);
         });
+
+        cache()->forget('shop.product.'.$product->slug);
+        cache()->forget('shop.related_products.'.$product->id.'.4');
 
         return response()->json([
             'message' => 'Image deleted successfully',
@@ -131,6 +155,8 @@ class ProductImageController extends Controller
 
         // Update product's main_image_id
         $product->update(['main_image_id' => $image->id]);
+
+        cache()->forget('shop.product.'.$product->slug);
 
         return response()->json([
             'message' => 'Main image updated successfully',
