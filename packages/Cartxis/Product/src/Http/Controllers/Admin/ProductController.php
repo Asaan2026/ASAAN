@@ -140,7 +140,13 @@ class ProductController extends Controller
         ]);
 
         $categoryIds = $validated['category_ids'] ?? [];
-        $attributeValues = $validated['attribute_values'] ?? [];
+        $rawAttributeValues = $validated['attribute_values'] ?? [];
+        if (is_string($rawAttributeValues)) {
+            $decoded = json_decode($rawAttributeValues, true);
+            $attributeValues = is_array($decoded) ? $decoded : [];
+        } else {
+            $attributeValues = is_array($rawAttributeValues) ? $rawAttributeValues : [];
+        }
         unset($validated['category_ids'], $validated['attribute_values']);
 
         if (isset($validated['description'])) {
