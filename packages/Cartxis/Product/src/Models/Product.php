@@ -103,6 +103,15 @@ class Product extends Model
             return null;
         }
 
+        // A special price that is not strictly lower than the regular price is
+        // not a real discount (0% off, or higher than the regular price). Treat
+        // it as "no special price" so the storefront and admin never show a
+        // strikethrough of the same number or a misleading 0% discount.
+        $price = $this->attributes['price'] ?? null;
+        if ($price !== null && (float) $value >= (float) $price) {
+            return null;
+        }
+
         return $value;
     }
 
