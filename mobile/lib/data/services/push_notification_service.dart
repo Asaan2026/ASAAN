@@ -102,18 +102,24 @@ class PushNotificationService {
   /// Called after login and on app start so the phone is always registered.
   Future<void> registerForCurrentUser() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      // Register whenever an auth token exists, not only when an explicit
+      // isLoggedIn flag is set — the flag can be missing on some code paths
+      // (e.g. a restored session), which previously made the device token
+      // never reach the server and produced "No phone is signed in".
+      final authToken = prefs.getString('auth_token');
+      if (authToken == null || authToken.isEmpty) return;
+
       final token = await _currentToken();
       if (token == null || token.isEmpty) return;
-
-      final prefs = await SharedPreferences.getInstance();
-      if (!(prefs.getBool('isLoggedIn') ?? false)) return;
 
       await _notifications.registerDevice(
         token,
         platform: Platform.isIOS ? 'ios' : 'android',
       );
     } catch (e) {
-      // Best-effort: a failure here must never disturb sign-in.
+      // Best-effort: a failure here must never disturb sign-in, but log it
+      // so a silent failure is at least visible.
       try {
         print('PushNotificationService registerForCurrentUser failed: $e');
       } catch (_) {}
