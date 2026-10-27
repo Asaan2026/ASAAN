@@ -1,13 +1,11 @@
 {
   "@@locale": "ps",
-
   "appTitle": "آسان ستور",
   "navHome": "کور",
   "navCategories": "ډولونه",
   "navCart": "کارټ",
   "navWishlist": "خوښې",
   "navProfile": "پروفایل",
-
   "commonTryAgain": "بیا هڅه وکړئ",
   "commonDone": "شو",
   "commonCancel": "لغوه",
@@ -15,12 +13,10 @@
   "commonDiscard": "پریږدئ",
   "commonKeepEditing": "سمون ته دوام",
   "commonLanguage": "ژبه",
-
   "languageTitle": "ژبه",
   "languageSubtitle": "د اپلیکیشن لپاره ژبه وټاکئ.",
   "languageSystem": "د سیستم ډیفالټ",
   "languageLoadError": "د موجودو ژبو راوړل ناکام شول.",
-
   "servicesTitle": "خدمتونه",
   "servicesSearchHint": "د خدمتونو پلټنه",
   "servicesAll": "ټول",
@@ -36,7 +32,6 @@
   "servicesAlsoNeed": "کیدای شي دا هم ورته اړتیا ولرئ",
   "servicesFeatured": "ځانګړی",
   "servicesDetailLoadError": "دا خدمت راوړل نشو. بیا هڅه وکړئ.",
-
   "bookingTitle": "یو خدمت بک کړئ",
   "bookingIntro": "موږ ته ووایاست چې چیرته او کله راشو. پلورنځی به ژر تایید کړي.",
   "bookingName": "ستاسو نوم",
@@ -67,7 +62,6 @@
   "bookingReference": "حواله",
   "bookingServiceLabel": "خدمت",
   "bookingPhoneLabel": "تلیفون",
-
   "referralShareBody": "خپله لینک شریک کړئ. کله چې یو ملګری یوځای شي او {threshold} ولګوي، تاسو {reward} په دوکان کریډیټ ترلاسه کوئ. کریډیټ د {days} ورځو وروسته ازاد کیږي.",
   "referralSpentSoFar": "تر دې دمه {amount} لګولي",
   "referralJoined": "یوځای شو {date}",
@@ -75,7 +69,6 @@
   "referralVerifiedOn": "په {date} تایید شو.",
   "referralSubmittedOn": "په {date} وسپارل شو. زموږ ټیم به ژر یې وګوري.",
   "identityAcceptedFormats": "منل شوي فورمېټونه: {types} · اعظمي اندازه: {max}",
-
   "profileHeaderAccount": "حساب",
   "profileHeaderSupport": "ملاتړ",
   "profileMyOrders": "زما سپارښتنې",
@@ -90,7 +83,6 @@
   "profileTerms": "شرطونه او مقررات",
   "profilePrivacy": "د محرمیت پالیسي",
   "profileEditProfile": "پروفایل سمول",
-
   "referralsTitle": "ریفرلونه",
   "referralProgramOff": "د ریفرل پروګرام اوس بند دی. تاسو لاهم خپل بیلانس لیدلی شئ.",
   "referralCreditAvailable": "شته کریډیټ",
@@ -120,7 +112,6 @@
   "referralLedgerReward": "د ریفرل انعام",
   "referralLedgerAdminCredit": "د دوکان کریډیټ اضافه شو",
   "referralLedgerAdminDebit": "سمون",
-
   "identityTitle": "د هویت تصدیق",
   "identityVerified": "تایید شوی",
   "identityNotAccepted": "نه منل شوی",
@@ -152,10 +143,8 @@
   "identityDiscardTitle": "خپل بدلونونه پرېږدئ؟",
   "identityDiscardBody": "تاسو معلومات لیکلي چې لا نه دي سپارل شوي.",
   "identityPhotoError": "ستاسو عکسونه خلاص نشول.",
-
   "commonError": "یو څه غلط شو. بیا هڅه وکړئ.",
   "commonShare": "شریک کړئ",
-
   "exitAppTitle": "له آسان څخه ووځئ؟",
   "exitAppMessage": "ایا غواړئ اپلیکیشن بند کړئ؟",
   "exitAppConfirm": "وتل",
@@ -169,5 +158,72 @@
   "identityVerifiedOn": "په {date} تایید شو.",
   "identitySubmittedOn": "په {date} وسپارل شو. زموږ ټیم به ژر یې وګوري.",
   "identityNumberExample": "لکه ۱۴۰۱ ۵۶۷۸ ۹۰۱۲",
-  "identityFullNameShort": "دا نوم ډیر لنډ ښکاري."
+  "identityFullNameShort": "دا نوم ډیر لنډ ښکاري.",
+  "guardSignInTitle": "د دوام لپاره ننوځئ",
+  "guardSignInBody": "د {reason} لپاره ننوځئ. پرته له حساب هم تاسو کولی شي پلورنځی وګورئ.",
+  "@guardSignInBody": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "guardSignIn": "ننوتل",
+  "guardNotNow": "اوس نه",
+  "guardCouldNotReachShop": "پلورنځي ته ونه رسېدو. مهرباني وکړئ بیا هڅه وکړئ.",
+  "guardReasonAddToBasket": "دا خپل ټوکرۍ ته اضافه کړئ",
+  "guardReasonSaveItem": "دا توکي خوندي کړئ",
+  "productAddToCart": "ټوکرۍ ته اضافه کړئ",
+  "productAddedToCart": "{name} ټوکرۍ ته اضافه شو",
+  "@productAddedToCart": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productAddingToCart": "اضافه کول...",
+  "productFullDescription": "بشپړ تفصیل",
+  "productSpecifications": "ځانګړنې",
+  "productRelatedProducts": "اړوند محصولات",
+  "productReviews": "بیاکتنې",
+  "productReviewsCount": "بیاکتنې ({count})",
+  "@productReviewsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productNoReviews": "تر اوسه هیڅ بیاکتنه نشته.",
+  "productRatingsCount": "{count} درجې",
+  "@productRatingsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productOneRating": "۱ درجه",
+  "productVerifiedBuyer": "تایید شوی پیرودونکی",
+  "productInStock": "په شتون کې",
+  "productOutOfStock": "نه شته",
+  "productSku": "د توکي کود",
+  "productBrand": "برنډ",
+  "productWeight": "وزن",
+  "productDimensions": "اندازې",
+  "productQuantityLabel": "شمېر: {count}",
+  "@productQuantityLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationsTitle": "خبرتیاوې",
+  "notificationsMarkAllRead": "ټول لوستل شوي وټاکئ",
+  "notificationsAllRead": "ټولې خبرتیاوې ولوستل شوې",
+  "notificationsEmptyTitle": "هیڅ خبرتیا نشته",
+  "notificationsEmptyBody": "کله چې د فرمایشونو یا وړاندیزونو خبر وي، همدلته ښودل کیږي.",
+  "notificationsLoadError": "خبرتیاوې نه ترلاسه شوې. مهرباني وکړئ بیا هڅه وکړئ."
 }

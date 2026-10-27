@@ -1089,6 +1089,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not load your notifications.'**
   String get notificationsLoadError;
+
+  /// No description provided for @guardSignInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to continue'**
+  String get guardSignInTitle;
+
+  /// No description provided for @guardSignInBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to {reason}. You can keep browsing the shop without an account.'**
+  String guardSignInBody(String reason);
+
+  /// No description provided for @guardSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get guardSignIn;
+
+  /// No description provided for @guardNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get guardNotNow;
+
+  /// No description provided for @guardCouldNotReachShop.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not reach the shop. Please try again.'**
+  String get guardCouldNotReachShop;
+
+  /// No description provided for @guardReasonAddToBasket.
+  ///
+  /// In en, this message translates to:
+  /// **'add this to your basket'**
+  String get guardReasonAddToBasket;
+
+  /// No description provided for @guardReasonSaveItem.
+  ///
+  /// In en, this message translates to:
+  /// **'save this item'**
+  String get guardReasonSaveItem;
+
+  /// No description provided for @productAddToCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to Cart'**
+  String get productAddToCart;
+
+  /// No description provided for @productAddedToCart.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} added to your basket'**
+  String productAddedToCart(String name);
+
+  /// No description provided for @productAddingToCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Adding...'**
+  String get productAddingToCart;
+
+  /// No description provided for @productFullDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Description'**
+  String get productFullDescription;
+
+  /// No description provided for @productSpecifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Specifications'**
+  String get productSpecifications;
+
+  /// No description provided for @productRelatedProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Related Products'**
+  String get productRelatedProducts;
+
+  /// No description provided for @productReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get productReviews;
+
+  /// No description provided for @productReviewsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews ({count})'**
+  String productReviewsCount(int count);
+
+  /// No description provided for @productNoReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews yet.'**
+  String get productNoReviews;
+
+  /// No description provided for @productRatingsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} ratings'**
+  String productRatingsCount(int count);
+
+  /// No description provided for @productOneRating.
+  ///
+  /// In en, this message translates to:
+  /// **'1 rating'**
+  String get productOneRating;
+
+  /// No description provided for @productVerifiedBuyer.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified buyer'**
+  String get productVerifiedBuyer;
+
+  /// No description provided for @productInStock.
+  ///
+  /// In en, this message translates to:
+  /// **'In Stock'**
+  String get productInStock;
+
+  /// No description provided for @productOutOfStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of Stock'**
+  String get productOutOfStock;
+
+  /// No description provided for @productSku.
+  ///
+  /// In en, this message translates to:
+  /// **'SKU'**
+  String get productSku;
+
+  /// No description provided for @productBrand.
+  ///
+  /// In en, this message translates to:
+  /// **'Brand'**
+  String get productBrand;
+
+  /// No description provided for @productWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get productWeight;
+
+  /// No description provided for @productDimensions.
+  ///
+  /// In en, this message translates to:
+  /// **'Dimensions'**
+  String get productDimensions;
+
+  /// No description provided for @productQuantityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Qty: {count}'**
+  String productQuantityLabel(int count);
 }
 
 class _AppLocalizationsDelegate

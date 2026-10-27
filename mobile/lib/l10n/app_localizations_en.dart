@@ -551,4 +551,93 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsLoadError => 'Could not load your notifications.';
+
+  @override
+  String get guardSignInTitle => 'Sign in to continue';
+
+  @override
+  String guardSignInBody(String reason) {
+    return 'Sign in to $reason. You can keep browsing the shop without an account.';
+  }
+
+  @override
+  String get guardSignIn => 'Sign in';
+
+  @override
+  String get guardNotNow => 'Not now';
+
+  @override
+  String get guardCouldNotReachShop =>
+      'We could not reach the shop. Please try again.';
+
+  @override
+  String get guardReasonAddToBasket => 'add this to your basket';
+
+  @override
+  String get guardReasonSaveItem => 'save this item';
+
+  @override
+  String get productAddToCart => 'Add to Cart';
+
+  @override
+  String productAddedToCart(String name) {
+    return '$name added to your basket';
+  }
+
+  @override
+  String get productAddingToCart => 'Adding...';
+
+  @override
+  String get productFullDescription => 'Full Description';
+
+  @override
+  String get productSpecifications => 'Specifications';
+
+  @override
+  String get productRelatedProducts => 'Related Products';
+
+  @override
+  String get productReviews => 'Reviews';
+
+  @override
+  String productReviewsCount(int count) {
+    return 'Reviews ($count)';
+  }
+
+  @override
+  String get productNoReviews => 'No reviews yet.';
+
+  @override
+  String productRatingsCount(int count) {
+    return '$count ratings';
+  }
+
+  @override
+  String get productOneRating => '1 rating';
+
+  @override
+  String get productVerifiedBuyer => 'Verified buyer';
+
+  @override
+  String get productInStock => 'In Stock';
+
+  @override
+  String get productOutOfStock => 'Out of Stock';
+
+  @override
+  String get productSku => 'SKU';
+
+  @override
+  String get productBrand => 'Brand';
+
+  @override
+  String get productWeight => 'Weight';
+
+  @override
+  String get productDimensions => 'Dimensions';
+
+  @override
+  String productQuantityLabel(int count) {
+    return 'Qty: $count';
+  }
 }

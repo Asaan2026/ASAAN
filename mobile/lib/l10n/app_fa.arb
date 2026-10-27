@@ -1,13 +1,11 @@
 {
   "@@locale": "fa",
-
   "appTitle": "آسان استور",
   "navHome": "خانه",
   "navCategories": "دسته‌بندی‌ها",
   "navCart": "سبد خرید",
   "navWishlist": "علاقه‌مندی‌ها",
   "navProfile": "پروفایل",
-
   "commonTryAgain": "دوباره تلاش کنید",
   "commonDone": "تمام",
   "commonCancel": "لغو",
@@ -15,12 +13,10 @@
   "commonDiscard": "انصراف",
   "commonKeepEditing": "ادامه ویرایش",
   "commonLanguage": "زبان",
-
   "languageTitle": "زبان",
   "languageSubtitle": "زبان برنامه را انتخاب کنید.",
   "languageSystem": "پیش‌فرض سیستم",
   "languageLoadError": "بارگیری زبان‌های موجود ناکام شد.",
-
   "servicesTitle": "خدمات",
   "servicesSearchHint": "جستجوی خدمات",
   "servicesAll": "همه",
@@ -36,7 +32,6 @@
   "servicesAlsoNeed": "ممکن است این را هم لازم داشته باشید",
   "servicesFeatured": "ویژه",
   "servicesDetailLoadError": "این خدمت بارگیری نشد. دوباره تلاش کنید.",
-
   "bookingTitle": "رزرو یک خدمت",
   "bookingIntro": "بگویید کجا و چه زمانی بیاییم. فروشگاه به‌زودی تأیید می‌کند.",
   "bookingName": "نام شما",
@@ -67,7 +62,6 @@
   "bookingReference": "مرجع",
   "bookingServiceLabel": "خدمت",
   "bookingPhoneLabel": "تلفن",
-
   "referralShareBody": "لینک خود را شریک کنید. وقتی دوستی عضو شود و {threshold} خرج کند، شما {reward} اعتبار فروشگاهی به‌دست می‌آورید. اعتبار پس از {days} روز آزاد می‌شود.",
   "referralSpentSoFar": "تا کنون {amount} خرج شده",
   "referralJoined": "پیوست {date}",
@@ -75,7 +69,6 @@
   "referralVerifiedOn": "در {date} تأیید شد.",
   "referralSubmittedOn": "در {date} ارسال شد. تیم ما به‌زودی بررسی می‌کند.",
   "identityAcceptedFormats": "فرمت‌های پذیرفته‌شده: {types} · حداکثر اندازه: {max}",
-
   "profileHeaderAccount": "حساب",
   "profileHeaderSupport": "پشتیبانی",
   "profileMyOrders": "سفارش‌های من",
@@ -90,7 +83,6 @@
   "profileTerms": "شرایط و ضوابط",
   "profilePrivacy": "سیاست حفظ حریم خصوصی",
   "profileEditProfile": "ویرایش پروفایل",
-
   "referralsTitle": "معرفی دوستان",
   "referralProgramOff": "برنامه معرفی در حال حاضر خاموش است. شما هنوز می‌توانید موجودی خود را ببینید.",
   "referralCreditAvailable": "اعتبار موجود",
@@ -120,7 +112,6 @@
   "referralLedgerReward": "پاداش معرفی",
   "referralLedgerAdminCredit": "اعتبار فروشگاهی اضافه شد",
   "referralLedgerAdminDebit": "اصلاح",
-
   "identityTitle": "تأیید هویت",
   "identityVerified": "تأییدشده",
   "identityNotAccepted": "نه پذیرفته شد",
@@ -152,10 +143,8 @@
   "identityDiscardTitle": "تغییرات خود را رد کنید؟",
   "identityDiscardBody": "شما اطلاعاتی وارد کرده‌اید که هنوز ارسال نشده است.",
   "identityPhotoError": "عکس‌های شما باز نشد.",
-
   "commonError": "مشکلی پیش آمد. دوباره تلاش کنید.",
   "commonShare": "شریک کردن",
-
   "exitAppTitle": "از آسان خارج می‌شوید؟",
   "exitAppMessage": "آیا می‌خواهید برنامه را ببندید؟",
   "exitAppConfirm": "خروج",
@@ -169,5 +158,72 @@
   "identityVerifiedOn": "در {date} تأیید شد.",
   "identitySubmittedOn": "در {date} ارسال شد. تیم ما به‌زودی بررسی می‌کند.",
   "identityNumberExample": "مثلاً ۱۴۰۱ ۵۶۷۸ ۹۰۱۲",
-  "identityFullNameShort": "این نام خیلی کوتاه به نظر می‌رسد."
+  "identityFullNameShort": "این نام خیلی کوتاه به نظر می‌رسد.",
+  "guardSignInTitle": "برای ادامه وارد شوید",
+  "guardSignInBody": "برای {reason} وارد شوید. بدون حساب هم می‌توانید فروشگاه را ببینید.",
+  "@guardSignInBody": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "guardSignIn": "ورود",
+  "guardNotNow": "حالا نه",
+  "guardCouldNotReachShop": "به فروشگاه وصل نشدیم. لطفاً دوباره تلاش کنید.",
+  "guardReasonAddToBasket": "افزودن این به سبد خرید",
+  "guardReasonSaveItem": "ذخیرهٔ این کالا",
+  "productAddToCart": "افزودن به سبد خرید",
+  "productAddedToCart": "{name} به سبد خرید اضافه شد",
+  "@productAddedToCart": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productAddingToCart": "در حال افزودن...",
+  "productFullDescription": "توضیحات کامل",
+  "productSpecifications": "مشخصات",
+  "productRelatedProducts": "محصولات مرتبط",
+  "productReviews": "نظرها",
+  "productReviewsCount": "نظرها ({count})",
+  "@productReviewsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productNoReviews": "هنوز نظری ثبت نشده است.",
+  "productRatingsCount": "{count} امتیاز",
+  "@productRatingsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productOneRating": "۱ امتیاز",
+  "productVerifiedBuyer": "خریدار تأییدشده",
+  "productInStock": "موجود",
+  "productOutOfStock": "ناموجود",
+  "productSku": "کد کالا",
+  "productBrand": "برند",
+  "productWeight": "وزن",
+  "productDimensions": "ابعاد",
+  "productQuantityLabel": "تعداد: {count}",
+  "@productQuantityLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationsTitle": "اعلان‌ها",
+  "notificationsMarkAllRead": "همه را خوانده‌شده کن",
+  "notificationsAllRead": "همه اعلان‌ها خوانده شد",
+  "notificationsEmptyTitle": "اعلانی ندارید",
+  "notificationsEmptyBody": "وقتی خبری از سفارش‌ها یا پیشنهادها باشد، همین‌جا نشان داده می‌شود.",
+  "notificationsLoadError": "اعلان‌ها بارگیری نشد. لطفاً دوباره تلاش کنید."
 }

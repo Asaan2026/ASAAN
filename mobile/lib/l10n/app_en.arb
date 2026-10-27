@@ -1,13 +1,11 @@
 {
   "@@locale": "en",
-
   "appTitle": "Asaan Store",
   "navHome": "Home",
   "navCategories": "Categories",
   "navCart": "Cart",
   "navWishlist": "Wishlist",
   "navProfile": "Profile",
-
   "commonTryAgain": "Try again",
   "commonDone": "Done",
   "commonCancel": "Cancel",
@@ -15,12 +13,10 @@
   "commonDiscard": "DISCARD",
   "commonKeepEditing": "KEEP EDITING",
   "commonLanguage": "Language",
-
   "languageTitle": "Language",
   "languageSubtitle": "Choose the language for the app.",
   "languageSystem": "System default",
   "languageLoadError": "Could not load the available languages.",
-
   "servicesTitle": "Services",
   "servicesSearchHint": "Search services",
   "servicesAll": "All",
@@ -36,7 +32,6 @@
   "servicesAlsoNeed": "You may also need",
   "servicesFeatured": "Featured",
   "servicesDetailLoadError": "Could not load this service. Please try again.",
-
   "bookingTitle": "Book a service",
   "bookingIntro": "Tell us where to come and when. The shop will confirm shortly.",
   "bookingName": "Your name",
@@ -67,59 +62,71 @@
   "bookingReference": "Reference",
   "bookingServiceLabel": "Service",
   "bookingPhoneLabel": "Phone",
-
   "@referralShareBody": {
     "placeholders": {
-      "threshold": {"type": "String"},
-      "reward": {"type": "String"},
-      "days": {"type": "int"}
+      "threshold": {
+        "type": "String"
+      },
+      "reward": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
     }
   },
   "referralShareBody": "Share your link. When a friend joins and spends {threshold}, you earn {reward} in store credit. Credit unlocks after {days} days.",
-
   "@referralSpentSoFar": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "referralSpentSoFar": "Spent {amount} so far",
-
   "@referralJoined": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "referralJoined": "joined {date}",
-
   "@referralLockedUntil": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "referralLockedUntil": "Locked until {date}",
-
   "@referralVerifiedOn": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "referralVerifiedOn": "Verified on {date}.",
-
   "@referralSubmittedOn": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "referralSubmittedOn": "Submitted on {date}. Our team will check it shortly.",
-
   "@identityAcceptedFormats": {
     "placeholders": {
-      "types": {"type": "String"},
-      "max": {"type": "String"}
+      "types": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
     }
   },
   "identityAcceptedFormats": "Accepted formats: {types} · Maximum size: {max}",
-
   "profileHeaderAccount": "ACCOUNT",
   "profileHeaderSupport": "SUPPORT",
   "profileMyOrders": "My Orders",
@@ -134,7 +141,6 @@
   "profileTerms": "Terms & Conditions",
   "profilePrivacy": "Privacy Policy",
   "profileEditProfile": "Edit Profile",
-
   "referralsTitle": "Referrals",
   "referralProgramOff": "The referral programme is currently switched off. You can still see your balance.",
   "referralCreditAvailable": "Credit available",
@@ -164,7 +170,6 @@
   "referralLedgerReward": "Referral reward",
   "referralLedgerAdminCredit": "Store credit added",
   "referralLedgerAdminDebit": "Adjustment",
-
   "identityTitle": "Identity Verification",
   "identityVerified": "Verified",
   "identityNotAccepted": "Not accepted",
@@ -196,62 +201,122 @@
   "identityDiscardTitle": "Discard your changes?",
   "identityDiscardBody": "You have typed information that has not been submitted yet.",
   "identityPhotoError": "Could not open your photos.",
-
   "commonError": "Something went wrong. Please try again.",
   "commonShare": "Share",
-
   "exitAppTitle": "Leave Asaan?",
   "exitAppMessage": "Do you want to close the app?",
   "exitAppConfirm": "Exit",
-
   "@servicesContactCall": {
     "placeholders": {
-      "phone": {"type": "String"}
+      "phone": {
+        "type": "String"
+      }
     }
   },
   "servicesContactCall": "Call {phone}",
-
   "@servicesContactWhatsapp": {
     "placeholders": {
-      "phone": {"type": "String"}
+      "phone": {
+        "type": "String"
+      }
     }
   },
   "servicesContactWhatsapp": "WhatsApp {phone}",
-
   "referralApplyEmpty": "Type the code you were given.",
   "referralHaveCode": "Have a referral code?",
-
   "@referralJoinedWith": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "referralJoinedWith": "You joined with {name}'s referral code.",
-
   "referralLedgerSpent": "Used on an order",
   "referralLedgerReversed": "Reversed",
-
   "@identityVerifiedOn": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "identityVerifiedOn": "Verified on {date}.",
-
   "@identitySubmittedOn": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "identitySubmittedOn": "Submitted on {date}. Our team will check it shortly.",
-
   "identityNumberExample": "e.g. 1401 5678 9012",
   "identityFullNameShort": "That name looks too short.",
-
   "notificationsTitle": "Notifications",
   "notificationsMarkAllRead": "Mark all read",
   "notificationsAllRead": "All notifications marked as read.",
   "notificationsEmptyTitle": "No notifications yet",
   "notificationsEmptyBody": "Order updates and store news will appear here.",
-  "notificationsLoadError": "Could not load your notifications."
+  "notificationsLoadError": "Could not load your notifications.",
+  "guardSignInTitle": "Sign in to continue",
+  "guardSignInBody": "Sign in to {reason}. You can keep browsing the shop without an account.",
+  "@guardSignInBody": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "guardSignIn": "Sign in",
+  "guardNotNow": "Not now",
+  "guardCouldNotReachShop": "We could not reach the shop. Please try again.",
+  "guardReasonAddToBasket": "add this to your basket",
+  "guardReasonSaveItem": "save this item",
+  "productAddToCart": "Add to Cart",
+  "productAddedToCart": "{name} added to your basket",
+  "@productAddedToCart": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productAddingToCart": "Adding...",
+  "productFullDescription": "Full Description",
+  "productSpecifications": "Specifications",
+  "productRelatedProducts": "Related Products",
+  "productReviews": "Reviews",
+  "productReviewsCount": "Reviews ({count})",
+  "@productReviewsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productNoReviews": "No reviews yet.",
+  "productRatingsCount": "{count} ratings",
+  "@productRatingsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productOneRating": "1 rating",
+  "productVerifiedBuyer": "Verified buyer",
+  "productInStock": "In Stock",
+  "productOutOfStock": "Out of Stock",
+  "productSku": "SKU",
+  "productBrand": "Brand",
+  "productWeight": "Weight",
+  "productDimensions": "Dimensions",
+  "productQuantityLabel": "Qty: {count}",
+  "@productQuantityLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

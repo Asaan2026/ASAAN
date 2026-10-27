@@ -530,21 +530,111 @@ class AppLocalizationsFa extends AppLocalizations {
   String get identityFullNameShort => 'این نام خیلی کوتاه به نظر می‌رسد.';
 
   @override
-  String get notificationsTitle => 'Notifications';
+  String get notificationsTitle => 'اعلان‌ها';
 
   @override
-  String get notificationsMarkAllRead => 'Mark all read';
+  String get notificationsMarkAllRead => 'همه را خوانده‌شده کن';
 
   @override
-  String get notificationsAllRead => 'All notifications marked as read.';
+  String get notificationsAllRead => 'همه اعلان‌ها خوانده شد';
 
   @override
-  String get notificationsEmptyTitle => 'No notifications yet';
+  String get notificationsEmptyTitle => 'اعلانی ندارید';
 
   @override
   String get notificationsEmptyBody =>
-      'Order updates and store news will appear here.';
+      'وقتی خبری از سفارش‌ها یا پیشنهادها باشد، همین‌جا نشان داده می‌شود.';
 
   @override
-  String get notificationsLoadError => 'Could not load your notifications.';
+  String get notificationsLoadError =>
+      'اعلان‌ها بارگیری نشد. لطفاً دوباره تلاش کنید.';
+
+  @override
+  String get guardSignInTitle => 'برای ادامه وارد شوید';
+
+  @override
+  String guardSignInBody(String reason) {
+    return 'برای $reason وارد شوید. بدون حساب هم می‌توانید فروشگاه را ببینید.';
+  }
+
+  @override
+  String get guardSignIn => 'ورود';
+
+  @override
+  String get guardNotNow => 'حالا نه';
+
+  @override
+  String get guardCouldNotReachShop =>
+      'به فروشگاه وصل نشدیم. لطفاً دوباره تلاش کنید.';
+
+  @override
+  String get guardReasonAddToBasket => 'افزودن این به سبد خرید';
+
+  @override
+  String get guardReasonSaveItem => 'ذخیرهٔ این کالا';
+
+  @override
+  String get productAddToCart => 'افزودن به سبد خرید';
+
+  @override
+  String productAddedToCart(String name) {
+    return '$name به سبد خرید اضافه شد';
+  }
+
+  @override
+  String get productAddingToCart => 'در حال افزودن...';
+
+  @override
+  String get productFullDescription => 'توضیحات کامل';
+
+  @override
+  String get productSpecifications => 'مشخصات';
+
+  @override
+  String get productRelatedProducts => 'محصولات مرتبط';
+
+  @override
+  String get productReviews => 'نظرها';
+
+  @override
+  String productReviewsCount(int count) {
+    return 'نظرها ($count)';
+  }
+
+  @override
+  String get productNoReviews => 'هنوز نظری ثبت نشده است.';
+
+  @override
+  String productRatingsCount(int count) {
+    return '$count امتیاز';
+  }
+
+  @override
+  String get productOneRating => '۱ امتیاز';
+
+  @override
+  String get productVerifiedBuyer => 'خریدار تأییدشده';
+
+  @override
+  String get productInStock => 'موجود';
+
+  @override
+  String get productOutOfStock => 'ناموجود';
+
+  @override
+  String get productSku => 'کد کالا';
+
+  @override
+  String get productBrand => 'برند';
+
+  @override
+  String get productWeight => 'وزن';
+
+  @override
+  String get productDimensions => 'ابعاد';
+
+  @override
+  String productQuantityLabel(int count) {
+    return 'تعداد: $count';
+  }
 }
