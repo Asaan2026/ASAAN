@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:vortex_app/core/constants/app_colors.dart';
 import 'package:vortex_app/data/models/product_model.dart';
+import 'package:vortex_app/data/services/cart_service.dart';
 import 'package:vortex_app/data/services/product_service.dart';
+import 'package:vortex_app/data/services/wishlist_service.dart';
+import 'package:vortex_app/l10n/app_localizations.dart';
 import 'package:vortex_app/presentation/widgets/html_text.dart';
 import 'package:vortex_app/presentation/widgets/price_text.dart';
+import 'package:vortex_app/presentation/widgets/shopping_guard.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -21,10 +25,21 @@ class ProductDetailScreen extends StatefulWidget {
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   final PageController _pageController = PageController();
   final ProductService _productService = ProductService();
+  final CartService _cartService = CartService();
+  final WishlistService _wishlistService = WishlistService();
 
   int _currentPage = 0;
   int _quantity = 1;
+
+  /// Whether this product is on the customer's saved list, and the id of the
+  /// saved row so it can be taken off again. Both are read from the server on
+  /// open: a filled heart that the server does not know about would take the
+  /// product off the list on the next tap.
   bool _isFavorite = false;
+  int? _favoriteItemId;
+
+  bool _addingToCart = false;
+  bool _savingFavorite = false;
 
   /// What the screen draws. It starts as whatever the previous screen handed
   /// over so the page paints straight away, then the full record from the
@@ -72,6 +87,96 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     } catch (_) {
       // Section falls back to the summary figures.
     }
+
+    await _loadFavoriteState(id);
+  }
+
+  /// Is this product already on the saved list? Only worth asking when
+  /// somebody is signed in; for everyone else the heart simply starts empty.
+  Future<void> _loadFavoriteState(int productId) async {
+    if (!await ShoppingGuard.isSignedIn()) return;
+
+    try {
+      final wishlist = await _wishlistService.getWishlist();
+      final saved = wishlist.items
+          .where((item) => item.product.id == productId)
+          .toList();
+
+      if (!mounted) return;
+      setState(() {
+        _isFavorite = saved.isNotEmpty;
+        _favoriteItemId = saved.isEmpty ? null : saved.first.id;
+      });
+    } catch (_) {
+      // Leave the heart empty rather than guessing.
+    }
+  }
+
+  /// Put this product in the basket.
+  ///
+  /// The button used to do nothing at all: its onPressed was empty, so the
+  /// shop could be browsed in the app but nothing could be bought.
+  Future<void> _addToCart() async {
+    if (_addingToCart) return;
+
+    final l10n = AppLocalizations.of(context);
+    final name = _product['name']?.toString() ?? '';
+
+    setState(() => _addingToCart = true);
+
+    final added = await ShoppingGuard.run(
+      context,
+      reason: l10n.guardReasonAddToBasket,
+      action: () => _cartService.addToCart(
+        productId: (_product['id'] as num?)?.toInt() ?? 0,
+        quantity: _quantity,
+      ),
+    );
+
+    if (!mounted) return;
+    setState(() => _addingToCart = false);
+
+    if (!added) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.productAddedToCart(name)),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.green.shade700,
+      ),
+    );
+  }
+
+  /// Save the product for later, or take it off the list again.
+  Future<void> _toggleFavorite() async {
+    if (_savingFavorite) return;
+
+    final l10n = AppLocalizations.of(context);
+    final productId = (_product['id'] as num?)?.toInt() ?? 0;
+    final wasFavorite = _isFavorite;
+    final itemId = _favoriteItemId;
+
+    setState(() => _savingFavorite = true);
+
+    final done = await ShoppingGuard.run(
+      context,
+      reason: l10n.guardReasonSaveItem,
+      action: () async {
+        if (wasFavorite && itemId != null) {
+          await _wishlistService.removeFromWishlist(itemId);
+        } else {
+          await _wishlistService.addToWishlist(productId);
+        }
+      },
+    );
+
+    if (!mounted) return;
+    setState(() => _savingFavorite = false);
+
+    if (!done) return;
+
+    // Read the list back so the heart and the stored row cannot disagree.
+    await _loadFavoriteState(productId);
   }
 
   @override
@@ -497,14 +602,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             color: isDark ? const Color(0xFF1C2630) : Colors.white,
           ),
           child: IconButton(
-            onPressed: () {
-              setState(() => _isFavorite = !_isFavorite);
-            },
-            icon: Icon(
-              _isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: _isFavorite ? Colors.red : Colors.grey.shade500,
-              size: 20,
-            ),
+            onPressed: _savingFavorite ? null : _toggleFavorite,
+            icon: _savingFavorite
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Icon(
+                    _isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: _isFavorite ? Colors.red : Colors.grey.shade500,
+                    size: 20,
+                  ),
           ),
         ),
         const SizedBox(width: 12),
@@ -537,7 +646,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: _addingToCart ? null : _addToCart,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
@@ -545,16 +654,27 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             borderRadius: BorderRadius.circular(12),
           ),
           elevation: 0,
-          shadowColor: AppColors.primary.withOpacity(0.3),
         ),
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.shopping_bag, size: 24),
-            SizedBox(width: 8),
+            if (_addingToCart)
+              const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            else
+              const Icon(Icons.shopping_bag, size: 24),
+            const SizedBox(width: 8),
             Text(
-              'Add to Cart',
-              style: TextStyle(
+              _addingToCart
+                  ? AppLocalizations.of(context).productAddingToCart
+                  : AppLocalizations.of(context).productAddToCart,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -571,9 +691,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
     final cards = <Widget>[
       if (fullDescription != null)
-        _buildExpandableCard('Full Description', fullDescription, isDark),
+        _buildExpandableCard(AppLocalizations.of(context).productFullDescription, fullDescription, isDark),
       if (specifications != null)
-        _buildExpandableCard('Specifications', specifications, isDark),
+        _buildExpandableCard(AppLocalizations.of(context).productSpecifications, specifications, isDark),
     ];
 
     if (cards.isEmpty) return const SizedBox.shrink();
@@ -601,17 +721,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       rows.add((label: label, value: text));
     }
 
-    add('SKU', _product['sku']?.toString());
+    add(AppLocalizations.of(context).productSku, _product['sku']?.toString());
 
     final brand = _product['brand'];
     if (brand is Map) {
-      add('Brand', brand['name']?.toString());
+      add(AppLocalizations.of(context).productBrand, brand['name']?.toString());
     } else if (brand is String) {
-      add('Brand', brand);
+      add(AppLocalizations.of(context).productBrand, brand);
     }
 
-    add('Weight', formatMeasure(_product['weight']));
-    add('Dimensions', formatDimensions(_product['dimensions']));
+    add(AppLocalizations.of(context).productWeight, formatMeasure(_product['weight']));
+    add(AppLocalizations.of(context).productDimensions, formatDimensions(_product['dimensions']));
 
     // Whatever the shop owner called them: colour, material, warranty.
     final attributes = _product['attributes'];
@@ -746,7 +866,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'No reviews yet.',
+            AppLocalizations.of(context).productNoReviews,
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
@@ -791,7 +911,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               _buildStars(rating.toDouble(), 18),
               const Spacer(),
               Text(
-                count == 1 ? '1 rating' : '$count ratings',
+                count == 1
+                    ? AppLocalizations.of(context).productOneRating
+                    : AppLocalizations.of(context).productRatingsCount(count.toInt()),
                 style: TextStyle(
                   fontSize: 12,
                   color: isDark ? Colors.grey.shade400 : Colors.grey.shade500,
@@ -829,7 +951,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final customer = review['customer'];
     final name =
         customer is Map ? (customer['name']?.toString().trim() ?? '') : '';
-    final displayName = name.isNotEmpty ? name : 'Verified buyer';
+    final displayName = name.isNotEmpty ? name : AppLocalizations.of(context).productVerifiedBuyer;
     final rating = (review['rating'] as num?)?.toDouble() ?? 0.0;
     final title = review['title']?.toString().trim() ?? '';
     final comment = review['comment']?.toString().trim() ?? '';
@@ -932,7 +1054,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Related Products',
+          AppLocalizations.of(context).productRelatedProducts,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
