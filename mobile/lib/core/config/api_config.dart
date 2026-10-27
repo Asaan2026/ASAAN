@@ -44,6 +44,8 @@ class ApiConfig {
   static const String customerOrders = '/api/$apiVersion/customer/orders';
   static String customerOrderDetail(int orderId) =>
       '/api/$apiVersion/customer/orders/$orderId';
+  static String customerOrderCancel(int orderId) =>
+      '/api/$apiVersion/customer/orders/$orderId/cancel';
   static const String wishlist = '/api/$apiVersion/customer/wishlist';
   static const String wishlistAdd = '/api/$apiVersion/customer/wishlist/add';
 

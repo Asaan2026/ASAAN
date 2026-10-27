@@ -55,6 +55,10 @@ class AppRouter {
   static const String forgotPassword = '/forgot-password';
   static const String resetPassword = '/reset-password';
   static const String home = '/home';
+
+  /// Index of the basket in the shop's bottom bar, passed to the home route as
+  /// {'tab': AppRouter.cartTab} to land there (see MainNavigationScreen).
+  static const int cartTab = 2;
   static const String productDetail = '/product-detail';
   static const String categories = '/categories';
   static const String categoryProducts = '/category-products';
@@ -122,8 +126,11 @@ class AppRouter {
         );
 
       case home:
+        final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
-          builder: (_) => const MainNavigationScreen(),
+          builder: (_) => MainNavigationScreen(
+            initialTab: (args?['tab'] as num?)?.toInt() ?? 0,
+          ),
           settings: settings,
         );
 

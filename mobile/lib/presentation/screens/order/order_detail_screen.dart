@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:vortex_app/core/constants/app_colors.dart';
+import 'package:vortex_app/core/network/api_exception.dart';
 import 'package:vortex_app/data/services/order_service.dart';
+import 'package:vortex_app/routes/app_router.dart';
 import 'package:vortex_app/presentation/widgets/price_text.dart';
 
 /// One of the customer's own orders.
@@ -37,6 +39,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   Order? _order;
   bool _loading = false;
   String? _loadError;
+
+  bool _cancelling = false;
+  bool _reordering = false;
+
+  /// What went wrong with the last cancel or reorder, shown beside the buttons.
+  String? _actionError;
 
   @override
   void initState() {
@@ -760,10 +768,180 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
   }
 
+  // ------------------------------------------------------- cancel / reorder --
+
+  /// Cancelling cannot be undone, so it is always confirmed first, and the
+  /// dialog says plainly which way is which. Dismissing it without choosing
+  /// leaves the order alone.
+  Future<void> _confirmCancel() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cancel this order?'),
+        content: const Text(
+          'The shop will be told to stop this order. This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Keep my order'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Cancel order'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+    await _cancelOrder();
+  }
+
+  Future<void> _cancelOrder() async {
+    final id = _order?.id ?? widget.orderId;
+    if (id == null || id == 0) return;
+
+    setState(() {
+      _cancelling = true;
+      _actionError = null;
+    });
+
+    try {
+      final updated = await _orderService.cancelOrder(id);
+      if (!mounted) return;
+      setState(() {
+        _order = updated;
+        _cancelling = false;
+      });
+      _say('Your order has been cancelled.');
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      // The server's own words: it is the one that decides whether an order
+      // can still be stopped, and its reason is the useful one.
+      setState(() {
+        _cancelling = false;
+        _actionError = e.message;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _cancelling = false;
+        _actionError = 'We could not reach the shop. Please try again.';
+      });
+    }
+  }
+
+  /// Puts the order's lines back in the basket, then says exactly what made it
+  /// in. Lines can fail one at a time — withdrawn, out of stock, deleted — so
+  /// the rest are still added and the customer is told which were not.
+  Future<void> _reorder() async {
+    final order = _order;
+    if (order == null || order.items.isEmpty) return;
+
+    setState(() {
+      _reordering = true;
+      _actionError = null;
+    });
+
+    try {
+      final outcome = await _orderService.reorder(order);
+      if (!mounted) return;
+      setState(() => _reordering = false);
+
+      if (outcome.allAdded) {
+        await _showReorderResult(
+          title: 'Added to your basket',
+          message: outcome.added.length == 1
+              ? 'One item is waiting in your basket.'
+              : '${outcome.added.length} items are waiting in your basket.',
+          canOpenBasket: true,
+        );
+        return;
+      }
+
+      if (outcome.noneAdded) {
+        await _showReorderResult(
+          title: 'Nothing could be added',
+          message: _listFailures(outcome.failed),
+          canOpenBasket: false,
+        );
+        return;
+      }
+
+      await _showReorderResult(
+        title: 'Some items were added',
+        message: '${outcome.added.length} of '
+            '${outcome.added.length + outcome.failed.length} items went into '
+            'your basket.\n\n${_listFailures(outcome.failed)}',
+        canOpenBasket: true,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _reordering = false;
+        _actionError = 'We could not reach the shop. Please try again.';
+      });
+    }
+  }
+
+  String _listFailures(List<ReorderFailure> failures) {
+    return failures.map((f) => '• ${f.name} — ${f.reason}').join('\n');
+  }
+
+  Future<void> _showReorderResult({
+    required String title,
+    required String message,
+    required bool canOpenBasket,
+  }) async {
+    final openBasket = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(canOpenBasket ? 'Not now' : 'Close'),
+          ),
+          if (canOpenBasket)
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('View basket'),
+            ),
+        ],
+      ),
+    );
+
+    if (openBasket != true || !mounted) return;
+
+    // Back to the shop with the basket open, which is the only way to reach
+    // that tab from a screen pushed on top of it.
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/home',
+      (route) => false,
+      arguments: const {'tab': AppRouter.cartTab},
+    );
+  }
+
+  void _say(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
+    );
+  }
+
   // ------------------------------------------------------------ bottom bar --
 
   Widget _buildBottomBar(bool isDark) {
-    final canCancel = _order?.canCancel ?? false;
+    final order = _order;
+
+    // The same rule the server applies, so the button is not offered for an
+    // order the shop would refuse to stop.
+    final canCancel = order?.canCancel ?? false;
+    final canReorder = order != null && order.items.isNotEmpty;
+    final busy = _cancelling || _reordering;
 
     return Positioned(
       bottom: 0,
@@ -775,75 +953,91 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           border: Border(top: BorderSide(color: _borderColor)),
         ),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (canCancel) ...[
-              Expanded(
-                child: SizedBox(
-                  height: 48,
-                  child: OutlinedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content:
-                              Text('Cancel order feature coming soon...'),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                    },
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: isDark
-                          ? Colors.grey.shade300
-                          : Colors.grey.shade700,
-                      side: BorderSide(color: _borderColor),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'Cancel Order',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
+            // Whatever went wrong sits with the buttons that caused it, where
+            // it cannot scroll out of sight.
+            if (_actionError != null) ...[
+              Text(
+                _actionError!,
+                style: const TextStyle(fontSize: 13, color: Colors.red),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(height: 12),
             ],
-            Expanded(
-              flex: 2,
-              child: SizedBox(
-                height: 48,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Reorder feature coming soon...'),
-                        behavior: SnackBarBehavior.floating,
-                        backgroundColor: AppColors.primary,
+            Row(
+              children: [
+                if (canCancel) ...[
+                  Expanded(
+                    child: SizedBox(
+                      height: 48,
+                      child: OutlinedButton(
+                        onPressed: busy ? null : _confirmCancel,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: isDark
+                              ? Colors.grey.shade300
+                              : Colors.grey.shade700,
+                          side: BorderSide(color: _borderColor),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: _cancelling
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Text(
+                                'Cancel Order',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                       ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  icon: const Icon(Icons.replay, size: 20),
-                  label: const Text(
-                    'Reorder',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                  const SizedBox(width: 12),
+                ],
+                Expanded(
+                  flex: 2,
+                  child: SizedBox(
+                    height: 48,
+                    child: ElevatedButton.icon(
+                      onPressed: (busy || !canReorder) ? null : _reorder,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      icon: _reordering
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Icon(Icons.replay, size: 20),
+                      label: Text(
+                        _reordering ? 'Adding...' : 'Reorder',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
           ],
         ),

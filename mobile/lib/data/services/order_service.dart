@@ -1,9 +1,16 @@
 import 'package:vortex_app/core/config/api_config.dart';
 import 'package:vortex_app/core/network/api_client.dart';
+import 'package:vortex_app/core/network/api_exception.dart';
+import 'package:vortex_app/data/services/cart_service.dart';
 
 /// Represents a single order item (one product line inside an order).
 class OrderItem {
   final int id;
+
+  /// The product this line was for. Needed to put the item back in the
+  /// basket; null when the product has since been deleted.
+  final int? productId;
+
   final String productName;
   final String? productSku;
   final String? productImage;
@@ -13,6 +20,7 @@ class OrderItem {
 
   const OrderItem({
     required this.id,
+    this.productId,
     required this.productName,
     this.productSku,
     this.productImage,
@@ -56,6 +64,8 @@ class OrderItem {
 
     return OrderItem(
       id: json['id'] as int? ?? 0,
+      productId: (json['product_id'] as num?)?.toInt() ??
+          (product['id'] as num?)?.toInt(),
       productName: (name != null && name.isNotEmpty)
           ? name
           : (productName != null && productName.isNotEmpty
@@ -340,4 +350,121 @@ class OrderService {
       rethrow;
     }
   }
+
+  /// Ask the shop to cancel an order, and return the order as it now stands.
+  ///
+  /// The server only allows this while the order is still pending or
+  /// processing, and it is the authority: the app hides the button in the same
+  /// cases (see [Order.canCancel]), but a stale screen can still send the
+  /// request, and the refusal that comes back is what the customer is shown.
+  Future<Order> cancelOrder(int orderId) async {
+    final response = await _apiClient.post(
+      ApiConfig.customerOrderCancel(orderId),
+      body: const {},
+    );
+
+    if (response['success'] != true) {
+      throw ApiException(
+        message: response['message'] ?? 'This order could not be cancelled',
+        code: response['error_code'] ?? 'ORDER_CANCEL_FAILED',
+      );
+    }
+
+    // The reply carries the order, but not its items or addresses: those are
+    // only included when the server eager-loads them, which the cancel route
+    // does not. Re-read the order instead, so a cancelled order on screen does
+    // not suddenly lose the things the customer ordered.
+    try {
+      return await getOrderDetail(orderId);
+    } catch (_) {
+      final data = response['data'];
+      if (data is Map<String, dynamic>) {
+        return Order.fromJson(data);
+      }
+      rethrow;
+    }
+  }
+
+  /// Put every line of a past order back in the basket.
+  ///
+  /// There is no single "reorder" call on the server, so each line is added
+  /// one at a time, and some may fail on their own: a product can have been
+  /// withdrawn from sale, run out of stock, or been deleted outright. Each
+  /// line's outcome is collected rather than letting the first failure stand
+  /// for the whole order, so the customer is told exactly what could not be
+  /// added and still gets everything that could.
+  Future<ReorderOutcome> reorder(
+    Order order, {
+    AddToCart? addToCart,
+  }) async {
+    final add = addToCart ?? _defaultAddToCart;
+
+    final added = <String>[];
+    final failed = <ReorderFailure>[];
+
+    for (final item in order.items) {
+      final productId = item.productId;
+
+      if (productId == null || productId == 0) {
+        failed.add(ReorderFailure(
+          name: item.productName,
+          reason: 'This product is no longer sold',
+        ));
+        continue;
+      }
+
+      try {
+        await add(productId: productId, quantity: item.quantity);
+        added.add(item.productName);
+      } on ApiException catch (e) {
+        failed.add(ReorderFailure(name: item.productName, reason: e.message));
+      } catch (_) {
+        failed.add(ReorderFailure(
+          name: item.productName,
+          reason: 'Could not be added just now',
+        ));
+      }
+    }
+
+    return ReorderOutcome(added: added, failed: failed);
+  }
+
+  Future<void> _defaultAddToCart({
+    required int productId,
+    required int quantity,
+  }) async {
+    await CartService().addToCart(productId: productId, quantity: quantity);
+  }
+}
+
+/// Adds one line to the basket. Taken as a parameter by
+/// [OrderService.reorder] so the outcome handling can be tested without the
+/// network.
+typedef AddToCart = Future<void> Function({
+  required int productId,
+  required int quantity,
+});
+
+/// Why one line of a reorder could not be added.
+class ReorderFailure {
+  const ReorderFailure({required this.name, required this.reason});
+
+  final String name;
+  final String reason;
+}
+
+/// What came of putting a past order back in the basket.
+class ReorderOutcome {
+  const ReorderOutcome({required this.added, required this.failed});
+
+  /// Names of the products now in the basket.
+  final List<String> added;
+
+  /// The lines that could not be added, each with the reason given.
+  final List<ReorderFailure> failed;
+
+  bool get isEmpty => added.isEmpty && failed.isEmpty;
+  bool get allAdded => failed.isEmpty && added.isNotEmpty;
+  bool get noneAdded => added.isEmpty && failed.isNotEmpty;
+  bool get someAdded => added.isNotEmpty && failed.isNotEmpty;
 }

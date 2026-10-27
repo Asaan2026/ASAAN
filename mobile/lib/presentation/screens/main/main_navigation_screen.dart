@@ -15,7 +15,11 @@ import 'package:vortex_app/data/services/cart_service.dart';
 import 'package:vortex_app/l10n/app_localizations.dart';
 
 class MainNavigationScreen extends StatefulWidget {
-  const MainNavigationScreen({super.key});
+  /// Which tab to open on. Used to come back from a pushed screen straight
+  /// into the basket, for instance after reordering a past order.
+  final int initialTab;
+
+  const MainNavigationScreen({super.key, this.initialTab = 0});
 
   @override
   State<MainNavigationScreen> createState() => _MainNavigationScreenState();
@@ -42,6 +46,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _selectedIndex = widget.initialTab;
+    _previousIndex = widget.initialTab;
     _loadCartCount();
   }
 
