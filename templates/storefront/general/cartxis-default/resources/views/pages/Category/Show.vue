@@ -88,7 +88,7 @@ const discountPercentage = (product: Product) => {
                 <div class="flex items-start justify-between">
                     <div class="flex-1">
                         <h1 class="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-3">{{ category.name }}</h1>
-                        <p v-if="category.description" class="text-gray-600 dark:text-slate-400 max-w-3xl" v-html="category.description"></p>
+                        <div v-if="category.description" class="rich-text rich-text-tight text-gray-600 dark:text-slate-400 max-w-3xl" v-html="category.description"></div>
                     </div>
                     <img 
                         v-if="category.image_url" 

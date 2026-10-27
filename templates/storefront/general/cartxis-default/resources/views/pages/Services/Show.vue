@@ -186,7 +186,7 @@ const submit = () => {
 
                     <div
                         v-if="service.description"
-                        class="prose prose-sm mt-6 max-w-none text-gray-700 dark:text-slate-300"
+                        class="rich-text mt-6 max-w-none text-gray-700 dark:text-slate-300"
                         v-html="service.description"
                     />
 

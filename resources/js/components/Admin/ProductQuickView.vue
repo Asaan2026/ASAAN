@@ -419,12 +419,9 @@ const deleteProduct = () => {
                                     <!-- Short Description -->
                                     <div
                                         v-if="product.short_description"
-                                        class="text-gray-700 dark:text-gray-300"
-                                    >
-                                        <p class="text-sm leading-relaxed">
-                                            {{ product.short_description }}
-                                        </p>
-                                    </div>
+                                        class="rich-text rich-text-tight text-sm text-gray-700 dark:text-gray-300"
+                                        v-html="product.short_description"
+                                    ></div>
 
                                     <!-- Description -->
                                     <div
@@ -437,7 +434,7 @@ const deleteProduct = () => {
                                             {{ $t('Description') }}
                                         </h4>
                                         <div
-                                            class="max-h-40 overflow-y-auto text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+                                            class="rich-text max-h-40 overflow-y-auto text-sm text-gray-700 dark:text-gray-300"
                                             v-html="product.description"
                                         ></div>
                                     </div>

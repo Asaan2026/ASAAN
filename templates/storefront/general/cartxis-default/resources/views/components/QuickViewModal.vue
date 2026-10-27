@@ -142,9 +142,11 @@
                                     </div>
 
                                     <!-- Short Description -->
-                                    <div v-if="product.short_description" class="text-gray-600 dark:text-slate-400 leading-relaxed">
-                                        {{ product.short_description }}
-                                    </div>
+                                    <div
+                                        v-if="product.short_description"
+                                        class="rich-text rich-text-tight text-gray-600 dark:text-slate-400"
+                                        v-html="product.short_description"
+                                    ></div>
 
                                     <!-- Configurable Attributes -->
                                     <div v-if="configurableAttributes.length > 0" class="space-y-4 py-4 border-t border-gray-200 dark:border-slate-700">

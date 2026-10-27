@@ -373,9 +373,11 @@ const handleMouseMove = (e: MouseEvent) => {
                     </div>
 
                     <!-- Short Description -->
-                    <div v-if="product.short_description" class="text-gray-600 dark:text-slate-400 leading-relaxed">
-                        {{ product.short_description }}
-                    </div>
+                    <div
+                        v-if="product.short_description"
+                        class="rich-text rich-text-tight text-gray-600 dark:text-slate-400"
+                        v-html="product.short_description"
+                    ></div>
 
                     <!-- Product Attributes (Color, Size, etc.) -->
                     <div v-if="configurableAttributes && configurableAttributes.length > 0" class="space-y-4 border-t pt-6">
@@ -524,9 +526,10 @@ const handleMouseMove = (e: MouseEvent) => {
             <!-- Full Description -->
             <div v-if="product.description" class="mt-12 border-t pt-8">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-4">{{ $t('Product Description') }}</h2>
-                <div class="prose max-w-none text-gray-600 dark:text-slate-400 leading-relaxed">
-                    {{ product.description }}
-                </div>
+                <div
+                    class="rich-text max-w-none text-gray-600 dark:text-slate-400"
+                    v-html="product.description"
+                ></div>
             </div>
 
             <!-- Related Products -->
