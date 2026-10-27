@@ -6,6 +6,7 @@ use Cartxis\Admin\Services\AdminNotificationService;
 use Cartxis\Core\Models\Currency;
 use Cartxis\Core\Models\EmailConfiguration;
 use Cartxis\Core\Models\EmailTemplate;
+use Cartxis\Core\Services\PaymentGatewayManager;
 use Cartxis\Core\Support\GatewayCurrency;
 use Cartxis\Sales\Models\OrderHistory;
 use Cartxis\Sales\Repositories\OrderRepository;
@@ -19,7 +20,9 @@ class OrderService
 {
     public function __construct(
         protected OrderRepository $orderRepository,
-        protected AdminNotificationService $adminNotificationService
+        protected AdminNotificationService $adminNotificationService,
+        protected PaymentGatewayManager $gatewayManager,
+        protected TransactionService $transactionService
     ) {}
 
     /**
@@ -216,6 +219,121 @@ class OrderService
             ]);
 
             return false;
+        }
+    }
+
+    /**
+     * Send a cancelled order's money back to the customer.
+     *
+     * Call this after the order has been cancelled, never before: a refund for
+     * an order that is still live is far harder to undo than a cancellation.
+     *
+     * Three things can happen, and the caller is told which:
+     *
+     *  - 'none'     nothing was ever captured (an unpaid order, or cash on
+     *               delivery that was never collected), so there is nothing to
+     *               send back.
+     *  - 'refunded' the payment provider accepted the refund.
+     *  - 'pending'  money is owed but could not be returned automatically -
+     *               cash and bank transfers have no provider to call, and a
+     *               provider can refuse or be unreachable. A pending refund
+     *               transaction is recorded and the shop's admins are
+     *               notified, because the alternative is a customer who is out
+     *               of pocket with nothing anywhere saying so.
+     *
+     * @return array{state: string, amount: float, reason: ?string}
+     */
+    public function refundCancelledOrder(Order $order, string $reason): array
+    {
+        $captured = in_array($order->payment_status, ['paid', 'completed'], true);
+        $outstanding = round((float) $order->total - (float) $order->total_refunded, 2);
+
+        if (! $captured || $outstanding <= 0) {
+            return ['state' => 'none', 'amount' => 0.0, 'reason' => null];
+        }
+
+        $gatewayError = null;
+
+        try {
+            $result = $this->gatewayManager->refund($order, $outstanding, $reason);
+
+            if ($result['success'] ?? false) {
+                $this->recordRefund($order, $outstanding, 'completed', $reason, $result);
+
+                $order->total_refunded = (float) $order->total_refunded + $outstanding;
+                $order->payment_status = 'refunded';
+                $order->save();
+
+                return ['state' => 'refunded', 'amount' => $outstanding, 'reason' => null];
+            }
+
+            $gatewayError = $result['error'] ?? 'the payment provider declined the refund';
+        } catch (\Throwable $e) {
+            // Cash on delivery and bank transfer have no gateway at all, which
+            // surfaces here as an exception rather than a declined refund.
+            $gatewayError = $e->getMessage();
+        }
+
+        $this->recordRefund($order, $outstanding, 'pending', $reason, ['error' => $gatewayError]);
+
+        Log::warning('Cancelled order needs a refund by hand', [
+            'order_id' => $order->id,
+            'order_number' => $order->order_number,
+            'amount' => $outstanding,
+            'payment_method' => $order->payment_method,
+            'error' => $gatewayError,
+        ]);
+
+        $this->adminNotificationService->notifyAllAdmins(
+            type: 'order.refund_pending',
+            title: "Refund owed on order #{$order->order_number}",
+            message: sprintf(
+                '%s was cancelled and %s could not be refunded automatically (%s). '
+                .'The customer is still owed this money.',
+                $order->order_number,
+                number_format($outstanding, 2),
+                $gatewayError
+            ),
+            entityType: 'order',
+            entityId: $order->id,
+            meta: [
+                'amount' => $outstanding,
+                'payment_method' => $order->payment_method,
+                'error' => $gatewayError,
+            ],
+            severity: 'warning'
+        );
+
+        return ['state' => 'pending', 'amount' => $outstanding, 'reason' => $gatewayError];
+    }
+
+    /**
+     * Write the refund into the order's transaction history, so both outcomes
+     * are visible in the dashboard rather than only in the log.
+     */
+    protected function recordRefund(
+        Order $order,
+        float $amount,
+        string $status,
+        string $reason,
+        array $response
+    ): void {
+        try {
+            $this->transactionService->createRefund($order, [
+                'payment_method' => $order->payment_method ?? 'manual',
+                'gateway' => $order->payment_method ?? 'manual',
+                'amount' => $amount,
+                'status' => $status,
+                'notes' => $reason,
+                'response_data' => $response,
+            ]);
+        } catch (\Throwable $e) {
+            // A missing audit row must not undo a refund that already went
+            // through, so this is logged rather than thrown.
+            Log::error('Could not record the refund transaction', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 
