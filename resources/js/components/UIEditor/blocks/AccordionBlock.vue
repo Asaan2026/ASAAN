@@ -58,7 +58,7 @@ function toggle(index: number) {
             </button>
             <div
                 v-show="openStates[index]"
-                class="dark:bg-gray-850 bg-gray-50 px-4 py-3 text-sm text-gray-600 dark:text-gray-400"
+                class="dark:bg-gray-850 rich-text rich-text-tight bg-gray-50 px-4 py-3 text-sm text-gray-600 dark:text-gray-400"
                 v-html="item.content"
             />
         </div>

@@ -86,7 +86,7 @@ defineProps<{
                         </div>
 
                         <!-- Content -->
-                        <div class="prose prose-gray max-w-none" v-html="post.content"></div>
+                        <div class="rich-text max-w-none" v-html="post.content"></div>
                     </div>
                 </article>
 

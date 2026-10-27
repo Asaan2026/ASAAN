@@ -66,7 +66,7 @@ function submit() {
                 </h2>
                 <!-- eslint-disable-next-line vue/no-v-html -->
                 <p
-                    class="text-base leading-relaxed text-white/70 md:text-lg"
+                    class="rich-text rich-text-tight text-base text-white/70 md:text-lg"
                     v-html="subtitle"
                 />
 

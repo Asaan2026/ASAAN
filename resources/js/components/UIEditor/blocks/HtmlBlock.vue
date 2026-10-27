@@ -33,6 +33,6 @@ defineProps<{ settings: Record<string, unknown>; editorMode?: boolean }>();
             HTML
         </div>
         <!-- eslint-disable-next-line vue/no-v-html -->
-        <div class="uie-html-output" v-html="settings.content as string" />
+        <div class="uie-html-output rich-text" v-html="settings.content as string" />
     </div>
 </template>

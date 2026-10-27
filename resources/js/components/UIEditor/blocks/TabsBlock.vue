@@ -38,7 +38,7 @@ const active = ref((props.settings.active_tab as number) ?? 0);
             v-for="(tab, i) in settings.tabs as Tab[]"
             :key="i"
             v-show="active === i"
-            class="rounded-b-lg border border-t-0 border-gray-200 bg-white p-4 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
+            class="rich-text rich-text-tight rounded-b-lg border border-t-0 border-gray-200 bg-white p-4 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
             v-html="tab.content"
         />
 
