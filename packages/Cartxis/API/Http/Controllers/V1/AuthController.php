@@ -7,6 +7,7 @@ use App\Models\User;
 use Cartxis\API\Helpers\ApiResponse;
 use Cartxis\API\Http\Resources\UserResource;
 use Cartxis\Referral\Services\ReferralLinkService;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -45,6 +46,11 @@ class AuthController extends Controller
         // the link is attempted after the account exists and its failure is only
         // logged. The same rule the website follows.
         $this->referrals->linkFor($user, $request->input('referral_code'));
+
+        // Somebody who signs up in the app gets the same "confirm your email"
+        // message as somebody who signs up on the website. Without this, app
+        // sign-ups were the only accounts that never received one.
+        event(new Registered($user));
 
         $token = $user->createToken(
             $request->device_name ?? config('cartxis-api.token.name')

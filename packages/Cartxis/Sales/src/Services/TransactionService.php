@@ -2,6 +2,7 @@
 
 namespace Cartxis\Sales\Services;
 
+use Cartxis\Core\Services\PaymentGatewayManager;
 use Cartxis\Sales\Models\Transaction;
 use Cartxis\Sales\Repositories\TransactionRepository;
 use Cartxis\Shop\Models\Order;
@@ -11,7 +12,8 @@ use Illuminate\Support\Facades\Log;
 class TransactionService
 {
     public function __construct(
-        protected TransactionRepository $repository
+        protected TransactionRepository $repository,
+        protected PaymentGatewayManager $gatewayManager
     ) {}
 
     /**
@@ -198,39 +200,75 @@ class TransactionService
             throw new \Exception('This transaction cannot be refunded');
         }
 
-        DB::beginTransaction();
-        try {
-            // Create refund transaction
-            $refundData = [
-                'order_id' => $transaction->order_id,
-                'payment_method' => $transaction->payment_method,
-                'gateway' => $transaction->gateway,
-                'amount' => $amount,
-                'status' => 'pending',
-                'notes' => $data['notes'] ?? 'Refund for transaction '.$transaction->transaction_number,
-            ];
+        $order = $transaction->order;
 
-            if (isset($data['credit_memo_id'])) {
-                $refundData['credit_memo_id'] = $data['credit_memo_id'];
-            }
+        $refundData = [
+            'order_id' => $transaction->order_id,
+            'payment_method' => $transaction->payment_method,
+            'gateway' => $transaction->gateway,
+            'amount' => $amount,
+            'status' => 'pending',
+            'notes' => $data['notes'] ?? 'Refund for transaction '.$transaction->transaction_number,
+        ];
 
-            $refundTransaction = $this->createRefund($transaction->order, $refundData);
-
-            // Here you would integrate with the payment gateway to process the actual refund
-            // For now, we'll just mark it as completed
-            // In production, this should call the gateway API
-
-            DB::commit();
-
-            return $refundTransaction;
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Failed to process refund', [
-                'transaction_id' => $transaction->id,
-                'error' => $e->getMessage(),
-            ]);
-            throw $e;
+        if (isset($data['credit_memo_id'])) {
+            $refundData['credit_memo_id'] = $data['credit_memo_id'];
         }
+
+        // Written down first, and committed, so that a refund which fails half
+        // way through leaves a record of having been attempted instead of
+        // disappearing with the exception.
+        $refundTransaction = $this->createRefund($order, $refundData);
+
+        // The money has to be asked for. This used to stop here, leaving a
+        // refund that sat "pending" for ever while the dashboard told the shop
+        // owner it had been created successfully -- so a customer waited for
+        // money that was never sent.
+        try {
+            $result = $this->gatewayManager->refund(
+                $order,
+                $amount,
+                $refundData['notes']
+            );
+        } catch (\Throwable $e) {
+            // Cash and bank transfer have no provider to call at all, which
+            // arrives here rather than as a declined refund.
+            $this->markAsFailed($refundTransaction, $e->getMessage());
+
+            throw new \Exception('The refund could not be sent: '.$e->getMessage(), 0, $e);
+        }
+
+        if (! ($result['success'] ?? false)) {
+            $reason = $result['error'] ?? 'the payment provider declined the refund';
+            $this->markAsFailed($refundTransaction, $reason, $result);
+
+            throw new \Exception('The refund could not be sent: '.$reason);
+        }
+
+        $this->markAsCompleted($refundTransaction, $result);
+        $this->recordRefundAgainstOrder($order, $amount);
+
+        return $refundTransaction->refresh();
+    }
+
+    /**
+     * Keep the order's own tally of what has been given back in step with the
+     * refunds recorded against it, so the next refund cannot hand back money
+     * that has already gone.
+     */
+    protected function recordRefundAgainstOrder(Order $order, float $amount): void
+    {
+        $order->total_refunded = round((float) $order->total_refunded + $amount, 2);
+
+        // Only a full refund changes the payment status. A part refund is
+        // recorded in total_refunded alone, because 'partially_refunded' is
+        // not a status the rest of the dashboard knows how to read, and a
+        // status nothing understands is worse than an accurate figure.
+        if ($order->total_refunded >= round((float) $order->total, 2)) {
+            $order->payment_status = 'refunded';
+        }
+
+        $order->save();
     }
 
     /**

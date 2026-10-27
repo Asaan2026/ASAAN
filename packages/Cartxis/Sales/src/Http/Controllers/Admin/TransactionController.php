@@ -121,7 +121,7 @@ class TransactionController extends Controller
 
             return redirect()
                 ->route('admin.sales.transactions.show', $refundTransaction->id)
-                ->with('success', 'Refund transaction created successfully');
+                ->with('success', 'Refund sent to the payment provider successfully');
         } catch (\Exception $e) {
             return redirect()
                 ->route('admin.sales.transactions.show', $id)
