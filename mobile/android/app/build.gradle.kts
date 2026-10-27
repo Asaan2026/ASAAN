@@ -48,6 +48,27 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        ndk {
+            // Phones only. The Flutter engine and the app's own Dart code are
+            // packaged for these two, so an x86_64 device -- a Chromebook, an
+            // emulator -- would install the app and then crash on launch with
+            // nothing to run, because a payment plugin ships an x86_64 library
+            // that makes the APK look as though it supports that chip. Better
+            // that such a device cannot install it at all.
+            abiFilters += listOf("armeabi-v7a", "arm64-v8a")
+        }
+    }
+
+    packaging {
+        jniLibs {
+            // abiFilters does not reach libraries that arrive prebuilt inside a
+            // dependency: a Firebase one ships a 6 KB x86_64 library, and its
+            // mere presence makes Android treat the whole APK as supporting
+            // that chip, which it does not -- the Flutter engine and the app's
+            // Dart code are packaged for arm only.
+            excludes += listOf("lib/x86/**", "lib/x86_64/**")
+        }
     }
 
     buildTypes {
