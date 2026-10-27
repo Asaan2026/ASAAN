@@ -486,7 +486,13 @@ class _HomeScreenState extends State<HomeScreen> {
           // Notification Icon
           GestureDetector(
             onTap: () async {
-              await Navigator.pushNamed(context, '/notifications');
+              // The Home tab has a navigator of its own, and it answers any
+              // route it does not recognise with the Home screen again. Pushed
+              // there, the bell simply redrew the storefront and looked broken,
+              // so this goes to the app's own navigator, the same way search
+              // does.
+              await Navigator.of(context, rootNavigator: true)
+                  .pushNamed('/notifications');
               // Marking read on the next screen should clear the badge.
               await _loadUnreadNotifications();
             },
