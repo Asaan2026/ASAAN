@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import DateDisplay from '@/components/Calendar/DateDisplay.vue';
-import { Head, Link, usePage } from '@inertiajs/vue3';
-import { Gift } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { Gift, MailWarning } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 import AppDownloadBlock from '../../components/AppDownloadBlock.vue';
 import WhatsAppButton from '../../components/WhatsAppButton.vue';
 import ThemeLayout from '../../layouts/ThemeLayout.vue';
@@ -27,6 +27,31 @@ const user = (page.props.auth as any)?.user;
 const referralEnabled = computed(() => page.props.referralEnabled === true);
 const { formatPrice } = useCurrency();
 
+// Confirming the address is not required to shop, so this is a reminder with
+// the means to act on it, not a wall. Without it a customer had no sign that a
+// confirmation email had ever been sent.
+const emailConfirmed = computed(() => Boolean(user?.email_verified_at));
+const resending = ref(false);
+const resent = ref(false);
+
+const resendConfirmation = () => {
+    if (resending.value) return;
+    resending.value = true;
+    router.post(
+        '/email/verification-notification',
+        {},
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                resent.value = true;
+            },
+            onFinish: () => {
+                resending.value = false;
+            },
+        },
+    );
+};
+
 const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
         pending: 'bg-yellow-100 text-yellow-800',
@@ -45,6 +70,61 @@ const getStatusColor = (status: string) => {
 
         <div class="container mx-auto px-4 py-8">
             <div class="mx-auto max-w-7xl">
+                <!-- Email confirmation reminder -->
+                <div
+                    v-if="!emailConfirmed"
+                    class="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 dark:border-amber-700/60 dark:bg-amber-900/20"
+                >
+                    <div
+                        class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                        <div class="flex items-start gap-3">
+                            <MailWarning
+                                class="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400"
+                            />
+                            <div>
+                                <p
+                                    class="font-semibold text-amber-900 dark:text-amber-200"
+                                >
+                                    {{ $t('Please confirm your email address') }}
+                                </p>
+                                <p
+                                    class="text-sm text-amber-800 dark:text-amber-300"
+                                >
+                                    {{
+                                        $t(
+                                            'We sent a confirmation link to {email}. Open it to confirm this is your address. You can keep shopping either way.',
+                                            { email: user?.email ?? '' },
+                                        )
+                                    }}
+                                </p>
+                                <p
+                                    v-if="resent"
+                                    class="mt-1 text-sm font-medium text-green-700 dark:text-green-400"
+                                >
+                                    {{
+                                        $t(
+                                            'Sent again. If it does not arrive, check your spam folder.',
+                                        )
+                                    }}
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            class="inline-flex shrink-0 items-center justify-center rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            :disabled="resending"
+                            @click="resendConfirmation"
+                        >
+                            {{
+                                resending
+                                    ? $t('Sending...')
+                                    : $t('Send it again')
+                            }}
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Welcome Header -->
                 <div
                     class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
