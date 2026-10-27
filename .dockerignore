@@ -12,6 +12,7 @@ storage/*
 .env.*
 *.log
 test-results
+mobile
 test-screenshots
 coverage
 .npminclude

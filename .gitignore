@@ -30,6 +30,7 @@ Agents.md
 
 # Storefront templates live under templates/storefront/{category}/{slug}/
 # Published static assets are mirrored to public/templates/{slug}/ at install/activate.
+/test-results
 /test-screenshots
 /_backup
 /resources/admin/media
