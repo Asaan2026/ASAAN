@@ -2,12 +2,13 @@
 
 namespace Cartxis\API\Providers;
 
+use App\Models\User;
 use Cartxis\API\Observers\OrderNotificationObserver;
 use Cartxis\API\Observers\WelcomeNotificationObserver;
+use Cartxis\API\Services\Push\FcmCredentials;
 use Cartxis\API\Services\Push\FcmPushSender;
 use Cartxis\API\Services\Push\NullPushSender;
 use Cartxis\API\Services\Push\PushSender;
-use App\Models\User;
 use Cartxis\Shop\Models\Order;
 use Illuminate\Support\ServiceProvider;
 
@@ -53,10 +54,24 @@ class APIServiceProvider extends ServiceProvider
 
         // Push notifications: use Firebase when it is set up, and a sender that
         // does nothing when it is not. Callers never have to check.
-        $this->app->bind(PushSender::class, function () {
+        $this->app->bind(PushSender::class, function ($app) {
+            // The key may come from .env, as it always could, or from the one
+            // the owner uploaded in Settings > Notifications. Resolving it here
+            // means every caller gets whichever is actually present.
+            try {
+                $credentials = $app->make(FcmCredentials::class);
+                $projectId = $credentials->projectId();
+                $keyPath = $credentials->credentialsPath();
+            } catch (\Throwable $e) {
+                // No database yet (installing, migrating): fall back to .env
+                // alone rather than failing to boot.
+                $projectId = config('services.fcm.project_id');
+                $keyPath = config('services.fcm.credentials');
+            }
+
             $sender = new FcmPushSender(
-                config('services.fcm.project_id'),
-                config('services.fcm.credentials'),
+                $projectId,
+                $keyPath,
                 (string) config('services.fcm.notification_channel', ''),
             );
 

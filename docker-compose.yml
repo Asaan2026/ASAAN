@@ -37,6 +37,10 @@ services:
         condition: service_healthy
     volumes:
       - ./storage/app/public:/var/www/html/storage/app/public
+      # Private uploads the dashboard manages -- today the Firebase push key.
+      # Kept on the host so a redeploy, which replaces the container, does not
+      # take push notifications down with it.
+      - ./storage/app/private:/var/www/html/storage/app/private
       # Server secrets kept outside the code repository (git-ignored). The
       # Firebase service-account key lives here so push can sign its requests.
       # Read-only; if empty, the server simply skips push and nothing breaks.

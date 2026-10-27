@@ -34,6 +34,8 @@ Route::middleware(['web', 'auth:admin'])
         Route::get('notifications', [NotificationSettingsController::class, 'index'])->name('notifications.index');
         Route::post('notifications', [NotificationSettingsController::class, 'save'])->name('notifications.save');
         Route::post('notifications/test', [NotificationSettingsController::class, 'sendTestPush'])->name('notifications.test');
+        Route::post('notifications/firebase-key', [NotificationSettingsController::class, 'uploadFirebaseKey'])->name('notifications.firebase-key.upload');
+        Route::delete('notifications/firebase-key', [NotificationSettingsController::class, 'removeFirebaseKey'])->name('notifications.firebase-key.remove');
 
         // Locales & Currencies
         Route::get('locales', [LocalesController::class, 'index'])->name('locales.index');

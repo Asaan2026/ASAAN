@@ -16,6 +16,8 @@ interface Props {
         credentials_path: string;
         credentials_present: boolean;
         notification_channel: string;
+        source: 'dashboard' | 'server' | 'none';
+        client_email: string;
     };
 }
 
@@ -32,6 +34,8 @@ const props = withDefaults(defineProps<Props>(), {
         credentials_path: '',
         credentials_present: false,
         notification_channel: '',
+        source: 'none' as const,
+        client_email: '',
     }),
 });
 
@@ -56,6 +60,30 @@ const save = () => {
 
 const sendTestPush = () => {
     useForm({}).post('/admin/settings/notifications/test', {
+        preserveScroll: true,
+    });
+};
+
+// Uploading the Firebase key. Its own form, so saving the switches above does
+// not require picking the file again.
+const keyForm = useForm<{ key: File | null }>({ key: null });
+
+const chooseKey = (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    keyForm.key = input.files?.[0] ?? null;
+};
+
+const uploadKey = () => {
+    if (!keyForm.key) return;
+    keyForm.post('/admin/settings/notifications/firebase-key', {
+        preserveScroll: true,
+        forceFormData: true,
+        onSuccess: () => keyForm.reset('key'),
+    });
+};
+
+const removeKey = () => {
+    useForm({}).delete('/admin/settings/notifications/firebase-key', {
         preserveScroll: true,
     });
 };
@@ -161,16 +189,54 @@ const switches = [
                             <h3
                                 class="text-lg font-semibold text-gray-900 dark:text-white"
                             >
-                                {{ $t('Firebase status (read-only)') }}
+                                {{ $t('Firebase push key') }}
                             </h3>
                         </div>
 
                         <p class="text-sm text-gray-500 dark:text-gray-400">
                             {{
                                 $t(
-                                    'These values come from the server environment (.env). The service-account key file is never stored in the database.',
+                                    'Phones can only be reached once this key is in place. Download it from the Firebase console under Project settings, Service accounts, "Generate new private key", then upload the file here. It is stored privately on the server and never shown again.',
                                 )
                             }}
+                        </p>
+
+                        <div
+                            class="flex flex-col gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:flex-row sm:items-center dark:border-gray-700 dark:bg-gray-800/60"
+                        >
+                            <input
+                                type="file"
+                                accept=".json,application/json"
+                                class="block w-full text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-blue-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700 dark:text-gray-200"
+                                @change="chooseKey"
+                            />
+                            <button
+                                type="button"
+                                class="inline-flex shrink-0 items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold tracking-widest text-white uppercase transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                :disabled="!keyForm.key || keyForm.processing"
+                                @click="uploadKey"
+                            >
+                                {{
+                                    keyForm.processing
+                                        ? $t('Uploading...')
+                                        : $t('Upload key')
+                                }}
+                            </button>
+                            <button
+                                v-if="fcm.source === 'dashboard'"
+                                type="button"
+                                class="inline-flex shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-xs font-semibold tracking-widest text-gray-700 uppercase transition hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                                @click="removeKey"
+                            >
+                                {{ $t('Remove') }}
+                            </button>
+                        </div>
+
+                        <p
+                            v-if="keyForm.errors.key"
+                            class="text-sm font-medium text-red-600 dark:text-red-400"
+                        >
+                            {{ keyForm.errors.key }}
                         </p>
 
                         <dl
@@ -218,6 +284,32 @@ const switches = [
                                     >
                                         {{ $t('No') }}
                                     </span>
+                                </dd>
+                            </div>
+                            <div>
+                                <dt
+                                    class="font-medium text-gray-500 dark:text-gray-400"
+                                >
+                                    {{ $t('Key source') }}
+                                </dt>
+                                <dd class="text-gray-900 dark:text-white">
+                                    <span v-if="fcm.source === 'dashboard'">
+                                        {{ $t('Uploaded here') }}
+                                    </span>
+                                    <span v-else-if="fcm.source === 'server'">
+                                        {{ $t('Set on the server (.env)') }}
+                                    </span>
+                                    <span v-else>{{ $t('Not set') }}</span>
+                                </dd>
+                            </div>
+                            <div v-if="fcm.client_email">
+                                <dt
+                                    class="font-medium text-gray-500 dark:text-gray-400"
+                                >
+                                    {{ $t('Signs in as') }}
+                                </dt>
+                                <dd class="truncate text-gray-900 dark:text-white">
+                                    {{ fcm.client_email }}
                                 </dd>
                             </div>
                             <div>
