@@ -5,13 +5,15 @@ import 'package:vortex_app/presentation/widgets/price_text.dart';
 class OrderSuccessScreen extends StatefulWidget {
   final String orderNumber;
   final double totalAmount;
-  final String estimatedDelivery;
+
+  /// The order's own id, so "View Order" can open the real order.
+  final int? orderId;
 
   const OrderSuccessScreen({
     super.key,
     required this.orderNumber,
     required this.totalAmount,
-    required this.estimatedDelivery,
+    this.orderId,
   });
 
   @override
@@ -326,9 +328,8 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen>
                   context,
                   '/order-detail',
                   arguments: {
+                    'orderId': widget.orderId,
                     'orderNumber': widget.orderNumber,
-                    'orderDate': 'Placed on ${DateTime.now().toString().substring(0, 10)} at ${TimeOfDay.now().format(context)}',
-                    'orderStatus': 'Processing',
                     'totalAmount': widget.totalAmount,
                   },
                 );

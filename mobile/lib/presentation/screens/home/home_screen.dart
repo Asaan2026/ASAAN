@@ -558,38 +558,33 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /// The promotional banners the dashboard publishes.
+  ///
+  /// Nothing is drawn when the shop has none: this used to fall back to two
+  /// built-in banners advertising a "Summer Sale" and a "Fashion Week" that
+  /// the shop was not running, with artwork hosted outside the project.
   Widget _buildBannerSlider() {
-    final fallbackBanners = <BannerModel>[
-      const BannerModel(
-        identifier: 'mobile-home-hero-summer-sale',
-        imageUrl:
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuDZOJapra7fy6BAM2iHLk9hSxtELNcnNARwEiqlK9sD3o8I0_A38Nqual6NZ4N8pmVIQBJJkPLpu0pHB_8eLIzvEqMzvXxOTDxx0uLfV2sF1P-T1TMv_Py-B1ZP-hM8hLRF2BbBiKCmmxC3weWN0rTgwAoP8UJPklNM_GKD_cD2O8qWl_GGRfF5eMytCo8ZbG39l_a-OdMb7C-HdSyU7CCzshPBlzcXJtEGjw9nIhbW5Qwwny5mSKL1h5fiDv-ofgkeG95o4Y-J9hWm',
-        badge: 'PROMO',
-        title: 'Summer Sale',
-        subtitle: 'Up to 50% Off Electronics',
-        placement: 'home-hero',
-      ),
-      const BannerModel(
-        identifier: 'mobile-home-hero-fashion-week',
-        imageUrl:
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuCy0yJAkZq9Kf7iSGQAHsL1hW-VddU370wK0zu9ElzV0TGfbGcKLLu9mXoHSNxRBSmsXw-QsQ1UeC0MKs6N0r0Roa4WiGiAsmwsuF8Cou15aV0s8HS-dmH80W0RuHAGRj84j9R0jvSNjxII0zTuNUQGrTuXlGtUsEY8iiMMQUBoPYQxPylkdJuSRG85fUtX9jf-9YoFPbaFOTIXydlPjjcY6h9dKmziCjJOBlOGuaaftHPrNW6jkX1tR5d2xBvvYdEBmSFfRBHZRbK_',
-        badge: 'NEW',
-        title: 'Fashion Week',
-        subtitle: 'Trending Styles 2023',
-        placement: 'home-hero',
-      ),
-    ];
+    // While they load, a grey card holds the space. Once loaded, a shop with
+    // no banners shows nothing at all.
+    if (_isLoadingBanners) {
+      return SizedBox(
+        height: 160,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          children: [_buildBannerSkeletonCard()],
+        ),
+      );
+    }
+
+    if (_homeBanners.isEmpty) return const SizedBox.shrink();
 
     return SizedBox(
       height: 160,
       child: ListView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: _buildBannerSliderChildren(
-          // Don’t leave the hero area looking “empty” while banners load.
-          // API banners replace fallback as soon as they arrive.
-          _homeBanners.isNotEmpty ? _homeBanners : fallbackBanners,
-        ),
+        children: _buildBannerSliderChildren(_homeBanners),
       ),
     );
   }
@@ -946,10 +941,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           }
                         }
 
-                        // Use a colorful placeholder if no image
-                        final displayImageUrl = imageUrl.isEmpty
-                            ? 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=${Uri.encodeComponent(product.name.length > 20 ? product.name.substring(0, 20) : product.name)}'
-                            : imageUrl;
+                        final displayImageUrl = imageUrl;
 
                         return _buildProductCard(
                           displayImageUrl,
@@ -1057,9 +1049,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 '';
                           }
                         }
-                        final displayImageUrl = imageUrl.isEmpty
-                            ? 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=${Uri.encodeComponent(product.name)}'
-                            : imageUrl;
+                        final displayImageUrl = imageUrl;
 
                         final discountText = product.discountPercentage > 0
                             ? '-${product.discountPercentage.toStringAsFixed(0)}%'
@@ -1153,9 +1143,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 '';
                           }
                         }
-                        final displayImageUrl = imageUrl.isEmpty
-                            ? 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=${Uri.encodeComponent(product.name)}'
-                            : imageUrl;
+                        final displayImageUrl = imageUrl;
                         return _buildNewArrivalCard(
                           displayImageUrl,
                           product.name,
@@ -1222,13 +1210,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 110,
                     width: double.infinity,
                     color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
-                    child: Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(Icons.image, size: 50);
-                      },
-                    ),
+                    child: imageUrl.isEmpty
+                        ? Icon(Icons.image_outlined,
+                            size: 50, color: Colors.grey.shade400)
+                        : Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Icon(
+                            Icons.image_outlined,
+                            size: 50,
+                            color: Colors.grey.shade400,
+                          ),
+                          ),
                   ),
                 ),
                 if (discount != null)
@@ -1427,13 +1420,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 110,
                     width: double.infinity,
                     color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
-                    child: Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(Icons.image, size: 50);
-                      },
-                    ),
+                    child: imageUrl.isEmpty
+                        ? Icon(Icons.image_outlined,
+                            size: 50, color: Colors.grey.shade400)
+                        : Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Icon(
+                            Icons.image_outlined,
+                            size: 50,
+                            color: Colors.grey.shade400,
+                          ),
+                          ),
                   ),
                 ),
                 Positioned(
@@ -1611,13 +1609,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 110,
                     width: double.infinity,
                     color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
-                    child: Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(Icons.image, size: 50);
-                      },
-                    ),
+                    child: imageUrl.isEmpty
+                        ? Icon(Icons.image_outlined,
+                            size: 50, color: Colors.grey.shade400)
+                        : Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Icon(
+                            Icons.image_outlined,
+                            size: 50,
+                            color: Colors.grey.shade400,
+                          ),
+                          ),
                   ),
                 ),
                 Positioned(

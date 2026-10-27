@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:vortex_app/core/constants/app_colors.dart';
+import 'package:vortex_app/data/models/product_model.dart';
+import 'package:vortex_app/data/services/product_service.dart';
+import 'package:vortex_app/presentation/widgets/html_text.dart';
 import 'package:vortex_app/presentation/widgets/price_text.dart';
 
 class ProductDetailScreen extends StatefulWidget {
@@ -16,9 +20,59 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   final PageController _pageController = PageController();
+  final ProductService _productService = ProductService();
+
   int _currentPage = 0;
   int _quantity = 1;
   bool _isFavorite = false;
+
+  /// What the screen draws. It starts as whatever the previous screen handed
+  /// over so the page paints straight away, then the full record from the
+  /// server is merged in: product listings return a trimmed product, without
+  /// the brand, weight, dimensions or the owner's own attributes.
+  late Map<String, dynamic> _product;
+
+  List<ProductModel> _related = [];
+  List<Map<String, dynamic>> _reviews = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _product = Map<String, dynamic>.of(widget.product);
+    _loadFullProduct();
+  }
+
+  /// Nothing here is allowed to fail loudly: the screen already has enough to
+  /// show the product, so a dropped connection just means the extra sections
+  /// stay hidden rather than an error taking over the page.
+  Future<void> _loadFullProduct() async {
+    final id = (_product['id'] as num?)?.toInt();
+    if (id == null || id == 0) return;
+
+    try {
+      final full = await _productService.getProduct(id);
+      if (!mounted) return;
+      setState(() => _product = {..._product, ...full});
+    } catch (_) {
+      // Keep what the previous screen gave us.
+    }
+
+    try {
+      final related = await _productService.getRelatedProducts(id);
+      if (!mounted) return;
+      setState(() => _related = related);
+    } catch (_) {
+      // Section stays hidden.
+    }
+
+    try {
+      final reviews = await _productService.getProductReviews(id);
+      if (!mounted) return;
+      setState(() => _reviews = reviews);
+    } catch (_) {
+      // Section falls back to the summary figures.
+    }
+  }
 
   @override
   void dispose() {
@@ -99,28 +153,38 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget _buildImageCarousel(bool isDark) {
-    // Use images from product if available, otherwise use placeholder
-    final productImages = widget.product['images'] as List<dynamic>?;
+    final productImages = _product['images'] as List<dynamic>?;
     final List<String> images = [];
-    
-    if (productImages != null && productImages.isNotEmpty) {
-      for (var img in productImages) {
-        if (img is String) {
-          images.add(img);
-        } else if (img is Map<String, dynamic>) {
-          final url = img['url']?.toString() ?? 
-                     img['path']?.toString() ?? 
-                     img['image']?.toString() ?? '';
-          if (url.isNotEmpty) images.add(url);
-        }
+
+    for (final img in productImages ?? const []) {
+      if (img is String) {
+        if (img.trim().isNotEmpty) images.add(img);
+      } else if (img is Map) {
+        final url = img['url']?.toString() ??
+            img['path']?.toString() ??
+            img['image']?.toString() ??
+            '';
+        if (url.trim().isNotEmpty) images.add(url);
       }
     }
-    
-    // If no valid images, use placeholders
+
+    // A product with no pictures shows an icon drawn by the app. It used to
+    // fetch a placeholder image from an outside website, which meant an empty
+    // grey box whenever that site was unreachable.
     if (images.isEmpty) {
-      images.addAll([
-        'https://via.placeholder.com/400x400?text=Product+Image',
-      ]);
+      return SizedBox(
+        height: MediaQuery.of(context).size.height * 0.5,
+        child: Container(
+          color: isDark ? const Color(0xFF182430) : Colors.white,
+          child: Center(
+            child: Icon(
+              Icons.image_outlined,
+              size: 64,
+              color: Colors.grey.shade400,
+            ),
+          ),
+        ),
+      );
     }
 
     return SizedBox(
@@ -220,13 +284,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget _buildHeader(bool isDark) {
-    final productName = widget.product['name']?.toString() ?? 'Product Name';
-    final price = (widget.product['price'] ?? widget.product['discountPrice'] ?? 0.0) as num;
-    final originalPrice = widget.product['discountPrice'] != null 
-        ? (widget.product['price'] ?? 0.0) as num
+    final productName = _product['name']?.toString() ?? 'Product Name';
+    final price = (_product['price'] ?? _product['discountPrice'] ?? 0.0) as num;
+    final originalPrice = _product['discountPrice'] != null 
+        ? (_product['price'] ?? 0.0) as num
         : null;
-    final rating = (widget.product['rating'] ?? 0.0) as num;
-    final reviewsCount = (widget.product['reviewsCount'] ?? widget.product['reviews_count'] ?? 0) as num;
+    final rating = (_product['rating'] ?? 0.0) as num;
+    final reviewsCount = (_product['reviewsCount'] ?? _product['reviews_count'] ?? 0) as num;
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -298,17 +362,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               width: 8,
               height: 8,
               decoration: BoxDecoration(
-                color: (widget.product['stock'] as num? ?? 0) > 0 ? Colors.green : Colors.red,
+                color: (_product['stock'] as num? ?? 0) > 0 ? Colors.green : Colors.red,
                 shape: BoxShape.circle,
               ),
             ),
             const SizedBox(width: 6),
             Text(
-              (widget.product['stock'] as num? ?? 0) > 0 ? 'In Stock' : 'Out of Stock',
+              (_product['stock'] as num? ?? 0) > 0 ? 'In Stock' : 'Out of Stock',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: (widget.product['stock'] as num? ?? 0) > 0 ? Colors.green : Colors.red,
+                color: (_product['stock'] as num? ?? 0) > 0 ? Colors.green : Colors.red,
               ),
             ),
             const SizedBox(width: 16),
@@ -318,7 +382,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
             const SizedBox(width: 16),
             Text(
-              'SKU: ${widget.product['id']?.toString() ?? 'N/A'}',
+              'SKU: ${_product['id']?.toString() ?? 'N/A'}',
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.grey.shade400 : Colors.grey.shade500,
@@ -330,16 +394,40 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
+  /// The blurb under the product name. The dashboard calls this the short
+  /// description; it is written in a rich-text editor, so it arrives as HTML
+  /// and has to be rendered, not printed.
   Widget _buildShortDescription(bool isDark) {
-    final description = widget.product['description']?.toString() ?? 'No description available';
-    
-    return Text(
-      description,
-      style: TextStyle(
+    final short = _product['short_description']?.toString() ?? '';
+    final full = _product['description']?.toString() ?? '';
+    final text = short.trim().isNotEmpty ? short : full;
+
+    if (text.trim().isEmpty) return const SizedBox.shrink();
+
+    return HtmlText(
+      html: text,
+      baseStyle: TextStyle(
         fontSize: 14,
         color: isDark ? Colors.grey.shade300 : Colors.grey.shade600,
         height: 1.5,
       ),
+      linkColor: isDark ? Colors.lightBlue.shade200 : Colors.blue.shade700,
+    );
+  }
+
+  /// The full description, as typed in the dashboard.
+  Widget? _buildFullDescription(bool isDark) {
+    final text = _product['description']?.toString() ?? '';
+    if (text.trim().isEmpty) return null;
+
+    return HtmlText(
+      html: text,
+      baseStyle: TextStyle(
+        fontSize: 14,
+        color: isDark ? Colors.grey.shade300 : Colors.grey.shade600,
+        height: 1.5,
+      ),
+      linkColor: isDark ? Colors.lightBlue.shade200 : Colors.blue.shade700,
     );
   }
 
@@ -478,83 +566,76 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget _buildExpandableSections(bool isDark) {
+    final fullDescription = _buildFullDescription(isDark);
+    final specifications = _buildSpecifications(isDark);
+
+    final cards = <Widget>[
+      if (fullDescription != null)
+        _buildExpandableCard('Full Description', fullDescription, isDark),
+      if (specifications != null)
+        _buildExpandableCard('Specifications', specifications, isDark),
+    ];
+
+    if (cards.isEmpty) return const SizedBox.shrink();
+
     return Column(
       children: [
-        _buildExpandableCard(
-          'Full Description',
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'The WH-1000XM5 headphones rewrite the rules for distraction-free listening. 2 processors control 8 microphones for unprecedented noise cancellation and exceptional call quality. With a newly developed driver, DSEE – Extreme and Hi-Res audio support the WH-1000XM5 headphones provide awe-inspiring audio quality.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: isDark ? Colors.grey.shade300 : Colors.grey.shade600,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                '• Industry-leading noise cancellation',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: isDark ? Colors.grey.shade300 : Colors.grey.shade600,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '• Magnificent Sound, engineered to perfection',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: isDark ? Colors.grey.shade300 : Colors.grey.shade600,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '• Crystal clear hands-free calling',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: isDark ? Colors.grey.shade300 : Colors.grey.shade600,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '• Up to 30-hour battery life',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: isDark ? Colors.grey.shade300 : Colors.grey.shade600,
-                ),
-              ),
-            ],
+        for (var i = 0; i < cards.length; i++) ...[
+          if (i > 0) const SizedBox(height: 12),
+          cards[i],
+        ],
+      ],
+    );
+  }
+
+  /// The product's own measurements and attributes, as entered in the
+  /// dashboard. Only facts the shop actually recorded are listed, and the card
+  /// is left out altogether when there are none — an empty "Specifications"
+  /// heading tells a shopper nothing.
+  Widget? _buildSpecifications(bool isDark) {
+    final rows = <({String label, String value})>[];
+
+    void add(String label, String? value) {
+      final text = value?.trim() ?? '';
+      if (text.isEmpty) return;
+      rows.add((label: label, value: text));
+    }
+
+    add('SKU', _product['sku']?.toString());
+
+    final brand = _product['brand'];
+    if (brand is Map) {
+      add('Brand', brand['name']?.toString());
+    } else if (brand is String) {
+      add('Brand', brand);
+    }
+
+    add('Weight', formatMeasure(_product['weight']));
+    add('Dimensions', formatDimensions(_product['dimensions']));
+
+    // Whatever the shop owner called them: colour, material, warranty.
+    final attributes = _product['attributes'];
+    if (attributes is List) {
+      for (final attribute in attributes) {
+        if (attribute is! Map) continue;
+        final name = attribute['name']?.toString() ?? '';
+        final value = attribute['value']?.toString() ?? '';
+        if (name.isEmpty || value.trim().isEmpty) continue;
+        add(name, value);
+      }
+    }
+
+    if (rows.isEmpty) return null;
+
+    return Column(
+      children: [
+        for (var i = 0; i < rows.length; i++)
+          _buildSpecRow(
+            rows[i].label,
+            rows[i].value,
+            isDark,
+            isLast: i == rows.length - 1,
           ),
-          isDark,
-        ),
-        const SizedBox(height: 12),
-        _buildExpandableCard(
-          'Specifications',
-          Column(
-            children: [
-              _buildSpecRow('Weight', '250g', isDark),
-              _buildSpecRow('Battery Life', '30 Hours', isDark),
-              _buildSpecRow('Bluetooth', 'Version 5.2', isDark),
-              _buildSpecRow('Charging', 'USB-C', isDark, isLast: true),
-            ],
-          ),
-          isDark,
-        ),
-        const SizedBox(height: 12),
-        _buildExpandableCard(
-          'Shipping Info',
-          Text(
-            'Free shipping on orders over \$50. Standard shipping takes 3-5 business days. Express shipping options available at checkout. Returns accepted within 30 days of purchase.',
-            style: TextStyle(
-              fontSize: 14,
-              color: isDark ? Colors.grey.shade300 : Colors.grey.shade600,
-              height: 1.5,
-            ),
-          ),
-          isDark,
-        ),
       ],
     );
   }
@@ -636,36 +717,57 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
+  /// Real ratings and real reviews, or an honest "none yet".
+  ///
+  /// There is no per-star breakdown in the API, so there are no distribution
+  /// bars here: a bar chart that is not driven by the data is worse than no
+  /// bar chart at all.
   Widget _buildReviewsSection(bool isDark) {
+    final summary = _product['reviews_summary'];
+    final rating = (_product['rating'] ??
+        (summary is Map ? summary['average_rating'] : null) ??
+        0.0) as num;
+    final count = (_product['reviewsCount'] ??
+        _product['reviews_count'] ??
+        (summary is Map ? summary['total_reviews'] : null) ??
+        0) as num;
+
+    if (count <= 0 && _reviews.isEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Reviews',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.grey.shade900,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'No reviews yet.',
+            style: TextStyle(
+              fontSize: 14,
+              color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+            ),
+          ),
+        ],
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Reviews (120)',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : Colors.grey.shade900,
-              ),
-            ),
-            TextButton(
-              onPressed: () {},
-              child: const Text(
-                'See All',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
-                ),
-              ),
-            ),
-          ],
+        Text(
+          count > 0 ? 'Reviews ($count)' : 'Reviews',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: isDark ? Colors.white : Colors.grey.shade900,
+          ),
         ),
         const SizedBox(height: 16),
-        // Review Summary
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -677,187 +779,154 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ),
           child: Row(
             children: [
-              // Rating Score
-              Container(
-                padding: const EdgeInsets.only(right: 16),
-                decoration: BoxDecoration(
-                  border: Border(
-                    right: BorderSide(
-                      color: isDark ? Colors.grey.shade700 : Colors.grey.shade200,
-                    ),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      '4.8',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.grey.shade900,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: List.generate(
-                        5,
-                        (index) => Icon(
-                          index < 4 ? Icons.star : Icons.star_half,
-                          color: Colors.amber,
-                          size: 16,
-                        ),
-                      ),
-                    ),
-                  ],
+              Text(
+                rating.toStringAsFixed(1),
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.grey.shade900,
                 ),
               ),
-              const SizedBox(width: 16),
-              // Rating Bars
-              Expanded(
-                child: Column(
-                  children: [
-                    _buildRatingBar('5', 0.85, isDark),
-                    const SizedBox(height: 6),
-                    _buildRatingBar('4', 0.10, isDark),
-                    const SizedBox(height: 6),
-                    _buildRatingBar('3', 0.05, isDark),
-                  ],
+              const SizedBox(width: 12),
+              _buildStars(rating.toDouble(), 18),
+              const Spacer(),
+              Text(
+                count == 1 ? '1 rating' : '$count ratings',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade500,
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        // Single Review
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1C2630) : Colors.white,
-            border: Border.all(
-              color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
-            ),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        for (final review in _reviews) ...[
+          const SizedBox(height: 12),
+          _buildReviewCard(review, isDark),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildStars(double rating, double size) {
+    return Row(
+      children: List.generate(5, (index) {
+        final position = index + 1;
+        final IconData icon;
+        if (rating >= position) {
+          icon = Icons.star;
+        } else if (rating >= position - 0.5) {
+          icon = Icons.star_half;
+        } else {
+          icon = Icons.star_border;
+        }
+        return Icon(icon, color: Colors.amber, size: size);
+      }),
+    );
+  }
+
+  Widget _buildReviewCard(Map<String, dynamic> review, bool isDark) {
+    final customer = review['customer'];
+    final name =
+        customer is Map ? (customer['name']?.toString().trim() ?? '') : '';
+    final displayName = name.isNotEmpty ? name : 'Verified buyer';
+    final rating = (review['rating'] as num?)?.toDouble() ?? 0.0;
+    final title = review['title']?.toString().trim() ?? '';
+    final comment = review['comment']?.toString().trim() ?? '';
+    final date = _formatReviewDate(review['created_at']?.toString());
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1C2630) : Colors.white,
+        border: Border.all(
+          color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
+        ),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: isDark ? Colors.grey.shade700 : Colors.grey.shade200,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            'JD',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.grey.shade300 : Colors.grey.shade600,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'John Doe',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : Colors.grey.shade900,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    '2 days ago',
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.grey.shade700 : Colors.grey.shade200,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    initialsOfName(displayName),
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey.shade400,
+                      fontWeight: FontWeight.bold,
+                      color:
+                          isDark ? Colors.grey.shade300 : Colors.grey.shade600,
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: List.generate(
-                  5,
-                  (index) => const Icon(Icons.star, color: Colors.amber, size: 14),
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Absolutely amazing sound quality! The noise cancelling is out of this world. Highly recommend.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: isDark ? Colors.grey.shade300 : Colors.grey.shade600,
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  displayName,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : Colors.grey.shade900,
+                  ),
                 ),
               ),
+              if (date != null)
+                Text(
+                  date,
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade400),
+                ),
             ],
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRatingBar(String rating, double percentage, bool isDark) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 12,
-          child: Text(
-            rating,
-            style: const TextStyle(fontSize: 12),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Container(
-            height: 8,
-            decoration: BoxDecoration(
-              color: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: FractionallySizedBox(
-              alignment: Alignment.centerLeft,
-              widthFactor: percentage,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.amber,
-                  borderRadius: BorderRadius.circular(4),
-                ),
+          const SizedBox(height: 8),
+          _buildStars(rating, 14),
+          if (title.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : Colors.grey.shade900,
               ),
             ),
-          ),
-        ),
-      ],
+          ],
+          if (comment.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+              comment,
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.4,
+                color: isDark ? Colors.grey.shade300 : Colors.grey.shade600,
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 
+  String? _formatReviewDate(String? raw) {
+    if (raw == null || raw.isEmpty) return null;
+    final parsed = DateTime.tryParse(raw);
+    if (parsed == null) return null;
+    return DateFormat.yMMMd().format(parsed.toLocal());
+  }
+
+  /// Other products from the same categories, as the server picks them.
+  /// Hidden entirely when there are none, rather than filled with examples.
   Widget _buildRelatedProducts(bool isDark) {
-    final relatedProducts = [
-      {
-        'name': 'Sony WF-1000XM4 Earbuds',
-        'price': '278.00',
-        'image': 'https://lh3.googleusercontent.com/aida-public/AB6AXuASsJ6yykRpDRLE4FOJDbvUdGthZZJRE-O87yGTetaKqZ7PSp3CHJRWhB1OXHhxhc4gPZXwW0-TgBHFN6YhWs4yRMzGHQTQzVecA0RAOdaFbzbwtHeN4HrpYEoifcFQnTvhMVWkEGrcgHdWIhNUE53rb5VLtvgSTv-6I3NQDypzDNxb1So5pbAEA0k3Gu1-BvAzfLs7ft8EFNSD08F9RIu86SJUwHO-JU2jgDvetgC1BMIrg1K4kY2SgPDtPS48Vjig5lN0Io58Pv5i',
-      },
-      {
-        'name': 'Bose QuietComfort 45',
-        'price': '329.00',
-        'image': 'https://lh3.googleusercontent.com/aida-public/AB6AXuBeLTVy4GSwzRAgAn0aRqR1WZskeSsx9RSV5JlTdf5PZInyrr8he3qHIeMb2ckfrMh_JRI2b4-qHlrv2mgGEBhbzh-DBswk1wbV8TUJGZlbmHlLc8b1FQ279zOohCPuvPYTFrTmHml8NqrQfNY6y0Up8_cUPmIIXeO0K_oQALUiT4B5oA30sNPWFqAetTWezQeAaFGqUNPzSWJT2MviRKjdyvsMUKSpRoXqgM-9U2zv7nAds2QgxNjX3YNDk7iu6RtiLJAO-_bip0cD',
-      },
-      {
-        'name': 'Beats Solo3 Wireless',
-        'price': '199.95',
-        'image': 'https://lh3.googleusercontent.com/aida-public/AB6AXuB9jgMIml8VD93xDuDl4vJ3RgPBaPHjvC7zXTp7h9X0D0Eaq7sJdlwufHbqXVOt7LZ-lpqFWfcaTmmxPXymd3EZIN0IeD2OpHjaVaPUSWU9AtK4N_cd_UbWJKA-zLoS8XJnFMne5M03P11i4_3tb4pmSh_WDgTbJUdiVRhKitCS7XASkIsPgIfwi4Yvgtl1VSdSJnbbgothdYPHicsDBML9DEGIaLiKEoj5rx0gJZEn_0JtssamiQr3bx_uGBpIH1tyz9YoHc3rPa1K',
-      },
-    ];
+    if (_related.isEmpty) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -875,77 +944,80 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           height: 220,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: relatedProducts.length,
+            itemCount: _related.length,
             itemBuilder: (context, index) {
-              final product = relatedProducts[index];
-              return Container(
-                width: 160,
-                margin: EdgeInsets.only(right: index < relatedProducts.length - 1 ? 16 : 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Stack(
+              final product = _related[index];
+              final imageUrl = firstImageUrlOf(product.images);
+
+              return Padding(
+                padding: EdgeInsetsDirectional.only(
+                  end: index < _related.length - 1 ? 16 : 0,
+                ),
+                child: GestureDetector(
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    '/product-detail',
+                    arguments: {'product': product.toJson()},
+                  ),
+                  child: SizedBox(
+                    width: 160,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
                           width: 160,
                           height: 160,
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF1C2630) : Colors.white,
+                            color:
+                                isDark ? const Color(0xFF1C2630) : Colors.white,
                             border: Border.all(
-                              color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
+                              color: isDark
+                                  ? Colors.grey.shade800
+                                  : Colors.grey.shade100,
                             ),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           padding: const EdgeInsets.all(8),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              product['image']!,
-                              fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Icon(Icons.image, size: 40);
-                              },
-                            ),
+                            child: imageUrl == null
+                                ? Icon(
+                                    Icons.image_outlined,
+                                    size: 40,
+                                    color: Colors.grey.shade400,
+                                  )
+                                : Image.network(
+                                    imageUrl,
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (_, __, ___) => Icon(
+                                      Icons.image_outlined,
+                                      size: 40,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                  ),
                           ),
                         ),
-                        Positioned(
-                          top: 8,
-                          right: 8,
-                          child: Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              color: isDark ? Colors.grey.shade800 : Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.favorite_border,
-                              size: 16,
-                              color: Colors.grey.shade400,
-                            ),
+                        const SizedBox(height: 8),
+                        Text(
+                          product.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: isDark ? Colors.white : Colors.grey.shade900,
                           ),
+                        ),
+                        const SizedBox(height: 4),
+                        StyledPriceText(
+                          amount: product.finalPrice,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      product['name']!,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : Colors.grey.shade900,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    StyledPriceText(
-                      amount: double.parse(product['price'] ?? '0'),
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
-                  ],
+                  ),
                 ),
               );
             },
@@ -954,4 +1026,60 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       ],
     );
   }
+}
+
+/// Initials for a reviewer's avatar circle. Kept out of the widget so it can
+/// be tested on its own.
+String initialsOfName(String name) {
+  final words = name.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+  if (words.isEmpty) return '?';
+  if (words.length == 1) {
+    return words.first.substring(0, 1).toUpperCase();
+  }
+  return (words.first.substring(0, 1) + words[1].substring(0, 1))
+      .toUpperCase();
+}
+
+/// The first usable picture in whatever shape the API sent the images in.
+String? firstImageUrlOf(List<dynamic> images) {
+  for (final image in images) {
+    if (image is String && image.trim().isNotEmpty) return image;
+    if (image is Map) {
+      final url = image['url']?.toString() ??
+          image['path']?.toString() ??
+          image['image']?.toString() ??
+          '';
+      if (url.trim().isNotEmpty) return url;
+    }
+  }
+  return null;
+}
+
+/// Numbers arrive as strings or as numbers depending on the endpoint, and a
+/// recorded zero means "never measured" rather than a real measurement, so it
+/// is left off the specifications instead of reading as "0".
+String? formatMeasure(dynamic raw) {
+  if (raw == null) return null;
+  final text = raw.toString().trim();
+  if (text.isEmpty) return null;
+  final number = double.tryParse(text);
+  if (number == null) return text;
+  if (number <= 0) return null;
+  // Drop a trailing ".0", so 250.0 reads as 250.
+  return number == number.roundToDouble()
+      ? number.toStringAsFixed(0)
+      : number.toString();
+}
+
+/// Length, width and height as "20 × 10 × 5", skipping whatever was
+/// not measured.
+String? formatDimensions(dynamic raw) {
+  if (raw is! Map) return null;
+  final parts = [
+    formatMeasure(raw['length']),
+    formatMeasure(raw['width']),
+    formatMeasure(raw['height']),
+  ].whereType<String>().toList();
+  if (parts.isEmpty) return null;
+  return parts.join(' × ');
 }

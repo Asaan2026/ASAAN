@@ -237,6 +237,81 @@ class ProductService {
   }
 
   /// Get products by category
+  /// Everything the server knows about one product.
+  ///
+  /// The listing endpoints return a trimmed product, so the detail screen has
+  /// to ask for the full record to get the specifications (brand, weight,
+  /// dimensions and the owner's own attributes) and the latest reviews.
+  /// Returns the raw map, because those fields have no place in ProductModel.
+  Future<Map<String, dynamic>> getProduct(int id) async {
+    final response = await _apiClient.get('${ApiConfig.products}/$id');
+
+    if (response['success'] == false) {
+      throw ApiException(
+        message: response['message'] ?? 'Failed to retrieve product',
+        code: response['error_code'] ?? 'PRODUCT_FETCH_FAILED',
+        errors: response['errors'] as Map<String, dynamic>?,
+      );
+    }
+
+    final data = response['data'];
+    if (data is! Map<String, dynamic>) {
+      throw ApiException(
+        message: 'Product details were not in the expected shape',
+        code: 'PRODUCT_FETCH_FAILED',
+      );
+    }
+    return data;
+  }
+
+  /// Other products from the same categories.
+  Future<List<ProductModel>> getRelatedProducts(int id) async {
+    final response =
+        await _apiClient.get('${ApiConfig.products}/$id/related');
+
+    if (response['success'] == false) {
+      throw ApiException(
+        message: response['message'] ?? 'Failed to retrieve related products',
+        code: response['error_code'] ?? 'PRODUCTS_FETCH_FAILED',
+        errors: response['errors'] as Map<String, dynamic>?,
+      );
+    }
+
+    final data = response['data'];
+    if (data is! List) return [];
+
+    return data
+        .whereType<Map<String, dynamic>>()
+        .map(ProductModel.fromJson)
+        .toList();
+  }
+
+  /// Approved reviews customers left on a product, newest first.
+  ///
+  /// This endpoint is used rather than the `recent_reviews` field on the
+  /// product, because only this one includes who wrote the review.
+  Future<List<Map<String, dynamic>>> getProductReviews(
+    int id, {
+    int perPage = 5,
+  }) async {
+    final response = await _apiClient.get(
+      '${ApiConfig.products}/$id/reviews',
+      queryParameters: {'per_page': perPage.toString()},
+    );
+
+    if (response['success'] == false) {
+      throw ApiException(
+        message: response['message'] ?? 'Failed to retrieve reviews',
+        code: response['error_code'] ?? 'REVIEWS_FETCH_FAILED',
+        errors: response['errors'] as Map<String, dynamic>?,
+      );
+    }
+
+    final data = response['data'];
+    if (data is! List) return [];
+    return data.whereType<Map<String, dynamic>>().toList();
+  }
+
   Future<ProductsResponse> getCategoryProducts({
     required int categoryId,
     int page = 1,

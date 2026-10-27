@@ -5,7 +5,6 @@ import 'package:vortex_app/presentation/screens/auth/register_screen.dart';
 import 'package:vortex_app/presentation/screens/auth/reset_password_screen.dart';
 import 'package:vortex_app/presentation/screens/onboarding/onboarding_screen.dart';
 import 'package:vortex_app/presentation/screens/splash/splash_screen.dart';
-import 'package:vortex_app/presentation/screens/products/product_list_screen.dart';
 import 'package:vortex_app/presentation/screens/products/product_detail_screen.dart';
 import 'package:vortex_app/presentation/screens/categories/categories_screen.dart';
 import 'package:vortex_app/presentation/screens/categories/category_products_screen.dart';
@@ -56,7 +55,6 @@ class AppRouter {
   static const String forgotPassword = '/forgot-password';
   static const String resetPassword = '/reset-password';
   static const String home = '/home';
-  static const String productList = '/products';
   static const String productDetail = '/product-detail';
   static const String categories = '/categories';
   static const String categoryProducts = '/category-products';
@@ -129,15 +127,6 @@ class AppRouter {
           settings: settings,
         );
 
-      case productList:
-        final args = settings.arguments as Map<String, dynamic>?;
-        return MaterialPageRoute(
-          builder: (_) => ProductListScreen(
-            category: args?['category'] ?? 'Sneakers',
-          ),
-          settings: settings,
-        );
-
       case productDetail:
         final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
@@ -188,9 +177,9 @@ class AppRouter {
         final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
           builder: (_) => OrderSuccessScreen(
-            orderNumber: args?['orderNumber'] ?? '#VX-000000',
-            totalAmount: args?['totalAmount'] ?? 0.0,
-            estimatedDelivery: args?['estimatedDelivery'] ?? 'TBD',
+            orderId: (args?['orderId'] as num?)?.toInt(),
+            orderNumber: args?['orderNumber'] ?? '',
+            totalAmount: (args?['totalAmount'] as num?)?.toDouble() ?? 0.0,
           ),
           settings: settings,
         );
@@ -199,10 +188,13 @@ class AppRouter {
         final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
           builder: (_) => OrderDetailScreen(
-            orderNumber: args?['orderNumber'] ?? '#ORD-000000',
-            orderDate: args?['orderDate'] ?? 'Unknown date',
-            orderStatus: args?['orderStatus'] ?? 'Processing',
-            totalAmount: args?['totalAmount'] ?? 0.0,
+            // The id is what lets the screen fetch the real order; without it
+            // there is nothing to show but the few facts passed in here.
+            orderId: (args?['orderId'] as num?)?.toInt(),
+            orderNumber: args?['orderNumber'] ?? '',
+            orderDate: args?['orderDate'] ?? '',
+            orderStatus: args?['orderStatus'] ?? '',
+            totalAmount: (args?['totalAmount'] as num?)?.toDouble() ?? 0.0,
           ),
           settings: settings,
         );

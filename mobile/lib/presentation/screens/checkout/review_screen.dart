@@ -214,7 +214,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
               arguments: {
                 'orderNumber': orderNumber,
                 'totalAmount': _total,
-                'estimatedDelivery': 'Mon, Aug 24',
+                'orderId': internalOrderId,
               },
             );
           }
@@ -365,7 +365,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
               arguments: {
                 'orderNumber': orderNumber,
                 'totalAmount': _total,
-                'estimatedDelivery': 'Mon, Aug 24',
+                'orderId': internalOrderId,
               },
             );
           }
@@ -592,7 +592,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
           arguments: {
             'orderNumber': orderNumber,
             'totalAmount': _total,
-            'estimatedDelivery': 'Mon, Aug 24',
+            'orderId': internalOrderId,
           },
         );
       }
@@ -693,7 +693,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
           arguments: {
             'orderNumber': orderNumber,
             'totalAmount': _total,
-            'estimatedDelivery': 'Mon, Aug 24',
+            'orderId': internalOrderId,
           },
         );
       }
@@ -732,6 +732,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
       );
       
       final orderNumber = result['order_number'] ?? '#VX-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+      final internalOrderId = (result['order_id'] as num?)?.toInt() ??
+          (result['id'] as num?)?.toInt();
       
       // Clear cart after successful order
       await _cartService.clearCart();
@@ -744,7 +746,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
           arguments: {
             'orderNumber': orderNumber,
             'totalAmount': _total,
-            'estimatedDelivery': 'Mon, Aug 24',
+            'orderId': internalOrderId,
           },
         );
       }

@@ -5,6 +5,7 @@ import '../../../data/models/service_model.dart';
 import '../../../data/services/service_catalog_service.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../routes/app_router.dart';
+import '../../widgets/html_text.dart';
 
 /// The list of jobs the shop offers, grouped by category and searchable.
 ///
@@ -383,11 +384,10 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   ),
                   if ((service.shortDescription ?? '').isNotEmpty) ...[
                     const SizedBox(height: 4),
-                    Text(
-                      service.shortDescription!,
+                    HtmlText(
+                      html: service.shortDescription!,
                       maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      baseStyle: TextStyle(
                         fontSize: 13,
                         color: isDark ? Colors.white54 : Colors.black54,
                       ),

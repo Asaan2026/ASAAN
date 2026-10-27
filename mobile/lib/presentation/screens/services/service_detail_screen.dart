@@ -5,6 +5,7 @@ import '../../../data/models/service_model.dart';
 import '../../../data/services/service_catalog_service.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../routes/app_router.dart';
+import '../../widgets/html_text.dart';
 
 /// Everything about one service, and the way in to booking it.
 class ServiceDetailScreen extends StatefulWidget {
@@ -126,13 +127,14 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
         if ((service.description ?? '').isNotEmpty) ...[
           _sectionLabel(_l10n.servicesAbout, isDark),
           const SizedBox(height: 8),
-          Text(
-            service.description!,
-            style: TextStyle(
+          HtmlText(
+            html: service.description!,
+            baseStyle: TextStyle(
               fontSize: 14,
               height: 1.5,
               color: isDark ? Colors.white70 : Colors.black87,
             ),
+            linkColor: isDark ? Colors.lightBlue.shade200 : Colors.blue.shade700,
           ),
           const SizedBox(height: 20),
         ],

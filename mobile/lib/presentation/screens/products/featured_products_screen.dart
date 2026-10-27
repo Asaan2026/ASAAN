@@ -317,7 +317,7 @@ class _FeaturedProductsScreenState extends State<FeaturedProductsScreen> {
       }
     }
     final displayImageUrl = imageUrl.isEmpty
-        ? 'https://via.placeholder.com/300x300/4A90E2/FFFFFF?text=${Uri.encodeComponent(product.name)}'
+        ? ''
         : imageUrl;
 
     return GestureDetector(
@@ -357,13 +357,18 @@ class _FeaturedProductsScreenState extends State<FeaturedProductsScreen> {
                     height: 140,
                     width: double.infinity,
                     color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
-                    child: Image.network(
-                      displayImageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(Icons.image, size: 50);
-                      },
-                    ),
+                    child: displayImageUrl.isEmpty
+                        ? Icon(Icons.image_outlined,
+                            size: 50, color: Colors.grey.shade400)
+                        : Image.network(
+                          displayImageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Icon(
+                            Icons.image_outlined,
+                            size: 50,
+                            color: Colors.grey.shade400,
+                          ),
+                          ),
                   ),
                 ),
                 Positioned(
