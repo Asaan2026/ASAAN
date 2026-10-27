@@ -3,7 +3,6 @@ import DateDisplay from '@/components/Calendar/DateDisplay.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { Gift, MailWarning } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
-import AppDownloadBlock from '../../components/AppDownloadBlock.vue';
 import WhatsAppButton from '../../components/WhatsAppButton.vue';
 import ThemeLayout from '../../layouts/ThemeLayout.vue';
 import { useCurrency } from '@/composables/useCurrency';
@@ -626,9 +625,6 @@ const getStatusColor = (status: string) => {
                                 block
                             />
                         </div>
-
-                        <!-- Download the app -->
-                        <AppDownloadBlock />
                     </div>
                 </div>
             </div>
