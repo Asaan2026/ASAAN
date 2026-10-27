@@ -1,3 +1,4 @@
+import 'package:vortex_app/core/utils/app_version.dart';
 import 'package:flutter/material.dart';
 import 'package:vortex_app/core/constants/app_colors.dart';
 import 'package:vortex_app/core/constants/app_strings.dart';
@@ -555,7 +556,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'Version ${AppStrings.appVersion}',
+                                  'Version ${AppVersion.value}',
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey.shade400,

@@ -5,8 +5,9 @@ class AppStrings {
   // App Info
   static const String appName = 'Asaan Store';
   static const String appTagline = 'eCommerce';
-  // Update this value to change the displayed app version across the UI.
-  static const String appVersion = '2.6.0';
+  // The version is read from the installed package at runtime; see
+  // core/utils/app_version.dart. It is deliberately not a constant here,
+  // because this one drifted three releases behind the published app.
   static const String poweredBy = 'Powered by Akbari Development Group API';
 
   // Splash Screen

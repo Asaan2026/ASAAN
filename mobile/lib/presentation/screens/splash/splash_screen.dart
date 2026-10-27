@@ -1,3 +1,4 @@
+import 'package:vortex_app/core/utils/app_version.dart';
 import 'package:flutter/material.dart';
 import 'package:vortex_app/core/constants/app_colors.dart';
 import 'package:vortex_app/core/constants/app_sizes.dart';
@@ -263,7 +264,7 @@ class _SplashScreenState extends State<SplashScreen>
 
                   // Version Info
                   Text(
-                    '${AppStrings.appVersion} • ${AppStrings.poweredBy}',
+                    '${AppVersion.value} • ${AppStrings.poweredBy}',
                     style: AppTextStyles.overline.copyWith(
                       fontSize: 10,
                       color: Colors.white.withOpacity(0.3),

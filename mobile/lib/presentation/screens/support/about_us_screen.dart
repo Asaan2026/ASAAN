@@ -1,4 +1,5 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:vortex_app/core/utils/app_version.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 
@@ -99,7 +100,7 @@ class AboutUsScreen extends StatelessWidget {
                     // Version
                     Center(
                       child: Text(
-                        'Version ${AppStrings.appVersion}',
+                        'Version ${AppVersion.detailed}',
                         style: TextStyle(
                           fontSize: 14,
                           color: isDark

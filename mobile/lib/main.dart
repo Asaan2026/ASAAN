@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vortex_app/app.dart';
+import 'package:vortex_app/core/utils/app_version.dart';
 import 'package:vortex_app/core/utils/currency_utils.dart';
 import 'package:vortex_app/core/config/api_config.dart';
 import 'package:vortex_app/data/services/push_notification_service.dart';
@@ -31,6 +32,9 @@ void main() async {
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
+
+  // The real installed version, for the screens that show it.
+  await AppVersion.load();
 
   // Preload default currency
   CurrencyUtils.preload();

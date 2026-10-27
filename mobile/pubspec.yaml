@@ -28,6 +28,8 @@ dependencies:
   url_launcher: ^6.3.0
   firebase_core: 3.15.2
   firebase_messaging: 15.2.10
+  # Reports the version of the installed app, so no constant can drift.
+  package_info_plus: ^8.3.1
 
 dev_dependencies:
   flutter_test:
