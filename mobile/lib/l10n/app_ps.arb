@@ -242,5 +242,6 @@
   "reviewTitleRequired": "مهرباني وکړئ سرلیک ولیکئ",
   "reviewCommentRequired": "مهرباني وکړئ خپله بیاکتنه ولیکئ",
   "reviewNothingToReview": "په دې فرمایش کې د بیاکتنې لپاره څه نشته.",
-  "reviewLeave": "بیاکتنه پرېښودل"
+  "reviewLeave": "بیاکتنه پرېښودل",
+  "productLinkCopied": "لینک کاپي شو. د دې محصول د معرفي لپاره هر چیرې یې ونښلوئ."
 }

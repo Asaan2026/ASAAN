@@ -335,5 +335,6 @@
   "reviewTitleRequired": "Please add a headline",
   "reviewCommentRequired": "Please write your review",
   "reviewNothingToReview": "Nothing on this order can be reviewed.",
-  "reviewLeave": "Leave Review"
+  "reviewLeave": "Leave Review",
+  "productLinkCopied": "Link copied. Paste it anywhere to share this product."
 }

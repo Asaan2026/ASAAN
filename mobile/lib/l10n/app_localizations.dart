@@ -1347,6 +1347,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Leave Review'**
   String get reviewLeave;
+
+  /// No description provided for @productLinkCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied. Paste it anywhere to share this product.'**
+  String get productLinkCopied;
 }
 
 class _AppLocalizationsDelegate

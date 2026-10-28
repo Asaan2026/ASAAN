@@ -157,7 +157,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   /// Open the Android app download link.
   Future<void> _openGetApp() async {
-    await openUrl(ApiConfig.androidApkDownloadUrl);
+    await openUrl(ApiConfig.androidLatestReleaseUrl);
   }
 
   Future<void> _logout() async {

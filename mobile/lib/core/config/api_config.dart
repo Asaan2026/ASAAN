@@ -104,13 +104,16 @@ class ApiConfig {
   // App Settings Endpoints
   static const String appSettings = '/api/$apiVersion/app/settings';
 
+  // Where to get the newest Android build. Deliberately the "latest release"
+  // address rather than a file name: the previous link named asaan-2.6.0.apk,
+  // a file that stopped existing three releases ago, so the button inside the
+  // app led nowhere. This one cannot go stale.
+  static const String androidLatestReleaseUrl =
+      'https://github.com/Asaan2026/ASAAN/releases/latest';
+
   // Storefront Endpoints
   static const String storeContact =
       '/api/$apiVersion/storefront/contact';
-
-  // Public Android APK download on the live site
-  static const String androidApkDownloadUrl =
-      '$productionBaseUrl/downloads/asaan-2.6.0.apk';
 
   // Timeout Settings
   static const Duration connectionTimeout = Duration(seconds: 30);

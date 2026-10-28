@@ -6,6 +6,7 @@ use Cartxis\Core\Database\Seeders\ShippingMethodSeeder;
 use Cartxis\Core\Models\PaymentMethod;
 use Cartxis\Core\Models\ShippingMethod;
 use Cartxis\Core\Models\ShippingRate;
+use Cartxis\Core\Services\SettingService;
 use Cartxis\Core\Support\StoreCountry;
 use Cartxis\Customer\Models\Customer;
 use Cartxis\Customer\Models\CustomerAddress;
@@ -359,7 +360,22 @@ function countryCheckoutPayload(
     ], $topLevel);
 }
 
+/**
+ * These three drive a real checkout to prove the store's country survives the
+ * journey. Placing an order now needs a signed-in customer with a confirmed
+ * email address, which is not what they are about -- and the last of them is
+ * specifically a guest checkout -- so they switch that rule off rather than
+ * work around it. The rule has tests of its own in
+ * tests/Feature/Checkout/VerifiedEmailRequiredTest.php.
+ */
+function countryCheckoutWithoutVerification(): void
+{
+    app(SettingService::class)
+        ->set('checkout_require_verified_email', false, 'boolean', 'store');
+}
+
 it('completes checkout when the shipping address has no country', function () {
+    countryCheckoutWithoutVerification();
     countryCartItem();
     $shipping = countryShippingMethod();
     countryCod();
@@ -377,6 +393,7 @@ it('completes checkout when the shipping address has no country', function () {
 });
 
 it('completes checkout when the shipping address sends another country', function () {
+    countryCheckoutWithoutVerification();
     countryCartItem();
     $shipping = countryShippingMethod();
     countryCod();
@@ -389,6 +406,7 @@ it('completes checkout when the shipping address sends another country', functio
 });
 
 it('keeps the store country when a guest checkout becomes a registered account', function () {
+    countryCheckoutWithoutVerification();
     countryCartItem();
     $shipping = countryShippingMethod();
     countryCod();

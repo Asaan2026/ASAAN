@@ -690,4 +690,8 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get reviewLeave => 'ثبت نظر';
+
+  @override
+  String get productLinkCopied =>
+      'پیوند کپی شد. برای معرفی این محصول آن را هر جا بچسبانید.';
 }

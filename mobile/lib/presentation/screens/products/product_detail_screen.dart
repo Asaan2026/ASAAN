@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:vortex_app/core/config/api_config.dart';
 import 'package:vortex_app/core/constants/app_colors.dart';
 import 'package:vortex_app/data/models/product_model.dart';
 import 'package:vortex_app/data/services/cart_service.dart';
@@ -629,7 +631,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             color: isDark ? const Color(0xFF1C2630) : Colors.white,
           ),
           child: IconButton(
-            onPressed: () {},
+            onPressed: _shareProduct,
             icon: Icon(
               Icons.share,
               color: Colors.grey.shade500,
@@ -638,6 +640,32 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  /// Hand the product's web address to the customer so they can send it to
+  /// somebody. The button did nothing at all before.
+  Future<void> _shareProduct() async {
+    final slug = _product['slug']?.toString() ?? '';
+    final id = (_product['id'] as num?)?.toInt();
+
+    // The storefront page for this product, which anybody can open whether or
+    // not they have the app.
+    final link = slug.isNotEmpty
+        ? '${ApiConfig.productionBaseUrl}/products/$slug'
+        : (id == null ? '' : '${ApiConfig.productionBaseUrl}/products/$id');
+
+    if (link.isEmpty) return;
+
+    await Clipboard.setData(ClipboardData(text: link));
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(AppLocalizations.of(context).productLinkCopied),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 

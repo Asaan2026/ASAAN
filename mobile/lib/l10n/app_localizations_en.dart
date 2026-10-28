@@ -694,4 +694,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reviewLeave => 'Leave Review';
+
+  @override
+  String get productLinkCopied =>
+      'Link copied. Paste it anywhere to share this product.';
 }

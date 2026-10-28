@@ -688,4 +688,8 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get reviewLeave => 'بیاکتنه پرېښودل';
+
+  @override
+  String get productLinkCopied =>
+      'لینک کاپي شو. د دې محصول د معرفي لپاره هر چیرې یې ونښلوئ.';
 }

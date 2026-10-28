@@ -242,5 +242,6 @@
   "reviewTitleRequired": "لطفاً یک عنوان بنویسید",
   "reviewCommentRequired": "لطفاً نظر خود را بنویسید",
   "reviewNothingToReview": "در این سفارش چیزی برای نظر دادن نیست.",
-  "reviewLeave": "ثبت نظر"
+  "reviewLeave": "ثبت نظر",
+  "productLinkCopied": "پیوند کپی شد. برای معرفی این محصول آن را هر جا بچسبانید."
 }
