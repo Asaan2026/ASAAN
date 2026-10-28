@@ -5,8 +5,8 @@ This guide covers how to build the Android app (on any machine) and the iOS app
 
 The app name on the phone is **Asaan**. The Android package id (also called
 `applicationId`) is `com.cartxis.app`. The version is set in one place, the
-`version:` line in `pubspec.yaml` — currently `2.6.0+9`, which means version
-name `2.6.0` and build number `9`.
+`version:` line in `pubspec.yaml` — currently `2.9.0+17`, which means version
+name `2.9.0` and build number `17`.
 
 ---
 
@@ -72,12 +72,20 @@ flutter build appbundle --release
 
 ### 3. Publish the Android build
 
-- **Direct download from the website:** copy the APK to
-  `public/downloads/asaan-2.6.0.apk` in the store repository. The website links
-  to `/downloads/asaan-2.6.0.apk`, so the download works as soon as the site is
-  deployed. This is the current method.
-- **GitHub Releases:** attach the APK to a release on the client repository
-  (`Asaan2026/ASAAN`). Note: this needs write access to that repository.
+- **GitHub Releases — this is the current method.** Attach the APK to a release
+  on the client repository (`Asaan2026/ASAAN`), tagged `Asaan-v<version>`, for
+  example `Asaan-v2.9.0` holding `asaan-2.9.0.apk`. This needs write access to
+  that repository.
+
+  Both the website footer and the app's own "Get the app" button point at
+  `https://github.com/Asaan2026/ASAAN/releases/latest`, which always resolves to
+  whichever release was published last. So **publishing the release is the whole
+  job — no code change is needed for a new version.** Do not replace those links
+  with an address that names a version: `asaan-2.6.0.apk` and `asaan-2.8.1.apk`
+  were both hard-coded once and both went dead on the next release.
+- **Do not put the APK in the store repository.** `/public/*.apk` and
+  `/public/downloads` are git-ignored on purpose; a 70 MB binary per release does
+  not belong in the source history.
 - **Google Play:** upload the `.aab` in the Play Console once the app is
   registered. Then paste the Play Store URL into the dashboard under
   **Settings → Store Configuration → Mobile App Links → Google Play URL**. The

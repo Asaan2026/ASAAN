@@ -26,8 +26,12 @@ const i18n = useI18nStore();
 const page = usePage();
 const { primary } = useThemeSettings();
 
-const FALLBACK_APK =
-    'https://github.com/Asaan2026/ASAAN/releases/download/Asaan-v2.8.1/asaan-2.8.1.apk';
+// The releases page rather than one release's file name. A link naming a
+// version goes dead the moment the next version ships -- asaan-2.6.0.apk and
+// asaan-2.8.1.apk both did -- so point at the address that always resolves to
+// whatever was published last. This is the same address the phone app's
+// "Get the app" button uses, so the website and the app never disagree.
+const FALLBACK_APK = 'https://github.com/Asaan2026/ASAAN/releases/latest';
 
 const contact = computed(
     () => (page.props as Record<string, any> | undefined)?.storeContact,

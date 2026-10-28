@@ -4,6 +4,7 @@ import { useThemeSettings } from '@/composables/useThemeSettings';
 import { Link } from '@inertiajs/vue3';
 import { CreditCard, Facebook, Instagram, Twitter } from 'lucide-vue-next';
 import { computed } from 'vue';
+import AppDownloadBlock from './AppDownloadBlock.vue';
 import WhatsAppButton from './WhatsAppButton.vue';
 
 interface Props {
@@ -77,6 +78,10 @@ const footerSections = computed(() => {
                         <WhatsAppButton variant="icon" placement="footer" />
                     </div>
 
+                    <!-- Get the app. This sits in the footer so it is on every
+                         page, not only the account screen. Compact, because a
+                         footer column is narrow; dark, to match the footer. -->
+                    <AppDownloadBlock compact tone="dark" class="mt-6" />
                 </div>
 
                 <template v-if="!loading && footerSections.length > 0">

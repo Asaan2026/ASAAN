@@ -3,7 +3,6 @@ import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import AppDownloadBlock from '../../../components/AppDownloadBlock.vue';
 import CurrencySelector from '../../../components/CurrencySelector.vue';
 import WhatsAppButton from '../../../components/WhatsAppButton.vue';
 import ThemeLayout from '../../../layouts/ThemeLayout.vue';
@@ -172,19 +171,18 @@ const confirmDelete = () => {
                         <h2
                             class="mb-2 text-xl font-semibold dark:text-slate-100"
                         >
-                            {{ $t('App & Support') }}
+                            {{ $t('Support') }}
                         </h2>
                         <p
                             class="mb-4 text-sm text-gray-600 dark:text-slate-400"
                         >
                             {{
                                 $t(
-                                    'Get the Asaan app, or reach us on WhatsApp if you need a hand.',
+                                    'Need a hand? Message us on WhatsApp. The app is in the footer of every page.',
                                 )
                             }}
                         </p>
                         <div class="space-y-4">
-                            <AppDownloadBlock />
                             <WhatsAppButton variant="button" placement="account" />
                         </div>
                     </div>
