@@ -26,12 +26,17 @@ const i18n = useI18nStore();
 const page = usePage();
 const { primary } = useThemeSettings();
 
-// The releases page rather than one release's file name. A link naming a
-// version goes dead the moment the next version ships -- asaan-2.6.0.apk and
-// asaan-2.8.1.apk both did -- so point at the address that always resolves to
-// whatever was published last. This is the same address the phone app's
-// "Get the app" button uses, so the website and the app never disagree.
-const FALLBACK_APK = 'https://github.com/Asaan2026/ASAAN/releases/latest';
+// Downloads the APK in one click, and never goes stale. GitHub's
+// /releases/latest/download/<name> address always serves that file from
+// whichever release was published last, so no version appears here -- a link
+// naming one (asaan-2.6.0.apk, then asaan-2.8.1.apk) died on the next release
+// both times.
+//
+// The catch: every release must attach the APK under exactly this file name,
+// alongside the versioned copy. Miss it and this 404s. mobile/BUILD_AND_RELEASE.md
+// says so in the publishing steps.
+const FALLBACK_APK =
+    'https://github.com/Asaan2026/ASAAN/releases/latest/download/asaan-latest.apk';
 
 const contact = computed(
     () => (page.props as Record<string, any> | undefined)?.storeContact,

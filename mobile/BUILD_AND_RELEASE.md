@@ -72,16 +72,23 @@ flutter build appbundle --release
 
 ### 3. Publish the Android build
 
-- **GitHub Releases — this is the current method.** Attach the APK to a release
-  on the client repository (`Asaan2026/ASAAN`), tagged `Asaan-v<version>`, for
-  example `Asaan-v2.9.0` holding `asaan-2.9.0.apk`. This needs write access to
-  that repository.
+- **GitHub Releases — this is the current method.** Make a release on the client
+  repository (`Asaan2026/ASAAN`), tagged `Asaan-v<version>`, for example
+  `Asaan-v2.9.0`. This needs write access to that repository.
 
-  Both the website footer and the app's own "Get the app" button point at
-  `https://github.com/Asaan2026/ASAAN/releases/latest`, which always resolves to
-  whichever release was published last. So **publishing the release is the whole
-  job — no code change is needed for a new version.** Do not replace those links
-  with an address that names a version: `asaan-2.6.0.apk` and `asaan-2.8.1.apk`
+  **Attach the APK twice, under two names:**
+
+  | File name | Why |
+  |---|---|
+  | `asaan-2.9.0.apk` | So each release says which version it holds. |
+  | `asaan-latest.apk` | **Required.** The website's Download for Android button links to `releases/latest/download/asaan-latest.apk`. GitHub serves that name from whichever release is newest, so the button never needs changing — but if a release omits the file, **the button 404s for everyone**. |
+
+  Same file, uploaded under both names. The app's own "Get the app" button opens
+  `releases/latest`, the release page itself, which needs no particular name.
+
+  So **publishing the release is the whole job — no code change is needed for a
+  new version**, as long as `asaan-latest.apk` is attached. Never replace these
+  links with an address naming a version: `asaan-2.6.0.apk` and `asaan-2.8.1.apk`
   were both hard-coded once and both went dead on the next release.
 - **Do not put the APK in the store repository.** `/public/*.apk` and
   `/public/downloads` are git-ignored on purpose; a 70 MB binary per release does
