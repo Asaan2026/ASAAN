@@ -49,6 +49,8 @@ interface DeliveryDetail {
         longitude: number | null;
     } | null;
     events: EventItem[];
+    items: { name: string; sku: string | null; quantity: number }[];
+    shipping_method: string | null;
 }
 
 interface FailureReason {
@@ -206,6 +208,46 @@ const submitUndelivered = () => {
                         </p>
                     </div>
                 </div>
+            </section>
+
+            <!-- What is being delivered -->
+            <section
+                v-if="props.delivery.items?.length"
+                class="rounded-xl border border-border bg-card p-4"
+            >
+                <h2 class="text-sm font-semibold text-foreground">
+                    {{ $t('What you are delivering') }}
+                </h2>
+                <p
+                    v-if="props.delivery.shipping_method"
+                    class="mt-0.5 text-xs text-muted-foreground"
+                >
+                    {{ props.delivery.shipping_method }}
+                </p>
+                <ul class="mt-3 divide-y divide-border">
+                    <li
+                        v-for="(line, index) in props.delivery.items"
+                        :key="index"
+                        class="flex items-start justify-between gap-3 py-2"
+                    >
+                        <div class="min-w-0">
+                            <p class="truncate text-sm text-foreground">
+                                {{ line.name }}
+                            </p>
+                            <p
+                                v-if="line.sku"
+                                class="text-xs text-muted-foreground"
+                            >
+                                {{ line.sku }}
+                            </p>
+                        </div>
+                        <span
+                            class="flex-none text-sm font-semibold text-foreground"
+                        >
+                            &times;{{ line.quantity }}
+                        </span>
+                    </li>
+                </ul>
             </section>
 
             <!-- Live map -->

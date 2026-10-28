@@ -102,6 +102,22 @@ class DeliveriesController extends Controller
                     'latitude' => $delivery->order->shippingAddress->latitude !== null ? (float) $delivery->order->shippingAddress->latitude : null,
                     'longitude' => $delivery->order->shippingAddress->longitude !== null ? (float) $delivery->order->shippingAddress->longitude : null,
                 ] : null,
+                // What is actually being delivered. The shipment decides
+                // this, because an order can go out in more than one.
+                'items' => $delivery->shipment
+                    ? $delivery->shipment->shipmentItems()
+                        ->with('orderItem')
+                        ->get()
+                        ->map(fn ($line) => [
+                            'name' => $line->orderItem?->product_name ?? 'Product',
+                            'sku' => $line->orderItem?->product_sku,
+                            'quantity' => (int) $line->quantity,
+                        ])
+                        ->values()
+                    : collect(),
+                // How the customer asked for it to be sent, as chosen at
+                // checkout, so the driver knows what was promised.
+                'shipping_method' => $delivery->order?->shipping_method,
                 'events' => $delivery->events()->orderBy('created_at', 'desc')->get()->map(function ($e) {
                     return [
                         'id' => $e->id,

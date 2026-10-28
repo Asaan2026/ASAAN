@@ -39,6 +39,25 @@ class DeliveryStatusService
     ];
 
     /**
+     * What the driver has to collect on arrival: nothing when the order is
+     * already paid for, otherwise what is still owed.
+     */
+    protected function cashToCollect(?Order $order): ?float
+    {
+        if (! $order) {
+            return null;
+        }
+
+        if (in_array($order->payment_status, ['paid', 'completed'], true)) {
+            return null;
+        }
+
+        $outstanding = round((float) $order->total - (float) $order->total_refunded, 2);
+
+        return $outstanding > 0 ? $outstanding : null;
+    }
+
+    /**
      * Assign a delivery run to a driver.
      */
     public function assign(Shipment $shipment, int $driverId, array $data = []): Delivery
@@ -59,7 +78,10 @@ class DeliveryStatusService
                 'scheduled_date' => $data['scheduled_date'] ?? null,
                 'priority' => $data['priority'] ?? 'normal',
                 'customer_phone' => $data['customer_phone'] ?? $order->customer_phone,
-                'cod_amount' => $data['cod_amount'] ?? null,
+                // Falls back to what the order still owes, so a cash
+                // delivery never goes out with the amount missing because
+                // whoever assigned it left the box empty.
+                'cod_amount' => $data['cod_amount'] ?? $this->cashToCollect($order),
                 'notes' => $data['notes'] ?? null,
             ]);
 
