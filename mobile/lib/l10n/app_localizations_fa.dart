@@ -637,4 +637,20 @@ class AppLocalizationsFa extends AppLocalizations {
   String productQuantityLabel(int count) {
     return 'تعداد: $count';
   }
+
+  @override
+  String get shopPageLoadError =>
+      'این صفحه بارگیری نشد. برای تلاش دوباره صفحه را بکشید.';
+
+  @override
+  String get shopPageEmpty => 'فروشگاه هنوز این صفحه را نوشته است.';
+
+  @override
+  String get supportAboutUs => 'درباره ما';
+
+  @override
+  String get supportTerms => 'شرایط و مقررات';
+
+  @override
+  String get supportPrivacy => 'سیاست حفظ حریم خصوصی';
 }

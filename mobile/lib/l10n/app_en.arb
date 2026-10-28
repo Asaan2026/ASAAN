@@ -318,5 +318,10 @@
         "type": "int"
       }
     }
-  }
+  },
+  "shopPageLoadError": "We could not load this page. Pull down to try again.",
+  "shopPageEmpty": "The shop has not written this page yet.",
+  "supportAboutUs": "About Us",
+  "supportTerms": "Terms & Conditions",
+  "supportPrivacy": "Privacy Policy"
 }

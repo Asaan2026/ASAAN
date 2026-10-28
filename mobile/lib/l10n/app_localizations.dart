@@ -1245,6 +1245,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Qty: {count}'**
   String productQuantityLabel(int count);
+
+  /// No description provided for @shopPageLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not load this page. Pull down to try again.'**
+  String get shopPageLoadError;
+
+  /// No description provided for @shopPageEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop has not written this page yet.'**
+  String get shopPageEmpty;
+
+  /// No description provided for @supportAboutUs.
+  ///
+  /// In en, this message translates to:
+  /// **'About Us'**
+  String get supportAboutUs;
+
+  /// No description provided for @supportTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms & Conditions'**
+  String get supportTerms;
+
+  /// No description provided for @supportPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get supportPrivacy;
 }
 
 class _AppLocalizationsDelegate

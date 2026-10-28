@@ -13,6 +13,7 @@ use Cartxis\API\Http\Controllers\V1\IdentityController;
 use Cartxis\API\Http\Controllers\V1\LocaleController;
 use Cartxis\API\Http\Controllers\V1\NotificationController;
 use Cartxis\API\Http\Controllers\V1\OrderController;
+use Cartxis\API\Http\Controllers\V1\PageController;
 use Cartxis\API\Http\Controllers\V1\ProductAiController;
 use Cartxis\API\Http\Controllers\V1\ProductController;
 use Cartxis\API\Http\Controllers\V1\ReferralController;
@@ -68,6 +69,11 @@ Route::prefix('api/v1')->group(function () {
     // Home/mobile banners (CMS blocks of type=banner)
     Route::get('banners', [BannerController::class, 'index']);
     Route::get('banners/{identifier}', [BannerController::class, 'show']);
+
+    // The shop's own pages (about us, privacy, terms) exactly as the dashboard
+    // holds them, so the app and the website never disagree about them.
+    Route::get('pages/{slug}', [PageController::class, 'show'])
+        ->where('slug', '[a-z0-9-]+');
 
     // Storefront contact details — the business WhatsApp number, phone, email
     // and app store links the dashboard owns. Public because the app and the

@@ -23,9 +23,8 @@ import 'package:vortex_app/presentation/screens/services/services_screen.dart';
 import 'package:vortex_app/presentation/screens/services/service_detail_screen.dart';
 import 'package:vortex_app/presentation/screens/services/service_booking_screen.dart';
 import 'package:vortex_app/presentation/screens/support/help_support_screen.dart';
-import 'package:vortex_app/presentation/screens/support/about_us_screen.dart';
-import 'package:vortex_app/presentation/screens/support/terms_conditions_screen.dart';
-import 'package:vortex_app/presentation/screens/support/privacy_policy_screen.dart';
+import 'package:vortex_app/l10n/app_localizations.dart';
+import 'package:vortex_app/presentation/screens/support/shop_page_screen.dart';
 import 'package:vortex_app/presentation/screens/search/search_screen.dart';
 
 /// App router configuration
@@ -277,21 +276,32 @@ class AppRouter {
           settings: settings,
         );
 
+      // These three read the shop's own pages from the dashboard, the same
+      // ones the website serves, instead of carrying their own copy.
       case aboutUs:
         return MaterialPageRoute(
-          builder: (_) => const AboutUsScreen(),
+          builder: (context) => ShopPageScreen(
+            slug: 'about-us',
+            title: AppLocalizations.of(context).supportAboutUs,
+          ),
           settings: settings,
         );
 
       case termsConditions:
         return MaterialPageRoute(
-          builder: (_) => const TermsConditionsScreen(),
+          builder: (context) => ShopPageScreen(
+            slug: 'terms-and-conditions',
+            title: AppLocalizations.of(context).supportTerms,
+          ),
           settings: settings,
         );
 
       case privacyPolicy:
         return MaterialPageRoute(
-          builder: (_) => const PrivacyPolicyScreen(),
+          builder: (context) => ShopPageScreen(
+            slug: 'privacy-policy',
+            title: AppLocalizations.of(context).supportPrivacy,
+          ),
           settings: settings,
         );
 

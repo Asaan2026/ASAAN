@@ -225,5 +225,10 @@
   "notificationsAllRead": "ټولې خبرتیاوې ولوستل شوې",
   "notificationsEmptyTitle": "هیڅ خبرتیا نشته",
   "notificationsEmptyBody": "کله چې د فرمایشونو یا وړاندیزونو خبر وي، همدلته ښودل کیږي.",
-  "notificationsLoadError": "خبرتیاوې نه ترلاسه شوې. مهرباني وکړئ بیا هڅه وکړئ."
+  "notificationsLoadError": "خبرتیاوې نه ترلاسه شوې. مهرباني وکړئ بیا هڅه وکړئ.",
+  "shopPageLoadError": "دا پاڼه ونه لوستل شوه. د بیا هڅې لپاره پاڼه ښکته کش کړئ.",
+  "shopPageEmpty": "پلورنځي لا تر اوسه دا پاڼه نه لیکلې.",
+  "supportAboutUs": "زموږ په اړه",
+  "supportTerms": "شرایط او مقررات",
+  "supportPrivacy": "د محرمیت تګلاره"
 }

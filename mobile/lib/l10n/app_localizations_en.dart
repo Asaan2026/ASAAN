@@ -640,4 +640,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String productQuantityLabel(int count) {
     return 'Qty: $count';
   }
+
+  @override
+  String get shopPageLoadError =>
+      'We could not load this page. Pull down to try again.';
+
+  @override
+  String get shopPageEmpty => 'The shop has not written this page yet.';
+
+  @override
+  String get supportAboutUs => 'About Us';
+
+  @override
+  String get supportTerms => 'Terms & Conditions';
+
+  @override
+  String get supportPrivacy => 'Privacy Policy';
 }

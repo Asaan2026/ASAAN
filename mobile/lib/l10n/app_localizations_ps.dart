@@ -634,4 +634,20 @@ class AppLocalizationsPs extends AppLocalizations {
   String productQuantityLabel(int count) {
     return 'شمېر: $count';
   }
+
+  @override
+  String get shopPageLoadError =>
+      'دا پاڼه ونه لوستل شوه. د بیا هڅې لپاره پاڼه ښکته کش کړئ.';
+
+  @override
+  String get shopPageEmpty => 'پلورنځي لا تر اوسه دا پاڼه نه لیکلې.';
+
+  @override
+  String get supportAboutUs => 'زموږ په اړه';
+
+  @override
+  String get supportTerms => 'شرایط او مقررات';
+
+  @override
+  String get supportPrivacy => 'د محرمیت تګلاره';
 }

@@ -225,5 +225,10 @@
   "notificationsAllRead": "همه اعلان‌ها خوانده شد",
   "notificationsEmptyTitle": "اعلانی ندارید",
   "notificationsEmptyBody": "وقتی خبری از سفارش‌ها یا پیشنهادها باشد، همین‌جا نشان داده می‌شود.",
-  "notificationsLoadError": "اعلان‌ها بارگیری نشد. لطفاً دوباره تلاش کنید."
+  "notificationsLoadError": "اعلان‌ها بارگیری نشد. لطفاً دوباره تلاش کنید.",
+  "shopPageLoadError": "این صفحه بارگیری نشد. برای تلاش دوباره صفحه را بکشید.",
+  "shopPageEmpty": "فروشگاه هنوز این صفحه را نوشته است.",
+  "supportAboutUs": "درباره ما",
+  "supportTerms": "شرایط و مقررات",
+  "supportPrivacy": "سیاست حفظ حریم خصوصی"
 }
