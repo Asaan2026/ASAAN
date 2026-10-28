@@ -230,5 +230,17 @@
   "shopPageEmpty": "فروشگاه هنوز این صفحه را نوشته است.",
   "supportAboutUs": "درباره ما",
   "supportTerms": "شرایط و مقررات",
-  "supportPrivacy": "سیاست حفظ حریم خصوصی"
+  "supportPrivacy": "سیاست حفظ حریم خصوصی",
+  "reviewTitle": "نوشتن نظر",
+  "reviewAwaitsApproval": "فروشگاه نظرها را پیش از نمایش می‌خواند، بنابراین نظر شما پس از تأیید نشان داده می‌شود.",
+  "reviewWhichProduct": "کدام محصول؟",
+  "reviewYourRating": "امتیاز شما",
+  "reviewHeadline": "عنوان",
+  "reviewComment": "نظر شما",
+  "reviewSend": "ارسال نظر",
+  "reviewSent": "سپاس. نظر شما در انتظار تأیید فروشگاه است.",
+  "reviewTitleRequired": "لطفاً یک عنوان بنویسید",
+  "reviewCommentRequired": "لطفاً نظر خود را بنویسید",
+  "reviewNothingToReview": "در این سفارش چیزی برای نظر دادن نیست.",
+  "reviewLeave": "ثبت نظر"
 }

@@ -1,3 +1,5 @@
+import 'package:vortex_app/l10n/app_localizations.dart';
+import 'package:vortex_app/presentation/widgets/leave_review_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:vortex_app/core/constants/app_colors.dart';
 import 'package:vortex_app/data/services/order_service.dart';
@@ -612,6 +614,23 @@ class _OrderListScreenState extends State<OrderListScreen>
     );
   }
 
+  /// Opens the review sheet, and says what became of it. The server keeps a
+  /// new review back for the shop to approve, so the wording does not pretend
+  /// it is already published.
+  Future<void> _leaveReview(Order order) async {
+    final sent = await LeaveReviewSheet.show(context, order);
+
+    if (!sent || !mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(AppLocalizations.of(context).reviewSent),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.green.shade700,
+      ),
+    );
+  }
+
   Widget _buildActionButton(Order order, bool isDark) {
     final status = order.status.toLowerCase();
 
@@ -668,12 +687,7 @@ class _OrderListScreenState extends State<OrderListScreen>
             child: SizedBox(
               height: 36,
               child: ElevatedButton(
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Leave Review coming soon'),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                ),
+                onPressed: () => _leaveReview(order),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary.withOpacity(0.1),
                   foregroundColor: AppColors.primary,
@@ -681,8 +695,8 @@ class _OrderListScreenState extends State<OrderListScreen>
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text('Leave Review',
-                    style: TextStyle(
+                child: Text(AppLocalizations.of(context).reviewLeave,
+                    style: const TextStyle(
                         fontSize: 14, fontWeight: FontWeight.w500)),
               ),
             ),

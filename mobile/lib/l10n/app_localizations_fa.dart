@@ -653,4 +653,41 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get supportPrivacy => 'سیاست حفظ حریم خصوصی';
+
+  @override
+  String get reviewTitle => 'نوشتن نظر';
+
+  @override
+  String get reviewAwaitsApproval =>
+      'فروشگاه نظرها را پیش از نمایش می‌خواند، بنابراین نظر شما پس از تأیید نشان داده می‌شود.';
+
+  @override
+  String get reviewWhichProduct => 'کدام محصول؟';
+
+  @override
+  String get reviewYourRating => 'امتیاز شما';
+
+  @override
+  String get reviewHeadline => 'عنوان';
+
+  @override
+  String get reviewComment => 'نظر شما';
+
+  @override
+  String get reviewSend => 'ارسال نظر';
+
+  @override
+  String get reviewSent => 'سپاس. نظر شما در انتظار تأیید فروشگاه است.';
+
+  @override
+  String get reviewTitleRequired => 'لطفاً یک عنوان بنویسید';
+
+  @override
+  String get reviewCommentRequired => 'لطفاً نظر خود را بنویسید';
+
+  @override
+  String get reviewNothingToReview => 'در این سفارش چیزی برای نظر دادن نیست.';
+
+  @override
+  String get reviewLeave => 'ثبت نظر';
 }

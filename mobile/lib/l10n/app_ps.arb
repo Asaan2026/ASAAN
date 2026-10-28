@@ -230,5 +230,17 @@
   "shopPageEmpty": "پلورنځي لا تر اوسه دا پاڼه نه لیکلې.",
   "supportAboutUs": "زموږ په اړه",
   "supportTerms": "شرایط او مقررات",
-  "supportPrivacy": "د محرمیت تګلاره"
+  "supportPrivacy": "د محرمیت تګلاره",
+  "reviewTitle": "بیاکتنه ولیکئ",
+  "reviewAwaitsApproval": "پلورنځی بیاکتنې له ښودلو دمخه لولي، نو ستاسو بیاکتنه به د تصویب وروسته ښکاره شي.",
+  "reviewWhichProduct": "کوم محصول؟",
+  "reviewYourRating": "ستاسو درجه",
+  "reviewHeadline": "سرلیک",
+  "reviewComment": "ستاسو بیاکتنه",
+  "reviewSend": "بیاکتنه ولېږه",
+  "reviewSent": "مننه. ستاسو بیاکتنه د پلورنځي تصویب ته انتظار کوي.",
+  "reviewTitleRequired": "مهرباني وکړئ سرلیک ولیکئ",
+  "reviewCommentRequired": "مهرباني وکړئ خپله بیاکتنه ولیکئ",
+  "reviewNothingToReview": "په دې فرمایش کې د بیاکتنې لپاره څه نشته.",
+  "reviewLeave": "بیاکتنه پرېښودل"
 }

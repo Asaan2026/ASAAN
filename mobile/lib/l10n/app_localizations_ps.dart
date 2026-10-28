@@ -650,4 +650,42 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get supportPrivacy => 'د محرمیت تګلاره';
+
+  @override
+  String get reviewTitle => 'بیاکتنه ولیکئ';
+
+  @override
+  String get reviewAwaitsApproval =>
+      'پلورنځی بیاکتنې له ښودلو دمخه لولي، نو ستاسو بیاکتنه به د تصویب وروسته ښکاره شي.';
+
+  @override
+  String get reviewWhichProduct => 'کوم محصول؟';
+
+  @override
+  String get reviewYourRating => 'ستاسو درجه';
+
+  @override
+  String get reviewHeadline => 'سرلیک';
+
+  @override
+  String get reviewComment => 'ستاسو بیاکتنه';
+
+  @override
+  String get reviewSend => 'بیاکتنه ولېږه';
+
+  @override
+  String get reviewSent => 'مننه. ستاسو بیاکتنه د پلورنځي تصویب ته انتظار کوي.';
+
+  @override
+  String get reviewTitleRequired => 'مهرباني وکړئ سرلیک ولیکئ';
+
+  @override
+  String get reviewCommentRequired => 'مهرباني وکړئ خپله بیاکتنه ولیکئ';
+
+  @override
+  String get reviewNothingToReview =>
+      'په دې فرمایش کې د بیاکتنې لپاره څه نشته.';
+
+  @override
+  String get reviewLeave => 'بیاکتنه پرېښودل';
 }

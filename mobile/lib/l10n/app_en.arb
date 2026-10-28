@@ -323,5 +323,17 @@
   "shopPageEmpty": "The shop has not written this page yet.",
   "supportAboutUs": "About Us",
   "supportTerms": "Terms & Conditions",
-  "supportPrivacy": "Privacy Policy"
+  "supportPrivacy": "Privacy Policy",
+  "reviewTitle": "Write a review",
+  "reviewAwaitsApproval": "The shop reads reviews before they appear, so yours will show once it is approved.",
+  "reviewWhichProduct": "Which product?",
+  "reviewYourRating": "Your rating",
+  "reviewHeadline": "Headline",
+  "reviewComment": "Your review",
+  "reviewSend": "Send review",
+  "reviewSent": "Thank you. Your review is waiting for the shop to approve it.",
+  "reviewTitleRequired": "Please add a headline",
+  "reviewCommentRequired": "Please write your review",
+  "reviewNothingToReview": "Nothing on this order can be reviewed.",
+  "reviewLeave": "Leave Review"
 }

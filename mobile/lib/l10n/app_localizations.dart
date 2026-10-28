@@ -1275,6 +1275,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Privacy Policy'**
   String get supportPrivacy;
+
+  /// No description provided for @reviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a review'**
+  String get reviewTitle;
+
+  /// No description provided for @reviewAwaitsApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop reads reviews before they appear, so yours will show once it is approved.'**
+  String get reviewAwaitsApproval;
+
+  /// No description provided for @reviewWhichProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Which product?'**
+  String get reviewWhichProduct;
+
+  /// No description provided for @reviewYourRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rating'**
+  String get reviewYourRating;
+
+  /// No description provided for @reviewHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Headline'**
+  String get reviewHeadline;
+
+  /// No description provided for @reviewComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Your review'**
+  String get reviewComment;
+
+  /// No description provided for @reviewSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send review'**
+  String get reviewSend;
+
+  /// No description provided for @reviewSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you. Your review is waiting for the shop to approve it.'**
+  String get reviewSent;
+
+  /// No description provided for @reviewTitleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please add a headline'**
+  String get reviewTitleRequired;
+
+  /// No description provided for @reviewCommentRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please write your review'**
+  String get reviewCommentRequired;
+
+  /// No description provided for @reviewNothingToReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on this order can be reviewed.'**
+  String get reviewNothingToReview;
+
+  /// No description provided for @reviewLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave Review'**
+  String get reviewLeave;
 }
 
 class _AppLocalizationsDelegate

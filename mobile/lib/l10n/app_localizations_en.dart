@@ -656,4 +656,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get supportPrivacy => 'Privacy Policy';
+
+  @override
+  String get reviewTitle => 'Write a review';
+
+  @override
+  String get reviewAwaitsApproval =>
+      'The shop reads reviews before they appear, so yours will show once it is approved.';
+
+  @override
+  String get reviewWhichProduct => 'Which product?';
+
+  @override
+  String get reviewYourRating => 'Your rating';
+
+  @override
+  String get reviewHeadline => 'Headline';
+
+  @override
+  String get reviewComment => 'Your review';
+
+  @override
+  String get reviewSend => 'Send review';
+
+  @override
+  String get reviewSent =>
+      'Thank you. Your review is waiting for the shop to approve it.';
+
+  @override
+  String get reviewTitleRequired => 'Please add a headline';
+
+  @override
+  String get reviewCommentRequired => 'Please write your review';
+
+  @override
+  String get reviewNothingToReview => 'Nothing on this order can be reviewed.';
+
+  @override
+  String get reviewLeave => 'Leave Review';
 }
