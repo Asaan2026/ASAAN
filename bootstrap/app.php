@@ -12,6 +12,7 @@ use Cartxis\Referral\Http\Middleware\CaptureReferralCode;
 use Cartxis\Referral\Http\Middleware\ShareReferralData;
 use Cartxis\Sales\Http\Middleware\EnsureDeliveryRole;
 use Cartxis\Sales\Http\Middleware\RedirectIfDeliveryAuthenticated;
+use Cartxis\Shop\Http\Middleware\RequireVerifiedCustomer;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -125,6 +126,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Add middleware to admin routes to prevent regular users
         $middleware->alias([
             'prevent.user.admin' => PreventUserAdminAccess::class,
+            // Only a customer with a confirmed email address may place an
+            // order. Used by the website and the app alike.
+            'customer.verified' => RequireVerifiedCustomer::class,
             'delivery.access' => EnsureDeliveryRole::class,
             'redirectIfDeliveryAuthenticated' => RedirectIfDeliveryAuthenticated::class,
         ]);

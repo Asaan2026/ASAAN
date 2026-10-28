@@ -164,7 +164,9 @@ Route::group([
         'as' => 'shop.checkout.',
     ], function () {
         Route::get('/', [CheckoutController::class, 'index'])->name('index');
-        Route::post('/', [CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('store');
+        Route::post('/', [CheckoutController::class, 'store'])
+            ->middleware(['throttle:10,1', 'customer.verified'])
+            ->name('store');
         Route::post('/shipping', [CheckoutController::class, 'updateShipping'])->middleware('throttle:20,1')->name('shipping.update');
         Route::get('/success/{order}', [CheckoutController::class, 'success'])->name('success');
         Route::get('/track-order', [CheckoutController::class, 'guestTrack'])->name('track');

@@ -349,4 +349,30 @@ class AuthController extends Controller
 
         return ApiResponse::success(null, 'Account deleted successfully');
     }
+
+    /**
+     * Send the "confirm your email" message again.
+     *
+     * The app offers this when an unverified customer tries to place an order,
+     * because the first message can be missed, deleted, or land in spam, and
+     * without a way to ask again they would be stuck.
+     */
+    public function resendVerificationEmail(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->hasVerifiedEmail()) {
+            return ApiResponse::success(
+                ['verified' => true],
+                'Your email address is already confirmed.'
+            );
+        }
+
+        $user->sendEmailVerificationNotification();
+
+        return ApiResponse::success(
+            ['verified' => false],
+            'We have sent the confirmation link to '.$user->email.'.'
+        );
+    }
 }

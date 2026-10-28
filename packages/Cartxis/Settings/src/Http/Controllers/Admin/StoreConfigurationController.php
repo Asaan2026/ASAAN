@@ -76,6 +76,7 @@ class StoreConfigurationController
                 // Checkout Options
                 'checkout_allow_guest' => (bool) $this->settingService->get('checkout_allow_guest', true),
                 'checkout_require_account' => (bool) $this->settingService->get('checkout_require_account', false),
+                'checkout_require_verified_email' => (bool) $this->settingService->get('checkout_require_verified_email', true),
             ],
         ]);
     }
@@ -87,6 +88,7 @@ class StoreConfigurationController
                 $validated = $request->validate([
                     'checkout_allow_guest' => 'nullable|boolean',
                     'checkout_require_account' => 'nullable|boolean',
+                    'checkout_require_verified_email' => 'nullable|boolean',
                 ]);
 
                 foreach ($validated as $key => $value) {
@@ -150,6 +152,7 @@ class StoreConfigurationController
                 // Checkout Options
                 'checkout_allow_guest' => 'nullable|boolean',
                 'checkout_require_account' => 'nullable|boolean',
+                'checkout_require_verified_email' => 'nullable|boolean',
             ]);
 
             if (empty($validated['support_email'])) {
@@ -159,7 +162,11 @@ class StoreConfigurationController
             foreach ($validated as $key => $value) {
                 // Determine the appropriate type for each setting
                 $type = match (true) {
-                    in_array($key, ['checkout_allow_guest', 'checkout_require_account']) => 'boolean',
+                    in_array($key, [
+                        'checkout_allow_guest',
+                        'checkout_require_account',
+                        'checkout_require_verified_email',
+                    ]) => 'boolean',
                     is_bool($value) => 'boolean',
                     is_int($value) => 'integer',
                     is_float($value) => 'float',

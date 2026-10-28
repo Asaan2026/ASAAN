@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Cartxis\Core\Models\PaymentMethod;
 use Cartxis\Core\Models\ShippingMethod;
 use Cartxis\Product\Models\Product;
@@ -10,6 +11,21 @@ use Cartxis\Shop\Models\Order;
  * options a shopper is offered, so these tests drive it through HTTP rather
  * than through the controller.
  */
+
+/**
+ * Someone who may actually place an order: signed in, with a confirmed email
+ * address. Checkout requires both now, so these tests sign in to keep testing
+ * the payment options rather than the sign-in rule.
+ */
+function checkoutAvailabilityCustomer(): User
+{
+    return User::create([
+        'name' => 'Availability Customer',
+        'email' => 'availability@example.test',
+        'password' => bcrypt('password'),
+        'email_verified_at' => now(),
+    ]);
+}
 
 /**
  * A product in the basket, priced so a 100-unit order clears any minimum.
@@ -185,7 +201,8 @@ it('refuses an order against a method the owner has switched off', function () {
 
     PaymentMethod::where('code', 'hesabpay')->update(['is_active' => false]);
 
-    $this->post(route('shop.checkout.store'), checkoutAvailabilityPayload($shipping, 'hesabpay'))
+    $this->actingAs(checkoutAvailabilityCustomer())
+        ->post(route('shop.checkout.store'), checkoutAvailabilityPayload($shipping, 'hesabpay'))
         ->assertSessionHasErrors('payment_method');
 
     // Nothing recorded: the order row is only written after this passes.
@@ -198,7 +215,8 @@ it('refuses a payment method that does not exist at all', function () {
 
     // With no row there is no gateway either, and the checkout used to treat
     // that as a manual payment and mark the order paid on the spot.
-    $this->post(route('shop.checkout.store'), checkoutAvailabilityPayload($shipping, 'invented-method'))
+    $this->actingAs(checkoutAvailabilityCustomer())
+        ->post(route('shop.checkout.store'), checkoutAvailabilityPayload($shipping, 'invented-method'))
         ->assertSessionHasErrors('payment_method');
 
     expect(Order::count())->toBe(0);
@@ -209,7 +227,8 @@ it('still places an order against a switched-on method', function () {
     checkoutAvailabilityCod();
     $shipping = checkoutAvailabilityShippingMethod();
 
-    $this->post(route('shop.checkout.store'), checkoutAvailabilityPayload($shipping, 'cod'))
+    $this->actingAs(checkoutAvailabilityCustomer())
+        ->post(route('shop.checkout.store'), checkoutAvailabilityPayload($shipping, 'cod'))
         ->assertSessionHasNoErrors();
 
     expect(Order::count())->toBe(1)

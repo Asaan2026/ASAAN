@@ -53,6 +53,7 @@ interface Props {
         policy_shipping: string;
         checkout_allow_guest: boolean;
         checkout_require_account: boolean;
+        checkout_require_verified_email: boolean;
     };
 }
 
@@ -99,6 +100,7 @@ const props = withDefaults(defineProps<Props>(), {
         policy_shipping: '',
         checkout_allow_guest: true,
         checkout_require_account: false,
+        checkout_require_verified_email: true,
     }),
 });
 
@@ -147,6 +149,8 @@ const form = useForm({
     policy_shipping: props.settings.policy_shipping || '',
     checkout_allow_guest: props.settings.checkout_allow_guest ?? true,
     checkout_require_account: props.settings.checkout_require_account ?? false,
+    checkout_require_verified_email:
+        props.settings.checkout_require_verified_email ?? true,
 });
 
 const save = () => {
@@ -157,6 +161,8 @@ const save = () => {
                 _section: 'checkout',
                 checkout_allow_guest: form.checkout_allow_guest,
                 checkout_require_account: form.checkout_require_account,
+                checkout_require_verified_email:
+                    form.checkout_require_verified_email,
             },
             {
                 preserveScroll: true,
@@ -1292,6 +1298,41 @@ watch(
                                             {{
                                                 $t(
                                                     'When enabled, guests must create an account during checkout (cannot proceed without registration).',
+                                                )
+                                            }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Require a confirmed email address -->
+                                <div class="flex items-start">
+                                    <div class="flex h-5 items-center">
+                                        <input
+                                            id="checkout_require_verified_email"
+                                            v-model="
+                                                form.checkout_require_verified_email
+                                            "
+                                            type="checkbox"
+                                            class="h-4 w-4 rounded border-gray-300 text-blue-600 transition duration-150 ease-in-out focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                                        />
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <label
+                                            for="checkout_require_verified_email"
+                                            class="font-medium text-gray-700 dark:text-gray-300"
+                                        >
+                                            {{
+                                                $t(
+                                                    'Require a confirmed email address to order',
+                                                )
+                                            }}
+                                        </label>
+                                        <p
+                                            class="mt-1 text-gray-500 dark:text-gray-400"
+                                        >
+                                            {{
+                                                $t(
+                                                    'Customers can browse and fill a basket either way, but must open the confirmation link we email them before they can place an order. Turn this off if your customers cannot reliably receive email.',
                                                 )
                                             }}
                                         </p>

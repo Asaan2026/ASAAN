@@ -133,6 +133,10 @@ Route::prefix('api/v1')->group(function () {
             Route::put('/profile', [AuthController::class, 'updateProfile']);
             Route::post('/password/change', [AuthController::class, 'changePassword']);
             Route::post('/avatar', [AuthController::class, 'uploadAvatar']);
+            // Send the "confirm your email" message again, for the prompt the
+            // app shows when an unverified customer tries to buy.
+            Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])
+                ->middleware('throttle:5,1');
             Route::post('/refresh', [AuthController::class, 'refreshToken']);
             Route::delete('/account', [AuthController::class, 'deleteAccount']);
         });
@@ -159,7 +163,8 @@ Route::prefix('api/v1')->group(function () {
             Route::get('/payment-methods', [CheckoutController::class, 'getPaymentMethods']);
             Route::post('/payment-method', [CheckoutController::class, 'setPaymentMethod']);
             Route::get('/summary', [CheckoutController::class, 'summary']);
-            Route::post('/place-order', [CheckoutController::class, 'placeOrder']);
+            Route::post('/place-order', [CheckoutController::class, 'placeOrder'])
+                ->middleware('customer.verified');
             // Unified payment verification — Flutter calls this after any SDK payment completes
             Route::post('/verify-payment', [CheckoutController::class, 'verifyPayment']);
         });
