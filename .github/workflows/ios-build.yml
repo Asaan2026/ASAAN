@@ -1,0 +1,76 @@
+# Builds the iPhone app on GitHub's Mac machines, so nobody needs to own a Mac.
+#
+# The result is an UNSIGNED .ipa. Apple will not let an unsigned app onto a
+# phone by itself: whoever installs it signs it on their own computer with
+# their own free Apple ID, using a tool such as Sideloadly. That signature
+# lasts 7 days, which is enough to try the app out but not to hand it to
+# customers. Shipping it properly needs the paid Apple Developer Program, and
+# at that point this workflow gains signing steps instead.
+#
+# Free to run: GitHub charges nothing for Mac machines on public repositories.
+
+name: ios build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/ios-build.yml'
+
+concurrency:
+  group: ios-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build an unsigned iPhone app
+    runs-on: macos-15
+    timeout-minutes: 60
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          # Matches the version the Android release is built with, so the two
+          # platforms cannot drift apart.
+          flutter-version: '3.44.4'
+          channel: stable
+          cache: true
+
+      - name: Show versions
+        run: |
+          flutter --version
+          pod --version
+
+      - name: Fetch packages
+        working-directory: mobile
+        run: flutter pub get
+
+      - name: Build the app
+        working-directory: mobile
+        # --no-codesign is what lets this run without an Apple account at all.
+        run: flutter build ios --release --no-codesign
+
+      - name: Wrap it into an .ipa
+        working-directory: mobile/build/ios/iphoneos
+        # An .ipa is only a zip with the app inside a folder called Payload.
+        # flutter build ios stops at the .app, so this does the last step.
+        run: |
+          mkdir -p Payload
+          cp -R Runner.app Payload/
+          zip -qry asaan-iphone-unsigned.ipa Payload
+          ls -lh asaan-iphone-unsigned.ipa
+
+      - name: Upload it
+        uses: actions/upload-artifact@v4
+        with:
+          name: asaan-iphone-unsigned
+          path: mobile/build/ios/iphoneos/asaan-iphone-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 30
