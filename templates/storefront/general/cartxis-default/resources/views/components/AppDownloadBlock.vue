@@ -4,13 +4,23 @@
  *
  * The store links come from the dashboard (storeContact). The Play Store link
  * falls back to the direct APK when the dashboard has not set one yet, so the
- * Android button always works. iOS is shown either way, but stays a disabled
- * "coming soon" until an App Store link exists.
+ * Android button always works.
+ *
+ * iPhone has no app yet, because publishing one needs a paid Apple membership.
+ * Until that exists the button offers the web app instead: Safari can save this
+ * site to the home screen, where it opens full screen with the Asaan icon and
+ * behaves like an app. That is a real thing a customer can use today, so the
+ * button says what it is -- a web app, not the App Store -- rather than
+ * promising an app that is not there. Apple gives no way to trigger that save
+ * from a page, so the button can only show the three steps.
+ *
+ * The moment an App Store link is set in the dashboard, that wins and this
+ * whole fallback disappears on its own.
  */
 import { useI18nStore } from '@/Stores/i18n';
 import { useThemeSettings } from '@/composables/useThemeSettings';
 import { usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 interface Props {
     compact?: boolean;
@@ -49,6 +59,10 @@ const androidUrl = computed(
 const iosUrl = computed(() => String(contact.value?.appStoreUrl || '').trim());
 
 const iosAvailable = computed(() => iosUrl.value.length > 0);
+
+// The "add to home screen" steps, shown only when asked for, so the footer
+// stays small for everyone who is not on an iPhone.
+const showWebAppSteps = ref(false);
 
 const isDark = computed(() => props.tone === 'dark');
 
@@ -121,8 +135,7 @@ const subtitleClass = computed(() =>
                 <span>{{ $t('Download for Android') }}</span>
             </a>
 
-            <!-- iOS: real link when an App Store URL exists, otherwise a
-                 disabled "coming soon" button. -->
+            <!-- iOS: the App Store when a link exists, otherwise the web app. -->
             <a
                 v-if="iosAvailable"
                 :href="iosUrl"
@@ -151,15 +164,17 @@ const subtitleClass = computed(() =>
             <button
                 v-else
                 type="button"
-                disabled
+                :aria-expanded="showWebAppSteps"
+                aria-controls="asaan-web-app-steps"
+                @click="showWebAppSteps = !showWebAppSteps"
                 :class="[
-                    'inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-dashed px-4 py-2 text-sm font-medium opacity-70',
+                    'inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors',
                     compact ? 'text-xs' : '',
                     isDark
-                        ? 'border-slate-600 text-slate-400'
-                        : 'border-gray-300 text-gray-500 dark:border-slate-600 dark:text-slate-400',
+                        ? 'border-slate-600 text-white hover:bg-slate-700'
+                        : 'border-gray-300 text-gray-900 hover:bg-gray-100 dark:border-slate-600 dark:text-slate-100 dark:hover:bg-slate-700',
                 ]"
-                :title="i18n.t('Coming soon')"
+                :title="i18n.t('Add the website to your home screen')"
             >
                 <svg
                     class="h-5 w-5"
@@ -172,10 +187,40 @@ const subtitleClass = computed(() =>
                     />
                 </svg>
                 <span
-                    >{{ $t('Download for iPhone') }} ·
-                    {{ $t('Coming soon') }}</span
+                    >{{ $t('Install on iPhone') }} ·
+                    {{ $t('web app') }}</span
                 >
             </button>
+        </div>
+
+        <!-- Apple allows no "install" button on a page, so the three steps are
+             the only way to offer this. Hidden until asked for. -->
+        <div
+            v-if="!iosAvailable"
+            v-show="showWebAppSteps"
+            id="asaan-web-app-steps"
+            :class="[
+                'mt-3 rounded-lg border p-3 text-xs leading-relaxed',
+                isDark
+                    ? 'border-slate-700 bg-slate-900/60 text-slate-300'
+                    : 'border-gray-200 bg-white text-gray-600 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-300',
+            ]"
+        >
+            <p class="mb-2">
+                {{
+                    $t(
+                        'Saves this shop to your home screen, with the Asaan icon, opening full screen like an app. It is the website itself, not an App Store app.',
+                    )
+                }}
+            </p>
+            <ol class="mb-2 list-inside list-decimal space-y-1">
+                <li>{{ $t('Open this shop in Safari.') }}</li>
+                <li>{{ $t('Tap the Share button.') }}</li>
+                <li>{{ $t('Choose Add to Home Screen.') }}</li>
+            </ol>
+            <p :class="isDark ? 'text-slate-400' : 'text-gray-500 dark:text-slate-400'">
+                {{ $t('A full iPhone app is on the way. This works in the meantime.') }}
+            </p>
         </div>
     </div>
 </template>
