@@ -155,9 +155,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  /// Open the Android app download link.
+  /// Open the release page, which lists both the Android and iPhone builds.
   Future<void> _openGetApp() async {
-    await openUrl(ApiConfig.androidLatestReleaseUrl);
+    await openUrl(ApiConfig.latestReleaseUrl);
   }
 
   Future<void> _logout() async {
@@ -453,7 +453,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             isDark: isDark,
                           ),
                           _buildMenuItem(
-                            icon: Icons.android_outlined,
+                            icon: Icons.download_outlined,
                             title: l10n.profileGetApp,
                             onTap: _openGetApp,
                             isDark: isDark,

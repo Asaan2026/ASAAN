@@ -104,11 +104,14 @@ class ApiConfig {
   // App Settings Endpoints
   static const String appSettings = '/api/$apiVersion/app/settings';
 
-  // Where to get the newest Android build. Deliberately the "latest release"
-  // address rather than a file name: the previous link named asaan-2.6.0.apk,
-  // a file that stopped existing three releases ago, so the button inside the
-  // app led nowhere. This one cannot go stale.
-  static const String androidLatestReleaseUrl =
+  // Where to get the newest build, for either phone: the release page lists
+  // the Android .apk and the unsigned iPhone .ipa side by side.
+  //
+  // Deliberately the "latest release" address rather than a file name: the
+  // previous link named asaan-2.6.0.apk, a file that stopped existing three
+  // releases ago, so the button inside the app led nowhere. This one cannot
+  // go stale.
+  static const String latestReleaseUrl =
       'https://github.com/Asaan2026/ASAAN/releases/latest';
 
   // Storefront Endpoints
