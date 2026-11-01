@@ -84,13 +84,33 @@ Save each one.
 
 ---
 
-## Step 5 — Try it
+## Step 5 — Turn AI on (easy to miss, and nothing works without it)
+
+There is a master on/off switch, separate from everything above. **It ships
+switched off**, and adding a provider, a model and agents does not flip it.
+
+**Settings → AI → the "Access & Defaults" tab → the "AI Features" section.**
+
+Flip the switch so it reads **Enabled**, then **Save**.
+
+While it says Disabled, the whole AI panel is hidden on the product page — no
+error, no greyed-out button, just nothing there.
+
+---
+
+## Step 6 — Try it
 
 1. Go to **Products**, open any product for editing
-2. Find the **Generate with AI** button near the description
+2. Scroll down past **Brand** — look for a grey panel headed **AI Product
+   Description**, with a blue **Generate Description** button on its right
 3. Click it
 
-A description should appear within a few seconds.
+A description should appear within a few seconds. The result shows as a
+preview with an **Apply** button, so nothing is written to the product until
+you accept it.
+
+**If that panel is not on the page at all**, Step 5 has not been done or has
+not saved. That panel is hidden entirely while AI is switched off.
 
 ---
 
@@ -121,6 +141,12 @@ with an error message.** You cannot be charged for money you have not put in.
 ---
 
 ## If something goes wrong
+
+**There is no AI button anywhere on the product page**
+The master switch is off. **Settings → AI → "Access & Defaults" tab → "AI
+Features" → Enabled → Save.** This is the usual cause, because the switch is
+on a different tab from the provider setup and ships off. The panel is hidden
+completely while it is off, so there is nothing on the page to hint at it.
 
 **"Rate limited" or "try again shortly"**
 Normal on free models — too many people using them at that second. Wait a
@@ -164,4 +190,4 @@ On 2 November 2026, against the live OpenRouter service with your key:
 
 What I have **not** done: run the two dashboard features end to end. That needs
 the provider saved in the dashboard, which is Step 2 above — a dashboard job,
-not a code job. Step 5 is that test.
+not a code job. Step 6 is that test.
