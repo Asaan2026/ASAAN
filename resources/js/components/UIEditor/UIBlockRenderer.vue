@@ -255,12 +255,11 @@ const sections = () => (props.layout as Layout)?.sections ?? [];
     padding-bottom: calc(var(--uie-pb, 0px) * 0.6);
 }
 
-/* Dark mode swaps only the near-white surfaces, and only when the script
-   above worked out a replacement. Brand colours have no --uie-bg-dark, so
-   this rule does not apply to them and they stay as the dashboard set them. */
-:global(html.dark) .uie-section {
-    background-color: var(--uie-bg-dark, var(--uie-bg, transparent));
-}
+/* The dark-mode counterpart of the line above lives in resources/css/app.css,
+   NOT here. Written here as `:global(html.dark) .uie-section`, Vue's scoped
+   compiler threw the `.uie-section` away and emitted a bare `html.dark`, which
+   painted the whole page transparent in dark mode instead of recolouring the
+   sections -- and overrode the page's own dark background while doing it. */
 
 .uie-section-inner {
     width: 100%;
