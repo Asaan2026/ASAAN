@@ -6,16 +6,24 @@
  * falls back to the direct APK when the dashboard has not set one yet, so the
  * Android button always works.
  *
- * iPhone has no app yet, because publishing one needs a paid Apple membership.
- * Until that exists the button offers the web app instead: Safari can save this
- * site to the home screen, where it opens full screen with the Asaan icon and
- * behaves like an app. That is a real thing a customer can use today, so the
- * button says what it is -- a web app, not the App Store -- rather than
- * promising an app that is not there. Apple gives no way to trigger that save
- * from a page, so the button can only show the three steps.
+ * iPhone has no App Store app, because publishing one needs a paid Apple
+ * membership. Until that exists, iPhone owners get a choice of two real
+ * things, in the order most people should pick them:
  *
- * The moment an App Store link is set in the dashboard, that wins and this
- * whole fallback disappears on its own.
+ *   1. The web app. Safari saves this site to the home screen, where it opens
+ *      full screen with the Asaan icon and behaves like an app. Works on the
+ *      phone alone, never expires. Apple gives no way to trigger that save
+ *      from a page, so the button can only show the three steps.
+ *
+ *   2. The actual app, built by .github/workflows/ios-build.yml. It is
+ *      UNSIGNED: Apple will not install it as it stands. Whoever wants it has
+ *      to sign it on a computer with their own free Apple ID, using a tool
+ *      such as Sideloadly, and that signature stops working after SEVEN DAYS.
+ *      Fine for the owner and testers; not something to hand a customer
+ *      without saying so, which is why the button says so.
+ *
+ * The moment an App Store link is set in the dashboard, that wins and both of
+ * these fallbacks disappear on their own.
  */
 import { useI18nStore } from '@/Stores/i18n';
 import { useThemeSettings } from '@/composables/useThemeSettings';
@@ -47,6 +55,12 @@ const { primary } = useThemeSettings();
 // says so in the publishing steps.
 const FALLBACK_APK =
     'https://github.com/Asaan2026/ASAAN/releases/latest/download/asaan-latest.apk';
+
+// Same arrangement for the iPhone build, and the same warning applies: every
+// release must attach the file under exactly this name or this 404s.
+// mobile/BUILD_AND_RELEASE.md says so in the publishing steps.
+const IPHONE_IPA =
+    'https://github.com/Asaan2026/ASAAN/releases/latest/download/asaan-iphone-latest.ipa';
 
 const contact = computed(
     () => (page.props as Record<string, any> | undefined)?.storeContact,
@@ -161,37 +175,91 @@ const subtitleClass = computed(() =>
                 </svg>
                 <span>{{ $t('Download for iPhone') }}</span>
             </a>
-            <button
-                v-else
-                type="button"
-                :aria-expanded="showWebAppSteps"
-                aria-controls="asaan-web-app-steps"
-                @click="showWebAppSteps = !showWebAppSteps"
-                :class="[
-                    'inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors',
-                    compact ? 'text-xs' : '',
-                    isDark
-                        ? 'border-slate-600 text-white hover:bg-slate-700'
-                        : 'border-gray-300 text-gray-900 hover:bg-gray-100 dark:border-slate-600 dark:text-slate-100 dark:hover:bg-slate-700',
-                ]"
-                :title="i18n.t('Add the website to your home screen')"
-            >
-                <svg
-                    class="h-5 w-5"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    aria-hidden="true"
+            <!-- No App Store link: offer the two things that actually work.
+                 The web app comes first because it is the one almost everyone
+                 should pick -- no computer, no expiry. -->
+            <template v-else>
+                <button
+                    type="button"
+                    :aria-expanded="showWebAppSteps"
+                    aria-controls="asaan-web-app-steps"
+                    @click="showWebAppSteps = !showWebAppSteps"
+                    :class="[
+                        'inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors',
+                        compact ? 'text-xs' : '',
+                        isDark
+                            ? 'border-slate-600 text-white hover:bg-slate-700'
+                            : 'border-gray-300 text-gray-900 hover:bg-gray-100 dark:border-slate-600 dark:text-slate-100 dark:hover:bg-slate-700',
+                    ]"
+                    :title="i18n.t('Add the website to your home screen')"
                 >
-                    <path
-                        d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"
-                    />
-                </svg>
-                <span
-                    >{{ $t('Install on iPhone') }} ·
-                    {{ $t('web app') }}</span
+                    <svg
+                        class="h-5 w-5"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"
+                        />
+                    </svg>
+                    <span>{{ $t('Use the web app') }}</span>
+                </button>
+
+                <!-- The real app. The label carries the seven days, because a
+                     bare "Download for iPhone" would be a promise this file
+                     cannot keep. -->
+                <a
+                    :href="IPHONE_IPA"
+                    target="_blank"
+                    rel="noopener"
+                    :class="[
+                        'inline-flex items-center justify-center gap-2 rounded-lg border border-dashed px-4 py-2 text-sm font-medium transition-colors',
+                        compact ? 'text-xs' : '',
+                        isDark
+                            ? 'border-slate-600 text-slate-300 hover:bg-slate-700'
+                            : 'border-gray-300 text-gray-600 hover:bg-gray-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700',
+                    ]"
+                    :title="
+                        i18n.t(
+                            'Needs a computer to install, and stops working after 7 days',
+                        )
+                    "
                 >
-            </button>
+                    <svg
+                        class="h-5 w-5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                    >
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                        <path d="M7 10l5 5 5-5" />
+                        <path d="M12 15V3" />
+                    </svg>
+                    <span>{{ $t('Install the app · 7 days') }}</span>
+                </a>
+            </template>
         </div>
+
+        <!-- Someone tapping the 7-day button goes straight to a download, so
+             the catch has to be visible without opening anything. -->
+        <p
+            v-if="!iosAvailable"
+            :class="[
+                'mt-2 text-xs',
+                isDark ? 'text-slate-400' : 'text-gray-500 dark:text-slate-400',
+            ]"
+        >
+            {{
+                $t(
+                    'iPhone: the web app works straight away. The 7-day app needs a computer to install.',
+                )
+            }}
+        </p>
 
         <!-- Apple allows no "install" button on a page, so the three steps are
              the only way to offer this. Hidden until asked for. -->
@@ -206,6 +274,7 @@ const subtitleClass = computed(() =>
                     : 'border-gray-200 bg-white text-gray-600 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-300',
             ]"
         >
+            <p class="mb-2 font-semibold">{{ $t('Use the web app') }}</p>
             <p class="mb-2">
                 {{
                     $t(
@@ -213,13 +282,41 @@ const subtitleClass = computed(() =>
                     )
                 }}
             </p>
-            <ol class="mb-2 list-inside list-decimal space-y-1">
+            <ol class="mb-3 list-inside list-decimal space-y-1">
                 <li>{{ $t('Open this shop in Safari.') }}</li>
                 <li>{{ $t('Tap the Share button.') }}</li>
                 <li>{{ $t('Choose Add to Home Screen.') }}</li>
             </ol>
-            <p :class="isDark ? 'text-slate-400' : 'text-gray-500 dark:text-slate-400'">
-                {{ $t('A full iPhone app is on the way. This works in the meantime.') }}
+
+            <p class="mb-2 font-semibold">
+                {{ $t('Install the app · 7 days') }}
+            </p>
+            <p
+                class="mb-2"
+                :class="
+                    isDark
+                        ? 'text-slate-400'
+                        : 'text-gray-500 dark:text-slate-400'
+                "
+            >
+                {{
+                    $t(
+                        'This is the real app, but Apple will not install it from the phone alone. You need a computer and a free Apple ID to put it on, and it stops working after seven days, after which you repeat it. Most people are better off with the web app above.',
+                    )
+                }}
+            </p>
+            <p
+                :class="
+                    isDark
+                        ? 'text-slate-400'
+                        : 'text-gray-500 dark:text-slate-400'
+                "
+            >
+                {{
+                    $t(
+                        'A proper App Store version needs a paid Apple membership. Until then these are the two ways in.',
+                    )
+                }}
             </p>
         </div>
     </div>

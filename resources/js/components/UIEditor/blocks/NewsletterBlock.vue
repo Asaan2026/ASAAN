@@ -7,6 +7,7 @@ const props = defineProps<{
 }>();
 
 const submitted = ref(false);
+const sending = ref(false);
 const email = ref('');
 const error = ref('');
 
@@ -18,27 +19,76 @@ const title = computed(
     () =>
         (props.settings.title as string) || 'Join Thousands of Happy Shoppers',
 );
+// The shipped wording used to promise 10% off a first order. Nothing sent a
+// code, so nobody ever got it. Any offer here has to be set in the dashboard
+// by someone who is actually going to honour it.
 const subtitle = computed(
     () =>
         (props.settings.subtitle as string) ||
-        'Subscribe and get <strong>10% off</strong> your first order, plus exclusive deals and new arrivals straight to your inbox.',
+        'New arrivals and offers, straight to your inbox.',
 );
 const ctaText = computed(
-    () => (props.settings.cta_text as string) || 'Subscribe Free',
+    () => (props.settings.cta_text as string) || 'Subscribe',
 );
 const successMsg = computed(
     () =>
-        (props.settings.success_msg as string) ||
-        "You're in! Check your inbox for your discount code.",
+        (props.settings.success_msg as string) || "Thanks — we'll be in touch.",
 );
 
-function submit() {
+/**
+ * This form used to do nothing at all: it checked the address for an "@",
+ * then showed "check your inbox", and stored the address nowhere. The shop
+ * has had a working subscribe endpoint all along; it was simply never called.
+ */
+async function submit() {
     error.value = '';
-    if (!email.value || !email.value.includes('@')) {
+
+    if (!email.value || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
         error.value = 'Please enter a valid email address.';
         return;
     }
-    submitted.value = true;
+
+    // The editor must not post real subscriptions while someone is just
+    // arranging blocks on the page.
+    if (props.editorMode) {
+        submitted.value = true;
+        return;
+    }
+
+    sending.value = true;
+
+    try {
+        const token =
+            document
+                .querySelector('meta[name="csrf-token"]')
+                ?.getAttribute('content') ?? '';
+
+        const response = await fetch('/newsletter/subscribe', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'X-CSRF-TOKEN': token,
+            },
+            body: JSON.stringify({ email: email.value }),
+        });
+
+        const body = await response.json().catch(() => ({}));
+
+        if (response.ok && body?.success) {
+            submitted.value = true;
+            return;
+        }
+
+        // The server already words these ("already subscribed", and so on), so
+        // show what it said rather than a generic failure.
+        error.value =
+            body?.message ?? 'Could not subscribe just now. Please try again.';
+    } catch {
+        error.value = 'Could not reach the server. Please try again.';
+    } finally {
+        sending.value = false;
+    }
 }
 </script>
 
@@ -121,7 +171,7 @@ function submit() {
                                 d="M5 13l4 4L19 7"
                             />
                         </svg>
-                        Exclusive deals
+                        Just store news
                     </span>
                 </div>
             </div>
@@ -160,10 +210,10 @@ function submit() {
                     "
                 >
                     <h3 class="mb-1 text-lg font-bold text-white">
-                        Get your 10% off code
+                        Join the mailing list
                     </h3>
                     <p class="mb-5 text-sm text-white/50">
-                        Enter your email and we'll send it instantly.
+                        Enter your email address to subscribe.
                     </p>
 
                     <form @submit.prevent="submit" class="space-y-3">
@@ -181,17 +231,16 @@ function submit() {
                         </div>
                         <button
                             type="submit"
-                            class="w-full rounded-xl py-3 text-sm font-bold text-white transition-all"
+                            :disabled="sending"
+                            class="w-full rounded-xl py-3 text-sm font-bold text-white transition-all disabled:cursor-not-allowed disabled:opacity-70"
                             style="background: #2563eb"
-                            onmouseenter="this.style.background='#1d4ed8'"
-                            onmouseleave="this.style.background='#2563eb'"
                         >
-                            {{ ctaText }}
+                            {{ sending ? 'Subscribing…' : ctaText }}
                         </button>
                     </form>
 
                     <p class="mt-4 text-center text-xs text-white/30">
-                        🔒 Your data is safe with us. Privacy guaranteed.
+                        Unsubscribe at any time.
                     </p>
                 </div>
             </div>

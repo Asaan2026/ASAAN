@@ -48,11 +48,11 @@ const onQuickView = (slug: string) => {
 
 <template>
     <div class="w-full">
-        <div v-if="loading" class="grid gap-6" :class="colsClass(settings.columns)">
+        <div v-if="loading" class="grid gap-3 sm:gap-6" :class="colsClass(settings.columns)">
             <ProductSkeleton v-for="n in (settings.limit ?? 8)" :key="n" />
         </div>
 
-        <div v-else-if="products.length" class="grid gap-6" :class="colsClass(settings.columns)">
+        <div v-else-if="products.length" class="grid gap-3 sm:gap-6" :class="colsClass(settings.columns)">
             <ProductCard
                 v-for="product in products"
                 :key="product.id"
@@ -62,7 +62,7 @@ const onQuickView = (slug: string) => {
             />
         </div>
 
-        <div v-else-if="editorMode" class="grid gap-6" :class="colsClass(settings.columns)">
+        <div v-else-if="editorMode" class="grid gap-3 sm:gap-6" :class="colsClass(settings.columns)">
             <div
                 v-for="n in (settings.limit ?? 4)"
                 :key="n"

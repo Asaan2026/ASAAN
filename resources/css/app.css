@@ -483,3 +483,21 @@
 .rich-text-tight h6 {
     margin: 0.5em 0 0.25em;
 }
+
+/* ---------------------------------------------------------------------------
+   Dashboard-built sections in dark mode.
+
+   A page built in the dashboard stores its text as HTML, and that HTML often
+   carries an inline colour -- a mid grey chosen to sit on a white section.
+   When dark mode turns such a section dark (see UIBlockRenderer), that grey
+   becomes dark-on-dark.
+
+   An inline style beats a normal rule, so this needs !important to reach it.
+   It is kept as narrow as possible: dark mode only, inside a section that was
+   converted from a light surface, and only text inside a text block's own
+   prose container. Product cards, buttons and anything else with its own
+   dark styling sit outside .prose and are untouched.
+--------------------------------------------------------------------------- */
+html.dark .uie-section[data-uie-surface='light'] .prose [style*='color'] {
+    color: inherit !important;
+}

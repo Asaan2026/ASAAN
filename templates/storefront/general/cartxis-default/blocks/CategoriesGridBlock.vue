@@ -12,33 +12,33 @@ const { categories, loading, colsClass } = useCategoriesGrid(props.settings)
 
 <template>
     <div class="w-full">
-        <div v-if="loading" class="grid gap-6" :class="colsClass(settings.columns)">
+        <div v-if="loading" class="grid gap-3 sm:gap-6" :class="colsClass(settings.columns)">
             <div
                 v-for="n in (settings.limit ?? 8)"
                 :key="n"
                 class="rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 animate-pulse"
             >
-                <div class="aspect-video" />
-                <div class="p-4 space-y-2">
+                <div class="aspect-square sm:aspect-video" />
+                <div class="p-1.5 sm:p-4 space-y-2">
                     <div class="h-4 bg-slate-300 rounded-full w-2/3 mx-auto" />
                     <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded-full w-1/3 mx-auto" />
                 </div>
             </div>
         </div>
 
-        <div v-else-if="categories.length" class="grid gap-6" :class="colsClass(settings.columns)">
+        <div v-else-if="categories.length" class="grid gap-3 sm:gap-6" :class="colsClass(settings.columns)">
             <a
                 v-for="category in categories"
                 :key="category.id"
                 :href="`/category/${category.slug}`"
-                class="group relative bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
+                class="group relative bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
             >
-                <div class="aspect-video bg-gradient-to-br from-blue-50 to-slate-100 overflow-hidden">
+                <div class="aspect-square sm:aspect-video bg-gradient-to-br from-blue-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 overflow-hidden">
                     <img
                         v-if="category.image_url"
                         :src="category.image_url"
                         :alt="category.name"
-                        class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300"
+                        class="w-full h-full object-contain p-1 sm:p-3 group-hover:scale-105 transition-transform duration-300"
                         loading="lazy"
                     />
                     <div v-else class="absolute inset-0 flex items-center justify-center opacity-40">
@@ -46,23 +46,23 @@ const { categories, loading, colsClass } = useCategoriesGrid(props.settings)
                     </div>
                 </div>
 
-                <div class="p-4 text-center">
-                    <h3 class="font-semibold text-slate-900 dark:text-slate-100 truncate transition-colors group-hover:text-[var(--theme-primary)]">
+                <div class="p-1.5 sm:p-4 text-center">
+                    <h3 class="font-semibold text-slate-900 dark:text-slate-100 text-[11px] sm:text-base truncate transition-colors group-hover:text-[var(--theme-primary)]">
                         {{ category.name }}
                     </h3>
-                    <p v-if="settings.show_count" class="text-xs text-slate-500 mt-1">
+                    <p v-if="settings.show_count" class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 sm:mt-1">
                         {{ category.products_count }}
                         {{ category.products_count === 1 ? 'product' : 'products' }}
                     </p>
                 </div>
 
                 <div
-                    class="absolute inset-0 border-2 border-transparent group-hover:border-[var(--theme-primary)] rounded-2xl transition-colors pointer-events-none"
+                    class="absolute inset-0 border-2 border-transparent group-hover:border-[var(--theme-primary)] rounded-xl sm:rounded-2xl transition-colors pointer-events-none"
                 />
             </a>
         </div>
 
-        <div v-else-if="editorMode" class="grid gap-6" :class="colsClass(settings.columns)">
+        <div v-else-if="editorMode" class="grid gap-3 sm:gap-6" :class="colsClass(settings.columns)">
             <div
                 v-for="n in (settings.limit ?? 4)"
                 :key="n"

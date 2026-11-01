@@ -641,5 +641,12 @@
     "Show it on": "Show it on",
     "Updates about your orders and account": "Updates about your orders and account",
     "View all notifications": "View all notifications",
-    "When off, the button is hidden everywhere. The number above is kept, so you can switch it back on at any time.": "When off, the button is hidden everywhere. The number above is kept, so you can switch it back on at any time."
+    "When off, the button is hidden everywhere. The number above is kept, so you can switch it back on at any time.": "When off, the button is hidden everywhere. The number above is kept, so you can switch it back on at any time.",
+    "Use the web app": "استفاده از وب‌اپ",
+    "Install the app · 7 days": "نصب اپ · ۷ روز",
+    "Needs a computer to install, and stops working after 7 days": "برای نصب به کامپیوتر نیاز دارد و پس از ۷ روز از کار می‌افتد",
+    "This is the real app, but Apple will not install it from the phone alone. You need a computer and a free Apple ID to put it on, and it stops working after seven days, after which you repeat it. Most people are better off with the web app above.": "این همان اپ واقعی است، اما اپل اجازه نمی‌دهد تنها با تلفن نصب شود. برای نصب آن به یک کامپیوتر و یک اپل‌آی‌دی رایگان نیاز دارید، و پس از هفت روز از کار می‌افتد و باید دوباره همین کار را تکرار کنید. برای بیشتر مردم وب‌اپ بالا بهتر است.",
+    "A proper App Store version needs a paid Apple membership. Until then these are the two ways in.": "نسخهٔ رسمی اپ‌استور به عضویت پولی اپل نیاز دارد. تا آن زمان همین دو راه موجود است.",
+    "iPhone: the web app works straight away. The 7-day app needs a computer to install.": "آیفون: وب‌اپ بی‌درنگ کار می‌کند. اپ ۷ روزه برای نصب به کامپیوتر نیاز دارد.",
+    "Choose options": "انتخاب گزینه‌ها"
 }

@@ -121,7 +121,7 @@ defineProps<{
                                     v-if="link.url"
                                     :href="link.url"
                                     class="px-3 py-1.5 rounded text-sm font-medium border transition-colors"
-                                    :class="link.active ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 dark:text-slate-300 border-gray-300 dark:border-slate-600 hover:bg-gray-50'"
+                                    :class="link.active ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-slate-300 border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-800'"
                                     v-html="link.label"
                                 />
                                 <span

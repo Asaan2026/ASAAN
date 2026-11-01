@@ -662,7 +662,7 @@ const submitOrder = () => {
                   v-for="address in userAddresses"
                   :key="address.id"
                   class="flex items-start p-4 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800"
-                  :class="{ 'border-blue-500 bg-blue-50': selectedAddressId === address.id }"
+                  :class="{ 'border-blue-500 bg-blue-50 dark:bg-blue-950/40': selectedAddressId === address.id }"
                 >
                   <input
                     type="radio"
@@ -811,7 +811,7 @@ const submitOrder = () => {
                 v-for="option in cartSummary.shipping.options"
                 :key="option.id"
                 class="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800"
-                :class="{ 'border-blue-500 bg-blue-50': selectedShippingId === option.id }"
+                :class="{ 'border-blue-500 bg-blue-50 dark:bg-blue-950/40': selectedShippingId === option.id }"
               >
                 <div class="flex items-center">
                   <input
@@ -845,7 +845,7 @@ const submitOrder = () => {
                 v-for="method in paymentMethods"
                 :key="method.id"
                 class="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800"
-                :class="{ 'border-blue-500 bg-blue-50': selectedPaymentMethod === method.code }"
+                :class="{ 'border-blue-500 bg-blue-50 dark:bg-blue-950/40': selectedPaymentMethod === method.code }"
               >
                 <div class="flex items-center flex-1">
                   <input
@@ -944,8 +944,8 @@ const submitOrder = () => {
               v-if="referralCredit?.can_use"
               class="mb-4 rounded-lg border p-4 transition-colors"
               :class="useReferralCredit
-                ? 'bg-green-50 border-green-200'
-                : 'bg-gray-50 border-gray-200 hover:border-green-300'"
+                ? 'bg-green-50 border-green-200 dark:bg-green-950/30 dark:border-green-900'
+                : 'bg-gray-50 border-gray-200 hover:border-green-300 dark:bg-slate-800 dark:border-slate-700'"
             >
               <label class="flex items-start gap-3 cursor-pointer">
                 <input

@@ -150,7 +150,7 @@ const discountPercentage = (product: Product) => {
             </div>
 
             <!-- Products Grid -->
-            <div v-if="products.data.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            <div v-if="products.data.length > 0" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 mb-8">
                 <ProductCard
                     v-for="product in products.data"
                     :key="product.id"
@@ -179,7 +179,7 @@ const discountPercentage = (product: Product) => {
                     class="px-4 py-2 rounded-md text-sm font-medium transition-colors"
                     :class="page === products.current_page 
                         ? 'bg-indigo-600 text-white' 
-                        : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'"
+                        : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:border-slate-700'"
                 >
                     {{ page }}
                 </Link>

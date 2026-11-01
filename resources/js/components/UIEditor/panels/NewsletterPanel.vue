@@ -98,7 +98,7 @@ function update(key: string, value: unknown) {
                 :value="settings.subtitle as string"
                 rows="3"
                 class="uie-input resize-none"
-                placeholder="Subscribe and get <strong>10% off</strong>…"
+                placeholder="New arrivals and offers, straight to your inbox…"
                 @input="
                     update(
                         'subtitle',

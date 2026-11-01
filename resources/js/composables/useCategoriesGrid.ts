@@ -44,13 +44,16 @@ export function useCategoriesGrid(settings: Record<string, unknown>) {
      * stay squeezed into the desktop column count. Same pattern as
      * BlogPostsGridBlock.
      */
+    // Three across on a phone, never more. Categories are a picture and one
+    // short word, so they stay readable at a third of the screen -- and three
+    // rows of three fit above the fold instead of two.
     const COLS: Record<number, string> = {
         1: 'grid-cols-1',
-        2: 'grid-cols-1 sm:grid-cols-2',
-        3: 'grid-cols-2 sm:grid-cols-3',
-        4: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4',
-        5: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5',
-        6: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6',
+        2: 'grid-cols-2',
+        3: 'grid-cols-3',
+        4: 'grid-cols-3 lg:grid-cols-4',
+        5: 'grid-cols-3 lg:grid-cols-5',
+        6: 'grid-cols-3 lg:grid-cols-6',
     };
 
     const colsClass = (cols: unknown) => {

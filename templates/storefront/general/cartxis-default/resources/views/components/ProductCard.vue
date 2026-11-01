@@ -5,9 +5,11 @@ import { useCart } from '@/composables/useCart';
 import { useCurrency } from '@/composables/useCurrency';
 import { useWishlist } from '@/composables/useWishlist';
 import { useThemeSettings } from '@/composables/useThemeSettings';
-import { Heart } from 'lucide-vue-next';
+import { useI18nStore } from '@/Stores/i18n';
+import { Check, Heart, Plus } from 'lucide-vue-next';
 import ThemePlaceholderIcon from './ThemePlaceholderIcon.vue';
 
+const i18n = useI18nStore();
 const { formatPrice } = useCurrency();
 const { toggleWishlist, isInWishlist, loading: wishlistLoading } = useWishlist();
 const { primary, wishlistEnabled, quickViewEnabled } = useThemeSettings();
@@ -125,17 +127,28 @@ const renderStars = (rating: number) => {
 const handleWishlistToggle = async () => {
     await toggleWishlist(props.product.id);
 };
+
+// On a phone the button is an icon, so the only thing a screen reader has to
+// go on is this label. It also becomes the hover tooltip on a desktop.
+const addButtonLabel = computed(() => {
+    if (!props.product.in_stock) return i18n.t('Out of Stock');
+    if (props.product.has_configurable_attributes)
+        return i18n.t('Choose options');
+    return i18n.t('Add to Cart');
+});
 </script>
 
 <template>
     <div class="group relative bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300">
         <Link :href="`/product/${product.slug}`" class="block">
-            <div class="relative aspect-square bg-gradient-to-br from-blue-50 to-slate-100 overflow-hidden">
+            <div class="relative aspect-square bg-gradient-to-br from-blue-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 overflow-hidden">
+                <!-- Barely any padding on a phone: in a card about 170px wide,
+                     12px of padding on each side is a tenth of the picture. -->
                 <img
                     v-if="product.image && !imageBroken"
                     :src="product.image"
                     :alt="product.name"
-                    class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300"
+                    class="w-full h-full object-contain p-1 sm:p-3 group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                     @error="imageBroken = true"
                 />
@@ -143,23 +156,23 @@ const handleWishlistToggle = async () => {
                     <ThemePlaceholderIcon />
                 </div>
 
-                <div class="absolute top-4 left-4 flex flex-col gap-2">
+                <div class="absolute top-2 left-2 sm:top-4 sm:left-4 flex flex-col gap-1 sm:gap-2">
                     <span
                         v-for="(badge, index) in product.badges ?? []"
                         :key="index"
-                        class="px-3 py-1 text-xs font-bold rounded-full"
+                        class="px-1.5 py-0.5 text-[10px] sm:px-3 sm:py-1 sm:text-xs font-bold rounded-full"
                         :class="badge.class ?? 'bg-blue-600 text-white'"
                     >
                         {{ badge.text }}
                     </span>
 
-                    <span v-if="hasDiscount" class="px-3 py-1 bg-red-500 text-white text-sm font-bold rounded-full">
+                    <span v-if="hasDiscount" class="px-1.5 py-0.5 text-[10px] sm:px-3 sm:py-1 sm:text-sm bg-red-500 text-white font-bold rounded-full">
                         -{{ discountPercentage }}%
                     </span>
 
                     <span
                         v-if="product.type && (product.type === 'virtual' || product.type === 'downloadable')"
-                        class="px-3 py-1 text-xs font-medium rounded-full inline-flex items-center"
+                        class="px-1.5 py-0.5 text-[10px] sm:px-3 sm:py-1 sm:text-xs font-medium rounded-full inline-flex items-center"
                         :class="{
                             'bg-blue-500 text-white': product.type === 'virtual',
                             'bg-cyan-500 text-white': product.type === 'downloadable',
@@ -173,17 +186,18 @@ const handleWishlistToggle = async () => {
                     v-if="product.in_stock && wishlistEnabled"
                     @click.prevent="handleWishlistToggle"
                     :disabled="wishlistLoading"
-                    class="absolute top-4 right-4 p-2 bg-white/90 dark:bg-slate-900/90 hover:bg-white dark:hover:bg-slate-800 rounded-full shadow-md transition-all hover:scale-110 disabled:opacity-50 z-10"
+                    class="absolute top-2 right-2 p-1.5 sm:top-4 sm:right-4 sm:p-2 bg-white/90 dark:bg-slate-900/90 hover:bg-white dark:hover:bg-slate-800 rounded-full shadow-md transition-all hover:scale-110 disabled:opacity-50 z-10"
                     :title="$t('Add to wishlist')"
+                    :aria-label="$t('Add to wishlist')"
                 >
                     <Heart
-                        :class="{ 'fill-red-500 text-red-500': isInWishlist(product.id), 'text-gray-600': !isInWishlist(product.id) }"
-                        class="w-5 h-5 transition-colors"
+                        :class="{ 'fill-red-500 text-red-500': isInWishlist(product.id), 'text-gray-600 dark:text-slate-300': !isInWishlist(product.id) }"
+                        class="w-4 h-4 sm:w-5 sm:h-5 transition-colors"
                     />
                 </button>
 
-                <div v-if="!product.in_stock" class="absolute top-4 right-4">
-                    <span class="px-3 py-1 bg-gray-900 text-white text-sm font-semibold rounded-full">
+                <div v-if="!product.in_stock" class="absolute top-2 right-2 sm:top-4 sm:right-4">
+                    <span class="px-2 py-0.5 text-[10px] sm:px-3 sm:py-1 sm:text-sm bg-gray-900 text-white font-semibold rounded-full">
                         {{ $t('Out of Stock') }}
                     </span>
                 </div>
@@ -202,8 +216,8 @@ const handleWishlistToggle = async () => {
             </div>
         </Link>
 
-        <div class="p-4">
-            <div v-if="product.brand" class="mb-2">
+        <div class="p-2.5 sm:p-4">
+            <div v-if="product.brand" class="mb-1 sm:mb-2">
                 <Link
                     :href="`/brands/${product.brand.slug}`"
                     class="text-xs text-gray-500 dark:text-slate-400 hover:text-gray-700 transition-colors"
@@ -213,55 +227,67 @@ const handleWishlistToggle = async () => {
             </div>
 
             <Link :href="`/product/${product.slug}`">
+                <!-- The reserved two-line height is a desktop nicety that keeps
+                     a row of cards aligned. On a phone it is wasted space. -->
                 <h3
-                    class="font-semibold text-gray-900 dark:text-slate-100 mb-2 transition-colors line-clamp-2 min-h-[3rem] group-hover:text-[var(--theme-primary)]"
+                    class="font-semibold text-gray-900 dark:text-slate-100 text-[13px] leading-snug sm:text-base mb-1 sm:mb-2 transition-colors line-clamp-2 sm:min-h-[3rem] group-hover:text-[var(--theme-primary)]"
                 >
                     {{ product.name }}
                 </h3>
             </Link>
 
-            <div v-if="showRatings" class="flex items-center gap-2 mb-3">
-                <div class="flex text-yellow-400 text-sm">
+            <div v-if="showRatings" class="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-3">
+                <div class="flex text-yellow-400 text-[11px] sm:text-sm">
                     {{ renderStars(product.rating) }}
                 </div>
-                <span class="text-xs text-gray-500 dark:text-slate-400">({{ product.reviews_count }})</span>
+                <span class="text-[10px] sm:text-xs text-gray-500 dark:text-slate-400">({{ product.reviews_count }})</span>
             </div>
 
-            <div class="mb-3">
-                <div class="flex items-baseline gap-2">
-                    <span class="text-2xl font-bold text-gray-900 dark:text-slate-100">
-                        {{ formatPrice(displayPrice) }}
-                    </span>
-                    <span v-if="hasDiscount" class="text-sm text-gray-500 dark:text-slate-400 line-through">
-                        {{ formatPrice(typeof product.price === 'string' ? parseFloat(product.price) : product.price) }}
-                    </span>
+            <!-- Phone: price on the left, a round + on the right, one line.
+                 Tablet and up: price above, the labelled button beneath, which
+                 is clearer where there is room for the words. -->
+            <div class="flex items-center justify-between gap-2 sm:block">
+                <div class="min-w-0 sm:mb-3">
+                    <div class="flex items-baseline gap-1 sm:gap-2 flex-wrap">
+                        <span class="text-base sm:text-2xl font-bold text-gray-900 dark:text-slate-100">
+                            {{ formatPrice(displayPrice) }}
+                        </span>
+                        <span v-if="hasDiscount" class="text-[11px] sm:text-sm text-gray-500 dark:text-slate-400 line-through">
+                            {{ formatPrice(typeof product.price === 'string' ? parseFloat(product.price) : product.price) }}
+                        </span>
+                    </div>
                 </div>
-            </div>
 
-            <button
-                @click="handleAddToCart"
-                :disabled="!product.in_stock || addingToCart"
-                class="w-full py-3 px-4 rounded-lg font-semibold transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer text-white hover:shadow-lg"
-                :style="product.in_stock ? { backgroundColor: primary } : undefined"
-                :class="{ 'bg-gray-300 text-gray-500': !product.in_stock, 'animate-pulse': addingToCart }"
-            >
-                <template v-if="addingToCart">
-                    <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    <span>{{ $t('Adding...') }}</span>
-                </template>
-                <template v-else-if="showSuccess">
-                    <span>{{ $t('Added!') }}</span>
-                </template>
-                <template v-else-if="product.in_stock">
-                    <span>{{ $t('Add to Cart') }}</span>
-                </template>
-                <template v-else>
-                    <span>{{ $t('Out of Stock') }}</span>
-                </template>
-            </button>
+                <button
+                    @click="handleAddToCart"
+                    :disabled="!product.in_stock || addingToCart"
+                    :title="addButtonLabel"
+                    :aria-label="addButtonLabel"
+                    class="shrink-0 flex items-center justify-center gap-2 font-semibold transition-all cursor-pointer text-white hover:shadow-lg disabled:cursor-not-allowed h-9 w-9 rounded-full sm:h-auto sm:w-full sm:rounded-lg sm:px-4 sm:py-3"
+                    :style="product.in_stock ? { backgroundColor: primary } : undefined"
+                    :class="{ 'bg-gray-300 text-gray-500 dark:bg-slate-700 dark:text-slate-400': !product.in_stock, 'animate-pulse': addingToCart }"
+                >
+                    <template v-if="addingToCart">
+                        <svg class="animate-spin h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        <span class="hidden sm:inline">{{ $t('Adding...') }}</span>
+                    </template>
+                    <template v-else-if="showSuccess">
+                        <Check class="h-5 w-5 sm:hidden" />
+                        <span class="hidden sm:inline">{{ $t('Added!') }}</span>
+                    </template>
+                    <template v-else-if="product.in_stock">
+                        <Plus class="h-5 w-5 sm:hidden" />
+                        <span class="hidden sm:inline">{{ $t('Add to Cart') }}</span>
+                    </template>
+                    <template v-else>
+                        <Plus class="h-5 w-5 sm:hidden" />
+                        <span class="hidden sm:inline">{{ $t('Out of Stock') }}</span>
+                    </template>
+                </button>
+            </div>
         </div>
     </div>
 </template>

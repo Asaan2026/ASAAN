@@ -7,7 +7,12 @@
 
         {{-- Progressive Web App: installable on mobile + offline support --}}
         <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
-        <meta name="theme-color" content="#111827">
+
+        {{-- The bar above and below the page, and the frame the saved-to-home-screen
+             version draws. One fixed dark colour meant a light-mode phone framed a
+             white shop in near-black. These follow the phone's setting instead. --}}
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+        <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">

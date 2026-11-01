@@ -2,7 +2,7 @@
 import { useStorefrontMenu } from '@/composables/useStorefrontMenu';
 import { useThemeSettings } from '@/composables/useThemeSettings';
 import { Link } from '@inertiajs/vue3';
-import { CreditCard, Facebook, Instagram, Twitter } from 'lucide-vue-next';
+import { Facebook, Instagram, Twitter } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppDownloadBlock from './AppDownloadBlock.vue';
 import WhatsAppButton from './WhatsAppButton.vue';
@@ -29,7 +29,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const currentYear = new Date().getFullYear();
 const { menus, loading, getMenuUrl } = useStorefrontMenu();
-const { showPlatformBranding, accent } = useThemeSettings();
+const { showPlatformBranding } = useThemeSettings();
 
 const footerSections = computed(() => {
     if (!menus.value.footer || menus.value.footer.length === 0) {
@@ -186,15 +186,16 @@ const footerSections = computed(() => {
                 </template>
             </div>
 
+            <!-- There was a "Visa · Mastercard · PayPal · Stripe" line here. It
+                 was written into this file, named four card brands the store
+                 does not accept, and was not even translatable. A footer must
+                 not advertise payment methods nobody can actually use, so it
+                 is gone. If a real list is ever wanted it belongs with the
+                 payment methods in the dashboard, which knows which gateways
+                 are switched on. -->
             <div
-                class="mt-8 flex flex-col items-center justify-between gap-4 border-t border-slate-800 pt-6 md:flex-row"
+                class="mt-8 flex flex-col items-center justify-center gap-4 border-t border-slate-800 pt-6"
             >
-                <div class="flex items-center gap-2 text-slate-500">
-                    <CreditCard class="h-4 w-4" :style="{ color: accent }" />
-                    <span class="text-xs"
-                        >Visa · Mastercard · PayPal · Stripe</span
-                    >
-                </div>
                 <div class="text-center text-sm">
                     <p>
                         &copy;

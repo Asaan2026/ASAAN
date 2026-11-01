@@ -126,8 +126,34 @@ Connect, then submit it for review through App Store Connect. Once it is live,
 paste the App Store link into the dashboard under
 **Settings → Store Configuration → Mobile App Links → App Store URL**.
 
-Until an App Store URL is set, the website shows the iPhone button as
-"coming soon" instead of a broken link.
+Until an App Store URL is set, the website offers iPhone owners two things
+instead: the web app (add to home screen), and the unsigned build below.
+
+### 4. The unsigned build, without a Mac or an Apple account
+
+`.github/workflows/ios-build.yml` builds the app on GitHub's Mac machines, free
+on a public repository. No Apple account, no Mac of your own.
+
+What it produces is **unsigned**, and that matters:
+
+- Apple will not install it from the phone alone.
+- Whoever wants it signs it on a computer with their own free Apple ID, using a
+  tool such as Sideloadly. See `mobile/IPHONE_TEST_INSTALL.md`.
+- **That signature lasts 7 days.** Then the app stops opening and the whole
+  thing is repeated. Fine for you and testers; not something to push at
+  customers, which is why the website's button says "7 days" on it.
+
+**Publishing it works exactly like the APK.** Attach it to the release on
+`Asaan2026/ASAAN` under two names:
+
+| File name | Why |
+|---|---|
+| `asaan-iphone-2.9.0.ipa` | So each release says which version it holds. |
+| `asaan-iphone-latest.ipa` | **Required.** The website's iPhone button links to `releases/latest/download/asaan-iphone-latest.ipa`. Miss this file on a release and **the button 404s for everyone** — the same trap the APK link has. |
+
+If you push a tag named `Asaan-v<version>`, the workflow attaches both files to
+that tag's release by itself. Otherwise download the build artifact from the
+workflow run and attach it by hand.
 
 ---
 

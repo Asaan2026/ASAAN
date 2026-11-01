@@ -384,7 +384,7 @@ onUnmounted(() => {
                             v-if="siteConfig.logo"
                             :src="`/storage/${siteConfig.logo}`"
                             :alt="siteConfig.name"
-                            class="h-10 object-contain"
+                            class="h-10 rounded-lg object-contain"
                             :style="{ maxWidth: '200px' }"
                         />
                         <h1
@@ -699,8 +699,8 @@ onUnmounted(() => {
                                 :class="[
                                     'flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors',
                                     selectedIndex === index
-                                        ? 'bg-blue-50'
-                                        : 'hover:bg-gray-50',
+                                        ? 'bg-blue-50 dark:bg-blue-950/40'
+                                        : 'hover:bg-gray-50 dark:hover:bg-slate-800',
                                 ]"
                             >
                                 <!-- Product Image -->

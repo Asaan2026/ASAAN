@@ -641,5 +641,12 @@
     "Show it on": "Show it on",
     "Updates about your orders and account": "Updates about your orders and account",
     "View all notifications": "View all notifications",
-    "When off, the button is hidden everywhere. The number above is kept, so you can switch it back on at any time.": "When off, the button is hidden everywhere. The number above is kept, so you can switch it back on at any time."
+    "When off, the button is hidden everywhere. The number above is kept, so you can switch it back on at any time.": "When off, the button is hidden everywhere. The number above is kept, so you can switch it back on at any time.",
+    "Use the web app": "ویب اپ وکاروئ",
+    "Install the app · 7 days": "اپ نصب کړئ · ۷ ورځې",
+    "Needs a computer to install, and stops working after 7 days": "د نصبولو لپاره کمپیوټر ته اړتیا لري او له ۷ ورځو وروسته کار کول پریږدي",
+    "This is the real app, but Apple will not install it from the phone alone. You need a computer and a free Apple ID to put it on, and it stops working after seven days, after which you repeat it. Most people are better off with the web app above.": "دا اصلي اپ دی، خو ایپل یې یوازې په تلیفون کې نصبولو ته اجازه نه ورکوي. د نصبولو لپاره کمپیوټر او وړیا ایپل آی‌ډي ته اړتیا لرئ، او له اوو ورځو وروسته کار کول پریږدي او بیا یې باید تکرار کړئ. د ډېرو خلکو لپاره پورتنی ویب اپ غوره دی.",
+    "A proper App Store version needs a paid Apple membership. Until then these are the two ways in.": "د اپ‌سټور رسمي بڼه د ایپل پیسو غړیتوب ته اړتیا لري. تر هغې پورې همدا دوه لارې شته.",
+    "iPhone: the web app works straight away. The 7-day app needs a computer to install.": "آیفون: ویب اپ سمدستي کار کوي. ۷ ورځنی اپ د نصبولو لپاره کمپیوټر ته اړتیا لري.",
+    "Choose options": "اختیارونه وټاکئ"
 }

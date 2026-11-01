@@ -19,6 +19,9 @@ on:
     paths:
       - 'mobile/**'
       - '.github/workflows/ios-build.yml'
+    # A release tag builds and publishes. Everything else only builds.
+    tags:
+      - 'Asaan-v*'
 
 concurrency:
   group: ios-build-${{ github.ref }}
@@ -28,6 +31,11 @@ jobs:
   build:
     name: Build an unsigned iPhone app
     runs-on: macos-15
+
+    # Needed only by the "Attach it to the release" step below. Without it the
+    # default token is read-only and the upload fails.
+    permissions:
+      contents: write
     timeout-minutes: 60
 
     steps:
@@ -61,16 +69,36 @@ jobs:
         working-directory: mobile/build/ios/iphoneos
         # An .ipa is only a zip with the app inside a folder called Payload.
         # flutter build ios stops at the .app, so this does the last step.
+        #
+        # Two names, same file, exactly as the Android APK is published:
+        #   asaan-iphone-latest.ipa -- what the website links to. GitHub serves
+        #     /releases/latest/download/<name> from whichever release is newest,
+        #     so the link never needs changing. Miss this file on a release and
+        #     the website's iPhone button 404s for everyone.
+        #   asaan-iphone-unsigned.ipa -- kept so older links still resolve.
         run: |
           mkdir -p Payload
           cp -R Runner.app Payload/
-          zip -qry asaan-iphone-unsigned.ipa Payload
-          ls -lh asaan-iphone-unsigned.ipa
+          zip -qry asaan-iphone-latest.ipa Payload
+          cp asaan-iphone-latest.ipa asaan-iphone-unsigned.ipa
+          ls -lh asaan-iphone-latest.ipa
 
       - name: Upload it
         uses: actions/upload-artifact@v4
         with:
           name: asaan-iphone-unsigned
-          path: mobile/build/ios/iphoneos/asaan-iphone-unsigned.ipa
+          path: mobile/build/ios/iphoneos/asaan-iphone-latest.ipa
           if-no-files-found: error
           retention-days: 30
+
+      # A build artifact can only be downloaded by someone signed in to GitHub
+      # with access to this repository, so it is no use to a customer. A
+      # release asset is public. This runs only for a tag build.
+      - name: Attach it to the release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2.0.8
+        with:
+          files: |
+            mobile/build/ios/iphoneos/asaan-iphone-latest.ipa
+            mobile/build/ios/iphoneos/asaan-iphone-unsigned.ipa
+          fail_on_unmatched_files: true

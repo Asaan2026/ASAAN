@@ -213,8 +213,8 @@
                                                     @click="selectedAttributes[attribute.id] = option.id; attributeError = null"
                                                     class="px-4 py-2 border-2 rounded-lg font-medium transition-all cursor-pointer"
                                                     :class="{
-                                                        'border-indigo-600 bg-indigo-50 text-indigo-700': selectedAttributes[attribute.id] === option.id,
-                                                        'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-indigo-600': selectedAttributes[attribute.id] !== option.id
+                                                        'border-indigo-600 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300': selectedAttributes[attribute.id] === option.id,
+                                                        'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-indigo-600 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800': selectedAttributes[attribute.id] !== option.id
                                                     }"
                                                 >
                                                     {{ option.value }}

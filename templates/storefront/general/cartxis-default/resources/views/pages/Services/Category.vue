@@ -114,7 +114,7 @@ watch(search, () => {
                     :key="link.label"
                     :href="link.url ?? '#'"
                     class="rounded-md border px-3 py-1.5 text-sm"
-                    :class="link.active ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-300 text-gray-700 dark:text-slate-300 hover:bg-gray-50'"
+                    :class="link.active ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'"
                     v-html="link.label"
                 />
             </nav>

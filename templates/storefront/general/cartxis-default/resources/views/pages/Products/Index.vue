@@ -495,7 +495,7 @@ const activeFilterBadges = computed(() => {
                                 type="button"
                                 @click="showFilters = !showFilters"
                                 class="lg:hidden inline-flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors"
-                                :class="showFilters ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 dark:text-slate-300 border-gray-300 dark:border-slate-600 hover:bg-gray-50'"
+                                :class="showFilters ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-slate-300 border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-800'"
                                 :aria-expanded="showFilters"
                                 aria-controls="product-filters"
                             >
@@ -513,7 +513,7 @@ const activeFilterBadges = computed(() => {
                                 <button
                                     @click="viewMode = 'grid'"
                                     class="p-2 rounded-lg transition-colors"
-                                    :class="viewMode === 'grid' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 dark:text-slate-400 hover:bg-gray-200'"
+                                    :class="viewMode === 'grid' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700'"
                                 >
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -522,7 +522,7 @@ const activeFilterBadges = computed(() => {
                                 <button
                                     @click="viewMode = 'list'"
                                     class="p-2 rounded-lg transition-colors"
-                                    :class="viewMode === 'list' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 dark:text-slate-400 hover:bg-gray-200'"
+                                    :class="viewMode === 'list' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700'"
                                 >
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
@@ -551,9 +551,9 @@ const activeFilterBadges = computed(() => {
 
                         <!-- Product Grid -->
                         <div
-                            class="grid gap-6"
+                            class="grid gap-3 sm:gap-6"
                             :class="{
-                                'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3': viewMode === 'grid',
+                                'grid-cols-2 lg:grid-cols-3': viewMode === 'grid',
                                 'grid-cols-1': viewMode === 'list'
                             }"
                         >
@@ -607,7 +607,7 @@ const activeFilterBadges = computed(() => {
                                         class="px-4 py-2 rounded-lg transition-colors"
                                         :class="page === products.current_page
                                             ? 'bg-indigo-600 text-white'
-                                            : 'border border-gray-300 text-gray-700 hover:bg-gray-50'"
+                                            : 'border border-gray-300 dark:border-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'"
                                     >
                                         {{ page }}
                                     </a>
