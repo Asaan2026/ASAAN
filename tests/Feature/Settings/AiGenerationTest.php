@@ -263,3 +263,99 @@ test('a reply that is simply not JSON blames the prompt, not the token limit', f
 
     expect($message)->toContain('format this page cannot read');
 });
+
+test('a cut-off reply is retried with more room, without anyone changing a setting', function () {
+    $product = aiReady();
+
+    Http::fakeSequence()
+        ->push(['choices' => [['finish_reason' => 'length', 'message' => ['content' => '{"short_description":"cut']]]], 200)
+        ->push(['choices' => [['finish_reason' => 'stop', 'message' => ['content' => '{"short_description":"Second time lucky."}']]]], 200);
+
+    $result = app(AiProductDescriptionService::class)->generate($product);
+
+    expect($result['data']['short_description'])->toBe('Second time lucky.');
+
+    $asked = [];
+    Http::recorded(function ($request) use (&$asked) {
+        $asked[] = $request->data()['max_tokens'];
+    });
+
+    expect($asked)->toHaveCount(2)
+        ->and($asked[1])->toBeGreaterThan($asked[0]);
+});
+
+test('an empty reply is retried before anyone is told about it', function () {
+    $product = aiReady();
+
+    Http::fakeSequence()
+        ->push(['choices' => [['message' => ['content' => null]]]], 200)
+        ->push(['choices' => [['message' => ['content' => '{"short_description":"Here on the retry."}']]]], 200);
+
+    expect(app(AiProductDescriptionService::class)->generate($product)['data']['short_description'])
+        ->toBe('Here on the retry.');
+});
+
+test('a busy free model is waited out', function () {
+    $product = aiReady();
+
+    Http::fakeSequence()
+        ->push(['error' => ['message' => 'Rate limited, please try again shortly']], 429)
+        ->push(['choices' => [['message' => ['content' => '{"short_description":"Served after the wait."}']]]], 200);
+
+    expect(app(AiProductDescriptionService::class)->generate($product)['data']['short_description'])
+        ->toBe('Served after the wait.');
+});
+
+test('an unreadable reply is retried too, since models vary', function () {
+    $product = aiReady();
+
+    Http::fakeSequence()
+        ->push(['choices' => [['message' => ['content' => 'Sorry, I would rather chat.']]]], 200)
+        ->push(['choices' => [['message' => ['content' => '{"short_description":"Proper JSON this time."}']]]], 200);
+
+    expect(app(AiProductDescriptionService::class)->generate($product)['data']['short_description'])
+        ->toBe('Proper JSON this time.');
+});
+
+test('a wrong model id is not retried, because asking again cannot help', function () {
+    $product = aiReady();
+
+    Http::fake(['*' => Http::response(['error' => ['message' => 'OpenRouter is not a valid model ID']], 400)]);
+
+    $message = null;
+
+    try {
+        app(AiProductDescriptionService::class)->generate($product);
+    } catch (RuntimeException $e) {
+        $message = $e->getMessage();
+    }
+
+    $calls = 0;
+    Http::recorded(function () use (&$calls) {
+        $calls++;
+    });
+
+    expect($message)->toContain('is not a valid model ID')
+        ->and($calls)->toBe(1);
+});
+
+test('it gives up after three tries and says what went wrong', function () {
+    $product = aiReady();
+    aiReplies(['content' => 'Still not JSON.']);
+
+    $message = null;
+
+    try {
+        app(AiProductDescriptionService::class)->generate($product);
+    } catch (RuntimeException $e) {
+        $message = $e->getMessage();
+    }
+
+    $calls = 0;
+    Http::recorded(function () use (&$calls) {
+        $calls++;
+    });
+
+    expect($calls)->toBe(3)
+        ->and($message)->toContain('format this page cannot read');
+});

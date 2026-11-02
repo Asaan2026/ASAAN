@@ -3,6 +3,7 @@
 namespace Cartxis\Product\Services;
 
 use Cartxis\Core\Services\SettingService;
+use Cartxis\Product\Exceptions\AiReplyProblem;
 use Cartxis\Product\Models\Product;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Arr;
@@ -15,6 +16,15 @@ class AiProductDescriptionService
     private const PRODUCT_DESCRIPTION_AGENT_KEY = 'ai.product_description_agent';
 
     private const PRICE_COMPARISON_AGENT_KEY = 'ai.price_comparison_agent';
+
+    /** How many times to ask before giving up and saying why. */
+    private const MAX_ATTEMPTS = 3;
+
+    /** However low the agent's setting is, a retry may go up to here. */
+    private const MAX_TOKEN_CEILING = 4000;
+
+    /** Breath between tries when the provider says it is busy. */
+    private const BUSY_PAUSE_MICROSECONDS = 1_500_000;
 
     /**
      * Why the model stopped talking, as the last call reported it. Needed to
@@ -40,16 +50,7 @@ class AiProductDescriptionService
         $input = $this->buildInput($product, $payload);
         $userPrompt = $this->buildUserPrompt($input);
 
-        $content = $this->requestAiContent(
-            $context['provider'],
-            $context['model_name'],
-            $context['system_prompt'],
-            $userPrompt,
-            $context['temperature'],
-            $context['max_tokens']
-        );
-
-        $parsed = $this->extractJson($content);
+        $parsed = $this->requestParsedJson($context, $userPrompt);
 
         $parsed['generation_timestamp'] = $parsed['generation_timestamp'] ?? now()->toIso8601String();
         $parsed['confidence_score'] = $parsed['confidence_score'] ?? null;
@@ -111,16 +112,7 @@ class AiProductDescriptionService
             'generated_at' => now()->toIso8601String(),
         ];
 
-        $content = $this->requestAiContent(
-            $context['provider'],
-            $context['model_name'],
-            $context['system_prompt'],
-            $userPrompt,
-            $context['temperature'],
-            $context['max_tokens']
-        );
-
-        $parsed = $this->extractJson($content);
+        $parsed = $this->requestParsedJson($context, $userPrompt);
         $rawOptions = $this->extractRawPriceOptions($parsed);
         $options = $this->normalizePriceOptions(
             is_array($rawOptions) ? $rawOptions : [],
@@ -194,6 +186,61 @@ class AiProductDescriptionService
             'temperature' => isset($agent['temperature']) ? (float) $agent['temperature'] : $defaultTemperature,
             'max_tokens' => isset($agent['max_tokens']) ? (int) $agent['max_tokens'] : $defaultMaxTokens,
         ];
+    }
+
+    /**
+     * Ask the AI and come back with readable JSON, trying again where trying
+     * again is what is needed.
+     *
+     * Free models are moody: they go busy, they answer with nothing, and they
+     * spend their whole allowance thinking and get cut off mid-sentence. Each
+     * of those is fixed by asking again — with more room when room was the
+     * problem — so the shopkeeper gets a description instead of a lecture
+     * about token settings.
+     */
+    protected function requestParsedJson(array $context, string $userPrompt): array
+    {
+        $maxTokens = max(1, (int) $context['max_tokens']);
+        $problem = null;
+
+        for ($attempt = 1; $attempt <= self::MAX_ATTEMPTS; $attempt++) {
+            try {
+                return $this->extractJson($this->requestAiContent(
+                    $context['provider'],
+                    $context['model_name'],
+                    $context['system_prompt'],
+                    $userPrompt,
+                    $context['temperature'],
+                    $maxTokens
+                ));
+            } catch (AiReplyProblem $e) {
+                $problem = $e;
+
+                if (! $e->worthRetrying() || $attempt === self::MAX_ATTEMPTS) {
+                    break;
+                }
+
+                if ($e->needsMoreRoom()) {
+                    $maxTokens = min($maxTokens * 2, self::MAX_TOKEN_CEILING);
+                }
+
+                if ($e->needsAPause()) {
+                    usleep(self::BUSY_PAUSE_MICROSECONDS);
+                }
+
+                Log::info('Asking the AI again', [
+                    'attempt' => $attempt,
+                    'reason' => $e->kind,
+                    'next_max_tokens' => $maxTokens,
+                    'model' => $context['model_name'],
+                ]);
+            }
+        }
+
+        throw $problem ?? new AiReplyProblem(
+            AiReplyProblem::UNREADABLE,
+            __('The AI replied in a format this page cannot read. Try again; if it keeps happening, the model is not following the agent prompt.')
+        );
     }
 
     protected function requestAiContent(
@@ -764,7 +811,7 @@ class AiProductDescriptionService
                 'url' => $url,
                 'model' => $model,
             ]);
-            throw new \RuntimeException($this->providerErrorMessage($response, $model));
+            throw $this->providerRefusal($response, $model);
         }
 
         $json = $response->json();
@@ -776,7 +823,7 @@ class AiProductDescriptionService
                 'url' => $url,
                 'model' => $model,
             ]);
-            throw new \RuntimeException($this->providerErrorMessage($response, $model));
+            throw $this->providerRefusal($response, $model);
         }
 
         $this->lastFinishReason = is_array($json)
@@ -838,7 +885,7 @@ class AiProductDescriptionService
                 'body' => $response->body(),
                 'url' => $url,
             ]);
-            throw new \RuntimeException($this->providerErrorMessage($response, $model));
+            throw $this->providerRefusal($response, $model);
         }
 
         $json = $response->json();
@@ -885,7 +932,29 @@ class AiProductDescriptionService
             'response' => $json,
         ]);
 
-        throw new \RuntimeException(__('The AI answered with nothing at all. Free models often use their whole allowance thinking before they reply: open Settings → AI → Agents and raise Max tokens, or try again in a minute.'));
+        throw new AiReplyProblem(
+            AiReplyProblem::EMPTY_REPLY,
+            __('The AI answered with nothing at all. Free models often use their whole allowance thinking before they reply: open Settings → AI → Agents and raise Max tokens, or try again in a minute.')
+        );
+    }
+
+    /**
+     * A refusal, as something the retry loop can reason about: "busy" is worth
+     * another go in a moment, anything else is final.
+     */
+    protected function providerRefusal(Response $response, string $model): AiReplyProblem
+    {
+        $message = $this->providerErrorMessage($response, $model);
+        $status = $response->status();
+        $looksBusy = $status === 429
+            || $status === 408
+            || $status >= 500
+            || Str::contains(Str::lower($message), ['rate limit', 'rate-limit', 'too many requests', 'busy', 'try again', 'overloaded', 'temporarily unavailable', 'capacity']);
+
+        return new AiReplyProblem(
+            $looksBusy ? AiReplyProblem::BUSY : AiReplyProblem::REFUSED,
+            $message
+        );
     }
 
     /**
@@ -941,10 +1010,16 @@ class AiProductDescriptionService
         ]);
 
         if ($this->replyWasCutOff()) {
-            throw new \RuntimeException(__('The AI ran out of room and its reply was cut off halfway. Open Settings → AI → Agents and raise Max tokens — 2000 is usually enough.'));
+            throw new AiReplyProblem(
+                AiReplyProblem::CUT_OFF,
+                __('The AI ran out of room and its reply was cut off halfway. Open Settings → AI → Agents and raise Max tokens — 2000 is usually enough.')
+            );
         }
 
-        throw new \RuntimeException(__('The AI replied in a format this page cannot read. Try again; if it keeps happening, the model is not following the agent prompt.'));
+        throw new AiReplyProblem(
+            AiReplyProblem::UNREADABLE,
+            __('The AI replied in a format this page cannot read. Try again; if it keeps happening, the model is not following the agent prompt.')
+        );
     }
 
     /**
