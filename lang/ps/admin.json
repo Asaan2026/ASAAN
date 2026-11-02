@@ -2349,6 +2349,7 @@
     "Text / Chat": "متن / چټ",
     "Text Direction": "د متن لوری",
     "Textarea": "څو کرښې متن",
+    "That is a provider name, not a model ID. Use the id the provider gives the model, such as openrouter\/free.": "دا د چمتوکوونکي نوم دی، نه د ماډل پېژندنښه. هغه پېژندنښه ولیکئ چې چمتوکوونکی یې ماډل ته ورکوي، لکه openrouter\/free.",
     "The URL key is fixed to": "د URL کلی ثابت دی پر",
     "The all-in-one commerce platform that puts you in control. Manage products, orders, and customers from a single, elegant dashboard with unlimited custom agent creation for agentic commerce.": "د سوداګرۍ بشپړ پلیټ فارم چې کنټرول ستاسو په لاس کې اچوي. محصولات، امرونه او پیرودونکي له یو واحد او ښکلي ډشبورډ څخه اداره کړئ، د اجنټیک سوداګرۍ لپاره د بې حده ځانګړو اجنټانو جوړولو سره.",
     "The directory reports {count} theme(s) but none matched the current filters.": "ډایرکټورۍ {count} قالب راپور ورکوي خو هېڅ یو یې اوسنیو فلټرونو سره سمون نه لري.",

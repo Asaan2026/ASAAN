@@ -4,6 +4,7 @@ namespace Cartxis\Product\Services;
 
 use Cartxis\Core\Services\SettingService;
 use Cartxis\Product\Models\Product;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -692,7 +693,13 @@ class AiProductDescriptionService
         ]);
 
         if (! $response->successful()) {
-            throw new \RuntimeException('AI provider request failed: '.$response->body());
+            Log::error('AI provider request failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'url' => $url,
+                'model' => $model,
+            ]);
+            throw new \RuntimeException($this->providerErrorMessage($response, $model));
         }
 
         return Arr::get($response->json(), 'choices.0.message.content', '');
@@ -745,10 +752,44 @@ class AiProductDescriptionService
                 'body' => $response->body(),
                 'url' => $url,
             ]);
-            throw new \RuntimeException('AI provider request failed: '.$response->body());
+            throw new \RuntimeException($this->providerErrorMessage($response, $model));
         }
 
         return Arr::get($response->json(), 'candidates.0.content.parts.0.text', '');
+    }
+
+    /**
+     * Turn a failed provider response into one sentence an admin can act on,
+     * instead of handing them the raw JSON body.
+     */
+    protected function providerErrorMessage(Response $response, string $model): string
+    {
+        $json = $response->json();
+        $detail = '';
+
+        if (is_array($json)) {
+            foreach (['error.message', 'error', 'message', 'detail'] as $path) {
+                $value = Arr::get($json, $path);
+                if (is_string($value) && trim($value) !== '') {
+                    $detail = trim($value);
+                    break;
+                }
+            }
+        }
+
+        if ($detail === '') {
+            $detail = 'the provider returned status '.$response->status().' with no explanation';
+        }
+
+        $message = 'The AI provider refused the request: '.$detail;
+
+        if (Str::contains(Str::lower($detail), ['not a valid model', 'model not found', 'unknown model', 'no such model', 'invalid model'])) {
+            $message .= ' The model ID sent was "'.$model.'". Check Settings → AI → Models:'
+                .' the Model ID box needs the provider\'s own id for the model, such as openrouter/free,'
+                .' not the name you gave the provider.';
+        }
+
+        return $message;
     }
 
     protected function extractJson(string $content): array

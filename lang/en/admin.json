@@ -2349,6 +2349,7 @@
     "Text / Chat": "Text / Chat",
     "Text Direction": "Text Direction",
     "Textarea": "Textarea",
+    "That is a provider name, not a model ID. Use the id the provider gives the model, such as openrouter\/free.": "That is a provider name, not a model ID. Use the id the provider gives the model, such as openrouter\/free.",
     "The URL key is fixed to": "The URL key is fixed to",
     "The all-in-one commerce platform that puts you in control. Manage products, orders, and customers from a single, elegant dashboard with unlimited custom agent creation for agentic commerce.": "The all-in-one commerce platform that puts you in control. Manage products, orders, and customers from a single, elegant dashboard with unlimited custom agent creation for agentic commerce.",
     "The directory reports {count} theme(s) but none matched the current filters.": "The directory reports {count} theme(s) but none matched the current filters.",

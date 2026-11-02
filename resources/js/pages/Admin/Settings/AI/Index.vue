@@ -83,6 +83,15 @@ const form = useForm({
 });
 
 const showApiKeys = ref<Record<number, boolean>>({});
+const clientErrors = ref<Record<string, string>>({});
+const PROVIDER_NAME_AS_MODEL = t(
+    'That is a provider name, not a model ID. Use the id the provider gives the model, such as openrouter/free.',
+);
+
+const fieldError = (key: string) =>
+    clientErrors.value[key] ||
+    (form.errors as Record<string, string>)[key] ||
+    '';
 const activeTab = ref<'access' | 'providers' | 'models' | 'agents'>('access');
 const expandedAgentIndex = ref<number | null>(0);
 
@@ -217,8 +226,57 @@ const showToast = (
     );
 };
 
+// Same rule as the server: a provider's name is not a model ID.
+const findProviderNamesUsedAsModels = (section: string) => {
+    const providerNames = providerOptions.value.map((name) =>
+        name.trim().toLowerCase(),
+    );
+    const found: Record<string, string> = {};
+
+    if (providerNames.length === 0) {
+        return found;
+    }
+
+    if (section === 'models') {
+        form.models.forEach((model, index) => {
+            const value = (model.name || '').trim().toLowerCase();
+            if (value && providerNames.includes(value)) {
+                found[`models.${index}.name`] = PROVIDER_NAME_AS_MODEL;
+            }
+        });
+    }
+
+    if (section === 'agents') {
+        form.agents.forEach((agent, index) => {
+            const value = (agent.model || '').trim().toLowerCase();
+            if (value && providerNames.includes(value)) {
+                found[`agents.${index}.model`] = PROVIDER_NAME_AS_MODEL;
+            }
+        });
+    }
+
+    return found;
+};
+
+const focusFirstError = (keys: string[]) => {
+    const element = document.getElementById(
+        `ai-${keys[0].replace(/\./g, '-')}`,
+    );
+    element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    (element as HTMLElement | null)?.focus();
+};
+
 const save = () => {
     const section = activeTab.value;
+
+    clientErrors.value = {};
+    const blocking = findProviderNamesUsedAsModels(section);
+    if (Object.keys(blocking).length > 0) {
+        clientErrors.value = blocking;
+        focusFirstError(Object.keys(blocking));
+        return;
+    }
+
     if (section === 'agents') {
         form.agents = form.agents.map((agent) => {
             const fallbackProvider =
@@ -860,11 +918,33 @@ const save = () => {
                                                 ></label
                                             >
                                             <input
+                                                :id="`ai-models-${index}-name`"
                                                 v-model="model.name"
                                                 type="text"
-                                                class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+                                                class="w-full rounded-xl border bg-white px-4 py-2.5 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white"
+                                                :class="
+                                                    fieldError(
+                                                        `models.${index}.name`,
+                                                    )
+                                                        ? 'border-red-500 dark:border-red-500'
+                                                        : 'border-gray-300 dark:border-gray-600'
+                                                "
                                                 placeholder="gpt-4-turbo"
                                             />
+                                            <p
+                                                v-if="
+                                                    fieldError(
+                                                        `models.${index}.name`,
+                                                    )
+                                                "
+                                                class="mt-1 text-sm text-red-600 dark:text-red-400"
+                                            >
+                                                {{
+                                                    fieldError(
+                                                        `models.${index}.name`,
+                                                    )
+                                                }}
+                                            </p>
                                         </div>
                                         <div>
                                             <label
@@ -1131,8 +1211,16 @@ const save = () => {
                                                 >{{ $t('Model') }}</label
                                             >
                                             <select
+                                                :id="`ai-agents-${index}-model`"
                                                 v-model="agent.model"
-                                                class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+                                                class="w-full rounded-xl border bg-white px-4 py-2.5 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white"
+                                                :class="
+                                                    fieldError(
+                                                        `agents.${index}.model`,
+                                                    )
+                                                        ? 'border-red-500 dark:border-red-500'
+                                                        : 'border-gray-300 dark:border-gray-600'
+                                                "
                                             >
                                                 <option value="">
                                                     {{ $t('Select model') }}
@@ -1147,6 +1235,20 @@ const save = () => {
                                                     {{ modelName }}
                                                 </option>
                                             </select>
+                                            <p
+                                                v-if="
+                                                    fieldError(
+                                                        `agents.${index}.model`,
+                                                    )
+                                                "
+                                                class="mt-1 text-sm text-red-600 dark:text-red-400"
+                                            >
+                                                {{
+                                                    fieldError(
+                                                        `agents.${index}.model`,
+                                                    )
+                                                }}
+                                            </p>
                                         </div>
                                         <div class="grid grid-cols-2 gap-4">
                                             <div>

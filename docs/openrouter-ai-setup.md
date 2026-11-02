@@ -48,12 +48,19 @@ Then set **Default Provider** at the top of the page to **OpenRouter**.
 
 Still on the AI page, go to the **Models** tab and click **Add model**.
 
+The boxes appear on screen in this order. **The first box is the model, not
+the provider** — this is the easiest thing on the whole page to get wrong.
+
 | Box | What to type |
 |---|---|
-| **Provider** | `OpenRouter` |
-| **Model** | `openrouter/free` |
+| **Model ID** (first box, you type it) | `openrouter/free` |
+| **Provider** (second box, a dropdown) | choose `OpenRouter` |
 
 Save.
+
+If `OpenRouter` goes into the Model ID box, the page now refuses to save it and
+says so under the box. Before that, it saved happily and the Generate button
+failed later with *"OpenRouter is not a valid model ID"*.
 
 **Why `openrouter/free` and not a specific model name.** It is not a model —
 it is a switchboard. It sends your request to whichever free model is free at
@@ -161,8 +168,15 @@ up the reply allowance. Open the agent and raise **Max tokens** — try 2000.
 Step 2 did not save, or **Default Provider** at the top of the page is not set
 to OpenRouter.
 
-**"AI provider request failed"**
-Usually the key. Re-copy it — no spaces before or after.
+**"The AI provider refused the request: … is not a valid model ID"**
+The Model ID box holds something OpenRouter does not recognise — most often
+`OpenRouter`, the provider's name, typed into the model box by mistake. Go to
+**Settings → AI → Models** and set the Model ID to `openrouter/free`, then open
+**Agents** and make sure both agents point at that model.
+
+**"The AI provider refused the request"** for any other reason
+Usually the key. Re-copy it — no spaces before or after. The rest of the
+sentence is OpenRouter's own wording, so it says what it objected to.
 
 ---
 

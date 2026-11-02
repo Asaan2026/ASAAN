@@ -93,6 +93,8 @@ class AiSettingsController
 
             $validated = $request->validate($rules);
 
+            $this->rejectProviderNamesUsedAsModels($request, $validated);
+
             if ($request->has('ai_enabled')) {
                 $this->settingService->set('ai.enabled', (bool) ($validated['ai_enabled'] ?? false), 'boolean', 'ai');
             }
@@ -131,6 +133,47 @@ class AiSettingsController
             Log::error('AI settings save error: '.$e->getMessage());
 
             return redirect()->back()->with('error', 'Failed to save AI settings. Please try again.');
+        }
+    }
+
+    /**
+     * A provider's name is not a model ID. Typing "OpenRouter" where the
+     * model's own id belongs is accepted by every box on the page and only
+     * fails later, as a refusal from the provider, so stop it here.
+     */
+    private function rejectProviderNamesUsedAsModels(Request $request, array $validated): void
+    {
+        $providerNames = collect($request->has('providers')
+                ? ($validated['providers'] ?? [])
+                : (array) $this->settingService->get('ai.providers', []))
+            ->map(fn ($provider) => is_array($provider) ? strtolower(trim((string) ($provider['name'] ?? ''))) : '')
+            ->filter()
+            ->values()
+            ->all();
+
+        if ($providerNames === []) {
+            return;
+        }
+
+        $message = 'That is a provider name, not a model ID. Use the id the provider gives the model, such as openrouter/free.';
+        $errors = [];
+
+        foreach (['models' => 'name', 'agents' => 'model'] as $section => $field) {
+            if (! $request->has($section)) {
+                continue;
+            }
+
+            foreach ((array) ($validated[$section] ?? []) as $index => $row) {
+                $value = is_array($row) ? strtolower(trim((string) ($row[$field] ?? ''))) : '';
+
+                if ($value !== '' && in_array($value, $providerNames, true)) {
+                    $errors[$section.'.'.$index.'.'.$field] = [$message];
+                }
+            }
+        }
+
+        if ($errors !== []) {
+            throw ValidationException::withMessages($errors);
         }
     }
 

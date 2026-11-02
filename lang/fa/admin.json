@@ -2349,6 +2349,7 @@
     "Text / Chat": "متن / چت",
     "Text Direction": "جهت متن",
     "Textarea": "متن چندخطی",
+    "That is a provider name, not a model ID. Use the id the provider gives the model, such as openrouter\/free.": "این نام ارائه‌دهنده است، نه شناسه مدل. شناسه‌ای را وارد کنید که ارائه‌دهنده به مدل می‌دهد، مانند openrouter\/free.",
     "The URL key is fixed to": "کلید URL ثابت است برابر با",
     "The all-in-one commerce platform that puts you in control. Manage products, orders, and customers from a single, elegant dashboard with unlimited custom agent creation for agentic commerce.": "پلتفرم تجارت همه‌جانبه که کنترل را در دستان شما می‌گذارد. محصولات، سفارش‌ها و مشتریان را از یک داشبورد واحد و شیک مدیریت کنید، با امکان ساخت نامحدود عامل‌های اختصاصی برای تجارت عامل‌محور.",
     "The directory reports {count} theme(s) but none matched the current filters.": "دایرکتوری {count} قالب را گزارش می‌کند اما هیچ‌کدام با فیلترهای فعلی مطابقت ندارند.",
