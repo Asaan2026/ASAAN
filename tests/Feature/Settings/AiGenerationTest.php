@@ -184,3 +184,82 @@ test('a price written in Eastern digits is still read as a price', function () {
     expect($result['options'])->toHaveCount(4)
         ->and($result['options'][0]['price'])->toBe(950.0);
 });
+
+test('JSON wrapped in a markdown fence is read', function () {
+    $product = aiReady();
+    aiReplies(['content' => "```json\n{\"short_description\":\"Fenced.\"}\n```"]);
+
+    expect(app(AiProductDescriptionService::class)->generate($product)['data']['short_description'])
+        ->toBe('Fenced.');
+});
+
+test('JSON with a sentence in front of it is read', function () {
+    $product = aiReady();
+    aiReplies(['content' => "Sure! Here is the JSON you asked for:\n{\"short_description\":\"Padded.\"}\nHope that helps."]);
+
+    expect(app(AiProductDescriptionService::class)->generate($product)['data']['short_description'])
+        ->toBe('Padded.');
+});
+
+test('a trailing comma does not throw the whole reply away', function () {
+    $product = aiReady();
+    aiReplies(['content' => '{"short_description":"Comma.","keywords":["a","b",],}']);
+
+    expect(app(AiProductDescriptionService::class)->generate($product)['data']['short_description'])
+        ->toBe('Comma.');
+});
+
+test('curly quotes are straightened before parsing', function () {
+    $product = aiReady();
+    aiReplies(['content' => '{“short_description”:“Curly.”}']);
+
+    expect(app(AiProductDescriptionService::class)->generate($product)['data']['short_description'])
+        ->toBe('Curly.');
+});
+
+test('prose containing braces does not defeat the parser', function () {
+    $product = aiReady();
+    aiReplies(['content' => 'Note: use {product} placeholders. {"short_description":"Real one."}']);
+
+    expect(app(AiProductDescriptionService::class)->generate($product)['data']['short_description'])
+        ->toBe('Real one.');
+});
+
+test('a reply cut off by the token limit says so, and says what to raise', function () {
+    $product = aiReady();
+
+    Http::fake(['*' => Http::response([
+        'choices' => [[
+            'finish_reason' => 'length',
+            'message' => ['content' => '{"short_description":"It starts fine but then'],
+        ]],
+    ], 200)]);
+
+    $message = null;
+
+    try {
+        app(AiProductDescriptionService::class)->generate($product);
+    } catch (RuntimeException $e) {
+        $message = $e->getMessage();
+    }
+
+    expect($message)
+        ->toContain('cut off halfway')
+        ->toContain('Max tokens')
+        ->not->toContain('not following the agent prompt');
+});
+
+test('a reply that is simply not JSON blames the prompt, not the token limit', function () {
+    $product = aiReady();
+    aiReplies(['content' => 'I am afraid I cannot help with that request.']);
+
+    $message = null;
+
+    try {
+        app(AiProductDescriptionService::class)->generate($product);
+    } catch (RuntimeException $e) {
+        $message = $e->getMessage();
+    }
+
+    expect($message)->toContain('format this page cannot read');
+});

@@ -16,6 +16,13 @@ class AiProductDescriptionService
 
     private const PRICE_COMPARISON_AGENT_KEY = 'ai.price_comparison_agent';
 
+    /**
+     * Why the model stopped talking, as the last call reported it. Needed to
+     * tell a reply that was cut off mid-sentence from one that is simply not
+     * JSON — the admin has to do different things about them.
+     */
+    protected ?string $lastFinishReason = null;
+
     public function __construct(
         protected SettingService $settings
     ) {}
@@ -772,6 +779,10 @@ class AiProductDescriptionService
             throw new \RuntimeException($this->providerErrorMessage($response, $model));
         }
 
+        $this->lastFinishReason = is_array($json)
+            ? (string) (Arr::get($json, 'choices.0.finish_reason') ?? Arr::get($json, 'choices.0.native_finish_reason') ?? '')
+            : '';
+
         return $this->firstNonEmptyText($json, [
             'choices.0.message.content',
             'choices.0.message.reasoning_content',
@@ -830,7 +841,13 @@ class AiProductDescriptionService
             throw new \RuntimeException($this->providerErrorMessage($response, $model));
         }
 
-        return $this->firstNonEmptyText($response->json(), [
+        $json = $response->json();
+
+        $this->lastFinishReason = is_array($json)
+            ? (string) (Arr::get($json, 'candidates.0.finishReason') ?? '')
+            : '';
+
+        return $this->firstNonEmptyText($json, [
             'candidates.0.content.parts.0.text',
             'candidates.0.content.parts.1.text',
         ], $model);
@@ -907,23 +924,141 @@ class AiProductDescriptionService
 
     protected function extractJson(string $content): array
     {
-        $content = trim($content);
-        $decoded = json_decode($content, true);
-        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-            return $decoded;
-        }
-
-        $start = strpos($content, '{');
-        $end = strrpos($content, '}');
-        if ($start !== false && $end !== false) {
-            $substring = substr($content, $start, $end - $start + 1);
-            $decoded = json_decode($substring, true);
-            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                return $decoded;
+        foreach ($this->jsonCandidates($content) as $candidate) {
+            foreach ([$candidate, $this->repairJson($candidate)] as $attempt) {
+                $decoded = json_decode($attempt, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    return $decoded;
+                }
             }
         }
 
+        // Without this nobody can tell a chatty model from a cut-off one.
+        Log::error('AI reply could not be read as JSON', [
+            'finish_reason' => $this->lastFinishReason,
+            'length' => strlen($content),
+            'reply' => Str::limit($content, 2000),
+        ]);
+
+        if ($this->replyWasCutOff()) {
+            throw new \RuntimeException(__('The AI ran out of room and its reply was cut off halfway. Open Settings → AI → Agents and raise Max tokens — 2000 is usually enough.'));
+        }
+
         throw new \RuntimeException(__('The AI replied in a format this page cannot read. Try again; if it keeps happening, the model is not following the agent prompt.'));
+    }
+
+    /**
+     * Every reading of the reply worth trying, in order: the whole thing, the
+     * same thing with markdown fences stripped, then each balanced block in
+     * it, longest first. Models wrap JSON in ```json fences, or write a
+     * sentence before it, however firmly the prompt tells them not to.
+     *
+     * @return array<int, string>
+     */
+    protected function jsonCandidates(string $content): array
+    {
+        $content = trim($content);
+        $candidates = [$content];
+
+        $unfenced = preg_replace('/^```[a-zA-Z]*\s*|\s*```$/m', '', $content);
+        if (is_string($unfenced) && trim($unfenced) !== '' && trim($unfenced) !== $content) {
+            $candidates[] = trim($unfenced);
+        }
+
+        foreach ($this->balancedBlocks($content) as $block) {
+            $candidates[] = $block;
+        }
+
+        return array_values(array_unique($candidates));
+    }
+
+    /**
+     * Pull out every complete {...} or [...] block, ignoring braces that sit
+     * inside strings. Longest first, so the whole object beats a nested one.
+     *
+     * @return array<int, string>
+     */
+    protected function balancedBlocks(string $content): array
+    {
+        $blocks = [];
+        $length = strlen($content);
+
+        for ($start = 0; $start < $length; $start++) {
+            $opener = $content[$start];
+            if ($opener !== '{' && $opener !== '[') {
+                continue;
+            }
+
+            $closer = $opener === '{' ? '}' : ']';
+            $depth = 0;
+            $inString = false;
+            $escaped = false;
+
+            for ($i = $start; $i < $length; $i++) {
+                $char = $content[$i];
+
+                if ($escaped) {
+                    $escaped = false;
+
+                    continue;
+                }
+
+                if ($char === '\\' && $inString) {
+                    $escaped = true;
+
+                    continue;
+                }
+
+                if ($char === '"') {
+                    $inString = ! $inString;
+
+                    continue;
+                }
+
+                if ($inString) {
+                    continue;
+                }
+
+                if ($char === $opener) {
+                    $depth++;
+                } elseif ($char === $closer) {
+                    $depth--;
+                    if ($depth === 0) {
+                        $blocks[] = substr($content, $start, $i - $start + 1);
+                        break;
+                    }
+                }
+            }
+        }
+
+        usort($blocks, fn ($a, $b) => strlen($b) <=> strlen($a));
+
+        return $blocks;
+    }
+
+    /**
+     * The small things models get wrong that JSON will not forgive: a trailing
+     * comma before a closing brace, and curly quotes instead of straight ones.
+     */
+    protected function repairJson(string $candidate): string
+    {
+        $repaired = strtr($candidate, [
+            '“' => '"', '”' => '"', '„' => '"',
+            '‘' => "'", '’' => "'",
+        ]);
+
+        return preg_replace('/,\s*([}\]])/', '$1', $repaired) ?? $candidate;
+    }
+
+    /**
+     * Did the model stop because it hit the token ceiling? Every provider
+     * spells it differently.
+     */
+    protected function replyWasCutOff(): bool
+    {
+        $reason = strtolower((string) $this->lastFinishReason);
+
+        return in_array($reason, ['length', 'max_tokens', 'maxtokens', 'max_output_tokens'], true);
     }
 
     protected function findByName(array $items, ?string $name): ?array
