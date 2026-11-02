@@ -25,7 +25,7 @@ class ProductAiController extends Controller
             'key_features' => 'nullable|array',
             'target_audience' => 'nullable|string|max:120',
             'tone_preference' => 'nullable|string|max:50',
-            'language' => 'nullable|string|max:10',
+            'language' => 'nullable|string|in:en,fa,ps,es,fr,de,zh',
             'agent' => 'nullable|string|max:120',
         ]);
 

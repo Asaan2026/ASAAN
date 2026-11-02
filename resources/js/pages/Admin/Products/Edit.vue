@@ -8,6 +8,7 @@ import { useCurrency } from '@/composables/useCurrency';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import axios from '@/lib/axios';
 import * as productRoutes from '@/routes/admin/catalog/products';
+import { useI18nStore } from '@/Stores/i18n';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { computed, onMounted, ref } from 'vue';
 
@@ -357,7 +358,14 @@ const form = ref({
 const aiTone = ref<'professional' | 'casual' | 'luxury' | 'minimalist'>(
     'professional',
 );
-const aiLanguage = ref('en');
+// Start on the language the dashboard itself is in. A shop run in Dari wants
+// Dari descriptions, and having to change this box every time is how English
+// descriptions end up on a Dari storefront.
+const AI_LANGUAGES = ['en', 'fa', 'ps', 'es', 'fr', 'de', 'zh'];
+const { locale: dashboardLocale } = useI18nStore();
+const aiLanguage = ref(
+    AI_LANGUAGES.includes(dashboardLocale.value) ? dashboardLocale.value : 'en',
+);
 const aiTargetAudience = ref('');
 const aiKeyFeatures = ref('');
 const aiIsGenerating = ref(false);
@@ -1117,6 +1125,12 @@ const deleteProduct = () => {
                                     >
                                         <option value="en">
                                             {{ $t('English') }}
+                                        </option>
+                                        <option value="fa">
+                                            {{ $t('Dari') }}
+                                        </option>
+                                        <option value="ps">
+                                            {{ $t('Pashto') }}
                                         </option>
                                         <option value="es">
                                             {{ $t('Spanish') }}

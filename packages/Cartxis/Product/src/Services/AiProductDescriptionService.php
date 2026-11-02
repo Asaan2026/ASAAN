@@ -82,6 +82,8 @@ class AiProductDescriptionService
             'current_price' => $currentPrice,
             'cost' => $cost,
             'required_options' => 4,
+            'language' => $this->resolveLanguage($payload),
+            'language_name' => $this->languageName($this->resolveLanguage($payload)),
         ];
 
         $userPrompt = $this->buildPriceComparisonPrompt($input);
@@ -129,7 +131,7 @@ class AiProductDescriptionService
                 'raw_options_type' => gettype($rawOptions),
             ]);
 
-            throw new \RuntimeException('AI returned no valid price comparison options.');
+            throw new \RuntimeException(__('The AI did not return any usable prices. Try again, or raise Max tokens on the Price Comparison Agent.'));
         }
 
         return [
@@ -146,7 +148,7 @@ class AiProductDescriptionService
         int $defaultMaxTokens
     ): array {
         if (! $this->settings->get('ai.enabled', false)) {
-            throw new \RuntimeException('AI is disabled.');
+            throw new \RuntimeException(__('AI features are switched off. Turn them on under Settings → AI → Access & Defaults.'));
         }
 
         $providers = $this->settings->get('ai.providers', []);
@@ -167,12 +169,12 @@ class AiProductDescriptionService
         $providerName = $this->resolveProviderName($agent, $payload, $defaultProviderName, $providers);
         $provider = $this->findByName($providers, $providerName);
         if (! $provider) {
-            throw new \RuntimeException('AI provider not configured.');
+            throw new \RuntimeException(__('No AI provider is set up. Add one under Settings → AI → Providers, then choose it as the default provider.'));
         }
 
         $modelName = $this->resolveModelName($agent, $payload, $models, $providerName);
         if (! $modelName) {
-            throw new \RuntimeException('AI model not configured.');
+            throw new \RuntimeException(__('No AI model is set up. Add one under Settings → AI → Models.'));
         }
 
         return [
@@ -223,8 +225,44 @@ class AiProductDescriptionService
             'key_features' => $payload['key_features'] ?? [],
             'target_audience' => $payload['target_audience'] ?? null,
             'tone_preference' => $payload['tone_preference'] ?? 'professional',
-            'language' => $payload['language'] ?? 'en',
+            'language' => $this->resolveLanguage($payload),
+            'language_name' => $this->languageName($this->resolveLanguage($payload)),
         ];
+    }
+
+    /**
+     * The language the description should be written in: what the admin picked,
+     * otherwise whatever language they are using the dashboard in. A shop whose
+     * storefront is in Dari should not get English descriptions by default.
+     */
+    protected function resolveLanguage(array $payload): string
+    {
+        $requested = isset($payload['language']) ? strtolower(trim((string) $payload['language'])) : '';
+
+        if ($requested !== '') {
+            return $requested;
+        }
+
+        return strtolower((string) app()->getLocale());
+    }
+
+    /**
+     * A model follows "Dari (Afghan Persian)" far more reliably than "fa".
+     */
+    protected function languageName(string $code): string
+    {
+        return match (strtolower(trim($code))) {
+            'fa', 'fa-af', 'fa_af', 'prs', 'dari' => 'Dari (Afghan Persian), written in the Perso-Arabic script, right to left',
+            'ps', 'ps-af', 'pus', 'pashto' => 'Pashto, written in the Perso-Arabic script, right to left',
+            'en' => 'English',
+            'es' => 'Spanish',
+            'fr' => 'French',
+            'de' => 'German',
+            'zh' => 'Chinese (Simplified)',
+            'ar' => 'Arabic, written right to left',
+            'ur' => 'Urdu, written right to left',
+            default => $code,
+        };
     }
 
     protected function buildCategoryPath(Product $product): ?string
@@ -255,6 +293,8 @@ class AiProductDescriptionService
                 'Use only provided data. Do not invent specs.',
                 'Return JSON only, no markdown or extra text.',
                 'SEO optimized with clear benefits and consistent brand voice.',
+                'Write every value in '.$input['language_name'].'. Do not answer in English unless English is the language asked for.',
+                'Keep the JSON keys themselves exactly as written below, in English.',
             ],
             'schema' => $schema,
         ];
@@ -277,6 +317,8 @@ class AiProductDescriptionService
                 'Prices must be positive numeric values in the requested currency.',
                 'Respect store country, region and currency context.',
                 'Return JSON only with no markdown.',
+                'Write source_label and details in '.($input['language_name'] ?? 'English').'. Keep prices as plain numbers in Western digits.',
+                'Keep the JSON keys and the variation values exactly as written below, in English.',
             ],
             'schema' => [
                 'price_options' => [
@@ -391,6 +433,22 @@ class AiProductDescriptionService
         return $normalized;
     }
 
+    /**
+     * A model answering in Dari or Pashto may write the price in Eastern
+     * digits (۱۲۳ or ١٢٣). Stripping them would leave nothing, and the option
+     * would be thrown away as "no price".
+     */
+    protected function westernDigits(string $value): string
+    {
+        return strtr($value, [
+            '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4',
+            '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+            '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
+            '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+            '٫' => '.', '٬' => ',',
+        ]);
+    }
+
     protected function extractPriceValue(array $option): float
     {
         $candidates = [
@@ -424,7 +482,7 @@ class AiProductDescriptionService
                     if (is_string($nested)) {
                         $raw = trim($nested);
                         if ($raw !== '') {
-                            $clean = preg_replace('/[^0-9.,-]/', '', $raw) ?? '';
+                            $clean = preg_replace('/[^0-9.,-]/', '', $this->westernDigits($raw)) ?? '';
                             if ($clean !== '') {
                                 if (str_contains($clean, ',') && str_contains($clean, '.')) {
                                     $clean = str_replace(',', '', $clean);
@@ -462,7 +520,7 @@ class AiProductDescriptionService
                 continue;
             }
 
-            $clean = preg_replace('/[^0-9.,-]/', '', $raw) ?? '';
+            $clean = preg_replace('/[^0-9.,-]/', '', $this->westernDigits($raw)) ?? '';
             if ($clean === '') {
                 continue;
             }
@@ -702,7 +760,24 @@ class AiProductDescriptionService
             throw new \RuntimeException($this->providerErrorMessage($response, $model));
         }
 
-        return Arr::get($response->json(), 'choices.0.message.content', '');
+        $json = $response->json();
+
+        // Some gateways answer 200 and put the complaint in the body.
+        if (is_array($json) && Arr::get($json, 'error') !== null && Arr::get($json, 'choices') === null) {
+            Log::error('AI provider returned an error inside a successful response', [
+                'body' => $response->body(),
+                'url' => $url,
+                'model' => $model,
+            ]);
+            throw new \RuntimeException($this->providerErrorMessage($response, $model));
+        }
+
+        return $this->firstNonEmptyText($json, [
+            'choices.0.message.content',
+            'choices.0.message.reasoning_content',
+            'choices.0.message.reasoning',
+            'choices.0.text',
+        ], $model);
     }
 
     protected function callGemini(array $provider, string $model, string $systemPrompt, string $userPrompt, float $temperature, int $maxTokens): string
@@ -755,7 +830,45 @@ class AiProductDescriptionService
             throw new \RuntimeException($this->providerErrorMessage($response, $model));
         }
 
-        return Arr::get($response->json(), 'candidates.0.content.parts.0.text', '');
+        return $this->firstNonEmptyText($response->json(), [
+            'candidates.0.content.parts.0.text',
+            'candidates.0.content.parts.1.text',
+        ], $model);
+    }
+
+    /**
+     * Pull the reply out of whichever field this provider used.
+     *
+     * A model that answers with nothing is not an exception to handle later:
+     * "content" can come back as null, and returning that crashed the request
+     * with a type error instead of telling the admin what to do about it.
+     *
+     * @param  array<int, string>  $paths
+     */
+    protected function firstNonEmptyText(mixed $json, array $paths, string $model): string
+    {
+        foreach ($paths as $path) {
+            $value = is_array($json) ? Arr::get($json, $path) : null;
+
+            // Some models return the reply split into parts.
+            if (is_array($value)) {
+                $value = collect($value)
+                    ->map(fn ($part) => is_array($part) ? ($part['text'] ?? '') : $part)
+                    ->filter(fn ($part) => is_string($part))
+                    ->implode('');
+            }
+
+            if (is_string($value) && trim($value) !== '') {
+                return $value;
+            }
+        }
+
+        Log::error('AI provider returned an empty reply', [
+            'model' => $model,
+            'response' => $json,
+        ]);
+
+        throw new \RuntimeException(__('The AI answered with nothing at all. Free models often use their whole allowance thinking before they reply: open Settings → AI → Agents and raise Max tokens, or try again in a minute.'));
     }
 
     /**
@@ -810,7 +923,7 @@ class AiProductDescriptionService
             }
         }
 
-        throw new \RuntimeException('AI response was not valid JSON.');
+        throw new \RuntimeException(__('The AI replied in a format this page cannot read. Try again; if it keeps happening, the model is not following the agent prompt.'));
     }
 
     protected function findByName(array $items, ?string $name): ?array
